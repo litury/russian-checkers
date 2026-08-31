@@ -21,7 +21,7 @@
 
 ### client
 
-Phaser 3, TypeScript, Vite, Yandex Games SDK. Мы клиент не хостим.
+Phaser 4, TypeScript, Vite, Yandex Games SDK. Мы клиент не хостим.
 
 Владеет:
 
@@ -86,7 +86,7 @@ UI: без текста правил. Подсветка легальных — 
 
 ## Стек
 
-- Клиент: Phaser 3, TypeScript, Vite
+- Клиент: Phaser 4, TypeScript, Vite
 - Правила: TypeScript, без рантайм-зависимостей
 - Деплой: ZIP в Яндекс (CI позже)
 - Next / Node-сервер / БД — нет

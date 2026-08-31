@@ -1,0 +1,15 @@
+export const palette = {
+	background: 0x1a1410,
+	lightSquare: 0xe6d5b8,
+	darkSquare: 0x7a4a28,
+	human: 0xf4efe4,
+	humanStroke: 0x5a4632,
+	bot: 0x2a1c14,
+	botStroke: 0xd9cbb8,
+	kingMark: 0xd4a017,
+	highlight: 0x3cb371,
+	selected: 0xf0c14b,
+	overlay: 0x140e0a,
+	button: 0x7a4a28,
+	text: '#f4efe4',
+} as const;
