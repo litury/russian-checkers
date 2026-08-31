@@ -153,7 +153,8 @@ export function createBoardView(
 					box.y,
 					pieceKey(piece.side, piece.kind),
 				);
-				sprite.setDisplaySize(box.w, box.h);
+				const size = Math.min(box.w, box.h);
+				sprite.setDisplaySize(size, size);
 				sprite.setDepth(4);
 				pieces.push(sprite);
 			}
