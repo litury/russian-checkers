@@ -1,0 +1,1 @@
+export { pickBotMove } from './pickBotMove';
