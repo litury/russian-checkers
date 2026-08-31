@@ -1,9 +1,16 @@
 import type Phaser from 'phaser';
-import { layout, tableSprite } from '@/client/config/layout';
+import { layout, pieceSprites, tableSprite } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
 import { sameSquare } from '@/client/shared/sameSquare';
 import type { IPosition, ISquare } from '@/rules';
 import type { IBoardView } from './IBoardView';
+
+function pieceKey(side: 'white' | 'black', kind: 'man' | 'king'): string {
+	if (kind === 'king') {
+		return side === 'white' ? pieceSprites.kingLight : pieceSprites.kingDark;
+	}
+	return side === 'white' ? pieceSprites.manLight : pieceSprites.manDark;
+}
 
 export function createBoardView(
 	scene: Phaser.Scene,
@@ -18,7 +25,7 @@ export function createBoardView(
 		rect: Phaser.GameObjects.Rectangle;
 	}[] = [];
 	const highlights: Phaser.GameObjects.Rectangle[] = [];
-	const pieces: Phaser.GameObjects.Arc[] = [];
+	const pieces: Phaser.GameObjects.Image[] = [];
 	const grid = scene.add.graphics();
 	grid.setDepth(1);
 	let originX = 0;
@@ -134,7 +141,6 @@ export function createBoardView(
 			highlight.setDepth(3);
 			highlights.push(highlight);
 		}
-		const pieceSize = Math.min(cellW, cellH);
 		for (let row = 0; row < layout.rankCount; row += 1) {
 			for (let col = 0; col < layout.rankCount; col += 1) {
 				const piece = position.squares[row][col];
@@ -142,29 +148,14 @@ export function createBoardView(
 					continue;
 				}
 				const box = cellBox({ row, col });
-				const isHuman = piece.side === 'white';
-				const circle = scene.add.circle(
+				const sprite = scene.add.image(
 					box.x,
 					box.y,
-					pieceSize * layout.pieceRadiusRatio,
-					isHuman ? palette.human : palette.bot,
+					pieceKey(piece.side, piece.kind),
 				);
-				circle.setStrokeStyle(
-					Math.max(2, pieceSize * 0.05),
-					isHuman ? palette.humanStroke : palette.botStroke,
-				);
-				circle.setDepth(4);
-				pieces.push(circle);
-				if (piece.kind === 'king') {
-					const mark = scene.add.circle(
-						box.x,
-						box.y,
-						pieceSize * layout.kingMarkRatio,
-						palette.kingMark,
-					);
-					mark.setDepth(5);
-					pieces.push(mark);
-				}
+				sprite.setDisplaySize(box.w, box.h);
+				sprite.setDepth(4);
+				pieces.push(sprite);
 			}
 		}
 	}

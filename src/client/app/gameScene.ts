@@ -1,8 +1,12 @@
 import Phaser from 'phaser';
-import { tableSprite } from '@/client/config/layout';
+import { pieceSprites, tableSprite } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
 import type { IBoardView } from '@/client/modules/board';
 import { createBoardView } from '@/client/modules/board';
+import kingDarkUrl from '@/client/modules/board/pieces/king_dark.png';
+import kingLightUrl from '@/client/modules/board/pieces/king_light.png';
+import manDarkUrl from '@/client/modules/board/pieces/man_dark.png';
+import manLightUrl from '@/client/modules/board/pieces/man_light.png';
 import tableBgUrl from '@/client/modules/board/tableBg.png';
 import { pickBotMove } from '@/client/modules/bot';
 import { sameSquare } from '@/client/shared/sameSquare';
@@ -29,6 +33,10 @@ export class GameScene extends Phaser.Scene {
 
 	preload(): void {
 		this.load.image(tableSprite.key, tableBgUrl);
+		this.load.image(pieceSprites.manLight, manLightUrl);
+		this.load.image(pieceSprites.manDark, manDarkUrl);
+		this.load.image(pieceSprites.kingLight, kingLightUrl);
+		this.load.image(pieceSprites.kingDark, kingDarkUrl);
 	}
 
 	create(): void {

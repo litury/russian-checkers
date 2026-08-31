@@ -20,3 +20,11 @@ export const tableSprite = {
 	frameW: 768,
 	frameH: 771,
 } as const;
+
+export const pieceSprites = {
+	manLight: 'manLight',
+	manDark: 'manDark',
+	kingLight: 'kingLight',
+	kingDark: 'kingDark',
+	size: 64,
+} as const;
