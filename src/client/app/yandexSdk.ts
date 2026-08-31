@@ -27,6 +27,21 @@ export async function createYandexSdk(): Promise<IYandexSdk> {
 	}
 	try {
 		const raw = await api.init();
+		const pauseListeners: Array<() => void> = [];
+		const resumeListeners: Array<() => void> = [];
+		let paused = false;
+		raw.on?.('game_api_pause', () => {
+			paused = true;
+			for (const callback of pauseListeners) {
+				callback();
+			}
+		});
+		raw.on?.('game_api_resume', () => {
+			paused = false;
+			for (const callback of resumeListeners) {
+				callback();
+			}
+		});
 		return {
 			isStub: false,
 			ready: () => {
@@ -40,10 +55,13 @@ export async function createYandexSdk(): Promise<IYandexSdk> {
 				raw.adv.showFullscreenAdv({ callbacks: handlers });
 			},
 			onPause: (callback) => {
-				raw.on?.('game_api_pause', callback);
+				pauseListeners.push(callback);
+				if (paused) {
+					callback();
+				}
 			},
 			onResume: (callback) => {
-				raw.on?.('game_api_resume', callback);
+				resumeListeners.push(callback);
 			},
 		};
 	} catch {

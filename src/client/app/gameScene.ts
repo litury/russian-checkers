@@ -178,15 +178,10 @@ export class GameScene extends Phaser.Scene {
 		this.selected = null;
 		this.refresh();
 		this.sdk.showFullscreenAdv({
-			onOpen: () => {
-				this.setPaused(true);
-			},
 			onClose: () => {
-				this.setPaused(false);
 				this.overlay.show(side);
 			},
 			onError: () => {
-				this.setPaused(false);
 				this.overlay.show(side);
 			},
 		});
