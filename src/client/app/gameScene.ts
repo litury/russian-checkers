@@ -1,7 +1,9 @@
 import Phaser from 'phaser';
+import { tableSprite } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
 import type { IBoardView } from '@/client/modules/board';
 import { createBoardView } from '@/client/modules/board';
+import tableBgUrl from '@/client/modules/board/tableBg.png';
 import { pickBotMove } from '@/client/modules/bot';
 import { sameSquare } from '@/client/shared/sameSquare';
 import type { IMove, IPosition, ISquare, Side } from '@/rules';
@@ -23,6 +25,10 @@ export class GameScene extends Phaser.Scene {
 
 	constructor() {
 		super({ key: 'GameScene' });
+	}
+
+	preload(): void {
+		this.load.image(tableSprite.key, tableBgUrl);
 	}
 
 	create(): void {
