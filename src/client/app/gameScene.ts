@@ -1,22 +1,27 @@
 import Phaser from 'phaser';
 import {
-	boardSprite,
 	layout,
 	pieceSprites,
+	pitSprites,
 	tableBgs,
 } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
 import type { IBoardView } from '@/client/modules/board';
 import { createBoardView } from '@/client/modules/board';
-import bg169Url from '@/client/modules/board/bg169_hole.png';
-import bg916Url from '@/client/modules/board/bg916_hole.png';
-import board8Url from '@/client/modules/board/board8.png';
-import moveRingUrl from '@/client/modules/board/move_ring.png';
+import bgDeskUrl from '@/client/modules/board/kit_v2/bg_desk.png';
+import bgPhoneUrl from '@/client/modules/board/kit_v2/bg_phone.png';
+import captureRimUrl from '@/client/modules/board/kit_v2/capture_rim.png';
+import moveRimUrl from '@/client/modules/board/kit_v2/move_rim.png';
+import pit00Url from '@/client/modules/board/kit_v2/pits/pit_00.png';
+import pit03Url from '@/client/modules/board/kit_v2/pits/pit_03.png';
+import pit07Url from '@/client/modules/board/kit_v2/pits/pit_07.png';
+import pit10Url from '@/client/modules/board/kit_v2/pits/pit_10.png';
+import pit11Url from '@/client/modules/board/kit_v2/pits/pit_11.png';
+import selectRimUrl from '@/client/modules/board/kit_v2/select_rim.png';
 import kingDarkUrl from '@/client/modules/board/pieces/king_dark.png';
 import kingLightUrl from '@/client/modules/board/pieces/king_light.png';
 import manDarkUrl from '@/client/modules/board/pieces/man_dark.png';
 import manLightUrl from '@/client/modules/board/pieces/man_light.png';
-import selectRingUrl from '@/client/modules/board/select_ring.png';
 import { pickBotMove } from '@/client/modules/bot';
 import captureUrl from '@/client/modules/sfx/capture.ogg';
 import {
@@ -50,15 +55,20 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	preload(): void {
-		this.load.image(boardSprite.key, board8Url);
-		this.load.image(tableBgs.portrait.key, bg916Url);
-		this.load.image(tableBgs.landscape.key, bg169Url);
+		this.load.image(tableBgs.portrait.key, bgPhoneUrl);
+		this.load.image(tableBgs.landscape.key, bgDeskUrl);
+		this.load.image(pitSprites.keys[0], pit00Url);
+		this.load.image(pitSprites.keys[1], pit03Url);
+		this.load.image(pitSprites.keys[2], pit07Url);
+		this.load.image(pitSprites.keys[3], pit10Url);
+		this.load.image(pitSprites.keys[4], pit11Url);
 		this.load.image(pieceSprites.manLight, manLightUrl);
 		this.load.image(pieceSprites.manDark, manDarkUrl);
 		this.load.image(pieceSprites.kingLight, kingLightUrl);
 		this.load.image(pieceSprites.kingDark, kingDarkUrl);
-		this.load.image(pieceSprites.moveRing, moveRingUrl);
-		this.load.image(pieceSprites.selectRing, selectRingUrl);
+		this.load.image(pieceSprites.selectRim, selectRimUrl);
+		this.load.image(pieceSprites.moveRim, moveRimUrl);
+		this.load.image(pieceSprites.captureRim, captureRimUrl);
 		preloadTableSfx(this, {
 			select: selectUrl,
 			move: moveUrl,

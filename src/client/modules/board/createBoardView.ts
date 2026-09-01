@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
 import {
-	boardSprite,
 	layout,
 	pieceSprites,
+	pitSprites,
 	tableBgs,
 } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
@@ -65,25 +65,24 @@ export function createBoardView(
 	onSquare: (square: ISquare) => void,
 ): IBoardView {
 	for (const key of [
-		boardSprite.key,
 		tableBgs.portrait.key,
 		tableBgs.landscape.key,
+		...pitSprites.keys,
+		pieceSprites.selectRim,
+		pieceSprites.moveRim,
+		pieceSprites.captureRim,
 	]) {
 		scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
 	}
-	const board = scene.add.image(0, 0, boardSprite.key);
-	board.setOrigin(0, 0);
-	board.setDepth(0);
 	const frame = scene.add.image(0, 0, tableBgs.portrait.key);
 	frame.setOrigin(0, 0);
-	frame.setDepth(10);
+	frame.setDepth(0);
 	frame.disableInteractive();
-	const selectRing = scene.add.image(0, 0, pieceSprites.selectRing);
-	selectRing.setOrigin(0.5);
-	selectRing.setDepth(3);
-	selectRing.setAlpha(0);
-	selectRing.setVisible(false);
-	selectRing.setTint(palette.selectedFill);
+	const selectRim = scene.add.image(0, 0, pieceSprites.selectRim);
+	selectRim.setOrigin(0.5);
+	selectRim.setDepth(3);
+	selectRim.setAlpha(0);
+	selectRim.setVisible(false);
 	const squares: {
 		row: number;
 		col: number;
@@ -113,6 +112,23 @@ export function createBoardView(
 				onSquare({ row, col });
 			});
 			squares.push({ row, col, rect });
+		}
+	}
+
+	const pits: { square: ISquare; sprite: Phaser.GameObjects.Image }[] = [];
+	let pitCycle = 0;
+	for (let visRow = 0; visRow < layout.rankCount; visRow += 1) {
+		for (let col = 0; col < layout.rankCount; col += 1) {
+			if ((visRow + col) % 2 !== 1) {
+				continue;
+			}
+			const row = layout.rankCount - 1 - visRow;
+			const key = pitSprites.keys[pitCycle % pitSprites.keys.length];
+			pitCycle += 1;
+			const sprite = scene.add.image(0, 0, key);
+			sprite.setOrigin(0.5);
+			sprite.setDepth(1);
+			pits.push({ square: { row, col }, sprite });
 		}
 	}
 
@@ -165,33 +181,31 @@ export function createBoardView(
 		}
 	}
 
-	function hideSelectRing(): void {
-		scene.tweens.killTweensOf(selectRing);
-		selectRing.setAlpha(0);
-		selectRing.setVisible(false);
+	function hideSelectRim(): void {
+		scene.tweens.killTweensOf(selectRim);
+		selectRim.setAlpha(0);
+		selectRim.setVisible(false);
 	}
 
-	function placeSelectRing(view: PieceView): void {
+	function placeSelectRim(view: PieceView): void {
 		const box = cellBox(view.square);
-		const size = view.baseScale * pieceSprites.size;
-		selectRing.setPosition(box.x, box.y);
-		selectRing.setDisplaySize(size, size);
-		selectRing.setDepth(3);
-		selectRing.setTint(palette.selectedFill);
-		selectRing.setVisible(true);
+		selectRim.setPosition(box.x, box.y);
+		selectRim.setDisplaySize(box.w, box.h);
+		selectRim.setDepth(3);
+		selectRim.setVisible(true);
 	}
 
-	function breatheSelectRing(): void {
-		scene.tweens.killTweensOf(selectRing);
-		selectRing.setAlpha(0);
+	function breatheSelectRim(): void {
+		scene.tweens.killTweensOf(selectRim);
+		selectRim.setAlpha(0);
 		scene.tweens.add({
-			targets: selectRing,
+			targets: selectRim,
 			alpha: layout.markerBreathMax,
 			duration: layout.markerFadeMs,
 			ease: 'Sine.easeOut',
 			onComplete: () => {
 				scene.tweens.add({
-					targets: selectRing,
+					targets: selectRim,
 					alpha: layout.markerBreathMin,
 					duration: layout.markerBreathMs,
 					ease: 'Sine.easeInOut',
@@ -231,7 +245,7 @@ export function createBoardView(
 		view.shadow.setAlpha(0);
 		if (pulsing === view) {
 			pulsing = null;
-			hideSelectRing();
+			hideSelectRim();
 		}
 	}
 
@@ -320,9 +334,9 @@ export function createBoardView(
 		}
 		pulsing = view;
 		view.sprite.setDepth(5);
-		placeSelectRing(view);
+		placeSelectRim(view);
 		if (!already) {
-			breatheSelectRing();
+			breatheSelectRim();
 			view.shadow.setVisible(true);
 			view.shadow.setAlpha(0);
 			scene.tweens.killTweensOf(view.shadow);
@@ -410,17 +424,15 @@ export function createBoardView(
 		});
 	}
 
-	function addMoveRing(square: ISquare, tint: number): void {
+	function addMoveRim(square: ISquare, texture: string): void {
 		const box = cellBox(square);
-		const size = Math.min(box.w, box.h);
-		const ring = scene.add.image(box.x, box.y, pieceSprites.moveRing);
-		ring.setOrigin(0.5);
-		ring.setDisplaySize(size, size);
-		ring.setDepth(3);
-		ring.setAlpha(0);
-		ring.setTint(tint);
-		breatheMarker(ring);
-		markers.push(ring);
+		const rim = scene.add.image(box.x, box.y, texture);
+		rim.setOrigin(0.5);
+		rim.setDisplaySize(box.w, box.h);
+		rim.setDepth(3);
+		rim.setAlpha(0);
+		breatheMarker(rim);
+		markers.push(rim);
 	}
 
 	function drawMarkers(
@@ -430,19 +442,19 @@ export function createBoardView(
 	): void {
 		clearMarkers();
 		const painted = new Set<string>();
-		const paint = (square: ISquare, tint: number): void => {
+		const paint = (square: ISquare, texture: string): void => {
 			const key = squareKey(square);
 			if (painted.has(key)) {
 				return;
 			}
 			painted.add(key);
-			addMoveRing(square, tint);
+			addMoveRim(square, texture);
 		};
 		for (const square of destinations) {
 			if (selected && sameSquare(square, selected)) {
 				continue;
 			}
-			paint(square, palette.quietFill);
+			paint(square, pieceSprites.moveRim);
 		}
 		if (!selected) {
 			return;
@@ -454,50 +466,33 @@ export function createBoardView(
 			for (const between of squaresAlong(selected, dest)) {
 				const occupant = position.squares[between.row]?.[between.col];
 				if (occupant) {
-					paint(between, palette.captureFill);
+					paint(between, pieceSprites.captureRim);
 				}
 			}
 		}
 	}
 
-	function worldScale(
-		viewW: number,
-		viewH: number,
-		bg: (typeof tableBgs)['portrait'] | (typeof tableBgs)['landscape'],
-	): number {
-		const pad = layout.framePadPx;
-		const availW = Math.max(1, viewW - pad * 2);
-		const availH = Math.max(1, viewH - pad * 2);
-		const hole = Math.min(bg.holeW, bg.holeH);
-		const fit = Math.min(availW / bg.holeW, availH / bg.holeH);
-		const minScale = (layout.minCellPx * layout.rankCount) / hole;
-		return Math.max(fit, minScale);
-	}
-
 	function layoutBoard(width: number, height: number): void {
 		const bg = height > width ? tableBgs.portrait : tableBgs.landscape;
-		const scale = worldScale(width, height, bg);
+		const fieldSize = Math.min(width, height);
 		if (frame.texture.key !== bg.key) {
 			frame.setTexture(bg.key);
 		}
-		const imageX = Math.round((width - bg.width * scale) / 2);
-		const imageY = Math.round((height - bg.height * scale) / 2);
-		frame.setPosition(imageX, imageY);
-		frame.setDisplaySize(
-			Math.round(bg.width * scale),
-			Math.round(bg.height * scale),
+		originX = height > width ? 0 : Math.round((width - fieldSize) / 2);
+		originY = height > width ? Math.round((height - fieldSize) / 2) : 0;
+		const scale = fieldSize / bg.fieldW;
+		frame.setScale(scale);
+		frame.setPosition(
+			Math.round(originX - bg.fieldX * scale),
+			Math.round(originY - bg.fieldY * scale),
 		);
-		const scaleX = frame.displayWidth / bg.width;
-		const scaleY = frame.displayHeight / bg.height;
-		originX = Math.round(imageX + bg.holeX * scaleX);
-		originY = Math.round(imageY + bg.holeY * scaleY);
-		board.setPosition(originX, originY);
-		board.setDisplaySize(
-			Math.round(bg.holeW * scaleX),
-			Math.round(bg.holeH * scaleY),
-		);
-		cellW = board.displayWidth / layout.rankCount;
-		cellH = board.displayHeight / layout.rankCount;
+		cellW = fieldSize / layout.rankCount;
+		cellH = fieldSize / layout.rankCount;
+		for (const pit of pits) {
+			const box = cellBox(pit.square);
+			pit.sprite.setPosition(box.x, box.y);
+			pit.sprite.setDisplaySize(box.w, box.h);
+		}
 		for (const square of squares) {
 			const box = cellBox(square);
 			square.rect.setPosition(box.x, box.y);
@@ -507,9 +502,9 @@ export function createBoardView(
 			placePiece(view, pulsing === view);
 		}
 		if (pulsing) {
-			placeSelectRing(pulsing);
+			placeSelectRim(pulsing);
 		} else {
-			hideSelectRing();
+			hideSelectRim();
 		}
 		drawGrid();
 	}
@@ -614,7 +609,7 @@ export function createBoardView(
 		clearMarkers();
 		stopPulse(view);
 		stopPulse(pulsing);
-		hideSelectRing();
+		hideSelectRim();
 		clearDeny(view);
 		view.shadow.setAlpha(0);
 		view.shadow.setVisible(false);
