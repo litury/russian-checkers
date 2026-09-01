@@ -57,9 +57,12 @@ function mixRgb(from: number, to: number, t: number): number {
 type PieceView = {
 	square: ISquare;
 	sprite: Phaser.GameObjects.Image;
+	outline: Phaser.GameObjects.Image;
 	shadow: Phaser.GameObjects.Ellipse;
 	baseScale: number;
 };
+
+const lidStroke = 0x141210;
 
 export function createBoardView(
 	scene: Phaser.Scene,
@@ -215,6 +218,21 @@ export function createBoardView(
 
 	function liftPx(): number {
 		return 6;
+	}
+
+	function syncOutline(view: PieceView): void {
+		const sprite = view.sprite;
+		const outline = view.outline;
+		if (outline.texture.key !== sprite.texture.key) {
+			outline.setTexture(sprite.texture.key);
+		}
+		outline.setOrigin(sprite.originX, sprite.originY);
+		outline.setPosition(sprite.x, sprite.y);
+		outline.setDisplaySize(sprite.displayWidth + 2, sprite.displayHeight + 2);
+		outline.setDepth(sprite.depth - 0.05);
+		outline.setVisible(sprite.visible);
+		outline.setAlpha(sprite.alpha);
+		outline.setTint(lidStroke);
 	}
 
 	function pressDip(): number {
@@ -454,6 +472,7 @@ export function createBoardView(
 		view.sprite.setScale(view.baseScale);
 		view.sprite.setPosition(box.x, box.y);
 		view.sprite.setDepth(4);
+		syncOutline(view);
 		view.shadow.setVisible(false);
 		view.shadow.setAlpha(0);
 		if (pulsing === view) {
@@ -489,12 +508,14 @@ export function createBoardView(
 		}
 		view.sprite.setDepth(selected ? 5 : 4);
 		placeShadow(view, selected);
+		syncOutline(view);
 	}
 
 	function destroyView(view: PieceView): void {
 		clearDeny(view);
 		stopPulse(view);
 		view.sprite.destroy();
+		view.outline.destroy();
 		view.shadow.destroy();
 	}
 
@@ -513,6 +534,7 @@ export function createBoardView(
 			onUpdate: () => {
 				stickFlame(view);
 				followEmitters(view);
+				syncOutline(view);
 			},
 		});
 	}
@@ -535,6 +557,9 @@ export function createBoardView(
 			duration: layout.pressMs,
 			ease: 'Sine.easeInOut',
 			yoyo: true,
+			onUpdate: () => {
+				syncOutline(view);
+			},
 			onComplete: () => {
 				view.sprite.setScale(view.baseScale);
 				view.sprite.setPosition(box.x, box.y);
@@ -575,6 +600,7 @@ export function createBoardView(
 		if (already && pressView !== view) {
 			view.sprite.setPosition(box.x, box.y - liftPx());
 			view.sprite.setScale(view.baseScale);
+			syncOutline(view);
 			placeFxAt(box.x, box.y, box.w, box.h);
 			playFireLoop();
 			return;
@@ -604,18 +630,22 @@ export function createBoardView(
 				let view = pieceViews.get(key);
 				const texture = pieceKey(piece.side, piece.kind);
 				if (!view) {
+					const outline = scene.add.image(0, 0, texture);
+					outline.setTint(lidStroke);
+					outline.setDepth(3.95);
 					const sprite = scene.add.image(0, 0, texture);
 					sprite.setDepth(4);
 					const shadow = scene.add.ellipse(0, 0, 8, 8, 0x000000, 1);
 					shadow.setDepth(3);
 					shadow.setAlpha(0);
 					shadow.setVisible(false);
-					view = { square, sprite, shadow, baseScale: 1 };
+					view = { square, sprite, outline, shadow, baseScale: 1 };
 					pieceViews.set(key, view);
 				} else {
 					view.square = square;
 					if (view.sprite.texture.key !== texture) {
 						view.sprite.setTexture(texture);
+						view.outline.setTexture(texture);
 					}
 				}
 				placePiece(view, Boolean(selected && sameSquare(square, selected)));
@@ -890,6 +920,7 @@ export function createBoardView(
 						view.sprite.setScale(view.baseScale);
 						stickFlame(view);
 						followEmitters(view);
+						syncOutline(view);
 					},
 					onComplete: () => {
 						view.sprite.setPosition(box.x, box.y);
@@ -939,6 +970,12 @@ export function createBoardView(
 		};
 		step(0);
 	}
+
+	scene.events.on('update', () => {
+		for (const view of pieceViews.values()) {
+			syncOutline(view);
+		}
+	});
 
 	return {
 		sync,
