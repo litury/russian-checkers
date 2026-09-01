@@ -205,36 +205,17 @@ export function createBoardView(
 		stopPulse(view);
 		pulsing = view;
 		view.sprite.setDepth(5);
+		view.sprite.setPosition(box.x, box.y);
+		view.sprite.setScale(view.baseScale);
 		placeSelectRing(view);
 		breatheSelectRing();
-		view.sprite.setPosition(box.x, box.y);
 		view.shadow.setVisible(true);
 		view.shadow.setAlpha(0);
 		scene.tweens.add({
-			targets: view.sprite,
-			scaleX: view.baseScale * layout.pressScale,
-			scaleY: view.baseScale * layout.pressScale,
-			duration: layout.pressMs,
+			targets: view.shadow,
+			alpha: layout.shadowAlpha,
+			duration: layout.selectMs,
 			ease: 'Sine.easeOut',
-			onComplete: () => {
-				if (pulsing !== view) {
-					return;
-				}
-				view.sprite.setY(box.y);
-				scene.tweens.add({
-					targets: view.sprite,
-					scaleX: view.baseScale,
-					scaleY: view.baseScale,
-					duration: layout.selectMs,
-					ease: 'Sine.easeOut',
-				});
-				scene.tweens.add({
-					targets: view.shadow,
-					alpha: layout.shadowAlpha,
-					duration: layout.selectMs,
-					ease: 'Sine.easeOut',
-				});
-			},
 		});
 	}
 
@@ -390,6 +371,7 @@ export function createBoardView(
 			scaleY: view.baseScale * layout.pressScale,
 			duration: layout.pressMs,
 			ease: 'Sine.easeOut',
+			yoyo: true,
 		});
 	}
 
