@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
 import {
-	boardSprite,
 	layout,
 	pieceSprites,
+	pitSprites,
 	tableBgs,
 } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
@@ -65,18 +65,15 @@ export function createBoardView(
 	onSquare: (square: ISquare) => void,
 ): IBoardView {
 	for (const key of [
-		boardSprite.key,
 		tableBgs.portrait.key,
 		tableBgs.landscape.key,
+		...pitSprites.keys,
 	]) {
 		scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
 	}
-	const board = scene.add.image(0, 0, boardSprite.key);
-	board.setOrigin(0, 0);
-	board.setDepth(0);
 	const frame = scene.add.image(0, 0, tableBgs.portrait.key);
 	frame.setOrigin(0, 0);
-	frame.setDepth(10);
+	frame.setDepth(0);
 	frame.disableInteractive();
 	const selectRing = scene.add.image(0, 0, pieceSprites.selectRing);
 	selectRing.setOrigin(0.5);
@@ -113,6 +110,23 @@ export function createBoardView(
 				onSquare({ row, col });
 			});
 			squares.push({ row, col, rect });
+		}
+	}
+
+	const pits: { square: ISquare; sprite: Phaser.GameObjects.Image }[] = [];
+	let pitCycle = 0;
+	for (let visRow = 0; visRow < layout.rankCount; visRow += 1) {
+		for (let col = 0; col < layout.rankCount; col += 1) {
+			if ((visRow + col) % 2 !== 1) {
+				continue;
+			}
+			const row = layout.rankCount - 1 - visRow;
+			const key = pitSprites.keys[pitCycle % pitSprites.keys.length];
+			pitCycle += 1;
+			const sprite = scene.add.image(0, 0, key);
+			sprite.setOrigin(0.5);
+			sprite.setDepth(1);
+			pits.push({ square: { row, col }, sprite });
 		}
 	}
 
@@ -460,44 +474,27 @@ export function createBoardView(
 		}
 	}
 
-	function worldScale(
-		viewW: number,
-		viewH: number,
-		bg: (typeof tableBgs)['portrait'] | (typeof tableBgs)['landscape'],
-	): number {
-		const pad = layout.framePadPx;
-		const availW = Math.max(1, viewW - pad * 2);
-		const availH = Math.max(1, viewH - pad * 2);
-		const hole = Math.min(bg.holeW, bg.holeH);
-		const fit = Math.min(availW / bg.holeW, availH / bg.holeH);
-		const minScale = (layout.minCellPx * layout.rankCount) / hole;
-		return Math.max(fit, minScale);
-	}
-
 	function layoutBoard(width: number, height: number): void {
 		const bg = height > width ? tableBgs.portrait : tableBgs.landscape;
-		const scale = worldScale(width, height, bg);
+		const fieldSize = Math.min(width, height);
 		if (frame.texture.key !== bg.key) {
 			frame.setTexture(bg.key);
 		}
-		const imageX = Math.round((width - bg.width * scale) / 2);
-		const imageY = Math.round((height - bg.height * scale) / 2);
-		frame.setPosition(imageX, imageY);
-		frame.setDisplaySize(
-			Math.round(bg.width * scale),
-			Math.round(bg.height * scale),
+		originX = height > width ? 0 : Math.round((width - fieldSize) / 2);
+		originY = height > width ? Math.round((height - fieldSize) / 2) : 0;
+		const scale = fieldSize / bg.fieldW;
+		frame.setScale(scale);
+		frame.setPosition(
+			Math.round(originX - bg.fieldX * scale),
+			Math.round(originY - bg.fieldY * scale),
 		);
-		const scaleX = frame.displayWidth / bg.width;
-		const scaleY = frame.displayHeight / bg.height;
-		originX = Math.round(imageX + bg.holeX * scaleX);
-		originY = Math.round(imageY + bg.holeY * scaleY);
-		board.setPosition(originX, originY);
-		board.setDisplaySize(
-			Math.round(bg.holeW * scaleX),
-			Math.round(bg.holeH * scaleY),
-		);
-		cellW = board.displayWidth / layout.rankCount;
-		cellH = board.displayHeight / layout.rankCount;
+		cellW = fieldSize / layout.rankCount;
+		cellH = fieldSize / layout.rankCount;
+		for (const pit of pits) {
+			const box = cellBox(pit.square);
+			pit.sprite.setPosition(box.x, box.y);
+			pit.sprite.setDisplaySize(box.w, box.h);
+		}
 		for (const square of squares) {
 			const box = cellBox(square);
 			square.rect.setPosition(box.x, box.y);
