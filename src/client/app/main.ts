@@ -8,6 +8,7 @@ async function boot(): Promise<void> {
 	new Phaser.Game({
 		type: Phaser.AUTO,
 		pixelArt: true,
+		roundPixels: true,
 		parent: 'game',
 		backgroundColor: palette.background,
 		scale: {

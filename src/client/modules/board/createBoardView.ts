@@ -1,9 +1,18 @@
-import type Phaser from 'phaser';
-import { layout, pieceSprites, tableSprite } from '@/client/config/layout';
+import Phaser from 'phaser';
+import {
+	boardSprite,
+	layout,
+	pieceSprites,
+	tableBgs,
+} from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
 import { sameSquare } from '@/client/shared/sameSquare';
-import type { IPosition, ISquare } from '@/rules';
+import type { IMove, IPosition, ISquare } from '@/rules';
 import type { IBoardView } from './IBoardView';
+
+function squareKey(square: ISquare): string {
+	return `${square.row},${square.col}`;
+}
 
 function pieceKey(side: 'white' | 'black', kind: 'man' | 'king'): string {
 	if (kind === 'king') {
@@ -12,26 +21,87 @@ function pieceKey(side: 'white' | 'black', kind: 'man' | 'king'): string {
 	return side === 'white' ? pieceSprites.manLight : pieceSprites.manDark;
 }
 
+function isJump(from: ISquare, to: ISquare): boolean {
+	return Math.abs(to.row - from.row) > 1;
+}
+
+function squaresAlong(from: ISquare, to: ISquare): ISquare[] {
+	const rowDelta = to.row - from.row;
+	const colDelta = to.col - from.col;
+	const steps = Math.abs(rowDelta);
+	if (steps === 0 || steps !== Math.abs(colDelta)) {
+		return [];
+	}
+	const dirRow = Math.sign(rowDelta);
+	const dirCol = Math.sign(colDelta);
+	const between: ISquare[] = [];
+	for (let i = 1; i < steps; i += 1) {
+		between.push({ row: from.row + dirRow * i, col: from.col + dirCol * i });
+	}
+	return between;
+}
+
+function mixRgb(from: number, to: number, t: number): number {
+	const clamped = Math.min(1, Math.max(0, t));
+	const r = Math.round(
+		((from >> 16) & 255) * (1 - clamped) + ((to >> 16) & 255) * clamped,
+	);
+	const g = Math.round(
+		((from >> 8) & 255) * (1 - clamped) + ((to >> 8) & 255) * clamped,
+	);
+	const b = Math.round((from & 255) * (1 - clamped) + (to & 255) * clamped);
+	return (r << 16) | (g << 8) | b;
+}
+
+type PieceView = {
+	square: ISquare;
+	sprite: Phaser.GameObjects.Image;
+	shadow: Phaser.GameObjects.Ellipse;
+	baseScale: number;
+};
+
 export function createBoardView(
 	scene: Phaser.Scene,
 	onSquare: (square: ISquare) => void,
 ): IBoardView {
-	const table = scene.add.image(0, 0, tableSprite.key);
-	table.setOrigin(0, 0);
-	table.setDepth(0);
+	for (const key of [
+		boardSprite.key,
+		tableBgs.portrait.key,
+		tableBgs.landscape.key,
+	]) {
+		scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
+	}
+	const board = scene.add.image(0, 0, boardSprite.key);
+	board.setOrigin(0, 0);
+	board.setDepth(0);
+	const frame = scene.add.image(0, 0, tableBgs.portrait.key);
+	frame.setOrigin(0, 0);
+	frame.setDepth(10);
+	frame.disableInteractive();
+	const selectRing = scene.add.image(0, 0, pieceSprites.selectRing);
+	selectRing.setOrigin(0.5);
+	selectRing.setDepth(3);
+	selectRing.setAlpha(0);
+	selectRing.setVisible(false);
+	selectRing.setTint(palette.selectedFill);
 	const squares: {
 		row: number;
 		col: number;
 		rect: Phaser.GameObjects.Rectangle;
 	}[] = [];
-	const highlights: Phaser.GameObjects.Rectangle[] = [];
-	const pieces: Phaser.GameObjects.Image[] = [];
+	const markers: Phaser.GameObjects.Image[] = [];
+	const pieceViews = new Map<string, PieceView>();
 	const grid = scene.add.graphics();
 	grid.setDepth(1);
 	let originX = 0;
 	let originY = 0;
 	let cellW = 0;
 	let cellH = 0;
+	let moving = false;
+	let pulsing: PieceView | null = null;
+	let pressView: PieceView | null = null;
+	let pressTween: Phaser.Tweens.Tween | null = null;
+	let denyTween: Phaser.Tweens.Tween | null = null;
 
 	for (let row = 0; row < layout.rankCount; row += 1) {
 		for (let col = 0; col < layout.rankCount; col += 1) {
@@ -39,6 +109,7 @@ export function createBoardView(
 			rect.setDepth(2);
 			rect.setInteractive();
 			rect.on('pointerdown', () => {
+				press({ row, col });
 				onSquare({ row, col });
 			});
 			squares.push({ row, col, rect });
@@ -64,11 +135,20 @@ export function createBoardView(
 		};
 	}
 
-	function clear(objects: Phaser.GameObjects.GameObject[]): void {
-		for (const object of objects) {
-			object.destroy();
+	function liftPx(): number {
+		return Math.round(Math.min(cellW, cellH) * layout.liftRatio);
+	}
+
+	function pressDip(): number {
+		return Math.round(Math.min(cellW, cellH) * layout.pressDipRatio);
+	}
+
+	function clearMarkers(): void {
+		for (const marker of markers) {
+			scene.tweens.killTweensOf(marker);
+			marker.destroy();
 		}
-		objects.length = 0;
+		markers.length = 0;
 	}
 
 	function drawGrid(): void {
@@ -85,32 +165,351 @@ export function createBoardView(
 		}
 	}
 
+	function hideSelectRing(): void {
+		scene.tweens.killTweensOf(selectRing);
+		selectRing.setAlpha(0);
+		selectRing.setVisible(false);
+	}
+
+	function placeSelectRing(view: PieceView): void {
+		const box = cellBox(view.square);
+		const size = view.baseScale * pieceSprites.size;
+		selectRing.setPosition(box.x, box.y);
+		selectRing.setDisplaySize(size, size);
+		selectRing.setDepth(3);
+		selectRing.setTint(palette.selectedFill);
+		selectRing.setVisible(true);
+	}
+
+	function breatheSelectRing(): void {
+		scene.tweens.killTweensOf(selectRing);
+		selectRing.setAlpha(0);
+		scene.tweens.add({
+			targets: selectRing,
+			alpha: layout.markerBreathMax,
+			duration: layout.markerFadeMs,
+			ease: 'Sine.easeOut',
+			onComplete: () => {
+				scene.tweens.add({
+					targets: selectRing,
+					alpha: layout.markerBreathMin,
+					duration: layout.markerBreathMs,
+					ease: 'Sine.easeInOut',
+					yoyo: true,
+					repeat: -1,
+				});
+			},
+		});
+	}
+
+	function clearDeny(view?: PieceView): void {
+		if (denyTween) {
+			denyTween.stop();
+			denyTween = null;
+		}
+		if (view) {
+			view.sprite.clearTint();
+		}
+	}
+
+	function stopPulse(view: PieceView | null): void {
+		if (!view) {
+			return;
+		}
+		if (pressView === view) {
+			pressTween?.stop();
+			pressTween = null;
+			pressView = null;
+		}
+		scene.tweens.killTweensOf(view.sprite);
+		scene.tweens.killTweensOf(view.shadow);
+		const box = cellBox(view.square);
+		view.sprite.setScale(view.baseScale);
+		view.sprite.setPosition(box.x, box.y);
+		view.sprite.setDepth(4);
+		view.shadow.setVisible(false);
+		view.shadow.setAlpha(0);
+		if (pulsing === view) {
+			pulsing = null;
+			hideSelectRing();
+		}
+	}
+
+	function placeShadow(view: PieceView, selected: boolean): void {
+		const box = cellBox(view.square);
+		const cell = Math.min(box.w, box.h);
+		view.shadow.setPosition(box.x, box.y + cell * 0.12);
+		view.shadow.setSize(box.w * 0.62, box.h * 0.22);
+		view.shadow.setDepth(3);
+		view.shadow.setVisible(selected);
+		view.shadow.setAlpha(selected ? layout.shadowAlpha : 0);
+	}
+
+	function placePiece(view: PieceView, selected: boolean): void {
+		const box = cellBox(view.square);
+		const size = Math.min(box.w, box.h);
+		view.baseScale = size / pieceSprites.size;
+		const busy = pressView === view || pulsing === view;
+		if (!busy) {
+			view.sprite.setPosition(box.x, box.y);
+			view.sprite.setScale(view.baseScale);
+		} else if (pulsing === view && pressView !== view) {
+			view.sprite.setPosition(box.x, box.y - liftPx());
+			view.sprite.setScale(view.baseScale);
+		}
+		view.sprite.setDepth(selected ? 5 : 4);
+		placeShadow(view, selected);
+	}
+
+	function destroyView(view: PieceView): void {
+		clearDeny(view);
+		stopPulse(view);
+		view.sprite.destroy();
+		view.shadow.destroy();
+	}
+
+	function liftPiece(view: PieceView): void {
+		if (pulsing !== view || moving) {
+			return;
+		}
+		const box = cellBox(view.square);
+		scene.tweens.add({
+			targets: view.sprite,
+			y: box.y - liftPx(),
+			scaleX: view.baseScale,
+			scaleY: view.baseScale,
+			duration: layout.selectMs,
+			ease: 'Sine.easeOut',
+		});
+	}
+
+	function runPress(view: PieceView, onIdle?: () => void): void {
+		const box = cellBox(view.square);
+		if (pressView && pressView !== view) {
+			pressTween?.stop();
+		}
+		scene.tweens.killTweensOf(view.sprite);
+		clearDeny(view);
+		view.sprite.clearTint();
+		view.sprite.setScale(view.baseScale);
+		view.sprite.setPosition(box.x, box.y);
+		pressView = view;
+		pressTween = scene.tweens.add({
+			targets: view.sprite,
+			scaleY: view.baseScale * layout.pressScaleY,
+			y: box.y + pressDip(),
+			duration: layout.pressMs,
+			ease: 'Sine.easeInOut',
+			yoyo: true,
+			onComplete: () => {
+				view.sprite.setScale(view.baseScale);
+				view.sprite.setPosition(box.x, box.y);
+				pressTween = null;
+				if (pressView === view) {
+					pressView = null;
+				}
+				onIdle?.();
+			},
+		});
+	}
+
+	function startPulse(view: PieceView): void {
+		const already = pulsing === view;
+		if (pulsing && pulsing !== view) {
+			stopPulse(pulsing);
+		}
+		pulsing = view;
+		view.sprite.setDepth(5);
+		placeSelectRing(view);
+		if (!already) {
+			breatheSelectRing();
+			view.shadow.setVisible(true);
+			view.shadow.setAlpha(0);
+			scene.tweens.killTweensOf(view.shadow);
+			scene.tweens.add({
+				targets: view.shadow,
+				alpha: layout.shadowAlpha,
+				duration: layout.selectMs,
+				ease: 'Sine.easeOut',
+			});
+		} else {
+			placeShadow(view, true);
+		}
+		if (already && pressView !== view) {
+			const box = cellBox(view.square);
+			view.sprite.setPosition(box.x, box.y - liftPx());
+			view.sprite.setScale(view.baseScale);
+			return;
+		}
+		if (pressView === view && pressTween) {
+			pressTween.once('complete', () => {
+				liftPiece(view);
+			});
+			return;
+		}
+		runPress(view, () => {
+			liftPiece(view);
+		});
+	}
+
+	function reconcile(position: IPosition, selected: ISquare | null): void {
+		const seen = new Set<string>();
+		for (let row = 0; row < layout.rankCount; row += 1) {
+			for (let col = 0; col < layout.rankCount; col += 1) {
+				const piece = position.squares[row][col];
+				if (!piece) {
+					continue;
+				}
+				const square = { row, col };
+				const key = squareKey(square);
+				seen.add(key);
+				let view = pieceViews.get(key);
+				const texture = pieceKey(piece.side, piece.kind);
+				if (!view) {
+					const sprite = scene.add.image(0, 0, texture);
+					sprite.setDepth(4);
+					const shadow = scene.add.ellipse(0, 0, 8, 8, 0x000000, 1);
+					shadow.setDepth(3);
+					shadow.setAlpha(0);
+					shadow.setVisible(false);
+					view = { square, sprite, shadow, baseScale: 1 };
+					pieceViews.set(key, view);
+				} else {
+					view.square = square;
+					if (view.sprite.texture.key !== texture) {
+						view.sprite.setTexture(texture);
+					}
+				}
+				placePiece(view, Boolean(selected && sameSquare(square, selected)));
+			}
+		}
+		for (const [key, view] of pieceViews) {
+			if (!seen.has(key)) {
+				destroyView(view);
+				pieceViews.delete(key);
+			}
+		}
+	}
+
+	function breatheMarker(ring: Phaser.GameObjects.Image): void {
+		scene.tweens.add({
+			targets: ring,
+			alpha: layout.markerBreathMax,
+			duration: layout.markerFadeMs,
+			ease: 'Sine.easeOut',
+			onComplete: () => {
+				scene.tweens.add({
+					targets: ring,
+					alpha: layout.markerBreathMin,
+					duration: layout.markerBreathMs,
+					ease: 'Sine.easeInOut',
+					yoyo: true,
+					repeat: -1,
+				});
+			},
+		});
+	}
+
+	function addMoveRing(square: ISquare, tint: number): void {
+		const box = cellBox(square);
+		const size = Math.min(box.w, box.h);
+		const ring = scene.add.image(box.x, box.y, pieceSprites.moveRing);
+		ring.setOrigin(0.5);
+		ring.setDisplaySize(size, size);
+		ring.setDepth(3);
+		ring.setAlpha(0);
+		ring.setTint(tint);
+		breatheMarker(ring);
+		markers.push(ring);
+	}
+
+	function drawMarkers(
+		position: IPosition,
+		destinations: ISquare[],
+		selected: ISquare | null,
+	): void {
+		clearMarkers();
+		const painted = new Set<string>();
+		const paint = (square: ISquare, tint: number): void => {
+			const key = squareKey(square);
+			if (painted.has(key)) {
+				return;
+			}
+			painted.add(key);
+			addMoveRing(square, tint);
+		};
+		for (const square of destinations) {
+			if (selected && sameSquare(square, selected)) {
+				continue;
+			}
+			paint(square, palette.quietFill);
+		}
+		if (!selected) {
+			return;
+		}
+		for (const dest of destinations) {
+			if (!isJump(selected, dest)) {
+				continue;
+			}
+			for (const between of squaresAlong(selected, dest)) {
+				const occupant = position.squares[between.row]?.[between.col];
+				if (occupant) {
+					paint(between, palette.captureFill);
+				}
+			}
+		}
+	}
+
+	function worldScale(
+		viewW: number,
+		viewH: number,
+		bg: (typeof tableBgs)['portrait'] | (typeof tableBgs)['landscape'],
+	): number {
+		const pad = layout.framePadPx;
+		const availW = Math.max(1, viewW - pad * 2);
+		const availH = Math.max(1, viewH - pad * 2);
+		const hole = Math.min(bg.holeW, bg.holeH);
+		const fit = Math.min(availW / bg.holeW, availH / bg.holeH);
+		const minScale = (layout.minCellPx * layout.rankCount) / hole;
+		return Math.max(fit, minScale);
+	}
+
 	function layoutBoard(width: number, height: number): void {
-		const top = layout.statusHeight;
-		const availH = Math.max(1, height - top);
-		const scale =
-			width < availH ? width / tableSprite.frameW : availH / tableSprite.frameH;
-		const frameScreenW = tableSprite.frameW * scale;
-		const frameScreenH = tableSprite.frameH * scale;
-		const frameScreenX = (width - frameScreenW) / 2;
-		const frameScreenY = top + (availH - frameScreenH) / 2;
-		const imageX = Math.round(frameScreenX - tableSprite.frameX * scale);
-		const imageY = Math.round(frameScreenY - tableSprite.frameY * scale);
-		table.setPosition(imageX, imageY);
-		table.setDisplaySize(
-			Math.round(tableSprite.width * scale),
-			Math.round(tableSprite.height * scale),
+		const bg = height > width ? tableBgs.portrait : tableBgs.landscape;
+		const scale = worldScale(width, height, bg);
+		if (frame.texture.key !== bg.key) {
+			frame.setTexture(bg.key);
+		}
+		const imageX = Math.round((width - bg.width * scale) / 2);
+		const imageY = Math.round((height - bg.height * scale) / 2);
+		frame.setPosition(imageX, imageY);
+		frame.setDisplaySize(
+			Math.round(bg.width * scale),
+			Math.round(bg.height * scale),
 		);
-		const scaleX = table.displayWidth / tableSprite.width;
-		const scaleY = table.displayHeight / tableSprite.height;
-		originX = imageX + tableSprite.boardX * scaleX;
-		originY = imageY + tableSprite.boardY * scaleY;
-		cellW = (tableSprite.boardW * scaleX) / layout.rankCount;
-		cellH = (tableSprite.boardH * scaleY) / layout.rankCount;
+		const scaleX = frame.displayWidth / bg.width;
+		const scaleY = frame.displayHeight / bg.height;
+		originX = Math.round(imageX + bg.holeX * scaleX);
+		originY = Math.round(imageY + bg.holeY * scaleY);
+		board.setPosition(originX, originY);
+		board.setDisplaySize(
+			Math.round(bg.holeW * scaleX),
+			Math.round(bg.holeH * scaleY),
+		);
+		cellW = board.displayWidth / layout.rankCount;
+		cellH = board.displayHeight / layout.rankCount;
 		for (const square of squares) {
 			const box = cellBox(square);
 			square.rect.setPosition(box.x, box.y);
 			square.rect.setDisplaySize(box.w, box.h);
+		}
+		for (const view of pieceViews.values()) {
+			placePiece(view, pulsing === view);
+		}
+		if (pulsing) {
+			placeSelectRing(pulsing);
+		} else {
+			hideSelectRing();
 		}
 		drawGrid();
 	}
@@ -120,51 +519,160 @@ export function createBoardView(
 		destinations: ISquare[],
 		selected: ISquare | null,
 	): void {
-		clear(highlights);
-		clear(pieces);
-		const marked = [...destinations];
+		if (moving) {
+			return;
+		}
+		const next = selected ? pieceViews.get(squareKey(selected)) : null;
+		if (pulsing && pulsing !== next) {
+			stopPulse(pulsing);
+		}
+		reconcile(position, selected);
+		drawMarkers(position, destinations, selected);
 		if (selected) {
-			marked.push(selected);
-		}
-		for (const square of marked) {
-			const box = cellBox(square);
-			const color =
-				selected && sameSquare(square, selected)
-					? palette.selected
-					: palette.highlight;
-			const highlight = scene.add.rectangle(
-				box.x,
-				box.y,
-				box.w,
-				box.h,
-				color,
-				layout.highlightAlpha,
-			);
-			highlight.setDepth(3);
-			highlights.push(highlight);
-		}
-		for (let row = 0; row < layout.rankCount; row += 1) {
-			for (let col = 0; col < layout.rankCount; col += 1) {
-				const piece = position.squares[row][col];
-				if (!piece) {
-					continue;
-				}
-				const box = cellBox({ row, col });
-				const sprite = scene.add.image(
-					box.x,
-					box.y,
-					pieceKey(piece.side, piece.kind),
-				);
-				const size = Math.min(box.w, box.h);
-				sprite.setDisplaySize(size, size);
-				sprite.setDepth(4);
-				pieces.push(sprite);
+			const view = pieceViews.get(squareKey(selected));
+			if (view) {
+				startPulse(view);
 			}
+		} else {
+			stopPulse(pulsing);
 		}
+	}
+
+	function press(square: ISquare): void {
+		if (moving) {
+			return;
+		}
+		const view = pieceViews.get(squareKey(square));
+		if (!view) {
+			return;
+		}
+		runPress(view);
+	}
+
+	function deny(square: ISquare): void {
+		if (moving) {
+			return;
+		}
+		const view = pieceViews.get(squareKey(square));
+		if (!view) {
+			return;
+		}
+		const box = cellBox(square);
+		if (pressView === view) {
+			pressTween?.stop();
+			pressTween = null;
+			pressView = null;
+		}
+		scene.tweens.killTweensOf(view.sprite);
+		clearDeny(view);
+		view.sprite.setScale(view.baseScale);
+		view.sprite.setPosition(box.x, box.y);
+		view.sprite.setTint(palette.denyFill);
+		scene.tweens.add({
+			targets: view.sprite,
+			x: box.x + 5,
+			duration: 45,
+			ease: 'Sine.easeInOut',
+			yoyo: true,
+			repeat: 2,
+			onComplete: () => {
+				view.sprite.setPosition(box.x, box.y);
+				view.sprite.setScale(view.baseScale);
+			},
+		});
+		const fade = { t: 0 };
+		denyTween = scene.tweens.add({
+			targets: fade,
+			t: 1,
+			delay: 60,
+			duration: 240,
+			ease: 'Sine.easeOut',
+			onUpdate: () => {
+				view.sprite.setTint(mixRgb(palette.denyFill, 0xffffff, fade.t));
+			},
+			onComplete: () => {
+				view.sprite.clearTint();
+				denyTween = null;
+			},
+		});
+	}
+
+	function playMove(
+		move: IMove,
+		onDone: () => void,
+		onLand?: (took: boolean) => void,
+	): void {
+		if (moving) {
+			return;
+		}
+		const view = pieceViews.get(squareKey(move.from));
+		if (!view) {
+			onDone();
+			return;
+		}
+		moving = true;
+		clearMarkers();
+		stopPulse(view);
+		stopPulse(pulsing);
+		hideSelectRing();
+		clearDeny(view);
+		view.shadow.setAlpha(0);
+		view.shadow.setVisible(false);
+		view.sprite.clearTint();
+		view.sprite.setScale(view.baseScale);
+		view.sprite.setDepth(6);
+		pieceViews.delete(squareKey(move.from));
+		const hops = move.path;
+		let from = move.from;
+		const finish = (): void => {
+			const land = hops[hops.length - 1] ?? move.from;
+			view.square = land;
+			pieceViews.set(squareKey(land), view);
+			placePiece(view, false);
+			moving = false;
+			onDone();
+		};
+		const step = (index: number): void => {
+			if (index >= hops.length) {
+				finish();
+				return;
+			}
+			const land = hops[index];
+			const box = cellBox(land);
+			const capture = isJump(from, land);
+			scene.tweens.add({
+				targets: view.sprite,
+				x: box.x,
+				y: box.y,
+				scaleX: view.baseScale,
+				scaleY: view.baseScale,
+				duration: layout.moveMs,
+				ease: 'Sine.easeInOut',
+				onComplete: () => {
+					if (capture) {
+						for (const between of squaresAlong(from, land)) {
+							const taken = pieceViews.get(squareKey(between));
+							if (taken) {
+								taken.sprite.setVisible(false);
+								taken.shadow.setVisible(false);
+								taken.shadow.setAlpha(0);
+							}
+						}
+					}
+					onLand?.(capture);
+					from = land;
+					step(index + 1);
+				},
+			});
+		};
+		step(0);
 	}
 
 	return {
 		sync,
 		layout: layoutBoard,
+		press,
+		deny,
+		playMove,
 	};
 }
