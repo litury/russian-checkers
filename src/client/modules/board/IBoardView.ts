@@ -8,6 +8,7 @@ export interface IBoardView {
 	) => void;
 	layout: (width: number, height: number) => void;
 	press: (square: ISquare) => void;
+	deny: (square: ISquare) => void;
 	playMove: (
 		move: IMove,
 		onDone: () => void,

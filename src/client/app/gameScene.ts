@@ -157,8 +157,13 @@ export class GameScene extends Phaser.Scene {
 			this.refresh();
 			return;
 		}
+		const piece = this.position.squares[square.row][square.col];
+		const denied = Boolean(piece && piece.side === this.position.turn);
 		this.selected = null;
 		this.refresh();
+		if (denied) {
+			this.board.deny(square);
+		}
 	}
 
 	private animateMove(move: IMove, after: () => void): void {
