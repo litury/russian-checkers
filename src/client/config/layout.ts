@@ -40,4 +40,5 @@ export const pieceSprites = {
 	kingDark: 'kingDark',
 	size: 64,
 	moveRing: 'moveRing',
+	selectRing: 'selectRing',
 } as const;

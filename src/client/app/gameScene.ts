@@ -8,6 +8,7 @@ import kingDarkUrl from '@/client/modules/board/pieces/king_dark.png';
 import kingLightUrl from '@/client/modules/board/pieces/king_light.png';
 import manDarkUrl from '@/client/modules/board/pieces/man_dark.png';
 import manLightUrl from '@/client/modules/board/pieces/man_light.png';
+import selectRingUrl from '@/client/modules/board/select_ring.png';
 import tableBgUrl from '@/client/modules/board/tableBg.png';
 import { pickBotMove } from '@/client/modules/bot';
 import captureUrl from '@/client/modules/sfx/capture.ogg';
@@ -48,6 +49,7 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(pieceSprites.kingLight, kingLightUrl);
 		this.load.image(pieceSprites.kingDark, kingDarkUrl);
 		this.load.image(pieceSprites.moveRing, moveRingUrl);
+		this.load.image(pieceSprites.selectRing, selectRingUrl);
 		preloadTableSfx(this, {
 			select: selectUrl,
 			move: moveUrl,

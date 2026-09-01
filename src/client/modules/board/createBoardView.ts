@@ -50,6 +50,10 @@ export function createBoardView(
 	const table = scene.add.image(0, 0, tableSprite.key);
 	table.setOrigin(0, 0);
 	table.setDepth(0);
+	const selectRing = scene.add.image(0, 0, pieceSprites.selectRing);
+	selectRing.setOrigin(0.5);
+	selectRing.setDepth(3);
+	selectRing.setVisible(false);
 	const squares: {
 		row: number;
 		col: number;
@@ -120,6 +124,19 @@ export function createBoardView(
 		}
 	}
 
+	function hideSelectRing(): void {
+		selectRing.setVisible(false);
+	}
+
+	function placeSelectRing(square: ISquare): void {
+		const box = cellBox(square);
+		const size = Math.min(box.w, box.h);
+		selectRing.setPosition(box.x, box.y);
+		selectRing.setDisplaySize(size, size);
+		selectRing.setDepth(3);
+		selectRing.setVisible(true);
+	}
+
 	function stopPulse(view: PieceView | null): void {
 		if (!view) {
 			return;
@@ -128,6 +145,7 @@ export function createBoardView(
 		scene.tweens.killTweensOf(view.shadow);
 		if (pulsing === view) {
 			pulsing = null;
+			hideSelectRing();
 		}
 	}
 
@@ -165,6 +183,7 @@ export function createBoardView(
 		stopPulse(view);
 		pulsing = view;
 		view.sprite.setDepth(5);
+		placeSelectRing(view.square);
 		view.sprite.setPosition(box.x, box.y);
 		view.shadow.setVisible(true);
 		view.shadow.setAlpha(0);
@@ -315,6 +334,11 @@ export function createBoardView(
 		for (const view of pieceViews.values()) {
 			placePiece(view, false);
 		}
+		if (pulsing) {
+			placeSelectRing(pulsing.square);
+		} else {
+			hideSelectRing();
+		}
 		drawGrid();
 	}
 
@@ -377,6 +401,7 @@ export function createBoardView(
 		clearMarkers();
 		stopPulse(view);
 		stopPulse(pulsing);
+		hideSelectRing();
 		view.shadow.setAlpha(0);
 		view.shadow.setVisible(false);
 		view.sprite.setScale(view.baseScale);
