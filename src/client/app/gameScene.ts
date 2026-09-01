@@ -9,6 +9,13 @@ import manDarkUrl from '@/client/modules/board/pieces/man_dark.png';
 import manLightUrl from '@/client/modules/board/pieces/man_light.png';
 import tableBgUrl from '@/client/modules/board/tableBg.png';
 import { pickBotMove } from '@/client/modules/bot';
+import captureUrl from '@/client/modules/sfx/capture.wav';
+import {
+	createTableSfx,
+	preloadTableSfx,
+} from '@/client/modules/sfx/createTableSfx';
+import moveUrl from '@/client/modules/sfx/move.wav';
+import selectUrl from '@/client/modules/sfx/select.wav';
 import { sameSquare } from '@/client/shared/sameSquare';
 import type { IMove, IPosition, ISquare, Side } from '@/rules';
 import { apply, createInitialPosition, legalMoves, winner } from '@/rules';
@@ -19,11 +26,13 @@ export class GameScene extends Phaser.Scene {
 	private board!: IBoardView;
 	private overlay!: { show: (side: Side) => void; hide: () => void };
 	private sdk!: IYandexSdk;
+	private sfx!: { play: (kind: 'select' | 'move' | 'capture') => void };
 	private position: IPosition = createInitialPosition();
 	private selected: ISquare | null = null;
 	private phase: 'human' | 'bot' | 'over' = 'human';
 	private paused = false;
 	private pendingBot = false;
+	private moving = false;
 	private status!: Phaser.GameObjects.Text;
 	private botTimer?: Phaser.Time.TimerEvent;
 
@@ -37,11 +46,17 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(pieceSprites.manDark, manDarkUrl);
 		this.load.image(pieceSprites.kingLight, kingLightUrl);
 		this.load.image(pieceSprites.kingDark, kingDarkUrl);
+		preloadTableSfx(this, {
+			select: selectUrl,
+			move: moveUrl,
+			capture: captureUrl,
+		});
 	}
 
 	create(): void {
 		this.sdk = this.registry.get('sdk') as IYandexSdk;
 		this.cameras.main.setBackgroundColor(palette.background);
+		this.sfx = createTableSfx(this);
 		this.status = this.add
 			.text(0, 18, '', {
 				fontFamily: 'Arial, sans-serif',
@@ -72,6 +87,8 @@ export class GameScene extends Phaser.Scene {
 
 	private startMatch(): void {
 		this.botTimer?.remove(false);
+		this.tweens.killAll();
+		this.moving = false;
 		this.position = createInitialPosition();
 		this.selected = null;
 		this.phase = 'human';
@@ -114,7 +131,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private onSquare(square: ISquare): void {
-		if (this.paused || this.phase !== 'human') {
+		if (this.paused || this.moving || this.phase !== 'human') {
 			return;
 		}
 		const moves = legalMoves(this.position);
@@ -132,6 +149,7 @@ export class GameScene extends Phaser.Scene {
 		}
 		if (moves.some((move) => sameSquare(move.from, square))) {
 			this.selected = square;
+			this.sfx.play('select');
 			this.refresh();
 			return;
 		}
@@ -139,23 +157,46 @@ export class GameScene extends Phaser.Scene {
 		this.refresh();
 	}
 
-	private playHuman(move: IMove): void {
-		const next = apply(this.position, move);
-		if (!next) {
-			return;
+	private hopsAreCaptures(move: IMove): boolean {
+		let from = move.from;
+		for (const land of move.path) {
+			if (Math.abs(land.row - from.row) > 1) {
+				return true;
+			}
+			from = land;
 		}
-		this.position = next;
+		return false;
+	}
+
+	private animateMove(move: IMove, after: () => void): void {
+		this.moving = true;
 		this.selected = null;
-		const side = winner(this.position);
-		if (side) {
-			this.endMatch(side);
-			return;
-		}
-		this.phase = 'bot';
-		this.refresh();
-		this.botTimer?.remove(false);
-		this.botTimer = this.time.delayedCall(400, () => {
-			this.playBot();
+		this.board.sync(this.position, [], null);
+		this.sfx.play(this.hopsAreCaptures(move) ? 'capture' : 'move');
+		this.board.playMove(move, () => {
+			this.moving = false;
+			after();
+		});
+	}
+
+	private playHuman(move: IMove): void {
+		this.animateMove(move, () => {
+			const next = apply(this.position, move);
+			if (!next) {
+				return;
+			}
+			this.position = next;
+			const side = winner(this.position);
+			if (side) {
+				this.endMatch(side);
+				return;
+			}
+			this.phase = 'bot';
+			this.refresh();
+			this.botTimer?.remove(false);
+			this.botTimer = this.time.delayedCall(400, () => {
+				this.playBot();
+			});
 		});
 	}
 
@@ -164,7 +205,7 @@ export class GameScene extends Phaser.Scene {
 			this.pendingBot = true;
 			return;
 		}
-		if (this.phase !== 'bot') {
+		if (this.phase !== 'bot' || this.moving) {
 			return;
 		}
 		this.pendingBot = false;
@@ -173,19 +214,21 @@ export class GameScene extends Phaser.Scene {
 			this.endMatch(winner(this.position) ?? 'white');
 			return;
 		}
-		const next = apply(this.position, move);
-		if (!next) {
-			this.endMatch(winner(this.position) ?? 'white');
-			return;
-		}
-		this.position = next;
-		const side = winner(this.position);
-		if (side) {
-			this.endMatch(side);
-			return;
-		}
-		this.phase = 'human';
-		this.refresh();
+		this.animateMove(move, () => {
+			const next = apply(this.position, move);
+			if (!next) {
+				this.endMatch(winner(this.position) ?? 'white');
+				return;
+			}
+			this.position = next;
+			const side = winner(this.position);
+			if (side) {
+				this.endMatch(side);
+				return;
+			}
+			this.phase = 'human';
+			this.refresh();
+		});
 	}
 
 	private endMatch(side: Side): void {
@@ -205,6 +248,11 @@ export class GameScene extends Phaser.Scene {
 	private setPaused(paused: boolean): void {
 		this.paused = paused;
 		this.sound.mute = paused;
+		if (paused) {
+			this.tweens.pauseAll();
+		} else {
+			this.tweens.resumeAll();
+		}
 		if (!paused && this.pendingBot) {
 			this.playBot();
 		}

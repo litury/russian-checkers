@@ -2,8 +2,12 @@ import type Phaser from 'phaser';
 import { layout, pieceSprites, tableSprite } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
 import { sameSquare } from '@/client/shared/sameSquare';
-import type { IPosition, ISquare } from '@/rules';
+import type { IMove, IPosition, ISquare } from '@/rules';
 import type { IBoardView } from './IBoardView';
+
+function squareKey(square: ISquare): string {
+	return `${square.row},${square.col}`;
+}
 
 function pieceKey(side: 'white' | 'black', kind: 'man' | 'king'): string {
 	if (kind === 'king') {
@@ -11,6 +15,32 @@ function pieceKey(side: 'white' | 'black', kind: 'man' | 'king'): string {
 	}
 	return side === 'white' ? pieceSprites.manLight : pieceSprites.manDark;
 }
+
+function isJump(from: ISquare, to: ISquare): boolean {
+	return Math.abs(to.row - from.row) > 1;
+}
+
+function squaresAlong(from: ISquare, to: ISquare): ISquare[] {
+	const rowDelta = to.row - from.row;
+	const colDelta = to.col - from.col;
+	const steps = Math.abs(rowDelta);
+	if (steps === 0 || steps !== Math.abs(colDelta)) {
+		return [];
+	}
+	const dirRow = Math.sign(rowDelta);
+	const dirCol = Math.sign(colDelta);
+	const between: ISquare[] = [];
+	for (let i = 1; i < steps; i += 1) {
+		between.push({ row: from.row + dirRow * i, col: from.col + dirCol * i });
+	}
+	return between;
+}
+
+type PieceView = {
+	square: ISquare;
+	sprite: Phaser.GameObjects.Image;
+	baseScale: number;
+};
 
 export function createBoardView(
 	scene: Phaser.Scene,
@@ -24,14 +54,15 @@ export function createBoardView(
 		col: number;
 		rect: Phaser.GameObjects.Rectangle;
 	}[] = [];
-	const highlights: Phaser.GameObjects.Rectangle[] = [];
-	const pieces: Phaser.GameObjects.Image[] = [];
+	const markers: Phaser.GameObjects.Arc[] = [];
+	const pieceViews = new Map<string, PieceView>();
 	const grid = scene.add.graphics();
 	grid.setDepth(1);
 	let originX = 0;
 	let originY = 0;
 	let cellW = 0;
 	let cellH = 0;
+	let moving = false;
 
 	for (let row = 0; row < layout.rankCount; row += 1) {
 		for (let col = 0; col < layout.rankCount; col += 1) {
@@ -39,6 +70,7 @@ export function createBoardView(
 			rect.setDepth(2);
 			rect.setInteractive();
 			rect.on('pointerdown', () => {
+				press({ row, col });
 				onSquare({ row, col });
 			});
 			squares.push({ row, col, rect });
@@ -64,11 +96,15 @@ export function createBoardView(
 		};
 	}
 
-	function clear(objects: Phaser.GameObjects.GameObject[]): void {
-		for (const object of objects) {
-			object.destroy();
+	function liftPx(): number {
+		return Math.round(Math.min(cellW, cellH) * layout.liftRatio);
+	}
+
+	function clearMarkers(): void {
+		for (const marker of markers) {
+			marker.destroy();
 		}
-		objects.length = 0;
+		markers.length = 0;
 	}
 
 	function drawGrid(): void {
@@ -82,6 +118,83 @@ export function createBoardView(
 			const y = originY + i * cellH;
 			grid.lineBetween(originX, y, originX + cellW * layout.rankCount, y);
 			grid.lineBetween(x, originY, x, originY + cellH * layout.rankCount);
+		}
+	}
+
+	function placePiece(view: PieceView, selected: boolean): void {
+		const box = cellBox(view.square);
+		const size = Math.min(box.w, box.h);
+		view.baseScale = size / pieceSprites.size;
+		view.sprite.setPosition(box.x, box.y - (selected ? liftPx() : 0));
+		view.sprite.setScale(view.baseScale);
+		view.sprite.setDepth(selected ? 5 : 4);
+	}
+
+	function reconcile(position: IPosition, selected: ISquare | null): void {
+		const seen = new Set<string>();
+		for (let row = 0; row < layout.rankCount; row += 1) {
+			for (let col = 0; col < layout.rankCount; col += 1) {
+				const piece = position.squares[row][col];
+				if (!piece) {
+					continue;
+				}
+				const square = { row, col };
+				const key = squareKey(square);
+				seen.add(key);
+				let view = pieceViews.get(key);
+				const texture = pieceKey(piece.side, piece.kind);
+				if (!view) {
+					const sprite = scene.add.image(0, 0, texture);
+					sprite.setDepth(4);
+					view = { square, sprite, baseScale: 1 };
+					pieceViews.set(key, view);
+				} else {
+					view.square = square;
+					if (view.sprite.texture.key !== texture) {
+						view.sprite.setTexture(texture);
+					}
+				}
+				placePiece(view, Boolean(selected && sameSquare(square, selected)));
+			}
+		}
+		for (const [key, view] of pieceViews) {
+			if (!seen.has(key)) {
+				view.sprite.destroy();
+				pieceViews.delete(key);
+			}
+		}
+	}
+
+	function drawMarkers(
+		destinations: ISquare[],
+		selected: ISquare | null,
+	): void {
+		clearMarkers();
+		for (const square of destinations) {
+			if (selected && sameSquare(square, selected)) {
+				continue;
+			}
+			const box = cellBox(square);
+			const occupied = pieceViews.has(squareKey(square));
+			const radius = Math.max(3, Math.min(box.w, box.h) * layout.markerRatio);
+			if (occupied) {
+				const ring = scene.add.circle(box.x, box.y, radius * 1.35);
+				ring.setStrokeStyle(2, palette.selected, 0.95);
+				ring.setFillStyle(palette.selected, 0);
+				ring.setDepth(3);
+				markers.push(ring);
+			} else {
+				const dot = scene.add.circle(
+					box.x,
+					box.y,
+					radius,
+					palette.highlight,
+					0.95,
+				);
+				dot.setStrokeStyle(1, palette.markerStroke, 0.9);
+				dot.setDepth(3);
+				markers.push(dot);
+			}
 		}
 	}
 
@@ -112,6 +225,9 @@ export function createBoardView(
 			square.rect.setPosition(box.x, box.y);
 			square.rect.setDisplaySize(box.w, box.h);
 		}
+		for (const view of pieceViews.values()) {
+			placePiece(view, false);
+		}
 		drawGrid();
 	}
 
@@ -120,51 +236,117 @@ export function createBoardView(
 		destinations: ISquare[],
 		selected: ISquare | null,
 	): void {
-		clear(highlights);
-		clear(pieces);
-		const marked = [...destinations];
+		if (moving) {
+			return;
+		}
+		reconcile(position, selected);
+		drawMarkers(destinations, selected);
 		if (selected) {
-			marked.push(selected);
-		}
-		for (const square of marked) {
-			const box = cellBox(square);
-			const color =
-				selected && sameSquare(square, selected)
-					? palette.selected
-					: palette.highlight;
-			const highlight = scene.add.rectangle(
-				box.x,
-				box.y,
-				box.w,
-				box.h,
-				color,
-				layout.highlightAlpha,
-			);
-			highlight.setDepth(3);
-			highlights.push(highlight);
-		}
-		for (let row = 0; row < layout.rankCount; row += 1) {
-			for (let col = 0; col < layout.rankCount; col += 1) {
-				const piece = position.squares[row][col];
-				if (!piece) {
-					continue;
-				}
-				const box = cellBox({ row, col });
-				const sprite = scene.add.image(
-					box.x,
-					box.y,
-					pieceKey(piece.side, piece.kind),
-				);
-				const size = Math.min(box.w, box.h);
-				sprite.setDisplaySize(size, size);
-				sprite.setDepth(4);
-				pieces.push(sprite);
+			const view = pieceViews.get(squareKey(selected));
+			if (view) {
+				const box = cellBox(selected);
+				scene.tweens.killTweensOf(view.sprite);
+				view.sprite.setDepth(5);
+				scene.tweens.add({
+					targets: view.sprite,
+					scaleX: view.baseScale * layout.pressScale,
+					scaleY: view.baseScale * layout.pressScale,
+					duration: layout.pressMs,
+					ease: 'Sine.easeOut',
+					onComplete: () => {
+						scene.tweens.add({
+							targets: view.sprite,
+							y: box.y - liftPx(),
+							scaleX: view.baseScale,
+							scaleY: view.baseScale,
+							duration: layout.selectMs,
+							ease: 'Sine.easeOut',
+						});
+					},
+				});
 			}
 		}
+	}
+
+	function press(square: ISquare): void {
+		if (moving) {
+			return;
+		}
+		const view = pieceViews.get(squareKey(square));
+		if (!view) {
+			return;
+		}
+		scene.tweens.killTweensOf(view.sprite);
+		scene.tweens.add({
+			targets: view.sprite,
+			scaleX: view.baseScale * layout.pressScale,
+			scaleY: view.baseScale * layout.pressScale,
+			duration: layout.pressMs,
+			ease: 'Sine.easeOut',
+		});
+	}
+
+	function playMove(move: IMove, onDone: () => void): void {
+		if (moving) {
+			return;
+		}
+		const view = pieceViews.get(squareKey(move.from));
+		if (!view) {
+			onDone();
+			return;
+		}
+		moving = true;
+		clearMarkers();
+		scene.tweens.killTweensOf(view.sprite);
+		view.sprite.setDepth(6);
+		pieceViews.delete(squareKey(move.from));
+		const hops = move.path;
+		let from = move.from;
+		const finish = (): void => {
+			const land = hops[hops.length - 1] ?? move.from;
+			view.square = land;
+			pieceViews.set(squareKey(land), view);
+			placePiece(view, false);
+			moving = false;
+			onDone();
+		};
+		const step = (index: number): void => {
+			if (index >= hops.length) {
+				finish();
+				return;
+			}
+			const land = hops[index];
+			const box = cellBox(land);
+			const capture = isJump(from, land);
+			scene.tweens.add({
+				targets: view.sprite,
+				x: box.x,
+				y: box.y,
+				scaleX: view.baseScale,
+				scaleY: view.baseScale,
+				duration: layout.moveMs,
+				ease: 'Sine.easeInOut',
+				onComplete: () => {
+					if (capture) {
+						for (const between of squaresAlong(from, land)) {
+							const taken = pieceViews.get(squareKey(between));
+							if (taken) {
+								taken.sprite.setVisible(false);
+							}
+						}
+					}
+					from = land;
+					step(index + 1);
+				},
+			});
+		};
+		step(0);
 	}
 
 	return {
 		sync,
 		layout: layoutBoard,
+		press,
+		playMove,
 	};
 }

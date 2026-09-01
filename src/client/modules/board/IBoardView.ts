@@ -1,4 +1,4 @@
-import type { IPosition, ISquare } from '@/rules';
+import type { IMove, IPosition, ISquare } from '@/rules';
 
 export interface IBoardView {
 	sync: (
@@ -7,4 +7,6 @@ export interface IBoardView {
 		selected: ISquare | null,
 	) => void;
 	layout: (width: number, height: number) => void;
+	press: (square: ISquare) => void;
+	playMove: (move: IMove, onDone: () => void) => void;
 }

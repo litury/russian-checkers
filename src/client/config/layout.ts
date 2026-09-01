@@ -5,6 +5,12 @@ export const layout = {
 	kingMarkRatio: 0.15,
 	highlightAlpha: 0.38,
 	debugGrid: false,
+	pressScale: 0.95,
+	liftRatio: 0.14,
+	pressMs: 90,
+	selectMs: 180,
+	moveMs: 180,
+	markerRatio: 0.2,
 } as const;
 
 export const tableSprite = {
