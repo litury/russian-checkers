@@ -53,6 +53,7 @@ export function createBoardView(
 	const selectRing = scene.add.image(0, 0, pieceSprites.selectRing);
 	selectRing.setOrigin(0.5);
 	selectRing.setDepth(3);
+	selectRing.setAlpha(0);
 	selectRing.setVisible(false);
 	const squares: {
 		row: number;
@@ -125,16 +126,39 @@ export function createBoardView(
 	}
 
 	function hideSelectRing(): void {
+		scene.tweens.killTweensOf(selectRing);
+		selectRing.setAlpha(0);
 		selectRing.setVisible(false);
 	}
 
-	function placeSelectRing(square: ISquare): void {
-		const box = cellBox(square);
-		const size = Math.min(box.w, box.h);
+	function placeSelectRing(view: PieceView): void {
+		const box = cellBox(view.square);
+		const size = view.baseScale * pieceSprites.size;
 		selectRing.setPosition(box.x, box.y);
 		selectRing.setDisplaySize(size, size);
 		selectRing.setDepth(3);
 		selectRing.setVisible(true);
+	}
+
+	function breatheSelectRing(): void {
+		scene.tweens.killTweensOf(selectRing);
+		selectRing.setAlpha(0);
+		scene.tweens.add({
+			targets: selectRing,
+			alpha: layout.markerBreathMax,
+			duration: layout.markerFadeMs,
+			ease: 'Sine.easeOut',
+			onComplete: () => {
+				scene.tweens.add({
+					targets: selectRing,
+					alpha: layout.markerBreathMin,
+					duration: layout.markerBreathMs,
+					ease: 'Sine.easeInOut',
+					yoyo: true,
+					repeat: -1,
+				});
+			},
+		});
 	}
 
 	function stopPulse(view: PieceView | null): void {
@@ -164,9 +188,7 @@ export function createBoardView(
 		const size = Math.min(box.w, box.h);
 		view.baseScale = size / pieceSprites.size;
 		view.sprite.setPosition(box.x, box.y);
-		view.sprite.setScale(
-			view.baseScale * (selected ? layout.pulseScaleMin : 1),
-		);
+		view.sprite.setScale(view.baseScale);
 		view.sprite.setDepth(selected ? 5 : 4);
 		placeShadow(view, selected);
 	}
@@ -183,7 +205,8 @@ export function createBoardView(
 		stopPulse(view);
 		pulsing = view;
 		view.sprite.setDepth(5);
-		placeSelectRing(view.square);
+		placeSelectRing(view);
+		breatheSelectRing();
 		view.sprite.setPosition(box.x, box.y);
 		view.shadow.setVisible(true);
 		view.shadow.setAlpha(0);
@@ -200,24 +223,10 @@ export function createBoardView(
 				view.sprite.setY(box.y);
 				scene.tweens.add({
 					targets: view.sprite,
-					scaleX: view.baseScale * layout.pulseScaleMin,
-					scaleY: view.baseScale * layout.pulseScaleMin,
+					scaleX: view.baseScale,
+					scaleY: view.baseScale,
 					duration: layout.selectMs,
 					ease: 'Sine.easeOut',
-					onComplete: () => {
-						if (pulsing !== view) {
-							return;
-						}
-						scene.tweens.add({
-							targets: view.sprite,
-							scaleX: view.baseScale * layout.pulseScaleMax,
-							scaleY: view.baseScale * layout.pulseScaleMax,
-							duration: layout.pulseMs,
-							ease: 'Sine.easeInOut',
-							yoyo: true,
-							repeat: -1,
-						});
-					},
 				});
 				scene.tweens.add({
 					targets: view.shadow,
@@ -335,7 +344,7 @@ export function createBoardView(
 			placePiece(view, false);
 		}
 		if (pulsing) {
-			placeSelectRing(pulsing.square);
+			placeSelectRing(pulsing);
 		} else {
 			hideSelectRing();
 		}
