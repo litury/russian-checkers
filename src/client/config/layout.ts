@@ -9,16 +9,16 @@ export const layout = {
 
 export const tableSprite = {
 	key: 'tableBg',
-	width: 1280,
-	height: 1280,
-	boardX: 316,
-	boardY: 328,
-	boardW: 656,
-	boardH: 650,
-	frameX: 259,
-	frameY: 275,
-	frameW: 768,
-	frameH: 771,
+	width: 512,
+	height: 512,
+	boardX: 128,
+	boardY: 128,
+	boardW: 256,
+	boardH: 256,
+	frameX: 96,
+	frameY: 96,
+	frameW: 320,
+	frameH: 320,
 } as const;
 
 export const pieceSprites = {

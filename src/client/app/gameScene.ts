@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { pieceSprites, tableSprite } from '@/client/config/layout';
+import { layout, pieceSprites, tableSprite } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
 import type { IBoardView } from '@/client/modules/board';
 import { createBoardView } from '@/client/modules/board';
@@ -48,7 +48,8 @@ export class GameScene extends Phaser.Scene {
 				fontSize: '20px',
 				color: palette.text,
 			})
-			.setOrigin(0.5, 0);
+			.setOrigin(0.5, 0.5)
+			.setDepth(20);
 		this.board = createBoardView(this, (square) => {
 			this.onSquare(square);
 		});
@@ -80,7 +81,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private layout(width: number, height: number): void {
-		this.status.setPosition(width / 2, 16);
+		this.status.setPosition(width / 2, layout.statusHeight / 2);
 		this.board.layout(width, height);
 		this.refresh();
 	}

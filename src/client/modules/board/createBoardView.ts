@@ -86,12 +86,14 @@ export function createBoardView(
 	}
 
 	function layoutBoard(width: number, height: number): void {
+		const top = layout.statusHeight;
+		const availH = Math.max(1, height - top);
 		const scale =
-			width < height ? width / tableSprite.frameW : height / tableSprite.frameH;
+			width < availH ? width / tableSprite.frameW : availH / tableSprite.frameH;
 		const frameScreenW = tableSprite.frameW * scale;
 		const frameScreenH = tableSprite.frameH * scale;
 		const frameScreenX = (width - frameScreenW) / 2;
-		const frameScreenY = (height - frameScreenH) / 2;
+		const frameScreenY = top + (availH - frameScreenH) / 2;
 		const imageX = Math.round(frameScreenX - tableSprite.frameX * scale);
 		const imageY = Math.round(frameScreenY - tableSprite.frameY * scale);
 		table.setPosition(imageX, imageY);
