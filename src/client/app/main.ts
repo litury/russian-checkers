@@ -7,6 +7,7 @@ async function boot(): Promise<void> {
 	const sdk = await createYandexSdk();
 	new Phaser.Game({
 		type: Phaser.AUTO,
+		pixelArt: true,
 		parent: 'game',
 		backgroundColor: palette.background,
 		scale: {

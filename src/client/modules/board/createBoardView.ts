@@ -1,36 +1,42 @@
 import type Phaser from 'phaser';
-import { layout } from '@/client/config/layout';
+import { layout, pieceSprites, tableSprite } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
 import { sameSquare } from '@/client/shared/sameSquare';
 import type { IPosition, ISquare } from '@/rules';
 import type { IBoardView } from './IBoardView';
 
+function pieceKey(side: 'white' | 'black', kind: 'man' | 'king'): string {
+	if (kind === 'king') {
+		return side === 'white' ? pieceSprites.kingLight : pieceSprites.kingDark;
+	}
+	return side === 'white' ? pieceSprites.manLight : pieceSprites.manDark;
+}
+
 export function createBoardView(
 	scene: Phaser.Scene,
 	onSquare: (square: ISquare) => void,
 ): IBoardView {
+	const table = scene.add.image(0, 0, tableSprite.key);
+	table.setOrigin(0, 0);
+	table.setDepth(0);
 	const squares: {
 		row: number;
 		col: number;
 		rect: Phaser.GameObjects.Rectangle;
 	}[] = [];
 	const highlights: Phaser.GameObjects.Rectangle[] = [];
-	const pieces: Phaser.GameObjects.Arc[] = [];
+	const pieces: Phaser.GameObjects.Image[] = [];
+	const grid = scene.add.graphics();
+	grid.setDepth(1);
 	let originX = 0;
 	let originY = 0;
-	let squareSize = 0;
+	let cellW = 0;
+	let cellH = 0;
 
 	for (let row = 0; row < layout.rankCount; row += 1) {
 		for (let col = 0; col < layout.rankCount; col += 1) {
-			const dark = (row + col) % 2 === 0;
-			const rect = scene.add.rectangle(
-				0,
-				0,
-				8,
-				8,
-				dark ? palette.darkSquare : palette.lightSquare,
-			);
-			rect.setDepth(0);
+			const rect = scene.add.rectangle(0, 0, 8, 8, palette.darkSquare, 0);
+			rect.setDepth(2);
 			rect.setInteractive();
 			rect.on('pointerdown', () => {
 				onSquare({ row, col });
@@ -39,13 +45,22 @@ export function createBoardView(
 		}
 	}
 
-	function squareCenter(square: ISquare): { x: number; y: number } {
+	function cellBox(square: ISquare): {
+		x: number;
+		y: number;
+		w: number;
+		h: number;
+	} {
+		const visRow = layout.rankCount - 1 - square.row;
+		const left = Math.round(originX + square.col * cellW);
+		const right = Math.round(originX + (square.col + 1) * cellW);
+		const top = Math.round(originY + visRow * cellH);
+		const bottom = Math.round(originY + (visRow + 1) * cellH);
 		return {
-			x: originX + square.col * squareSize + squareSize / 2,
-			y:
-				originY +
-				(layout.rankCount - 1 - square.row) * squareSize +
-				squareSize / 2,
+			x: (left + right) / 2,
+			y: (top + bottom) / 2,
+			w: right - left,
+			h: bottom - top,
 		};
 	}
 
@@ -56,17 +71,48 @@ export function createBoardView(
 		objects.length = 0;
 	}
 
-	function layoutBoard(width: number, height: number): void {
-		const availableHeight = Math.max(height - layout.statusHeight, 1);
-		const boardSize = Math.min(width, availableHeight) * 0.92;
-		squareSize = boardSize / layout.rankCount;
-		originX = (width - boardSize) / 2;
-		originY = layout.statusHeight + (availableHeight - boardSize) / 2;
-		for (const square of squares) {
-			const center = squareCenter(square);
-			square.rect.setPosition(center.x, center.y);
-			square.rect.setDisplaySize(squareSize, squareSize);
+	function drawGrid(): void {
+		grid.clear();
+		if (!layout.debugGrid) {
+			return;
 		}
+		grid.lineStyle(1, palette.selected, 0.85);
+		for (let i = 0; i <= layout.rankCount; i += 1) {
+			const x = originX + i * cellW;
+			const y = originY + i * cellH;
+			grid.lineBetween(originX, y, originX + cellW * layout.rankCount, y);
+			grid.lineBetween(x, originY, x, originY + cellH * layout.rankCount);
+		}
+	}
+
+	function layoutBoard(width: number, height: number): void {
+		const top = layout.statusHeight;
+		const availH = Math.max(1, height - top);
+		const scale =
+			width < availH ? width / tableSprite.frameW : availH / tableSprite.frameH;
+		const frameScreenW = tableSprite.frameW * scale;
+		const frameScreenH = tableSprite.frameH * scale;
+		const frameScreenX = (width - frameScreenW) / 2;
+		const frameScreenY = top + (availH - frameScreenH) / 2;
+		const imageX = Math.round(frameScreenX - tableSprite.frameX * scale);
+		const imageY = Math.round(frameScreenY - tableSprite.frameY * scale);
+		table.setPosition(imageX, imageY);
+		table.setDisplaySize(
+			Math.round(tableSprite.width * scale),
+			Math.round(tableSprite.height * scale),
+		);
+		const scaleX = table.displayWidth / tableSprite.width;
+		const scaleY = table.displayHeight / tableSprite.height;
+		originX = imageX + tableSprite.boardX * scaleX;
+		originY = imageY + tableSprite.boardY * scaleY;
+		cellW = (tableSprite.boardW * scaleX) / layout.rankCount;
+		cellH = (tableSprite.boardH * scaleY) / layout.rankCount;
+		for (const square of squares) {
+			const box = cellBox(square);
+			square.rect.setPosition(box.x, box.y);
+			square.rect.setDisplaySize(box.w, box.h);
+		}
+		drawGrid();
 	}
 
 	function sync(
@@ -81,20 +127,20 @@ export function createBoardView(
 			marked.push(selected);
 		}
 		for (const square of marked) {
-			const center = squareCenter(square);
+			const box = cellBox(square);
 			const color =
 				selected && sameSquare(square, selected)
 					? palette.selected
 					: palette.highlight;
 			const highlight = scene.add.rectangle(
-				center.x,
-				center.y,
-				squareSize,
-				squareSize,
+				box.x,
+				box.y,
+				box.w,
+				box.h,
 				color,
 				layout.highlightAlpha,
 			);
-			highlight.setDepth(1);
+			highlight.setDepth(3);
 			highlights.push(highlight);
 		}
 		for (let row = 0; row < layout.rankCount; row += 1) {
@@ -103,30 +149,16 @@ export function createBoardView(
 				if (!piece) {
 					continue;
 				}
-				const center = squareCenter({ row, col });
-				const isHuman = piece.side === 'white';
-				const circle = scene.add.circle(
-					center.x,
-					center.y,
-					squareSize * layout.pieceRadiusRatio,
-					isHuman ? palette.human : palette.bot,
+				const box = cellBox({ row, col });
+				const sprite = scene.add.image(
+					box.x,
+					box.y,
+					pieceKey(piece.side, piece.kind),
 				);
-				circle.setStrokeStyle(
-					Math.max(2, squareSize * 0.05),
-					isHuman ? palette.humanStroke : palette.botStroke,
-				);
-				circle.setDepth(2);
-				pieces.push(circle);
-				if (piece.kind === 'king') {
-					const mark = scene.add.circle(
-						center.x,
-						center.y,
-						squareSize * layout.kingMarkRatio,
-						palette.kingMark,
-					);
-					mark.setDepth(3);
-					pieces.push(mark);
-				}
+				const size = Math.min(box.w, box.h);
+				sprite.setDisplaySize(size, size);
+				sprite.setDepth(4);
+				pieces.push(sprite);
 			}
 		}
 	}

@@ -1,7 +1,13 @@
 import Phaser from 'phaser';
+import { layout, pieceSprites, tableSprite } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
 import type { IBoardView } from '@/client/modules/board';
 import { createBoardView } from '@/client/modules/board';
+import kingDarkUrl from '@/client/modules/board/pieces/king_dark.png';
+import kingLightUrl from '@/client/modules/board/pieces/king_light.png';
+import manDarkUrl from '@/client/modules/board/pieces/man_dark.png';
+import manLightUrl from '@/client/modules/board/pieces/man_light.png';
+import tableBgUrl from '@/client/modules/board/tableBg.png';
 import { pickBotMove } from '@/client/modules/bot';
 import { sameSquare } from '@/client/shared/sameSquare';
 import type { IMove, IPosition, ISquare, Side } from '@/rules';
@@ -25,6 +31,14 @@ export class GameScene extends Phaser.Scene {
 		super({ key: 'GameScene' });
 	}
 
+	preload(): void {
+		this.load.image(tableSprite.key, tableBgUrl);
+		this.load.image(pieceSprites.manLight, manLightUrl);
+		this.load.image(pieceSprites.manDark, manDarkUrl);
+		this.load.image(pieceSprites.kingLight, kingLightUrl);
+		this.load.image(pieceSprites.kingDark, kingDarkUrl);
+	}
+
 	create(): void {
 		this.sdk = this.registry.get('sdk') as IYandexSdk;
 		this.cameras.main.setBackgroundColor(palette.background);
@@ -34,7 +48,8 @@ export class GameScene extends Phaser.Scene {
 				fontSize: '20px',
 				color: palette.text,
 			})
-			.setOrigin(0.5, 0);
+			.setOrigin(0.5, 0.5)
+			.setDepth(20);
 		this.board = createBoardView(this, (square) => {
 			this.onSquare(square);
 		});
@@ -66,7 +81,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private layout(width: number, height: number): void {
-		this.status.setPosition(width / 2, 16);
+		this.status.setPosition(width / 2, layout.statusHeight / 2);
 		this.board.layout(width, height);
 		this.refresh();
 	}
