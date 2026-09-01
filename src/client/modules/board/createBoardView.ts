@@ -39,6 +39,7 @@ function squaresAlong(from: ISquare, to: ISquare): ISquare[] {
 type PieceView = {
 	square: ISquare;
 	sprite: Phaser.GameObjects.Image;
+	shadow: Phaser.GameObjects.Ellipse;
 	baseScale: number;
 };
 
@@ -54,7 +55,7 @@ export function createBoardView(
 		col: number;
 		rect: Phaser.GameObjects.Rectangle;
 	}[] = [];
-	const markers: Phaser.GameObjects.Arc[] = [];
+	const markers: Phaser.GameObjects.Image[] = [];
 	const pieceViews = new Map<string, PieceView>();
 	const grid = scene.add.graphics();
 	grid.setDepth(1);
@@ -96,12 +97,9 @@ export function createBoardView(
 		};
 	}
 
-	function liftPx(): number {
-		return Math.round(Math.min(cellW, cellH) * layout.liftRatio);
-	}
-
 	function clearMarkers(): void {
 		for (const marker of markers) {
+			scene.tweens.killTweensOf(marker);
 			marker.destroy();
 		}
 		markers.length = 0;
@@ -121,13 +119,31 @@ export function createBoardView(
 		}
 	}
 
+	function placeShadow(view: PieceView, selected: boolean): void {
+		const box = cellBox(view.square);
+		const cell = Math.min(box.w, box.h);
+		view.shadow.setPosition(box.x, box.y + cell * 0.12);
+		view.shadow.setSize(box.w * 0.62, box.h * 0.22);
+		view.shadow.setDepth(3);
+		view.shadow.setVisible(selected);
+		view.shadow.setAlpha(selected ? layout.shadowAlpha : 0);
+	}
+
 	function placePiece(view: PieceView, selected: boolean): void {
 		const box = cellBox(view.square);
 		const size = Math.min(box.w, box.h);
 		view.baseScale = size / pieceSprites.size;
-		view.sprite.setPosition(box.x, box.y - (selected ? liftPx() : 0));
-		view.sprite.setScale(view.baseScale);
+		view.sprite.setPosition(box.x, box.y);
+		view.sprite.setScale(view.baseScale * (selected ? layout.selectScale : 1));
 		view.sprite.setDepth(selected ? 5 : 4);
+		placeShadow(view, selected);
+	}
+
+	function destroyView(view: PieceView): void {
+		scene.tweens.killTweensOf(view.sprite);
+		scene.tweens.killTweensOf(view.shadow);
+		view.sprite.destroy();
+		view.shadow.destroy();
 	}
 
 	function reconcile(position: IPosition, selected: ISquare | null): void {
@@ -146,7 +162,11 @@ export function createBoardView(
 				if (!view) {
 					const sprite = scene.add.image(0, 0, texture);
 					sprite.setDepth(4);
-					view = { square, sprite, baseScale: 1 };
+					const shadow = scene.add.ellipse(0, 0, 8, 8, 0x000000, 1);
+					shadow.setDepth(3);
+					shadow.setAlpha(0);
+					shadow.setVisible(false);
+					view = { square, sprite, shadow, baseScale: 1 };
 					pieceViews.set(key, view);
 				} else {
 					view.square = square;
@@ -159,7 +179,7 @@ export function createBoardView(
 		}
 		for (const [key, view] of pieceViews) {
 			if (!seen.has(key)) {
-				view.sprite.destroy();
+				destroyView(view);
 				pieceViews.delete(key);
 			}
 		}
@@ -175,26 +195,19 @@ export function createBoardView(
 				continue;
 			}
 			const box = cellBox(square);
-			const occupied = pieceViews.has(squareKey(square));
-			const radius = Math.max(3, Math.min(box.w, box.h) * layout.markerRatio);
-			if (occupied) {
-				const ring = scene.add.circle(box.x, box.y, radius * 1.35);
-				ring.setStrokeStyle(2, palette.selected, 0.95);
-				ring.setFillStyle(palette.selected, 0);
-				ring.setDepth(3);
-				markers.push(ring);
-			} else {
-				const dot = scene.add.circle(
-					box.x,
-					box.y,
-					radius,
-					palette.highlight,
-					0.95,
-				);
-				dot.setStrokeStyle(1, palette.markerStroke, 0.9);
-				dot.setDepth(3);
-				markers.push(dot);
-			}
+			const size = Math.min(box.w, box.h);
+			const ring = scene.add.image(box.x, box.y, pieceSprites.moveRing);
+			ring.setOrigin(0.5);
+			ring.setDisplaySize(size, size);
+			ring.setDepth(3);
+			ring.setAlpha(0);
+			scene.tweens.add({
+				targets: ring,
+				alpha: 0.85,
+				duration: layout.markerFadeMs,
+				ease: 'Sine.easeOut',
+			});
+			markers.push(ring);
 		}
 	}
 
@@ -246,7 +259,11 @@ export function createBoardView(
 			if (view) {
 				const box = cellBox(selected);
 				scene.tweens.killTweensOf(view.sprite);
+				scene.tweens.killTweensOf(view.shadow);
 				view.sprite.setDepth(5);
+				view.sprite.setPosition(box.x, box.y);
+				view.shadow.setVisible(true);
+				view.shadow.setAlpha(0);
 				scene.tweens.add({
 					targets: view.sprite,
 					scaleX: view.baseScale * layout.pressScale,
@@ -254,11 +271,17 @@ export function createBoardView(
 					duration: layout.pressMs,
 					ease: 'Sine.easeOut',
 					onComplete: () => {
+						view.sprite.setY(box.y);
 						scene.tweens.add({
 							targets: view.sprite,
-							y: box.y - liftPx(),
-							scaleX: view.baseScale,
-							scaleY: view.baseScale,
+							scaleX: view.baseScale * layout.selectScale,
+							scaleY: view.baseScale * layout.selectScale,
+							duration: layout.selectMs,
+							ease: 'Sine.easeOut',
+						});
+						scene.tweens.add({
+							targets: view.shadow,
+							alpha: layout.shadowAlpha,
 							duration: layout.selectMs,
 							ease: 'Sine.easeOut',
 						});
@@ -302,6 +325,10 @@ export function createBoardView(
 		moving = true;
 		clearMarkers();
 		scene.tweens.killTweensOf(view.sprite);
+		scene.tweens.killTweensOf(view.shadow);
+		view.shadow.setAlpha(0);
+		view.shadow.setVisible(false);
+		view.sprite.setScale(view.baseScale);
 		view.sprite.setDepth(6);
 		pieceViews.delete(squareKey(move.from));
 		const hops = move.path;
@@ -336,6 +363,8 @@ export function createBoardView(
 							const taken = pieceViews.get(squareKey(between));
 							if (taken) {
 								taken.sprite.setVisible(false);
+								taken.shadow.setVisible(false);
+								taken.shadow.setAlpha(0);
 							}
 						}
 					}

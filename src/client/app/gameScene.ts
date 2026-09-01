@@ -3,6 +3,7 @@ import { layout, pieceSprites, tableSprite } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
 import type { IBoardView } from '@/client/modules/board';
 import { createBoardView } from '@/client/modules/board';
+import moveRingUrl from '@/client/modules/board/move_ring.png';
 import kingDarkUrl from '@/client/modules/board/pieces/king_dark.png';
 import kingLightUrl from '@/client/modules/board/pieces/king_light.png';
 import manDarkUrl from '@/client/modules/board/pieces/man_dark.png';
@@ -46,6 +47,7 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(pieceSprites.manDark, manDarkUrl);
 		this.load.image(pieceSprites.kingLight, kingLightUrl);
 		this.load.image(pieceSprites.kingDark, kingDarkUrl);
+		this.load.image(pieceSprites.moveRing, moveRingUrl);
 		preloadTableSfx(this, {
 			select: selectUrl,
 			move: moveUrl,

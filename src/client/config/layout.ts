@@ -6,11 +6,12 @@ export const layout = {
 	highlightAlpha: 0.38,
 	debugGrid: false,
 	pressScale: 0.95,
-	liftRatio: 0.14,
 	pressMs: 90,
 	selectMs: 180,
+	selectScale: 1.08,
 	moveMs: 180,
-	markerRatio: 0.2,
+	markerFadeMs: 160,
+	shadowAlpha: 0.35,
 } as const;
 
 export const tableSprite = {
@@ -33,4 +34,5 @@ export const pieceSprites = {
 	kingLight: 'kingLight',
 	kingDark: 'kingDark',
 	size: 64,
+	moveRing: 'moveRing',
 } as const;
