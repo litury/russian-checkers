@@ -21,10 +21,28 @@ export const layout = {
 } as const;
 
 export const fireSprites = {
-	appear: ['fireAppear0', 'fireAppear1'] as const,
-	loop: ['fireLoop0', 'fireLoop1', 'fireLoop2', 'fireLoop3'] as const,
-	out: ['fireOut0', 'fireOut1'] as const,
-	streak: 'fireStreak',
+	flameLoop: [
+		'flameLoop0',
+		'flameLoop1',
+		'flameLoop2',
+		'flameLoop3',
+		'flameLoop4',
+		'flameLoop5',
+		'flameLoop6',
+		'flameLoop7',
+	] as const,
+	flameUp: ['flameUp0', 'flameUp1', 'flameUp2', 'flameUp3'] as const,
+	flameLand: ['flameLand0', 'flameLand1', 'flameLand2', 'flameLand3'] as const,
+	smokeLoop: [
+		'smokeLoop0',
+		'smokeLoop1',
+		'smokeLoop2',
+		'smokeLoop3',
+		'smokeLoop4',
+		'smokeLoop5',
+	] as const,
+	smokeLand: ['smokeLand0', 'smokeLand1', 'smokeLand2', 'smokeLand3'] as const,
+	ember: 'ember',
 } as const;
 
 export const tableBgs = {
