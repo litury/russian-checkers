@@ -8,7 +8,7 @@ export const layout = {
 	pressScaleY: 0.85,
 	pressDipRatio: 0.05,
 	pressMs: 140,
-	liftRatio: 0.12,
+	liftRatio: 0.06,
 	selectMs: 180,
 	moveMs: 180,
 	markerFadeMs: 160,
