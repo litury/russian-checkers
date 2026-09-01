@@ -10,17 +10,18 @@ import type { IBoardView } from '@/client/modules/board';
 import { createBoardView } from '@/client/modules/board';
 import bgDeskUrl from '@/client/modules/board/kit_v2/bg_desk.png';
 import bgPhoneUrl from '@/client/modules/board/kit_v2/bg_phone.png';
+import captureRimUrl from '@/client/modules/board/kit_v2/capture_rim.png';
+import moveRimUrl from '@/client/modules/board/kit_v2/move_rim.png';
 import pit00Url from '@/client/modules/board/kit_v2/pits/pit_00.png';
 import pit03Url from '@/client/modules/board/kit_v2/pits/pit_03.png';
 import pit07Url from '@/client/modules/board/kit_v2/pits/pit_07.png';
 import pit10Url from '@/client/modules/board/kit_v2/pits/pit_10.png';
 import pit11Url from '@/client/modules/board/kit_v2/pits/pit_11.png';
-import moveRingUrl from '@/client/modules/board/move_ring.png';
+import selectRimUrl from '@/client/modules/board/kit_v2/select_rim.png';
 import kingDarkUrl from '@/client/modules/board/pieces/king_dark.png';
 import kingLightUrl from '@/client/modules/board/pieces/king_light.png';
 import manDarkUrl from '@/client/modules/board/pieces/man_dark.png';
 import manLightUrl from '@/client/modules/board/pieces/man_light.png';
-import selectRingUrl from '@/client/modules/board/select_ring.png';
 import { pickBotMove } from '@/client/modules/bot';
 import captureUrl from '@/client/modules/sfx/capture.ogg';
 import {
@@ -65,8 +66,9 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(pieceSprites.manDark, manDarkUrl);
 		this.load.image(pieceSprites.kingLight, kingLightUrl);
 		this.load.image(pieceSprites.kingDark, kingDarkUrl);
-		this.load.image(pieceSprites.moveRing, moveRingUrl);
-		this.load.image(pieceSprites.selectRing, selectRingUrl);
+		this.load.image(pieceSprites.selectRim, selectRimUrl);
+		this.load.image(pieceSprites.moveRim, moveRimUrl);
+		this.load.image(pieceSprites.captureRim, captureRimUrl);
 		preloadTableSfx(this, {
 			select: selectUrl,
 			move: moveUrl,

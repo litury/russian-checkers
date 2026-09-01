@@ -68,6 +68,9 @@ export function createBoardView(
 		tableBgs.portrait.key,
 		tableBgs.landscape.key,
 		...pitSprites.keys,
+		pieceSprites.selectRim,
+		pieceSprites.moveRim,
+		pieceSprites.captureRim,
 	]) {
 		scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
 	}
@@ -75,12 +78,11 @@ export function createBoardView(
 	frame.setOrigin(0, 0);
 	frame.setDepth(0);
 	frame.disableInteractive();
-	const selectRing = scene.add.image(0, 0, pieceSprites.selectRing);
-	selectRing.setOrigin(0.5);
-	selectRing.setDepth(3);
-	selectRing.setAlpha(0);
-	selectRing.setVisible(false);
-	selectRing.setTint(palette.selectedFill);
+	const selectRim = scene.add.image(0, 0, pieceSprites.selectRim);
+	selectRim.setOrigin(0.5);
+	selectRim.setDepth(3);
+	selectRim.setAlpha(0);
+	selectRim.setVisible(false);
 	const squares: {
 		row: number;
 		col: number;
@@ -179,33 +181,31 @@ export function createBoardView(
 		}
 	}
 
-	function hideSelectRing(): void {
-		scene.tweens.killTweensOf(selectRing);
-		selectRing.setAlpha(0);
-		selectRing.setVisible(false);
+	function hideSelectRim(): void {
+		scene.tweens.killTweensOf(selectRim);
+		selectRim.setAlpha(0);
+		selectRim.setVisible(false);
 	}
 
-	function placeSelectRing(view: PieceView): void {
+	function placeSelectRim(view: PieceView): void {
 		const box = cellBox(view.square);
-		const size = view.baseScale * pieceSprites.size;
-		selectRing.setPosition(box.x, box.y);
-		selectRing.setDisplaySize(size, size);
-		selectRing.setDepth(3);
-		selectRing.setTint(palette.selectedFill);
-		selectRing.setVisible(true);
+		selectRim.setPosition(box.x, box.y);
+		selectRim.setDisplaySize(box.w, box.h);
+		selectRim.setDepth(3);
+		selectRim.setVisible(true);
 	}
 
-	function breatheSelectRing(): void {
-		scene.tweens.killTweensOf(selectRing);
-		selectRing.setAlpha(0);
+	function breatheSelectRim(): void {
+		scene.tweens.killTweensOf(selectRim);
+		selectRim.setAlpha(0);
 		scene.tweens.add({
-			targets: selectRing,
+			targets: selectRim,
 			alpha: layout.markerBreathMax,
 			duration: layout.markerFadeMs,
 			ease: 'Sine.easeOut',
 			onComplete: () => {
 				scene.tweens.add({
-					targets: selectRing,
+					targets: selectRim,
 					alpha: layout.markerBreathMin,
 					duration: layout.markerBreathMs,
 					ease: 'Sine.easeInOut',
@@ -245,7 +245,7 @@ export function createBoardView(
 		view.shadow.setAlpha(0);
 		if (pulsing === view) {
 			pulsing = null;
-			hideSelectRing();
+			hideSelectRim();
 		}
 	}
 
@@ -334,9 +334,9 @@ export function createBoardView(
 		}
 		pulsing = view;
 		view.sprite.setDepth(5);
-		placeSelectRing(view);
+		placeSelectRim(view);
 		if (!already) {
-			breatheSelectRing();
+			breatheSelectRim();
 			view.shadow.setVisible(true);
 			view.shadow.setAlpha(0);
 			scene.tweens.killTweensOf(view.shadow);
@@ -424,17 +424,15 @@ export function createBoardView(
 		});
 	}
 
-	function addMoveRing(square: ISquare, tint: number): void {
+	function addMoveRim(square: ISquare, texture: string): void {
 		const box = cellBox(square);
-		const size = Math.min(box.w, box.h);
-		const ring = scene.add.image(box.x, box.y, pieceSprites.moveRing);
-		ring.setOrigin(0.5);
-		ring.setDisplaySize(size, size);
-		ring.setDepth(3);
-		ring.setAlpha(0);
-		ring.setTint(tint);
-		breatheMarker(ring);
-		markers.push(ring);
+		const rim = scene.add.image(box.x, box.y, texture);
+		rim.setOrigin(0.5);
+		rim.setDisplaySize(box.w, box.h);
+		rim.setDepth(3);
+		rim.setAlpha(0);
+		breatheMarker(rim);
+		markers.push(rim);
 	}
 
 	function drawMarkers(
@@ -444,19 +442,19 @@ export function createBoardView(
 	): void {
 		clearMarkers();
 		const painted = new Set<string>();
-		const paint = (square: ISquare, tint: number): void => {
+		const paint = (square: ISquare, texture: string): void => {
 			const key = squareKey(square);
 			if (painted.has(key)) {
 				return;
 			}
 			painted.add(key);
-			addMoveRing(square, tint);
+			addMoveRim(square, texture);
 		};
 		for (const square of destinations) {
 			if (selected && sameSquare(square, selected)) {
 				continue;
 			}
-			paint(square, palette.quietFill);
+			paint(square, pieceSprites.moveRim);
 		}
 		if (!selected) {
 			return;
@@ -468,7 +466,7 @@ export function createBoardView(
 			for (const between of squaresAlong(selected, dest)) {
 				const occupant = position.squares[between.row]?.[between.col];
 				if (occupant) {
-					paint(between, palette.captureFill);
+					paint(between, pieceSprites.captureRim);
 				}
 			}
 		}
@@ -504,9 +502,9 @@ export function createBoardView(
 			placePiece(view, pulsing === view);
 		}
 		if (pulsing) {
-			placeSelectRing(pulsing);
+			placeSelectRim(pulsing);
 		} else {
-			hideSelectRing();
+			hideSelectRim();
 		}
 		drawGrid();
 	}
@@ -611,7 +609,7 @@ export function createBoardView(
 		clearMarkers();
 		stopPulse(view);
 		stopPulse(pulsing);
-		hideSelectRing();
+		hideSelectRim();
 		clearDeny(view);
 		view.shadow.setAlpha(0);
 		view.shadow.setVisible(false);
