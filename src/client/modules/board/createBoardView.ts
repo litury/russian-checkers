@@ -75,8 +75,7 @@ export function createBoardView(
 		...fireSprites.flameLoop,
 		...fireSprites.flameUp,
 		...fireSprites.flameLand,
-		...fireSprites.smokeLoop,
-		...fireSprites.smokeLand,
+		...fireSprites.puffs,
 		fireSprites.ember,
 	]) {
 		scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
@@ -90,14 +89,29 @@ export function createBoardView(
 	selectRim.setDepth(3);
 	selectRim.setAlpha(0);
 	selectRim.setVisible(false);
-	const smoke = scene.add.sprite(0, 0, fireSprites.smokeLoop[0]);
-	smoke.setOrigin(0.5);
-	smoke.setDepth(2.5);
-	smoke.setVisible(false);
 	const flame = scene.add.sprite(0, 0, fireSprites.flameLoop[0]);
-	flame.setOrigin(0.5, 0.85);
+	flame.setOrigin(0.5, 1);
 	flame.setDepth(2.7);
 	flame.setVisible(false);
+	const rim = new Phaser.Geom.Circle(0, 0, 16);
+	const puffWeakFreqs = [100, 130, 160];
+	const puffs = fireSprites.puffs.map((key, index) => {
+		const puff = scene.add.particles(0, 0, key, {
+			lifespan: 650,
+			speedY: { min: -36, max: -14 },
+			speedX: { min: -8, max: 8 },
+			gravityY: -12,
+			scale: { start: 1, end: 1.35 },
+			alpha: { start: 0.55, end: 0 },
+			frequency: puffWeakFreqs[index],
+			quantity: 1,
+			emitting: false,
+			rotate: { min: -20, max: 20 },
+			emitZone: { type: 'edge', source: rim, quantity: 16 },
+		});
+		puff.setDepth(6);
+		return puff;
+	});
 	const embers = scene.add.particles(0, 0, fireSprites.ember, {
 		lifespan: 420,
 		speed: { min: 16, max: 40 },
@@ -105,11 +119,11 @@ export function createBoardView(
 		gravityY: -30,
 		scale: { start: 1.1, end: 0 },
 		alpha: { start: 0.85, end: 0 },
-		frequency: 90,
+		frequency: 140,
 		quantity: 1,
 		emitting: false,
 	});
-	embers.setDepth(2.65);
+	embers.setDepth(5.8);
 	if (!scene.anims.exists('flame-loop')) {
 		scene.anims.create({
 			key: 'flame-loop',
@@ -127,18 +141,6 @@ export function createBoardView(
 			key: 'flame-land',
 			frames: fireSprites.flameLand.map((key) => ({ key })),
 			frameRate: 12,
-			repeat: 0,
-		});
-		scene.anims.create({
-			key: 'smoke-loop',
-			frames: fireSprites.smokeLoop.map((key) => ({ key })),
-			frameRate: 8,
-			repeat: -1,
-		});
-		scene.anims.create({
-			key: 'smoke-land',
-			frames: fireSprites.smokeLand.map((key) => ({ key })),
-			frameRate: 10,
 			repeat: 0,
 		});
 	}
@@ -241,119 +243,108 @@ export function createBoardView(
 		}
 	}
 
-	const flameIdleScale = 0.72;
-	const flamePunchScale = 0.95;
-	const flightFlameScale = 0.58;
-	const takeoffSmokeAlpha = 0.45;
-	const flameScaleState = { s: flameIdleScale };
+	function puffsStartWeak(): void {
+		puffs.forEach((puff, index) => {
+			puff.setFrequency(puffWeakFreqs[index], 1);
+			puff.start();
+		});
+	}
 
-	function placeFxAt(
-		x: number,
-		y: number,
-		w: number,
-		h: number,
-		flameScale = flameIdleScale,
-	): void {
-		smoke.setPosition(x, y);
-		smoke.setDisplaySize(w, h);
+	function puffsQuieter(): void {
+		puffs.forEach((puff, index) => {
+			puff.setFrequency(200 + index * 30, 1);
+			puff.start();
+		});
+	}
+
+	function puffsStop(): void {
+		for (const puff of puffs) {
+			puff.stop();
+		}
+	}
+
+	function puffsBurst(): void {
+		for (const puff of puffs) {
+			puff.explode(4);
+		}
+	}
+
+	function placeFxAt(x: number, y: number, w: number, h: number): void {
+		flame.setOrigin(0.5, 1);
 		flame.setPosition(x, y);
-		flame.setDisplaySize(w * flameScale, h * flameScale);
+		flame.setDisplaySize(w, h);
+		rim.setTo(0, 0, Math.min(w, h) * 0.38);
+		for (const puff of puffs) {
+			puff.setPosition(x, y);
+			for (const zone of puff.emitZones) {
+				(zone as Phaser.GameObjects.Particles.Zones.EdgeZone).updateSource();
+			}
+		}
 		embers.setPosition(x, y);
 	}
 
 	function hideFire(): void {
 		fireGen += 1;
 		flame.off('animationcomplete');
-		smoke.off('animationcomplete');
 		flame.anims.stop();
-		smoke.anims.stop();
 		scene.tweens.killTweensOf(flame);
-		scene.tweens.killTweensOf(smoke);
-		scene.tweens.killTweensOf(flameScaleState);
+		scene.tweens.killTweensOf(embers);
+		for (const puff of puffs) {
+			scene.tweens.killTweensOf(puff);
+		}
 		flame.setVisible(false);
-		smoke.setVisible(false);
-		smoke.setAlpha(1);
+		puffsStop();
 		embers.stop();
 	}
 
-	function playFireAppearLoop(w: number, h: number): void {
-		const gen = fireGen;
-		scene.tweens.killTweensOf(flame);
-		scene.tweens.killTweensOf(smoke);
-		scene.tweens.killTweensOf(flameScaleState);
+	function playFireLoop(): void {
 		flame.setVisible(true);
-		smoke.setVisible(true);
-		smoke.setAlpha(takeoffSmokeAlpha);
-		smoke.play('smoke-loop');
+		if (flame.anims.currentAnim?.key !== 'flame-loop') {
+			flame.play('flame-loop');
+		}
+		puffsStartWeak();
+		embers.setFrequency(140, 1);
 		embers.start();
-		flame.setDisplaySize(w * flamePunchScale, h * flamePunchScale);
-		flameScaleState.s = flamePunchScale;
-		scene.tweens.add({
-			targets: flameScaleState,
-			s: flameIdleScale,
-			duration: layout.selectMs,
-			ease: 'Sine.easeOut',
-			onUpdate: () => {
-				if (gen !== fireGen) {
-					return;
-				}
-				flame.setDisplaySize(w * flameScaleState.s, h * flameScaleState.s);
-			},
-		});
+	}
+
+	function playFireTakeoff(): void {
+		const gen = fireGen;
+		flame.setVisible(true);
+		puffsQuieter();
+		embers.setFrequency(90, 1);
+		embers.start();
 		flame.off('animationcomplete');
 		flame.once('animationcomplete', (anim: Phaser.Animations.Animation) => {
 			if (gen !== fireGen) {
 				return;
 			}
-			if (anim.key === 'flame-up') {
+			if (anim.key === 'flame-up' && moving) {
 				flame.play('flame-loop');
-				scene.tweens.add({
-					targets: smoke,
-					alpha: 1,
-					duration: layout.selectMs,
-					ease: 'Sine.easeOut',
-				});
 			}
 		});
 		flame.play('flame-up');
 	}
 
-	function playFireLoop(): void {
-		flame.setVisible(true);
-		smoke.setVisible(true);
-		smoke.setAlpha(1);
-		if (flame.anims.currentAnim?.key !== 'flame-loop') {
-			flame.play('flame-loop');
-		}
-		if (smoke.anims.currentAnim?.key !== 'smoke-loop') {
-			smoke.play('smoke-loop');
-		}
-		embers.start();
-	}
-
 	function playFireStreak(): void {
-		smoke.setVisible(false);
-		smoke.anims.stop();
-		flame.off('animationcomplete');
 		flame.setVisible(true);
-		if (flame.anims.currentAnim?.key !== 'flame-loop') {
+		puffsQuieter();
+		embers.setFrequency(90, 1);
+		embers.start();
+		const key = flame.anims.currentAnim?.key;
+		if (key !== 'flame-loop' && key !== 'flame-up') {
 			flame.play('flame-loop');
 		}
-		embers.start();
-		flame.setOrigin(0.5, 0.85);
 	}
 
 	function playFireOut(): void {
-		if (!flame.visible && !smoke.visible) {
+		if (!flame.visible) {
 			return;
 		}
 		const gen = fireGen;
 		flame.off('animationcomplete');
-		smoke.setVisible(true);
-		smoke.setAlpha(1);
 		flame.setVisible(true);
+		puffsBurst();
 		embers.explode(6);
-		smoke.play('smoke-land');
 		flame.once('animationcomplete', (anim: Phaser.Animations.Animation) => {
 			if (gen !== fireGen) {
 				return;
@@ -525,7 +516,7 @@ export function createBoardView(
 		const box = cellBox(view.square);
 		placeFxAt(box.x, box.y, box.w, box.h);
 		if (!already) {
-			playFireAppearLoop(box.w, box.h);
+			playFireLoop();
 			breatheSelectRim();
 			view.shadow.setVisible(true);
 			view.shadow.setAlpha(0);
@@ -818,7 +809,7 @@ export function createBoardView(
 			pieceViews.set(squareKey(land), view);
 			placePiece(view, false);
 			const landBox = cellBox(land);
-			placeFxAt(landBox.x, landBox.y, landBox.w, landBox.h, flameIdleScale);
+			placeFxAt(landBox.x, landBox.y, landBox.w, landBox.h);
 			playFireOut();
 			moving = false;
 			onDone();
@@ -832,10 +823,14 @@ export function createBoardView(
 			const box = cellBox(land);
 			const fromBox = cellBox(from);
 			const capture = isJump(from, land);
-			playFireStreak();
-			placeFxAt(fromBox.x, fromBox.y, fromBox.w, fromBox.h, flightFlameScale);
+			if (index === 0) {
+				playFireTakeoff();
+			} else {
+				playFireStreak();
+			}
+			placeFxAt(fromBox.x, fromBox.y, fromBox.w, fromBox.h);
 			scene.tweens.add({
-				targets: [flame, embers],
+				targets: [flame, embers, ...puffs],
 				x: box.x,
 				y: box.y,
 				duration: layout.moveMs,

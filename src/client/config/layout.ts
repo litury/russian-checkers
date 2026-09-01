@@ -33,15 +33,7 @@ export const fireSprites = {
 	] as const,
 	flameUp: ['flameUp0', 'flameUp1', 'flameUp2', 'flameUp3'] as const,
 	flameLand: ['flameLand0', 'flameLand1', 'flameLand2', 'flameLand3'] as const,
-	smokeLoop: [
-		'smokeLoop0',
-		'smokeLoop1',
-		'smokeLoop2',
-		'smokeLoop3',
-		'smokeLoop4',
-		'smokeLoop5',
-	] as const,
-	smokeLand: ['smokeLand0', 'smokeLand1', 'smokeLand2', 'smokeLand3'] as const,
+	puffs: ['puff0', 'puff1', 'puff2'] as const,
 	ember: 'ember',
 } as const;
 

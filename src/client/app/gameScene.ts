@@ -29,16 +29,9 @@ import flameUp0Url from '@/client/modules/board/kit_v2/fx/flame_up_0.png';
 import flameUp1Url from '@/client/modules/board/kit_v2/fx/flame_up_1.png';
 import flameUp2Url from '@/client/modules/board/kit_v2/fx/flame_up_2.png';
 import flameUp3Url from '@/client/modules/board/kit_v2/fx/flame_up_3.png';
-import smokeLand0Url from '@/client/modules/board/kit_v2/fx/smoke_land_0.png';
-import smokeLand1Url from '@/client/modules/board/kit_v2/fx/smoke_land_1.png';
-import smokeLand2Url from '@/client/modules/board/kit_v2/fx/smoke_land_2.png';
-import smokeLand3Url from '@/client/modules/board/kit_v2/fx/smoke_land_3.png';
-import smokeLoop0Url from '@/client/modules/board/kit_v2/fx/smoke_loop_0.png';
-import smokeLoop1Url from '@/client/modules/board/kit_v2/fx/smoke_loop_1.png';
-import smokeLoop2Url from '@/client/modules/board/kit_v2/fx/smoke_loop_2.png';
-import smokeLoop3Url from '@/client/modules/board/kit_v2/fx/smoke_loop_3.png';
-import smokeLoop4Url from '@/client/modules/board/kit_v2/fx/smoke_loop_4.png';
-import smokeLoop5Url from '@/client/modules/board/kit_v2/fx/smoke_loop_5.png';
+import puff0Url from '@/client/modules/board/kit_v2/fx/puff_0.png';
+import puff1Url from '@/client/modules/board/kit_v2/fx/puff_1.png';
+import puff2Url from '@/client/modules/board/kit_v2/fx/puff_2.png';
 import moveRimUrl from '@/client/modules/board/kit_v2/move_rim.png';
 import pit00Url from '@/client/modules/board/kit_v2/pits/pit_00.png';
 import pit03Url from '@/client/modules/board/kit_v2/pits/pit_03.png';
@@ -114,16 +107,9 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(fireSprites.flameLand[1], flameLand1Url);
 		this.load.image(fireSprites.flameLand[2], flameLand2Url);
 		this.load.image(fireSprites.flameLand[3], flameLand3Url);
-		this.load.image(fireSprites.smokeLoop[0], smokeLoop0Url);
-		this.load.image(fireSprites.smokeLoop[1], smokeLoop1Url);
-		this.load.image(fireSprites.smokeLoop[2], smokeLoop2Url);
-		this.load.image(fireSprites.smokeLoop[3], smokeLoop3Url);
-		this.load.image(fireSprites.smokeLoop[4], smokeLoop4Url);
-		this.load.image(fireSprites.smokeLoop[5], smokeLoop5Url);
-		this.load.image(fireSprites.smokeLand[0], smokeLand0Url);
-		this.load.image(fireSprites.smokeLand[1], smokeLand1Url);
-		this.load.image(fireSprites.smokeLand[2], smokeLand2Url);
-		this.load.image(fireSprites.smokeLand[3], smokeLand3Url);
+		this.load.image(fireSprites.puffs[0], puff0Url);
+		this.load.image(fireSprites.puffs[1], puff1Url);
+		this.load.image(fireSprites.puffs[2], puff2Url);
 		preloadTableSfx(this, {
 			select: selectUrl,
 			move: moveUrl,
