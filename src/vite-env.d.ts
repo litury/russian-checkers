@@ -3,7 +3,7 @@ declare module '*.png' {
 	export default src;
 }
 
-declare module '*.wav' {
+declare module '*.ogg' {
 	const src: string;
 	export default src;
 }

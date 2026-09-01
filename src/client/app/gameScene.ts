@@ -9,13 +9,13 @@ import manDarkUrl from '@/client/modules/board/pieces/man_dark.png';
 import manLightUrl from '@/client/modules/board/pieces/man_light.png';
 import tableBgUrl from '@/client/modules/board/tableBg.png';
 import { pickBotMove } from '@/client/modules/bot';
-import captureUrl from '@/client/modules/sfx/capture.wav';
+import captureUrl from '@/client/modules/sfx/capture.ogg';
 import {
 	createTableSfx,
 	preloadTableSfx,
 } from '@/client/modules/sfx/createTableSfx';
-import moveUrl from '@/client/modules/sfx/move.wav';
-import selectUrl from '@/client/modules/sfx/select.wav';
+import moveUrl from '@/client/modules/sfx/move.ogg';
+import selectUrl from '@/client/modules/sfx/select.ogg';
 import { sameSquare } from '@/client/shared/sameSquare';
 import type { IMove, IPosition, ISquare, Side } from '@/rules';
 import { apply, createInitialPosition, legalMoves, winner } from '@/rules';
@@ -157,26 +157,20 @@ export class GameScene extends Phaser.Scene {
 		this.refresh();
 	}
 
-	private hopsAreCaptures(move: IMove): boolean {
-		let from = move.from;
-		for (const land of move.path) {
-			if (Math.abs(land.row - from.row) > 1) {
-				return true;
-			}
-			from = land;
-		}
-		return false;
-	}
-
 	private animateMove(move: IMove, after: () => void): void {
 		this.moving = true;
 		this.selected = null;
 		this.board.sync(this.position, [], null);
-		this.sfx.play(this.hopsAreCaptures(move) ? 'capture' : 'move');
-		this.board.playMove(move, () => {
-			this.moving = false;
-			after();
-		});
+		this.board.playMove(
+			move,
+			() => {
+				this.moving = false;
+				after();
+			},
+			(took) => {
+				this.sfx.play(took ? 'capture' : 'move');
+			},
+		);
 	}
 
 	private playHuman(move: IMove): void {

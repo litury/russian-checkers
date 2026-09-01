@@ -286,7 +286,11 @@ export function createBoardView(
 		});
 	}
 
-	function playMove(move: IMove, onDone: () => void): void {
+	function playMove(
+		move: IMove,
+		onDone: () => void,
+		onLand?: (took: boolean) => void,
+	): void {
 		if (moving) {
 			return;
 		}
@@ -335,6 +339,7 @@ export function createBoardView(
 							}
 						}
 					}
+					onLand?.(capture);
 					from = land;
 					step(index + 1);
 				},
