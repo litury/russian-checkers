@@ -3,10 +3,12 @@ import { layout, pieceSprites, tableSprite } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
 import type { IBoardView } from '@/client/modules/board';
 import { createBoardView } from '@/client/modules/board';
+import moveRingUrl from '@/client/modules/board/move_ring.png';
 import kingDarkUrl from '@/client/modules/board/pieces/king_dark.png';
 import kingLightUrl from '@/client/modules/board/pieces/king_light.png';
 import manDarkUrl from '@/client/modules/board/pieces/man_dark.png';
 import manLightUrl from '@/client/modules/board/pieces/man_light.png';
+import selectRingUrl from '@/client/modules/board/select_ring.png';
 import tableBgUrl from '@/client/modules/board/tableBg.png';
 import { pickBotMove } from '@/client/modules/bot';
 import captureUrl from '@/client/modules/sfx/capture.ogg';
@@ -46,6 +48,8 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(pieceSprites.manDark, manDarkUrl);
 		this.load.image(pieceSprites.kingLight, kingLightUrl);
 		this.load.image(pieceSprites.kingDark, kingDarkUrl);
+		this.load.image(pieceSprites.moveRing, moveRingUrl);
+		this.load.image(pieceSprites.selectRing, selectRingUrl);
 		preloadTableSfx(this, {
 			select: selectUrl,
 			move: moveUrl,
@@ -153,13 +157,8 @@ export class GameScene extends Phaser.Scene {
 			this.refresh();
 			return;
 		}
-		const piece = this.position.squares[square.row][square.col];
-		const denied = Boolean(piece && piece.side === this.position.turn);
 		this.selected = null;
 		this.refresh();
-		if (denied) {
-			this.board.deny(square);
-		}
 	}
 
 	private animateMove(move: IMove, after: () => void): void {
