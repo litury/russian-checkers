@@ -1,15 +1,22 @@
 import Phaser from 'phaser';
-import { layout, pieceSprites, tableSprite } from '@/client/config/layout';
+import {
+	boardSprite,
+	layout,
+	pieceSprites,
+	tableBgs,
+} from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
 import type { IBoardView } from '@/client/modules/board';
 import { createBoardView } from '@/client/modules/board';
+import bg169Url from '@/client/modules/board/bg169_hole.png';
+import bg916Url from '@/client/modules/board/bg916_hole.png';
+import board8Url from '@/client/modules/board/board8.png';
 import moveRingUrl from '@/client/modules/board/move_ring.png';
 import kingDarkUrl from '@/client/modules/board/pieces/king_dark.png';
 import kingLightUrl from '@/client/modules/board/pieces/king_light.png';
 import manDarkUrl from '@/client/modules/board/pieces/man_dark.png';
 import manLightUrl from '@/client/modules/board/pieces/man_light.png';
 import selectRingUrl from '@/client/modules/board/select_ring.png';
-import tableBgUrl from '@/client/modules/board/tableBg.png';
 import { pickBotMove } from '@/client/modules/bot';
 import captureUrl from '@/client/modules/sfx/capture.ogg';
 import {
@@ -43,7 +50,9 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	preload(): void {
-		this.load.image(tableSprite.key, tableBgUrl);
+		this.load.image(boardSprite.key, board8Url);
+		this.load.image(tableBgs.portrait.key, bg916Url);
+		this.load.image(tableBgs.landscape.key, bg169Url);
 		this.load.image(pieceSprites.manLight, manLightUrl);
 		this.load.image(pieceSprites.manDark, manDarkUrl);
 		this.load.image(pieceSprites.kingLight, kingLightUrl);

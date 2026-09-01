@@ -4,7 +4,7 @@
 		<meta charset="UTF-8" />
 		<meta
 			name="viewport"
-			content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+			content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
 		/>
 		<title>Русские шашки</title>
 		<style>
@@ -16,6 +16,11 @@
 				height: 100%;
 				background: #1a1410;
 				overflow: hidden;
+			}
+			body {
+				padding: env(safe-area-inset-top) env(safe-area-inset-right)
+					env(safe-area-inset-bottom) env(safe-area-inset-left);
+				box-sizing: border-box;
 			}
 			#game {
 				width: 100%;

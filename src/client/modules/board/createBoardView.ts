@@ -1,5 +1,10 @@
-import type Phaser from 'phaser';
-import { layout, pieceSprites, tableSprite } from '@/client/config/layout';
+import Phaser from 'phaser';
+import {
+	boardSprite,
+	layout,
+	pieceSprites,
+	tableBgs,
+} from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
 import { sameSquare } from '@/client/shared/sameSquare';
 import type { IMove, IPosition, ISquare } from '@/rules';
@@ -59,9 +64,20 @@ export function createBoardView(
 	scene: Phaser.Scene,
 	onSquare: (square: ISquare) => void,
 ): IBoardView {
-	const table = scene.add.image(0, 0, tableSprite.key);
-	table.setOrigin(0, 0);
-	table.setDepth(0);
+	for (const key of [
+		boardSprite.key,
+		tableBgs.portrait.key,
+		tableBgs.landscape.key,
+	]) {
+		scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
+	}
+	const board = scene.add.image(0, 0, boardSprite.key);
+	board.setOrigin(0, 0);
+	board.setDepth(0);
+	const frame = scene.add.image(0, 0, tableBgs.portrait.key);
+	frame.setOrigin(0, 0);
+	frame.setDepth(10);
+	frame.disableInteractive();
 	const selectRing = scene.add.image(0, 0, pieceSprites.selectRing);
 	selectRing.setOrigin(0.5);
 	selectRing.setDepth(3);
@@ -444,28 +460,44 @@ export function createBoardView(
 		}
 	}
 
+	function worldScale(
+		viewW: number,
+		viewH: number,
+		bg: (typeof tableBgs)['portrait'] | (typeof tableBgs)['landscape'],
+	): number {
+		const pad = layout.framePadPx;
+		const availW = Math.max(1, viewW - pad * 2);
+		const availH = Math.max(1, viewH - pad * 2);
+		const hole = Math.min(bg.holeW, bg.holeH);
+		const fit = Math.min(availW / bg.holeW, availH / bg.holeH);
+		const minScale = (layout.minCellPx * layout.rankCount) / hole;
+		return Math.max(fit, minScale);
+	}
+
 	function layoutBoard(width: number, height: number): void {
-		const top = layout.statusHeight;
-		const availH = Math.max(1, height - top);
-		const scale =
-			width < availH ? width / tableSprite.frameW : availH / tableSprite.frameH;
-		const frameScreenW = tableSprite.frameW * scale;
-		const frameScreenH = tableSprite.frameH * scale;
-		const frameScreenX = (width - frameScreenW) / 2;
-		const frameScreenY = top + (availH - frameScreenH) / 2;
-		const imageX = Math.round(frameScreenX - tableSprite.frameX * scale);
-		const imageY = Math.round(frameScreenY - tableSprite.frameY * scale);
-		table.setPosition(imageX, imageY);
-		table.setDisplaySize(
-			Math.round(tableSprite.width * scale),
-			Math.round(tableSprite.height * scale),
+		const bg = height > width ? tableBgs.portrait : tableBgs.landscape;
+		const scale = worldScale(width, height, bg);
+		if (frame.texture.key !== bg.key) {
+			frame.setTexture(bg.key);
+		}
+		const imageX = Math.round((width - bg.width * scale) / 2);
+		const imageY = Math.round((height - bg.height * scale) / 2);
+		frame.setPosition(imageX, imageY);
+		frame.setDisplaySize(
+			Math.round(bg.width * scale),
+			Math.round(bg.height * scale),
 		);
-		const scaleX = table.displayWidth / tableSprite.width;
-		const scaleY = table.displayHeight / tableSprite.height;
-		originX = imageX + tableSprite.boardX * scaleX;
-		originY = imageY + tableSprite.boardY * scaleY;
-		cellW = (tableSprite.boardW * scaleX) / layout.rankCount;
-		cellH = (tableSprite.boardH * scaleY) / layout.rankCount;
+		const scaleX = frame.displayWidth / bg.width;
+		const scaleY = frame.displayHeight / bg.height;
+		originX = Math.round(imageX + bg.holeX * scaleX);
+		originY = Math.round(imageY + bg.holeY * scaleY);
+		board.setPosition(originX, originY);
+		board.setDisplaySize(
+			Math.round(bg.holeW * scaleX),
+			Math.round(bg.holeH * scaleY),
+		);
+		cellW = board.displayWidth / layout.rankCount;
+		cellH = board.displayHeight / layout.rankCount;
 		for (const square of squares) {
 			const box = cellBox(square);
 			square.rect.setPosition(box.x, box.y);
