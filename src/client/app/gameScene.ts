@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import {
+	fireSprites,
 	layout,
 	pieceSprites,
 	pitSprites,
@@ -11,6 +12,15 @@ import { createBoardView } from '@/client/modules/board';
 import bgDeskUrl from '@/client/modules/board/kit_v2/bg_desk.png';
 import bgPhoneUrl from '@/client/modules/board/kit_v2/bg_phone.png';
 import captureRimUrl from '@/client/modules/board/kit_v2/capture_rim.png';
+import fireAppear0Url from '@/client/modules/board/kit_v2/fire/fire_appear_0.png';
+import fireAppear1Url from '@/client/modules/board/kit_v2/fire/fire_appear_1.png';
+import fireLoop0Url from '@/client/modules/board/kit_v2/fire/fire_loop_0.png';
+import fireLoop1Url from '@/client/modules/board/kit_v2/fire/fire_loop_1.png';
+import fireLoop2Url from '@/client/modules/board/kit_v2/fire/fire_loop_2.png';
+import fireLoop3Url from '@/client/modules/board/kit_v2/fire/fire_loop_3.png';
+import fireOut0Url from '@/client/modules/board/kit_v2/fire/fire_out_0.png';
+import fireOut1Url from '@/client/modules/board/kit_v2/fire/fire_out_1.png';
+import fireStreakUrl from '@/client/modules/board/kit_v2/fire/fire_streak.png';
 import moveRimUrl from '@/client/modules/board/kit_v2/move_rim.png';
 import pit00Url from '@/client/modules/board/kit_v2/pits/pit_00.png';
 import pit03Url from '@/client/modules/board/kit_v2/pits/pit_03.png';
@@ -69,6 +79,15 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(pieceSprites.selectRim, selectRimUrl);
 		this.load.image(pieceSprites.moveRim, moveRimUrl);
 		this.load.image(pieceSprites.captureRim, captureRimUrl);
+		this.load.image(fireSprites.appear[0], fireAppear0Url);
+		this.load.image(fireSprites.appear[1], fireAppear1Url);
+		this.load.image(fireSprites.loop[0], fireLoop0Url);
+		this.load.image(fireSprites.loop[1], fireLoop1Url);
+		this.load.image(fireSprites.loop[2], fireLoop2Url);
+		this.load.image(fireSprites.loop[3], fireLoop3Url);
+		this.load.image(fireSprites.out[0], fireOut0Url);
+		this.load.image(fireSprites.out[1], fireOut1Url);
+		this.load.image(fireSprites.streak, fireStreakUrl);
 		preloadTableSfx(this, {
 			select: selectUrl,
 			move: moveUrl,

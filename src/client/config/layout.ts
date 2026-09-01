@@ -20,6 +20,13 @@ export const layout = {
 	framePadPx: 12,
 } as const;
 
+export const fireSprites = {
+	appear: ['fireAppear0', 'fireAppear1'] as const,
+	loop: ['fireLoop0', 'fireLoop1', 'fireLoop2', 'fireLoop3'] as const,
+	out: ['fireOut0', 'fireOut1'] as const,
+	streak: 'fireStreak',
+} as const;
+
 export const tableBgs = {
 	portrait: {
 		key: 'bgPhone',

@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import {
+	fireSprites,
 	layout,
 	pieceSprites,
 	pitSprites,
@@ -71,6 +72,10 @@ export function createBoardView(
 		pieceSprites.selectRim,
 		pieceSprites.moveRim,
 		pieceSprites.captureRim,
+		...fireSprites.appear,
+		...fireSprites.loop,
+		...fireSprites.out,
+		fireSprites.streak,
 	]) {
 		scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
 	}
@@ -83,6 +88,32 @@ export function createBoardView(
 	selectRim.setDepth(3);
 	selectRim.setAlpha(0);
 	selectRim.setVisible(false);
+	const fire = scene.add.sprite(0, 0, fireSprites.loop[0]);
+	fire.setOrigin(0.5);
+	fire.setDepth(2.8);
+	fire.setVisible(false);
+	fire.setActive(false);
+	if (!scene.anims.exists('fire-appear')) {
+		scene.anims.create({
+			key: 'fire-appear',
+			frames: fireSprites.appear.map((key) => ({ key })),
+			frameRate: 10,
+			repeat: 0,
+		});
+		scene.anims.create({
+			key: 'fire-loop',
+			frames: fireSprites.loop.map((key) => ({ key })),
+			frameRate: 8,
+			repeat: -1,
+		});
+		scene.anims.create({
+			key: 'fire-out',
+			frames: fireSprites.out.map((key) => ({ key })),
+			frameRate: 10,
+			repeat: 0,
+		});
+	}
+	let fireGen = 0;
 	const squares: {
 		row: number;
 		col: number;
@@ -181,6 +212,81 @@ export function createBoardView(
 		}
 	}
 
+	function placeFireAt(x: number, y: number, w: number, h: number): void {
+		fire.setPosition(x, y);
+		fire.setDisplaySize(w, h);
+		fire.setDepth(2.8);
+	}
+
+	function showFire(): void {
+		fire.setActive(true);
+		fire.setVisible(true);
+		fire.setAlpha(1);
+		fire.setRotation(0);
+	}
+
+	function hideFire(): void {
+		fireGen += 1;
+		fire.off('animationcomplete');
+		fire.anims.stop();
+		scene.tweens.killTweensOf(fire);
+		fire.setVisible(false);
+		fire.setActive(false);
+		fire.setRotation(0);
+	}
+
+	function playFireAppearLoop(): void {
+		const gen = fireGen;
+		showFire();
+		fire.off('animationcomplete');
+		fire.once('animationcomplete', (anim: Phaser.Animations.Animation) => {
+			if (gen !== fireGen) {
+				return;
+			}
+			if (anim.key === 'fire-appear') {
+				fire.play('fire-loop');
+			}
+		});
+		fire.play('fire-appear');
+	}
+
+	function playFireLoop(): void {
+		showFire();
+		fire.off('animationcomplete');
+		if (fire.anims.currentAnim?.key !== 'fire-loop') {
+			fire.play('fire-loop');
+		}
+	}
+
+	function playFireStreak(
+		fromBox: { x: number; y: number },
+		toBox: { x: number; y: number },
+	): void {
+		showFire();
+		fire.off('animationcomplete');
+		fire.anims.stop();
+		fire.setTexture(fireSprites.streak);
+		fire.setRotation(Math.atan2(toBox.y - fromBox.y, toBox.x - fromBox.x));
+	}
+
+	function playFireOut(): void {
+		if (!fire.visible) {
+			return;
+		}
+		const gen = fireGen;
+		fire.off('animationcomplete');
+		fire.setRotation(0);
+		fire.once('animationcomplete', (anim: Phaser.Animations.Animation) => {
+			if (gen !== fireGen) {
+				return;
+			}
+			if (anim.key === 'fire-out') {
+				hideFire();
+			}
+		});
+		fire.play('fire-out');
+	}
+
 	function hideSelectRim(): void {
 		scene.tweens.killTweensOf(selectRim);
 		selectRim.setAlpha(0);
@@ -226,7 +332,7 @@ export function createBoardView(
 		}
 	}
 
-	function stopPulse(view: PieceView | null): void {
+	function stopPulse(view: PieceView | null, keepFire = false): void {
 		if (!view) {
 			return;
 		}
@@ -246,6 +352,9 @@ export function createBoardView(
 		if (pulsing === view) {
 			pulsing = null;
 			hideSelectRim();
+			if (!keepFire) {
+				playFireOut();
+			}
 		}
 	}
 
@@ -295,6 +404,12 @@ export function createBoardView(
 			duration: layout.selectMs,
 			ease: 'Sine.easeOut',
 		});
+		scene.tweens.add({
+			targets: fire,
+			y: box.y - liftPx(),
+			duration: layout.selectMs,
+			ease: 'Sine.easeOut',
+		});
 	}
 
 	function runPress(view: PieceView, onIdle?: () => void): void {
@@ -335,7 +450,10 @@ export function createBoardView(
 		pulsing = view;
 		view.sprite.setDepth(5);
 		placeSelectRim(view);
+		const box = cellBox(view.square);
+		placeFireAt(box.x, box.y, box.w, box.h);
 		if (!already) {
+			playFireAppearLoop();
 			breatheSelectRim();
 			view.shadow.setVisible(true);
 			view.shadow.setAlpha(0);
@@ -350,9 +468,10 @@ export function createBoardView(
 			placeShadow(view, true);
 		}
 		if (already && pressView !== view) {
-			const box = cellBox(view.square);
 			view.sprite.setPosition(box.x, box.y - liftPx());
 			view.sprite.setScale(view.baseScale);
+			placeFireAt(box.x, box.y - liftPx(), box.w, box.h);
+			playFireLoop();
 			return;
 		}
 		if (pressView === view && pressTween) {
@@ -503,6 +622,8 @@ export function createBoardView(
 		}
 		if (pulsing) {
 			placeSelectRim(pulsing);
+			const box = cellBox(pulsing.square);
+			placeFireAt(box.x, pulsing.sprite.y, box.w, box.h);
 		} else {
 			hideSelectRim();
 		}
@@ -607,8 +728,8 @@ export function createBoardView(
 		}
 		moving = true;
 		clearMarkers();
-		stopPulse(view);
-		stopPulse(pulsing);
+		stopPulse(view, true);
+		stopPulse(pulsing, true);
 		hideSelectRim();
 		clearDeny(view);
 		view.shadow.setAlpha(0);
@@ -624,6 +745,7 @@ export function createBoardView(
 			view.square = land;
 			pieceViews.set(squareKey(land), view);
 			placePiece(view, false);
+			playFireOut();
 			moving = false;
 			onDone();
 		};
@@ -634,7 +756,17 @@ export function createBoardView(
 			}
 			const land = hops[index];
 			const box = cellBox(land);
+			const fromBox = cellBox(from);
 			const capture = isJump(from, land);
+			playFireStreak(fromBox, box);
+			placeFireAt(fromBox.x, view.sprite.y, fromBox.w, fromBox.h);
+			scene.tweens.add({
+				targets: fire,
+				x: box.x,
+				y: box.y,
+				duration: layout.moveMs,
+				ease: 'Sine.easeInOut',
+			});
 			scene.tweens.add({
 				targets: view.sprite,
 				x: box.x,
