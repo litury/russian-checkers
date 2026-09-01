@@ -241,11 +241,23 @@ export function createBoardView(
 		}
 	}
 
-	function placeFxAt(x: number, y: number, w: number, h: number): void {
+	const flameIdleScale = 0.72;
+	const flamePunchScale = 0.95;
+	const flightFlameScale = 0.58;
+	const takeoffSmokeAlpha = 0.45;
+	const flameScaleState = { s: flameIdleScale };
+
+	function placeFxAt(
+		x: number,
+		y: number,
+		w: number,
+		h: number,
+		flameScale = flameIdleScale,
+	): void {
 		smoke.setPosition(x, y);
 		smoke.setDisplaySize(w, h);
 		flame.setPosition(x, y);
-		flame.setDisplaySize(w, h);
+		flame.setDisplaySize(w * flameScale, h * flameScale);
 		embers.setPosition(x, y);
 	}
 
@@ -257,18 +269,37 @@ export function createBoardView(
 		smoke.anims.stop();
 		scene.tweens.killTweensOf(flame);
 		scene.tweens.killTweensOf(smoke);
+		scene.tweens.killTweensOf(flameScaleState);
 		flame.setVisible(false);
 		smoke.setVisible(false);
 		smoke.setAlpha(1);
 		embers.stop();
 	}
 
-	function playFireAppearLoop(): void {
+	function playFireAppearLoop(w: number, h: number): void {
 		const gen = fireGen;
+		scene.tweens.killTweensOf(flame);
+		scene.tweens.killTweensOf(smoke);
+		scene.tweens.killTweensOf(flameScaleState);
 		flame.setVisible(true);
-		smoke.setVisible(false);
-		smoke.setAlpha(1);
+		smoke.setVisible(true);
+		smoke.setAlpha(takeoffSmokeAlpha);
+		smoke.play('smoke-loop');
 		embers.start();
+		flame.setDisplaySize(w * flamePunchScale, h * flamePunchScale);
+		flameScaleState.s = flamePunchScale;
+		scene.tweens.add({
+			targets: flameScaleState,
+			s: flameIdleScale,
+			duration: layout.selectMs,
+			ease: 'Sine.easeOut',
+			onUpdate: () => {
+				if (gen !== fireGen) {
+					return;
+				}
+				flame.setDisplaySize(w * flameScaleState.s, h * flameScaleState.s);
+			},
+		});
 		flame.off('animationcomplete');
 		flame.once('animationcomplete', (anim: Phaser.Animations.Animation) => {
 			if (gen !== fireGen) {
@@ -276,8 +307,12 @@ export function createBoardView(
 			}
 			if (anim.key === 'flame-up') {
 				flame.play('flame-loop');
-				smoke.setVisible(true);
-				smoke.play('smoke-loop');
+				scene.tweens.add({
+					targets: smoke,
+					alpha: 1,
+					duration: layout.selectMs,
+					ease: 'Sine.easeOut',
+				});
 			}
 		});
 		flame.play('flame-up');
@@ -299,11 +334,12 @@ export function createBoardView(
 	function playFireStreak(): void {
 		smoke.setVisible(false);
 		smoke.anims.stop();
-		embers.stop();
 		flame.off('animationcomplete');
-		flame.anims.stop();
 		flame.setVisible(true);
-		flame.setTexture(fireSprites.flameUp[1]);
+		if (flame.anims.currentAnim?.key !== 'flame-loop') {
+			flame.play('flame-loop');
+		}
+		embers.start();
 		flame.setOrigin(0.5, 0.85);
 	}
 
@@ -489,7 +525,7 @@ export function createBoardView(
 		const box = cellBox(view.square);
 		placeFxAt(box.x, box.y, box.w, box.h);
 		if (!already) {
-			playFireAppearLoop();
+			playFireAppearLoop(box.w, box.h);
 			breatheSelectRim();
 			view.shadow.setVisible(true);
 			view.shadow.setAlpha(0);
@@ -781,6 +817,8 @@ export function createBoardView(
 			view.square = land;
 			pieceViews.set(squareKey(land), view);
 			placePiece(view, false);
+			const landBox = cellBox(land);
+			placeFxAt(landBox.x, landBox.y, landBox.w, landBox.h, flameIdleScale);
 			playFireOut();
 			moving = false;
 			onDone();
@@ -795,9 +833,9 @@ export function createBoardView(
 			const fromBox = cellBox(from);
 			const capture = isJump(from, land);
 			playFireStreak();
-			placeFxAt(fromBox.x, fromBox.y, fromBox.w, fromBox.h);
+			placeFxAt(fromBox.x, fromBox.y, fromBox.w, fromBox.h, flightFlameScale);
 			scene.tweens.add({
-				targets: [flame],
+				targets: [flame, embers],
 				x: box.x,
 				y: box.y,
 				duration: layout.moveMs,
