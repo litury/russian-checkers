@@ -8,9 +8,14 @@ export const layout = {
 	pressScale: 0.95,
 	pressMs: 90,
 	selectMs: 180,
-	selectScale: 1.08,
+	pulseScaleMin: 1.06,
+	pulseScaleMax: 1.14,
+	pulseMs: 800,
 	moveMs: 180,
 	markerFadeMs: 160,
+	markerBreathMin: 0.45,
+	markerBreathMax: 0.9,
+	markerBreathMs: 800,
 	shadowAlpha: 0.35,
 } as const;
 

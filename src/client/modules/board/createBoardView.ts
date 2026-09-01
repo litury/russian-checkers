@@ -64,6 +64,7 @@ export function createBoardView(
 	let cellW = 0;
 	let cellH = 0;
 	let moving = false;
+	let pulsing: PieceView | null = null;
 
 	for (let row = 0; row < layout.rankCount; row += 1) {
 		for (let col = 0; col < layout.rankCount; col += 1) {
@@ -119,6 +120,17 @@ export function createBoardView(
 		}
 	}
 
+	function stopPulse(view: PieceView | null): void {
+		if (!view) {
+			return;
+		}
+		scene.tweens.killTweensOf(view.sprite);
+		scene.tweens.killTweensOf(view.shadow);
+		if (pulsing === view) {
+			pulsing = null;
+		}
+	}
+
 	function placeShadow(view: PieceView, selected: boolean): void {
 		const box = cellBox(view.square);
 		const cell = Math.min(box.w, box.h);
@@ -134,16 +146,68 @@ export function createBoardView(
 		const size = Math.min(box.w, box.h);
 		view.baseScale = size / pieceSprites.size;
 		view.sprite.setPosition(box.x, box.y);
-		view.sprite.setScale(view.baseScale * (selected ? layout.selectScale : 1));
+		view.sprite.setScale(
+			view.baseScale * (selected ? layout.pulseScaleMin : 1),
+		);
 		view.sprite.setDepth(selected ? 5 : 4);
 		placeShadow(view, selected);
 	}
 
 	function destroyView(view: PieceView): void {
-		scene.tweens.killTweensOf(view.sprite);
-		scene.tweens.killTweensOf(view.shadow);
+		stopPulse(view);
 		view.sprite.destroy();
 		view.shadow.destroy();
+	}
+
+	function startPulse(view: PieceView): void {
+		const box = cellBox(view.square);
+		stopPulse(pulsing === view ? view : pulsing);
+		stopPulse(view);
+		pulsing = view;
+		view.sprite.setDepth(5);
+		view.sprite.setPosition(box.x, box.y);
+		view.shadow.setVisible(true);
+		view.shadow.setAlpha(0);
+		scene.tweens.add({
+			targets: view.sprite,
+			scaleX: view.baseScale * layout.pressScale,
+			scaleY: view.baseScale * layout.pressScale,
+			duration: layout.pressMs,
+			ease: 'Sine.easeOut',
+			onComplete: () => {
+				if (pulsing !== view) {
+					return;
+				}
+				view.sprite.setY(box.y);
+				scene.tweens.add({
+					targets: view.sprite,
+					scaleX: view.baseScale * layout.pulseScaleMin,
+					scaleY: view.baseScale * layout.pulseScaleMin,
+					duration: layout.selectMs,
+					ease: 'Sine.easeOut',
+					onComplete: () => {
+						if (pulsing !== view) {
+							return;
+						}
+						scene.tweens.add({
+							targets: view.sprite,
+							scaleX: view.baseScale * layout.pulseScaleMax,
+							scaleY: view.baseScale * layout.pulseScaleMax,
+							duration: layout.pulseMs,
+							ease: 'Sine.easeInOut',
+							yoyo: true,
+							repeat: -1,
+						});
+					},
+				});
+				scene.tweens.add({
+					targets: view.shadow,
+					alpha: layout.shadowAlpha,
+					duration: layout.selectMs,
+					ease: 'Sine.easeOut',
+				});
+			},
+		});
 	}
 
 	function reconcile(position: IPosition, selected: ISquare | null): void {
@@ -203,9 +267,19 @@ export function createBoardView(
 			ring.setAlpha(0);
 			scene.tweens.add({
 				targets: ring,
-				alpha: 0.85,
+				alpha: layout.markerBreathMax,
 				duration: layout.markerFadeMs,
 				ease: 'Sine.easeOut',
+				onComplete: () => {
+					scene.tweens.add({
+						targets: ring,
+						alpha: layout.markerBreathMin,
+						duration: layout.markerBreathMs,
+						ease: 'Sine.easeInOut',
+						yoyo: true,
+						repeat: -1,
+					});
+				},
 			});
 			markers.push(ring);
 		}
@@ -252,42 +326,19 @@ export function createBoardView(
 		if (moving) {
 			return;
 		}
+		const next = selected ? pieceViews.get(squareKey(selected)) : null;
+		if (pulsing && pulsing !== next) {
+			stopPulse(pulsing);
+		}
 		reconcile(position, selected);
 		drawMarkers(destinations, selected);
 		if (selected) {
 			const view = pieceViews.get(squareKey(selected));
 			if (view) {
-				const box = cellBox(selected);
-				scene.tweens.killTweensOf(view.sprite);
-				scene.tweens.killTweensOf(view.shadow);
-				view.sprite.setDepth(5);
-				view.sprite.setPosition(box.x, box.y);
-				view.shadow.setVisible(true);
-				view.shadow.setAlpha(0);
-				scene.tweens.add({
-					targets: view.sprite,
-					scaleX: view.baseScale * layout.pressScale,
-					scaleY: view.baseScale * layout.pressScale,
-					duration: layout.pressMs,
-					ease: 'Sine.easeOut',
-					onComplete: () => {
-						view.sprite.setY(box.y);
-						scene.tweens.add({
-							targets: view.sprite,
-							scaleX: view.baseScale * layout.selectScale,
-							scaleY: view.baseScale * layout.selectScale,
-							duration: layout.selectMs,
-							ease: 'Sine.easeOut',
-						});
-						scene.tweens.add({
-							targets: view.shadow,
-							alpha: layout.shadowAlpha,
-							duration: layout.selectMs,
-							ease: 'Sine.easeOut',
-						});
-					},
-				});
+				startPulse(view);
 			}
+		} else {
+			stopPulse(pulsing);
 		}
 	}
 
@@ -324,8 +375,8 @@ export function createBoardView(
 		}
 		moving = true;
 		clearMarkers();
-		scene.tweens.killTweensOf(view.sprite);
-		scene.tweens.killTweensOf(view.shadow);
+		stopPulse(view);
+		stopPulse(pulsing);
 		view.shadow.setAlpha(0);
 		view.shadow.setVisible(false);
 		view.sprite.setScale(view.baseScale);
