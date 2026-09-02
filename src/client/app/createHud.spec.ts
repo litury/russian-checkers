@@ -145,6 +145,9 @@ describe('createHud', () => {
 		const menuIcon = scene.images[0];
 		const chrome = scene.images.find((img) => img.key === 'resultMonitor');
 		expect(menuIcon.key).toBe('hudMenu');
+		expect(scene.images.some((img) => img.key === 'hudResign')).toBe(true);
+		expect(scene.images.some((img) => img.key === 'hudAuto')).toBe(true);
+		expect(scene.images.some((img) => img.key === 'hudMusic')).toBe(false);
 		expect(chrome?.visible).toBe(false);
 		expect(scene.images.some((img) => img.key === 'hudEvmPanel')).toBe(false);
 		menuHit.emit('pointerdown', { id: 1 });

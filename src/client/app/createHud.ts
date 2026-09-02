@@ -1,5 +1,9 @@
 import type Phaser from 'phaser';
-import { createSfxPanel } from '@/client/app/parts/createSfxPanel';
+import {
+	createSfxPanel,
+	getAutoMove,
+	setAutoMove,
+} from '@/client/app/parts/createSfxPanel';
 import { computeFieldLayout, formatClock } from '@/client/config/fieldLayout';
 import { layout } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
@@ -79,8 +83,6 @@ export function createHud(
 	}
 
 	const sfxPanel = createSfxPanel(scene, {
-		onResign: handlers.onResign,
-		onAutoChange: handlers.onAutoChange,
 		onOpenChange: applyMenuPress,
 	});
 	menuHit.on('pointerdown', (pointer: { id?: number }) => {
@@ -90,14 +92,66 @@ export function createHud(
 		sfxPanel.toggle(pointer);
 	});
 
+	const action = layout.hudAction;
+	const stripGap = 8;
+	const resignPlate = scene.add.image(0, 0, 'hudPlate').setOrigin(0.5);
+	resignPlate.setDisplaySize(action, action);
+	resignPlate.setDepth(hudDepth);
+	resignPlate.setInteractive({ useHandCursor: true });
+	const resignIcon = scene.add.image(0, 0, 'hudResign').setOrigin(0.5);
+	resignIcon.setDisplaySize(action, action);
+	resignIcon.setDepth(hudDepth + 1);
+	resignIcon.setInteractive({ useHandCursor: true });
+	const autoPlate = scene.add.image(0, 0, 'hudPlate').setOrigin(0.5);
+	autoPlate.setDisplaySize(action, action);
+	autoPlate.setDepth(hudDepth);
+	autoPlate.setInteractive({ useHandCursor: true });
+	const autoIcon = scene.add.image(0, 0, 'hudAuto').setOrigin(0.5);
+	autoIcon.setDisplaySize(action, action);
+	autoIcon.setDepth(hudDepth + 1);
+	autoIcon.setInteractive({ useHandCursor: true });
+
+	function paintAuto(): void {
+		autoIcon.setTexture(getAutoMove() ? 'hudAuto' : 'hudAutoOff');
+	}
+
+	function fireResign(): void {
+		handlers.onResign?.();
+	}
+
+	function toggleAuto(): void {
+		setAutoMove(!getAutoMove());
+		paintAuto();
+		handlers.onAutoChange?.();
+	}
+
+	paintAuto();
+	resignPlate.on('pointerdown', fireResign);
+	resignIcon.on('pointerdown', fireResign);
+	autoPlate.on('pointerdown', toggleAuto);
+	autoIcon.on('pointerdown', toggleAuto);
+
 	function placeMenu(x: number, y: number): void {
 		menuHit.setPosition(x, y);
 		menuIcon.setPosition(x, y);
 	}
 
+	function placeStrip(width: number, height: number): void {
+		const pairW = action * 2 + stripGap;
+		const left = Math.round((width - pairW) / 2 + action / 2);
+		const right = left + action + stripGap;
+		const y = Math.round(height - action / 2);
+		resignPlate.setPosition(left, y);
+		resignIcon.setPosition(left, y);
+		autoPlate.setPosition(right, y);
+		autoIcon.setPosition(right, y);
+		paintAuto();
+	}
+
 	return {
 		layout: (width, height) => {
 			const field = computeFieldLayout(width, height);
+			placeStrip(width, height);
 			if (field.portrait) {
 				const mid = layout.hudBar / 2;
 				timer.setOrigin(0, 0.5).setPosition(pad, mid);

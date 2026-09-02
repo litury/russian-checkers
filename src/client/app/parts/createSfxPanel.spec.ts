@@ -31,6 +31,7 @@ type StubGo = {
 	disableInteractive: () => StubGo;
 	setOrigin: () => StubGo;
 	setTexture: (key: string) => StubGo;
+	setStroke: () => StubGo;
 	on: (event: string, fn: Handler) => StubGo;
 	emit: (event: string, ...args: unknown[]) => void;
 	clear: () => StubGo;
@@ -76,6 +77,9 @@ function stubGo(key?: string): StubGo {
 		},
 		setTexture(next: string) {
 			go.key = next;
+			return go;
+		},
+		setStroke() {
 			return go;
 		},
 		on(event: string, fn: Handler) {
@@ -132,6 +136,7 @@ function stubPanelScene(): Phaser.Scene & {
 				images.push(go);
 				return go;
 			},
+			text: () => stubGo(),
 			graphics: () => {
 				const go = stubGo();
 				graphics.push(go);
@@ -164,8 +169,8 @@ describe('createSfxPanel', () => {
 
 	it('mounts CRT glass HUD without EVM wells or megaphone', () => {
 		expect(typeof document).toBe('undefined');
-		expect(sfxMonitor.width).toBe(256);
-		expect(sfxMonitor.height).toBe(192);
+		expect(sfxMonitor.width).toBe(188);
+		expect(sfxMonitor.height).toBe(84);
 		expect(autoStorageKey).toBe('checkers.autoMove');
 		expect(getAutoMove()).toBe(true);
 		const scene = stubPanelScene();
@@ -173,20 +178,18 @@ describe('createSfxPanel', () => {
 		const keys = scene.images.map((img) => img.key);
 		expect(keys).toContain('resultMonitor');
 		expect(keys).toContain('hudGlassMeadow');
-		expect(keys).toContain('hudPlateVol');
 		expect(keys).toContain('hudNote');
-		expect(keys).toContain('hudMusic');
-		expect(keys).toContain('hudSliderKnob');
 		expect(keys).toContain('hudPlate');
-		expect(keys).toContain('hudResign');
-		expect(keys).toContain('hudAuto');
+		expect(keys).not.toContain('hudPlateVol');
+		expect(keys).not.toContain('hudMusic');
+		expect(keys).not.toContain('hudSliderKnob');
+		expect(keys).not.toContain('hudResign');
+		expect(keys).not.toContain('hudAuto');
 		expect(keys).not.toContain('hudEvmPanel');
 		expect(keys).not.toContain('hudMute');
 		expect(keys).not.toContain('hudMuteOff');
 		expect(scene.graphics).toHaveLength(0);
 		const chrome = scene.images.find((img) => img.key === 'resultMonitor');
-		const knob = scene.images.find((img) => img.key === 'hudSliderKnob');
-		expect(knob?.displaySizeCalls).toEqual([]);
 		panel.toggle();
 		expect(chrome?.visible).toBe(true);
 		expect(chrome?.interactive).toBe(true);
@@ -210,26 +213,25 @@ describe('createSfxPanel', () => {
 		expect(note?.interactive).toBe(false);
 	});
 
-	it('keeps the CRT open on slider, note, music, resign, and auto', () => {
+	it('steps volume on minus and plus plates and keeps the CRT open', () => {
+		setSfxMaster(0.4);
 		const scene = stubPanelScene();
 		const panel = createSfxPanel(scene);
 		panel.layout(380, 22, 400, 300);
 		const chrome = scene.images.find((img) => img.key === 'resultMonitor');
 		const note = scene.images.find((img) => img.key === 'hudNote');
-		const music = scene.images.find((img) => img.key === 'hudMusic');
-		const resign = scene.images.find((img) => img.key === 'hudResign');
-		const auto = scene.images.find((img) => img.key === 'hudAuto');
-		const trackHit = scene.rects[1];
+		const plates = scene.images.filter((img) => img.key === 'hudPlate');
+		expect(plates).toHaveLength(3);
 		panel.toggle({ worldX: 380, worldY: 22, id: 1 });
 		expect(chrome?.visible).toBe(true);
 		note?.emit('pointerdown');
-		music?.emit('pointerdown');
-		resign?.emit('pointerdown');
-		auto?.emit('pointerdown');
-		trackHit.emit('pointerdown', { worldX: 200, worldY: 40, id: 2 });
+		plates[1]?.emit('pointerdown');
+		expect(getSfxMaster()).toBeCloseTo(0.3);
+		plates[2]?.emit('pointerdown');
+		plates[2]?.emit('pointerdown');
+		expect(getSfxMaster()).toBeCloseTo(0.5);
 		expect(chrome?.visible).toBe(true);
-		expect(getAutoMove()).toBe(false);
-		setAutoMove(true);
+		expect(getAutoMove()).toBe(true);
 	});
 
 	it('closes from the catcher only outside the CRT after arming', () => {

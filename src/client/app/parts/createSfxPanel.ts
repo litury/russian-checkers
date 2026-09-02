@@ -1,6 +1,7 @@
 import type Phaser from 'phaser';
 import { computeFieldLayout } from '@/client/config/fieldLayout';
 import { layout } from '@/client/config/layout';
+import { palette } from '@/client/config/palette';
 import {
 	getSfxMaster,
 	getSfxMuted,
@@ -9,8 +10,8 @@ import {
 } from '@/client/modules/sfx/createTableSfx';
 
 export const sfxMonitor = {
-	width: 256,
-	height: 192,
+	width: 188,
+	height: 84,
 } as const;
 
 export const autoStorageKey = 'checkers.autoMove';
@@ -18,33 +19,20 @@ export const musicStorageKey = 'checkers.musicMuted';
 
 const glassX = 16;
 const glassY = 12;
-const volW = 108;
-const plate = 52;
+const plate = 44;
 const inset = 8;
-const gap = 8;
 const clusterGap = 4;
-const knobArt = 19;
-const slotLeft = 58;
-const slotWidth = 40;
-const slotMidY = 26;
-const noteMidX = 26;
+const volStep = 0.1;
 const catcherDepth = 13;
 const panelDepth = 14;
 const pad = 8;
 
-const volX = inset;
-const volY = inset;
-const musicX = inset + volW + clusterGap;
-const musicY = inset;
-const resignX = musicX + plate;
-const resignY = inset;
-const autoX = resignX;
-const autoY = inset + plate + gap;
-const trackMin = slotLeft + knobArt / 2;
-const trackSpan = slotWidth - knobArt;
+const noteX = inset;
+const minusX = inset + plate + clusterGap;
+const plusX = minusX + plate + clusterGap;
+const rowY = inset;
 
 let autoMove = true;
-let musicMuted = false;
 
 type Pointer = {
 	worldX?: number;
@@ -53,8 +41,6 @@ type Pointer = {
 };
 
 type PanelHandlers = {
-	onResign?: () => void;
-	onAutoChange?: () => void;
 	onOpenChange?: (open: boolean) => void;
 };
 
@@ -92,30 +78,7 @@ function writeAutoMove(): void {
 	}
 }
 
-function loadMusicMuted(): void {
-	const store = readStorage();
-	if (!store) {
-		musicMuted = false;
-		return;
-	}
-	const raw = store.getItem(musicStorageKey);
-	musicMuted = raw === '1' || raw === 'true';
-}
-
-function writeMusicMuted(): void {
-	const store = readStorage();
-	if (!store) {
-		return;
-	}
-	try {
-		store.setItem(musicStorageKey, musicMuted ? '1' : '0');
-	} catch {
-		return;
-	}
-}
-
 loadAutoMove();
-loadMusicMuted();
 
 export function getAutoMove(): boolean {
 	return autoMove;
@@ -130,14 +93,6 @@ function noteTexture(): string {
 	return getSfxMuted() ? 'hudNoteOff' : 'hudNote';
 }
 
-function musicTexture(): string {
-	return musicMuted ? 'hudMusicOff' : 'hudMusic';
-}
-
-function autoTexture(): string {
-	return autoMove ? 'hudAuto' : 'hudAutoOff';
-}
-
 export function createSfxPanel(
 	scene: Phaser.Scene,
 	handlers: PanelHandlers = {},
@@ -148,7 +103,6 @@ export function createSfxPanel(
 	isOpen: () => boolean;
 } {
 	loadAutoMove();
-	loadMusicMuted();
 
 	const catcher = scene.add.rectangle(0, 0, 16, 16, 0x000000, 0);
 	catcher.setDepth(catcherDepth);
@@ -157,65 +111,62 @@ export function createSfxPanel(
 	const glass = scene.add.image(0, 0, 'hudGlassMeadow').setOrigin(0, 0);
 	glass.setDepth(panelDepth);
 	glass.setVisible(false);
+	glass.setDisplaySize(
+		sfxMonitor.width - glassX * 2,
+		sfxMonitor.height - glassY * 2,
+	);
 
 	const chrome = scene.add.image(0, 0, 'resultMonitor').setOrigin(0, 0);
 	chrome.setDepth(panelDepth + 1);
 	chrome.setVisible(false);
+	chrome.setDisplaySize(sfxMonitor.width, sfxMonitor.height);
 
-	const volPlate = scene.add.image(0, 0, 'hudPlateVol').setOrigin(0, 0);
-	volPlate.setDepth(panelDepth + 2);
-	volPlate.setVisible(false);
+	const notePlate = scene.add.image(0, 0, 'hudPlate').setOrigin(0, 0);
+	notePlate.setDepth(panelDepth + 2);
+	notePlate.setVisible(false);
+	notePlate.setDisplaySize(plate, plate);
 
-	const musicPlate = scene.add.image(0, 0, 'hudPlate').setOrigin(0, 0);
-	musicPlate.setDepth(panelDepth + 2);
-	musicPlate.setVisible(false);
+	const minusPlate = scene.add.image(0, 0, 'hudPlate').setOrigin(0, 0);
+	minusPlate.setDepth(panelDepth + 2);
+	minusPlate.setVisible(false);
+	minusPlate.setDisplaySize(plate, plate);
 
-	const resignPlate = scene.add.image(0, 0, 'hudPlate').setOrigin(0, 0);
-	resignPlate.setDepth(panelDepth + 2);
-	resignPlate.setVisible(false);
-
-	const autoPlate = scene.add.image(0, 0, 'hudPlate').setOrigin(0, 0);
-	autoPlate.setDepth(panelDepth + 2);
-	autoPlate.setVisible(false);
+	const plusPlate = scene.add.image(0, 0, 'hudPlate').setOrigin(0, 0);
+	plusPlate.setDepth(panelDepth + 2);
+	plusPlate.setVisible(false);
+	plusPlate.setDisplaySize(plate, plate);
 
 	const note = scene.add.image(0, 0, noteTexture()).setOrigin(0.5);
 	note.setDepth(panelDepth + 3);
 	note.setVisible(false);
 
-	const music = scene.add.image(0, 0, musicTexture()).setOrigin(0.5);
-	music.setDepth(panelDepth + 3);
-	music.setVisible(false);
+	const minusGlyph = scene.add
+		.text(0, 0, '−', {
+			fontFamily: 'monospace',
+			fontSize: '28px',
+			color: palette.text,
+		})
+		.setOrigin(0.5)
+		.setStroke('#1a1410', 2)
+		.setDepth(panelDepth + 3)
+		.setVisible(false);
 
-	const resign = scene.add.image(0, 0, 'hudResign').setOrigin(0.5);
-	resign.setDepth(panelDepth + 3);
-	resign.setVisible(false);
-
-	const auto = scene.add.image(0, 0, autoTexture()).setOrigin(0.5);
-	auto.setDepth(panelDepth + 3);
-	auto.setVisible(false);
-
-	const knob = scene.add.image(0, 0, 'hudSliderKnob').setOrigin(0.5);
-	knob.setDepth(panelDepth + 4);
-	knob.setVisible(false);
-
-	const trackHit = scene.add.rectangle(0, 0, slotWidth, plate, 0x000000, 0);
-	trackHit.setDepth(panelDepth + 3);
-	trackHit.setVisible(false);
+	const plusGlyph = scene.add
+		.text(0, 0, '+', {
+			fontFamily: 'monospace',
+			fontSize: '28px',
+			color: palette.text,
+		})
+		.setOrigin(0.5)
+		.setStroke('#1a1410', 2)
+		.setDepth(panelDepth + 3)
+		.setVisible(false);
 
 	let px = 0;
 	let py = 0;
 	let open = false;
-	let dragging = false;
 	let catcherArmed = false;
 	let ignorePointerId: number | undefined;
-
-	function knobX(): number {
-		return px + glassX + volX + trackMin + getSfxMaster() * trackSpan;
-	}
-
-	function knobY(): number {
-		return py + glassY + volY + slotMidY;
-	}
 
 	function insidePanel(x: number, y: number): boolean {
 		return (
@@ -228,58 +179,37 @@ export function createSfxPanel(
 
 	function paint(): void {
 		note.setTexture(noteTexture());
-		music.setTexture(musicTexture());
-		auto.setTexture(autoTexture());
-		knob.setPosition(knobX(), knobY());
 	}
 
 	function placeHits(): void {
 		chrome.setPosition(px, py);
 		glass.setPosition(px + glassX, py + glassY);
-		volPlate.setPosition(px + glassX + volX, py + glassY + volY);
-		musicPlate.setPosition(px + glassX + musicX, py + glassY + musicY);
-		resignPlate.setPosition(px + glassX + resignX, py + glassY + resignY);
-		autoPlate.setPosition(px + glassX + autoX, py + glassY + autoY);
+		notePlate.setPosition(px + glassX + noteX, py + glassY + rowY);
+		minusPlate.setPosition(px + glassX + minusX, py + glassY + rowY);
+		plusPlate.setPosition(px + glassX + plusX, py + glassY + rowY);
 		note.setPosition(
-			px + glassX + volX + noteMidX,
-			py + glassY + volY + slotMidY,
+			px + glassX + noteX + plate / 2,
+			py + glassY + rowY + plate / 2,
 		);
-		music.setPosition(
-			px + glassX + musicX + plate / 2,
-			py + glassY + musicY + plate / 2,
+		minusGlyph.setPosition(
+			px + glassX + minusX + plate / 2,
+			py + glassY + rowY + plate / 2,
 		);
-		resign.setPosition(
-			px + glassX + resignX + plate / 2,
-			py + glassY + resignY + plate / 2,
+		plusGlyph.setPosition(
+			px + glassX + plusX + plate / 2,
+			py + glassY + rowY + plate / 2,
 		);
-		auto.setPosition(
-			px + glassX + autoX + plate / 2,
-			py + glassY + autoY + plate / 2,
-		);
-		trackHit.setPosition(
-			px + glassX + volX + slotLeft + slotWidth / 2,
-			py + glassY + volY + slotMidY,
-		);
-		knob.setPosition(knobX(), knobY());
-	}
-
-	function setFromPointer(pointer: Pointer): void {
-		const t =
-			((pointer.worldX ?? 0) - (px + glassX + volX + trackMin)) / trackSpan;
-		setSfxMaster(t);
-		paint();
 	}
 
 	function armCatcher(): void {
 		catcherArmed = true;
 	}
 
-	const plates = [volPlate, musicPlate, resignPlate, autoPlate];
-	const icons = [note, music, resign, auto, knob];
+	const plates = [notePlate, minusPlate, plusPlate];
+	const icons = [note, minusGlyph, plusGlyph];
 
 	function setOpen(next: boolean, pointer?: Pointer): void {
 		open = next;
-		dragging = false;
 		glass.setVisible(next);
 		chrome.setVisible(next);
 		for (const img of plates) {
@@ -288,7 +218,6 @@ export function createSfxPanel(
 		for (const img of icons) {
 			img.setVisible(next);
 		}
-		trackHit.setVisible(next);
 		catcher.setVisible(next);
 		if (next) {
 			ignorePointerId =
@@ -297,11 +226,10 @@ export function createSfxPanel(
 			chrome.setInteractive();
 			glass.setInteractive();
 			note.setInteractive({ useHandCursor: true });
-			music.setInteractive({ useHandCursor: true });
-			resign.setInteractive({ useHandCursor: true });
-			auto.setInteractive({ useHandCursor: true });
-			knob.setInteractive({ useHandCursor: true });
-			trackHit.setInteractive({ useHandCursor: true });
+			minusPlate.setInteractive({ useHandCursor: true });
+			plusPlate.setInteractive({ useHandCursor: true });
+			minusGlyph.setInteractive({ useHandCursor: true });
+			plusGlyph.setInteractive({ useHandCursor: true });
 			catcher.setInteractive();
 			paint();
 			if (typeof scene.time?.delayedCall === 'function') {
@@ -315,11 +243,10 @@ export function createSfxPanel(
 			chrome.disableInteractive();
 			glass.disableInteractive();
 			note.disableInteractive();
-			music.disableInteractive();
-			resign.disableInteractive();
-			auto.disableInteractive();
-			knob.disableInteractive();
-			trackHit.disableInteractive();
+			minusPlate.disableInteractive();
+			plusPlate.disableInteractive();
+			minusGlyph.disableInteractive();
+			plusGlyph.disableInteractive();
 			catcher.disableInteractive();
 		}
 		handlers.onOpenChange?.(next);
@@ -330,44 +257,22 @@ export function createSfxPanel(
 		paint();
 	}
 
-	function toggleMusic(): void {
-		musicMuted = !musicMuted;
-		writeMusicMuted();
-		paint();
-	}
-
-	function toggleAuto(): void {
-		setAutoMove(!autoMove);
-		paint();
-		handlers.onAutoChange?.();
-	}
-
-	function fireResign(): void {
-		handlers.onResign?.();
+	function bumpMaster(delta: number): void {
+		setSfxMaster(getSfxMaster() + delta);
 	}
 
 	note.on('pointerdown', toggleMute);
-	music.on('pointerdown', toggleMusic);
-	resign.on('pointerdown', fireResign);
-	auto.on('pointerdown', toggleAuto);
-	knob.on('pointerdown', () => {
-		dragging = true;
+	minusPlate.on('pointerdown', () => {
+		bumpMaster(-volStep);
 	});
-	trackHit.on('pointerdown', (pointer: Pointer) => {
-		dragging = true;
-		const kx = knobX();
-		if (Math.abs((pointer.worldX ?? 0) - kx) > knobArt / 2) {
-			setFromPointer(pointer);
-		}
+	plusPlate.on('pointerdown', () => {
+		bumpMaster(volStep);
 	});
-	scene.input.on('pointermove', (pointer: Pointer) => {
-		if (!dragging || !open) {
-			return;
-		}
-		setFromPointer(pointer);
+	minusGlyph.on('pointerdown', () => {
+		bumpMaster(-volStep);
 	});
-	scene.input.on('pointerup', () => {
-		dragging = false;
+	plusGlyph.on('pointerdown', () => {
+		bumpMaster(volStep);
 	});
 	catcher.on('pointerdown', (pointer: Pointer) => {
 		if (!catcherArmed) {
@@ -386,14 +291,14 @@ export function createSfxPanel(
 		layout: (menuX, menuY, width, height) => {
 			const field = computeFieldLayout(width, height);
 			let x = Math.round(menuX - sfxMonitor.width + layout.hudMenu / 2);
-			let y = Math.round(menuY + layout.hudMenu / 2 + gap);
+			let y = Math.round(menuY + layout.hudMenu / 2 + pad);
 			x = Math.max(pad, Math.min(x, width - pad - sfxMonitor.width));
 			if (field.portrait && y + sfxMonitor.height > field.originY) {
 				y = Math.round(menuY - sfxMonitor.height / 2);
-				x = Math.round(menuX - layout.hudMenu / 2 - gap - sfxMonitor.width);
+				x = Math.round(menuX - layout.hudMenu / 2 - pad - sfxMonitor.width);
 				x = Math.max(pad, x);
 			} else if (y + sfxMonitor.height > height - pad) {
-				y = Math.round(menuY - layout.hudMenu / 2 - gap - sfxMonitor.height);
+				y = Math.round(menuY - layout.hudMenu / 2 - pad - sfxMonitor.height);
 			}
 			y = Math.max(pad, y);
 			px = x;

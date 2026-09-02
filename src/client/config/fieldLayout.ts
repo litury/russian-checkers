@@ -24,7 +24,7 @@ export function computeFieldLayout(width: number, height: number): FieldLayout {
 			cell: fieldSize / layout.rankCount,
 		};
 	}
-	const fieldSize = height;
+	const fieldSize = Math.min(width, height - layout.boardBottomGap);
 	return {
 		portrait: false,
 		fieldSize,
