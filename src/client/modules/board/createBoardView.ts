@@ -378,9 +378,7 @@ export function createBoardView(
 		const size = tongueSize(pose, cell);
 		const keys = fireSprites[pose];
 		for (const tongue of tongues) {
-			const rot = trailing
-				? backRot + wrapAngle(tongue.angle) * 0.12
-				: 0;
+			const rot = trailing ? backRot + wrapAngle(tongue.angle) * 0.12 : 0;
 			tongue.sprite.setTexture(keys[tongue.kind]);
 			tongue.sprite.setOrigin(0.5, trailing ? 1 : 0.75);
 			tongue.sprite.setRotation(rot);
@@ -670,6 +668,129 @@ export function createBoardView(
 		view.sprite.destroy();
 		view.outline.destroy();
 		view.shadow.destroy();
+	}
+
+	function spawnScorch(box: {
+		x: number;
+		y: number;
+		w: number;
+		h: number;
+	}): void {
+		const cell = Math.min(box.w, box.h);
+		const size = layout.scorchPx * (cell / 64);
+		const scorch = scene.add.ellipse(
+			box.x,
+			box.y,
+			size,
+			size * 0.92,
+			0x1a100c,
+			0.82,
+		);
+		scorch.setDepth(1.2);
+		scorch.disableInteractive();
+		const ember = scene.add.image(box.x, box.y, fireSprites.ember);
+		ember.setDepth(1.25);
+		ember.setDisplaySize(size * 0.55, size * 0.55);
+		ember.setAlpha(0.7);
+		ember.disableInteractive();
+		scene.tweens.add({
+			targets: [scorch, ember],
+			alpha: 0,
+			duration: layout.scorchFadeMs,
+			ease: 'Sine.easeIn',
+			onComplete: () => {
+				scorch.destroy();
+				ember.destroy();
+			},
+		});
+	}
+
+	function flashPitTongues(box: {
+		x: number;
+		y: number;
+		w: number;
+		h: number;
+	}): void {
+		const pieceSize = Math.min(box.w, box.h) * layout.pieceFit;
+		const cell = Math.min(box.w, box.h);
+		const radius = wellRadius(pieceSize, false);
+		const size = tongueSize('land', cell);
+		const keys = fireSprites.land;
+		const hold = layout.captureSquashMs + layout.captureSinkMs;
+		fireRing.types.forEach((kind, index) => {
+			const angle = (fireRing.anglesDeg[index] * Math.PI) / 180;
+			const sprite = scene.add.image(
+				box.x + Math.sin(angle) * radius,
+				box.y - Math.cos(angle) * radius,
+				keys[kind],
+			);
+			sprite.setOrigin(0.5, 0.75);
+			sprite.setDisplaySize(size.w, size.h);
+			sprite.setDepth(2.8);
+			sprite.setAlpha(1);
+			sprite.disableInteractive();
+			scene.tweens.add({
+				targets: sprite,
+				alpha: 0,
+				duration: hold,
+				ease: 'Sine.easeIn',
+				onComplete: () => {
+					sprite.destroy();
+				},
+			});
+		});
+	}
+
+	function playCapture(view: PieceView): void {
+		pieceViews.delete(squareKey(view.square));
+		if (pulsing === view) {
+			pulsing = null;
+		}
+		scene.tweens.killTweensOf(view.sprite);
+		view.shadow.setVisible(false);
+		view.shadow.setAlpha(0);
+		view.sprite.setDepth(3.5);
+		const box = cellBox(view.square);
+		const cell = Math.min(box.w, box.h);
+		spawnScorch(box);
+		flashPitTongues(box);
+		scene.tweens.add({
+			targets: view.sprite,
+			scaleX: view.baseScale * 1.12,
+			scaleY: view.baseScale * 0.55,
+			duration: layout.captureSquashMs,
+			ease: 'Sine.easeOut',
+			onUpdate: () => {
+				syncOutline(view);
+			},
+			onComplete: () => {
+				scene.tweens.add({
+					targets: view.sprite,
+					scaleX: view.baseScale * 0.2,
+					scaleY: view.baseScale * 0.2,
+					y: box.y + cell * 0.28,
+					alpha: 0,
+					duration: layout.captureSinkMs,
+					ease: 'Sine.easeIn',
+					onUpdate: () => {
+						view.outline.setAlpha(view.sprite.alpha);
+						syncOutline(view);
+					},
+					onComplete: () => {
+						destroyView(view);
+					},
+				});
+			},
+		});
+	}
+
+	function captureBetween(from: ISquare, land: ISquare): void {
+		for (const between of squaresAlong(from, land)) {
+			const taken = pieceViews.get(squareKey(between));
+			if (taken) {
+				playCapture(taken);
+			}
+		}
 	}
 
 	function liftPiece(view: PieceView): void {
@@ -1074,19 +1195,13 @@ export function createBoardView(
 					syncOutline(view);
 					carrier.destroy();
 					if (capture) {
-						for (const between of squaresAlong(from, land)) {
-							const taken = pieceViews.get(squareKey(between));
-							if (taken) {
-								taken.sprite.setVisible(false);
-								taken.shadow.setVisible(false);
-								taken.shadow.setAlpha(0);
-							}
-						}
+						captureBetween(from, land);
 					}
 					onLand?.(capture);
 					from = land;
 					step(index + 1);
 				};
+				let struck = false;
 				scene.tweens.add({
 					targets: carrier,
 					x: box.x,
@@ -1108,6 +1223,14 @@ export function createBoardView(
 						layoutTongues(0, 0, view.sprite.displayWidth, 'up', hopBack);
 						followEmitters(view);
 						syncOutline(view);
+						if (capture && !struck && t >= 0.45) {
+							struck = true;
+							tween.pause();
+							captureBetween(from, land);
+							scene.time.delayedCall(layout.hitStopMs, () => {
+								tween.resume();
+							});
+						}
 					},
 					onComplete: landHop,
 				});
