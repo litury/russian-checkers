@@ -855,6 +855,28 @@ export function createBoardView(
 		});
 	}
 
+
+	function runOverMs(
+		duration: number,
+		onTick: (t: number) => void,
+		onDone: () => void,
+	): void {
+		let elapsed = 0;
+		const maxDt = 1000 / 30;
+		const tick = (_time: number, delta: number): void => {
+			const raw = Number.isFinite(delta) && delta > 0 ? delta : 16;
+			elapsed += Math.min(raw, maxDt);
+			const t = elapsed >= duration ? 1 : elapsed / duration;
+			onTick(t);
+			if (t >= 1) {
+				scene.events.off('update', tick);
+				onDone();
+			}
+		};
+		onTick(0);
+		scene.events.on('update', tick);
+	}
+
 	function playMove(
 		move: IMove,
 		onDone: () => void,
@@ -909,21 +931,14 @@ export function createBoardView(
 				view.sprite.setPosition(fromBox.x, fromBox.y);
 				flame.setVisible(true);
 				const arc = Math.min(fromBox.w, fromBox.h) * layout.hopArcRatio;
-				scene.tweens.add({
-					targets: view.sprite,
-					x: box.x,
-					y: box.y,
-					duration: layout.moveMs,
-					ease: 'Sine.easeInOut',
-					onUpdate: (tween: Phaser.Tweens.Tween) => {
-						const t = Math.max(
-							0,
-							Math.min(1, tween.totalProgress),
-						);
+				runOverMs(
+					layout.moveMs,
+					(t) => {
+						const eased = 0.5 - 0.5 * Math.cos(t * Math.PI);
 						view.sprite.setPosition(
-							fromBox.x + (box.x - fromBox.x) * t,
+							fromBox.x + (box.x - fromBox.x) * eased,
 							fromBox.y +
-								(box.y - fromBox.y) * t -
+								(box.y - fromBox.y) * eased -
 								Math.sin(t * Math.PI) * arc,
 						);
 						view.sprite.setScale(view.baseScale);
@@ -931,9 +946,11 @@ export function createBoardView(
 						followEmitters(view);
 						syncOutline(view);
 					},
-					onComplete: () => {
+					() => {
 						view.sprite.setPosition(box.x, box.y);
 						view.sprite.setScale(view.baseScale);
+						stickFlame(view);
+						syncOutline(view);
 						if (capture) {
 							for (const between of squaresAlong(from, land)) {
 								const taken = pieceViews.get(squareKey(between));
@@ -948,7 +965,7 @@ export function createBoardView(
 						from = land;
 						step(index + 1);
 					},
-				});
+				);
 			};
 			placeFxAt(fromBox.x, fromBox.y, fromBox.w, fromBox.h);
 			stickFlame(view);
@@ -962,18 +979,28 @@ export function createBoardView(
 					fly();
 				};
 				playFireTakeoff();
-				scene.tweens.add({
-					targets: view.sprite,
-					scaleY: view.baseScale * layout.pressScaleY,
-					y: fromBox.y + pressDip(),
-					duration: layout.anticipateMs,
-					ease: 'Sine.easeIn',
-					onComplete: () => {
+				runOverMs(
+					layout.anticipateMs,
+					(t) => {
+						const squash =
+							1 - (1 - layout.pressScaleY) * t;
+						view.sprite.setScale(
+							view.baseScale,
+							view.baseScale * squash,
+						);
+						view.sprite.setPosition(
+							fromBox.x,
+							fromBox.y + pressDip() * t,
+						);
+						stickFlame(view);
+						syncOutline(view);
+					},
+					() => {
 						view.sprite.setScale(view.baseScale);
 						view.sprite.setPosition(fromBox.x, fromBox.y);
 						go();
 					},
-				});
+				);
 			} else {
 				fly();
 			}
