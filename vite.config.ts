@@ -11,6 +11,11 @@ export default defineConfig({
 		emptyOutDir: true,
 		target: 'es2022',
 		chunkSizeWarningLimit: 2000,
+		assetsInlineLimit: (filePath: string) => {
+			if (filePath.includes('hud_evm_panel')) {
+				return false;
+			}
+		},
 	},
 	test: {
 		environment: 'node',
