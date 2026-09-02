@@ -379,9 +379,9 @@ export function createBoardView(
 		for (const tongue of tongues) {
 			const rot = trailing
 				? backRot + wrapAngle(tongue.angle) * 0.12
-				: tongue.angle;
+				: 0;
 			tongue.sprite.setTexture(keys[tongue.kind]);
-			tongue.sprite.setOrigin(0.5, trailing ? 1 : 0.5);
+			tongue.sprite.setOrigin(0.5, trailing ? 1 : 0.75);
 			tongue.sprite.setRotation(rot);
 			tongue.sprite.setPosition(
 				cx + ox + Math.sin(tongue.angle) * radius,

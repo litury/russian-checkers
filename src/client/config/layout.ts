@@ -37,10 +37,10 @@ export const fireSprites = {
 export const fireRing = {
 	types: [1, 0, 2, 1, 0, 2, 1] as const,
 	anglesDeg: [12, 64, 118, 171, 224, 281, 333] as const,
-	wellRatio: 1.08,
-	idle: { w: 12, h: 12 },
+	wellRatio: 0.86,
+	idle: { w: 16, h: 16 },
 	up: { w: 12, h: 20 },
-	land: { w: 14, h: 11 },
+	land: { w: 16, h: 12 },
 	hopLean: 1,
 	hopTrail: 0.22,
 	hopRadius: 0.28,
