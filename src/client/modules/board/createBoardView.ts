@@ -906,15 +906,20 @@ export function createBoardView(
 				flashGhost(view);
 				playFireStreak();
 				view.sprite.setScale(view.baseScale);
-				const hop = { t: 0 };
+				view.sprite.setPosition(fromBox.x, fromBox.y);
+				flame.setVisible(true);
 				const arc = Math.min(fromBox.w, fromBox.h) * layout.hopArcRatio;
 				scene.tweens.add({
-					targets: hop,
-					t: 1,
+					targets: view.sprite,
+					x: box.x,
+					y: box.y,
 					duration: layout.moveMs,
 					ease: 'Sine.easeInOut',
-					onUpdate: () => {
-						const t = hop.t;
+					onUpdate: (tween: Phaser.Tweens.Tween) => {
+						const t = Math.max(
+							0,
+							Math.min(1, tween.totalProgress),
+						);
 						view.sprite.setPosition(
 							fromBox.x + (box.x - fromBox.x) * t,
 							fromBox.y +
