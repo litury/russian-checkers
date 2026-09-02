@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { computeFieldLayout } from '@/client/config/fieldLayout';
 import {
 	layout,
 	pieceSprites,
@@ -473,13 +474,14 @@ export function createBoardView(
 	}
 
 	function layoutBoard(width: number, height: number): void {
-		const bg = height > width ? tableBgs.portrait : tableBgs.landscape;
-		const fieldSize = Math.min(width, height);
+		const field = computeFieldLayout(width, height);
+		const bg = field.portrait ? tableBgs.portrait : tableBgs.landscape;
+		const fieldSize = field.fieldSize;
 		if (frame.texture.key !== bg.key) {
 			frame.setTexture(bg.key);
 		}
-		originX = height > width ? 0 : Math.round((width - fieldSize) / 2);
-		originY = height > width ? Math.round((height - fieldSize) / 2) : 0;
+		originX = field.originX;
+		originY = field.originY;
 		const scale = fieldSize / bg.fieldW;
 		frame.setScale(scale);
 		frame.setPosition(
