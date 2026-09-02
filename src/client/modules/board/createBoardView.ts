@@ -63,6 +63,114 @@ function mixRgb(from: number, to: number, t: number): number {
 	return (r << 16) | (g << 8) | b;
 }
 
+const arcTin = 0x8a8478;
+const arcGold = 0xd4b45a;
+const dashOn = 4;
+const dashOff = 3;
+
+function prefersReducedMotion(): boolean {
+	try {
+		return Boolean(
+			globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
+		);
+	} catch {
+		return false;
+	}
+}
+
+function quadPoint(
+	t: number,
+	x0: number,
+	y0: number,
+	cx: number,
+	cy: number,
+	x1: number,
+	y1: number,
+): { x: number; y: number } {
+	const u = 1 - t;
+	return {
+		x: u * u * x0 + 2 * u * t * cx + t * t * x1,
+		y: u * u * y0 + 2 * u * t * cy + t * t * y1,
+	};
+}
+
+function drawDashedQuad(
+	g: Phaser.GameObjects.Graphics,
+	x0: number,
+	y0: number,
+	cx: number,
+	cy: number,
+	x1: number,
+	y1: number,
+	color: number,
+): void {
+	const steps = 28;
+	const pts: { x: number; y: number }[] = [];
+	for (let i = 0; i <= steps; i += 1) {
+		const p = quadPoint(i / steps, x0, y0, cx, cy, x1, y1);
+		pts.push({ x: Math.round(p.x), y: Math.round(p.y) });
+	}
+	g.lineStyle(1, color, 0.95);
+	let on = true;
+	let run = 0;
+	let budget = dashOn;
+	for (let i = 1; i < pts.length; i += 1) {
+		const a = pts[i - 1];
+		const b = pts[i];
+		let x = a.x;
+		let y = a.y;
+		const dx = b.x - a.x;
+		const dy = b.y - a.y;
+		const len = Math.hypot(dx, dy);
+		if (len < 0.5) {
+			continue;
+		}
+		const nx = dx / len;
+		const ny = dy / len;
+		let remain = len;
+		while (remain > 0.01) {
+			const step = Math.min(budget - run, remain);
+			const x2 = x + nx * step;
+			const y2 = y + ny * step;
+			if (on) {
+				g.lineBetween(
+					Math.round(x),
+					Math.round(y),
+					Math.round(x2),
+					Math.round(y2),
+				);
+			}
+			x = x2;
+			y = y2;
+			remain -= step;
+			run += step;
+			if (run >= budget - 0.001) {
+				on = !on;
+				run = 0;
+				budget = on ? dashOn : dashOff;
+			}
+		}
+	}
+}
+
+function drawSight(
+	g: Phaser.GameObjects.Graphics,
+	x: number,
+	y: number,
+	arm: number,
+): void {
+	const cx = Math.round(x);
+	const cy = Math.round(y);
+	const span = Math.max(5, Math.round(arm));
+	const gap = 2;
+	g.lineStyle(1, arcGold, 1);
+	g.lineBetween(cx - span, cy, cx - gap, cy);
+	g.lineBetween(cx + gap, cy, cx + span, cy);
+	g.lineStyle(1, arcTin, 1);
+	g.lineBetween(cx, cy - span, cx, cy - gap);
+	g.lineBetween(cx, cy + gap, cx, cy + span);
+}
+
 type PieceView = {
 	square: ISquare;
 	sprite: Phaser.GameObjects.Image;
@@ -182,6 +290,8 @@ export function createBoardView(
 	const pieceViews = new Map<string, PieceView>();
 	const grid = scene.add.graphics();
 	grid.setDepth(1);
+	const pathGfx = scene.add.graphics();
+	pathGfx.setDepth(3.2);
 	let originX = 0;
 	let originY = 0;
 	let cellW = 0;
@@ -326,6 +436,7 @@ export function createBoardView(
 			marker.destroy();
 		}
 		markers.length = 0;
+		pathGfx.clear();
 	}
 
 	function drawGrid(): void {
@@ -1234,10 +1345,59 @@ export function createBoardView(
 		drawGrid();
 	}
 
+	function drawPaths(position: IPosition, options: IMove[]): void {
+		pathGfx.clear();
+		if (options.length === 0) {
+			return;
+		}
+		pathGfx.setAlpha(prefersReducedMotion() ? 1 : 0.95);
+		const painted = new Set<string>();
+		for (const move of options) {
+			let from = move.from;
+			for (const land of move.path) {
+				const fromBox = cellBox(from);
+				const landBox = cellBox(land);
+				const arc = Math.min(fromBox.w, fromBox.h) * layout.hopArcRatio;
+				let cx = (fromBox.x + landBox.x) / 2;
+				let cy = (fromBox.y + landBox.y) / 2 - arc;
+				if (isJump(from, land)) {
+					const captured = squaresAlong(from, land).find((sq) =>
+						Boolean(position.squares[sq.row]?.[sq.col]),
+					);
+					if (captured) {
+						const pit = cellBox(captured);
+						cx = pit.x;
+						cy = pit.y - arc;
+					}
+				}
+				drawDashedQuad(
+					pathGfx,
+					fromBox.x,
+					fromBox.y,
+					cx,
+					cy,
+					landBox.x,
+					landBox.y,
+					isJump(from, land) ? arcGold : arcTin,
+				);
+				from = land;
+			}
+			const dest = move.path[move.path.length - 1];
+			const key = squareKey(dest);
+			if (painted.has(key)) {
+				continue;
+			}
+			painted.add(key);
+			const box = cellBox(dest);
+			drawSight(pathGfx, box.x, box.y, Math.min(box.w, box.h) * 0.18);
+		}
+	}
+
 	function sync(
 		position: IPosition,
 		destinations: ISquare[],
 		selected: ISquare | null,
+		options: IMove[] = [],
 	): void {
 		if (moving) {
 			return;
@@ -1248,6 +1408,7 @@ export function createBoardView(
 		}
 		reconcile(position, selected);
 		drawMarkers(position, destinations, selected);
+		drawPaths(position, options);
 		if (selected) {
 			const view = pieceViews.get(squareKey(selected));
 			if (view) {
@@ -1497,6 +1658,7 @@ export function createBoardView(
 			pendingLand.clear();
 			killCaptureVfx();
 			clearScorches();
+			pathGfx.clear();
 		},
 	};
 }

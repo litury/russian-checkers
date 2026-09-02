@@ -300,7 +300,7 @@ export class GameScene extends Phaser.Scene {
 				this.resignMatch();
 			},
 			onAutoChange: () => {
-				this.maybeAutoMove();
+				this.refresh();
 			},
 		});
 		this.board = createBoardView(this, (square) => {
@@ -360,7 +360,12 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private refresh(): void {
-		this.board.sync(this.position, this.humanHighlights(), this.selected);
+		this.board.sync(
+			this.position,
+			this.humanHighlights(),
+			this.selected,
+			this.optionMoves(),
+		);
 		if (this.phase === 'human') {
 			this.hud.setTurn('Ваш ход');
 		} else if (this.phase === 'bot') {
@@ -382,6 +387,21 @@ export class GameScene extends Phaser.Scene {
 		if (moves.length === 1) {
 			this.playHuman(moves[0]);
 		}
+	}
+
+	private optionMoves(): IMove[] {
+		if (this.phase !== 'human' || this.paused) {
+			return [];
+		}
+		const moves = legalMoves(this.position);
+		const selected = this.selected;
+		if (selected) {
+			return moves.filter((move) => sameSquare(move.from, selected));
+		}
+		if (!getAutoMove() || moves.length !== 1) {
+			return moves;
+		}
+		return [];
 	}
 
 	private humanHighlights(): ISquare[] {

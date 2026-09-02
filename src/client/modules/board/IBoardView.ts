@@ -5,6 +5,7 @@ export interface IBoardView {
 		position: IPosition,
 		highlights: ISquare[],
 		selected: ISquare | null,
+		options?: IMove[],
 	) => void;
 	layout: (width: number, height: number) => void;
 	press: (square: ISquare) => void;
