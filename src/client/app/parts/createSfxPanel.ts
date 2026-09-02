@@ -8,159 +8,256 @@ import {
 	setSfxMuted,
 } from '@/client/modules/sfx/createTableSfx';
 
-const panelW = 168;
-const panelH = 48;
+export const evmPanel = {
+	width: 200,
+	height: 96,
+	well: 44,
+	knobArt: 19,
+} as const;
+
+export const autoStorageKey = 'checkers.autoMove';
+
 const pad = 8;
-const muteSize = 28;
-const trackW = 108;
-const trackH = 6;
-const trackHitH = 28;
-const knob = 12;
 const gap = 6;
 const catcherDepth = 13;
 const panelDepth = 14;
-const tin = 0x5a564c;
-const meadow = 0x8da583;
-const highlight = 0xc4d0b8;
-const well = 0x2a241c;
-const fill = 0xd9cbb8;
-const knobFace = 0xe8e0d0;
-const slash = 0x1a1410;
+const wellY = 34;
+const muteWellX = 8;
+const resignWellX = 106;
+const autoWellX = 154;
+const grooveLeft = 56;
+const grooveWidth = 44;
+const grooveY = wellY + evmPanel.well / 2;
+const trackMin = grooveLeft + evmPanel.knobArt / 2;
+const trackSpan = grooveWidth - evmPanel.knobArt;
 
-type PointerX = { worldX: number };
+type Pointer = {
+	worldX?: number;
+	worldY?: number;
+	id?: number;
+};
 
-export function createSfxPanel(scene: Phaser.Scene): {
+type PanelHandlers = {
+	onResign?: () => void;
+	onAutoChange?: () => void;
+	onOpenChange?: (open: boolean) => void;
+};
+
+let autoMove = true;
+
+function readStorage(): Storage | undefined {
+	try {
+		return globalThis.localStorage;
+	} catch {
+		return undefined;
+	}
+}
+
+function loadAutoMove(): void {
+	const store = readStorage();
+	if (!store) {
+		autoMove = true;
+		return;
+	}
+	const raw = store.getItem(autoStorageKey);
+	if (raw === '0' || raw === 'false') {
+		autoMove = false;
+		return;
+	}
+	autoMove = true;
+}
+
+function writeAutoMove(): void {
+	const store = readStorage();
+	if (!store) {
+		return;
+	}
+	try {
+		store.setItem(autoStorageKey, autoMove ? '1' : '0');
+	} catch {
+		return;
+	}
+}
+
+loadAutoMove();
+
+export function getAutoMove(): boolean {
+	return autoMove;
+}
+
+export function setAutoMove(on: boolean): void {
+	autoMove = on;
+	writeAutoMove();
+}
+
+function muteTexture(): string {
+	return getSfxMuted() ? 'hudMuteOff' : 'hudMute';
+}
+
+function autoTexture(): string {
+	return autoMove ? 'hudAuto' : 'hudAutoOff';
+}
+
+function wellCenterX(wellX: number): number {
+	return wellX + evmPanel.well / 2;
+}
+
+export function createSfxPanel(
+	scene: Phaser.Scene,
+	handlers: PanelHandlers = {},
+): {
 	layout: (menuX: number, menuY: number, width: number, height: number) => void;
-	toggle: () => void;
+	toggle: (pointer?: Pointer) => void;
 	hide: () => void;
+	isOpen: () => boolean;
 } {
+	loadAutoMove();
+
 	const catcher = scene.add.rectangle(0, 0, 16, 16, 0x000000, 0);
 	catcher.setDepth(catcherDepth);
 	catcher.setVisible(false);
 
-	const g = scene.add.graphics();
-	g.setDepth(panelDepth);
-	g.setVisible(false);
+	const chrome = scene.add.image(0, 0, 'hudEvmPanel').setOrigin(0, 0);
+	chrome.setDepth(panelDepth);
+	chrome.setVisible(false);
 
-	const muteHit = scene.add.rectangle(0, 0, muteSize, muteSize, 0x000000, 0);
-	muteHit.setDepth(panelDepth + 1);
-	muteHit.setVisible(false);
+	const mute = scene.add.image(0, 0, muteTexture()).setOrigin(0.5);
+	mute.setDepth(panelDepth + 1);
+	mute.setVisible(false);
 
-	const trackHit = scene.add.rectangle(0, 0, trackW, trackHitH, 0x000000, 0);
+	const resign = scene.add.image(0, 0, 'hudResign').setOrigin(0.5);
+	resign.setDepth(panelDepth + 1);
+	resign.setVisible(false);
+
+	const auto = scene.add.image(0, 0, autoTexture()).setOrigin(0.5);
+	auto.setDepth(panelDepth + 1);
+	auto.setVisible(false);
+
+	const knob = scene.add.image(0, 0, 'hudSliderKnob').setOrigin(0.5);
+	knob.setDepth(panelDepth + 2);
+	knob.setVisible(false);
+
+	const trackHit = scene.add.rectangle(
+		0,
+		0,
+		grooveWidth,
+		evmPanel.well,
+		0x000000,
+		0,
+	);
 	trackHit.setDepth(panelDepth + 1);
 	trackHit.setVisible(false);
 
 	let px = 0;
 	let py = 0;
-	let trackX = 0;
-	let trackY = 0;
 	let open = false;
 	let dragging = false;
+	let catcherArmed = false;
+	let ignorePointerId: number | undefined;
 
-	function muteX(): number {
-		return pad;
+	function knobX(): number {
+		return px + trackMin + getSfxMaster() * trackSpan;
 	}
 
-	function muteY(): number {
-		return Math.round((panelH - muteSize) / 2);
+	function insidePanel(x: number, y: number): boolean {
+		return (
+			x >= px &&
+			x <= px + evmPanel.width &&
+			y >= py &&
+			y <= py + evmPanel.height
+		);
 	}
 
 	function paint(): void {
-		// hud_mute / hud_mute_off / hud_slider_knob will replace the drawn mute/knob when 2D drops them.
-		const linear = getSfxMaster();
-		const muted = getSfxMuted();
-		g.clear();
-		g.setPosition(px, py);
-		g.fillStyle(tin, 1);
-		g.fillRect(0, 0, panelW, panelH);
-		g.fillStyle(meadow, 1);
-		g.fillRect(1, 1, panelW - 2, panelH - 2);
-		g.fillStyle(highlight, 1);
-		g.fillRect(2, 2, panelW - 4, 1);
-		g.fillStyle(well, 1);
-		g.fillRect(2, panelH - 3, panelW - 4, 1);
-
-		const mx = muteX();
-		const my = muteY();
-		g.fillStyle(tin, 1);
-		g.fillRect(mx, my, muteSize, muteSize);
-		g.fillStyle(well, 1);
-		g.fillRect(mx + 1, my + 1, muteSize - 2, muteSize - 2);
-		g.fillStyle(fill, 1);
-		g.fillRect(mx + 6, my + 10, 6, 8);
-		g.fillRect(mx + 12, my + 8, 2, 12);
-		g.fillRect(mx + 14, my + 9, 2, 10);
-		g.fillRect(mx + 16, my + 11, 2, 6);
-		if (muted) {
-			g.fillStyle(slash, 1);
-			g.fillRect(mx + 5, my + 6, 2, 2);
-			g.fillRect(mx + 7, my + 8, 2, 2);
-			g.fillRect(mx + 9, my + 10, 2, 2);
-			g.fillRect(mx + 11, my + 12, 2, 2);
-			g.fillRect(mx + 13, my + 14, 2, 2);
-			g.fillRect(mx + 15, my + 16, 2, 2);
-			g.fillRect(mx + 17, my + 18, 2, 2);
-		}
-
-		g.fillStyle(well, 1);
-		g.fillRect(trackX, trackY, trackW, trackH);
-		const filled = Math.round(trackW * linear);
-		if (filled > 0) {
-			g.fillStyle(muted ? tin : fill, 1);
-			g.fillRect(trackX, trackY, filled, trackH);
-		}
-		const kx = Math.round(trackX + linear * (trackW - 1) - knob / 2);
-		const ky = Math.round(trackY + trackH / 2 - knob / 2);
-		g.fillStyle(tin, 1);
-		g.fillRect(kx, ky, knob, knob);
-		g.fillStyle(knobFace, 1);
-		g.fillRect(kx + 1, ky + 1, knob - 2, knob - 2);
-		g.fillStyle(highlight, 1);
-		g.fillRect(kx + 2, ky + 2, 3, 1);
+		mute.setTexture(muteTexture());
+		auto.setTexture(autoTexture());
+		knob.setPosition(knobX(), py + grooveY);
 	}
 
 	function placeHits(): void {
-		muteHit.setPosition(
-			px + muteX() + muteSize / 2,
-			py + muteY() + muteSize / 2,
-		);
-		trackHit.setPosition(px + trackX + trackW / 2, py + trackY + trackH / 2);
+		const cy = py + grooveY;
+		chrome.setPosition(px, py);
+		mute.setPosition(px + wellCenterX(muteWellX), cy);
+		resign.setPosition(px + wellCenterX(resignWellX), cy);
+		auto.setPosition(px + wellCenterX(autoWellX), cy);
+		trackHit.setPosition(px + grooveLeft + grooveWidth / 2, cy);
+		knob.setPosition(knobX(), cy);
 	}
 
-	function setFromPointer(pointer: PointerX): void {
-		const t = (pointer.worldX - (px + trackX)) / trackW;
+	function setFromPointer(pointer: Pointer): void {
+		const t = ((pointer.worldX ?? 0) - (px + trackMin)) / trackSpan;
 		setSfxMaster(t);
 		paint();
 	}
 
-	function setOpen(next: boolean): void {
+	function armCatcher(): void {
+		catcherArmed = true;
+	}
+
+	function setOpen(next: boolean, pointer?: Pointer): void {
 		open = next;
 		dragging = false;
-		g.setVisible(next);
-		muteHit.setVisible(next);
+		chrome.setVisible(next);
+		mute.setVisible(next);
+		resign.setVisible(next);
+		auto.setVisible(next);
+		knob.setVisible(next);
 		trackHit.setVisible(next);
 		catcher.setVisible(next);
 		if (next) {
-			muteHit.setInteractive({ useHandCursor: true });
+			ignorePointerId =
+				typeof pointer?.id === 'number' ? pointer.id : undefined;
+			catcherArmed = false;
+			chrome.setInteractive();
+			mute.setInteractive({ useHandCursor: true });
+			resign.setInteractive({ useHandCursor: true });
+			auto.setInteractive({ useHandCursor: true });
+			knob.setInteractive({ useHandCursor: true });
 			trackHit.setInteractive({ useHandCursor: true });
 			catcher.setInteractive();
 			paint();
+			if (typeof scene.time?.delayedCall === 'function') {
+				scene.time.delayedCall(0, armCatcher);
+			} else {
+				armCatcher();
+			}
 		} else {
-			muteHit.disableInteractive();
+			ignorePointerId = undefined;
+			catcherArmed = false;
+			chrome.disableInteractive();
+			mute.disableInteractive();
+			resign.disableInteractive();
+			auto.disableInteractive();
+			knob.disableInteractive();
 			trackHit.disableInteractive();
 			catcher.disableInteractive();
 		}
+		handlers.onOpenChange?.(next);
 	}
 
-	muteHit.on('pointerdown', () => {
+	mute.on('pointerdown', () => {
 		setSfxMuted(!getSfxMuted());
 		paint();
 	});
-	trackHit.on('pointerdown', (pointer: PointerX) => {
-		dragging = true;
-		setFromPointer(pointer);
+	resign.on('pointerdown', () => {
+		handlers.onResign?.();
 	});
-	scene.input.on('pointermove', (pointer: PointerX) => {
+	auto.on('pointerdown', () => {
+		setAutoMove(!autoMove);
+		paint();
+		handlers.onAutoChange?.();
+	});
+	knob.on('pointerdown', () => {
+		dragging = true;
+	});
+	trackHit.on('pointerdown', (pointer: Pointer) => {
+		dragging = true;
+		const kx = knobX();
+		if (Math.abs((pointer.worldX ?? 0) - kx) > evmPanel.knobArt / 2) {
+			setFromPointer(pointer);
+		}
+	});
+	scene.input.on('pointermove', (pointer: Pointer) => {
 		if (!dragging || !open) {
 			return;
 		}
@@ -169,24 +266,31 @@ export function createSfxPanel(scene: Phaser.Scene): {
 	scene.input.on('pointerup', () => {
 		dragging = false;
 	});
-	catcher.on('pointerdown', () => {
+	catcher.on('pointerdown', (pointer: Pointer) => {
+		if (!catcherArmed) {
+			return;
+		}
+		if (ignorePointerId !== undefined && pointer.id === ignorePointerId) {
+			return;
+		}
+		if (insidePanel(pointer.worldX ?? 0, pointer.worldY ?? 0)) {
+			return;
+		}
 		setOpen(false);
 	});
 
 	return {
 		layout: (menuX, menuY, width, height) => {
 			const field = computeFieldLayout(width, height);
-			trackX = pad + muteSize + gap;
-			trackY = Math.round((panelH - trackH) / 2);
-			let x = Math.round(menuX - panelW + layout.hudMenu / 2);
+			let x = Math.round(menuX - evmPanel.width + layout.hudMenu / 2);
 			let y = Math.round(menuY + layout.hudMenu / 2 + gap);
-			x = Math.max(pad, Math.min(x, width - pad - panelW));
-			if (field.portrait && y + panelH > field.originY) {
-				y = Math.round(menuY - panelH / 2);
-				x = Math.round(menuX - layout.hudMenu / 2 - gap - panelW);
+			x = Math.max(pad, Math.min(x, width - pad - evmPanel.width));
+			if (field.portrait && y + evmPanel.height > field.originY) {
+				y = Math.round(menuY - evmPanel.height / 2);
+				x = Math.round(menuX - layout.hudMenu / 2 - gap - evmPanel.width);
 				x = Math.max(pad, x);
-			} else if (y + panelH > height - pad) {
-				y = Math.round(menuY - layout.hudMenu / 2 - gap - panelH);
+			} else if (y + evmPanel.height > height - pad) {
+				y = Math.round(menuY - layout.hudMenu / 2 - gap - evmPanel.height);
 			}
 			y = Math.max(pad, y);
 			px = x;
@@ -198,11 +302,12 @@ export function createSfxPanel(scene: Phaser.Scene): {
 				paint();
 			}
 		},
-		toggle: () => {
-			setOpen(!open);
+		toggle: (pointer) => {
+			setOpen(!open, pointer);
 		},
 		hide: () => {
 			setOpen(false);
 		},
+		isOpen: () => open,
 	};
 }
