@@ -1,53 +1,87 @@
 import Phaser from 'phaser';
 import {
-	layout,
+	debrisSprites,
+	fireSprites,
 	pieceSprites,
 	pitSprites,
-	tableBgs,
+	tableLayers,
+	wreathSprites,
 } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
 import type { IBoardView } from '@/client/modules/board';
 import { createBoardView } from '@/client/modules/board';
-import bgDeskUrl from '@/client/modules/board/kit_v2/bg_desk.png';
-import bgPhoneUrl from '@/client/modules/board/kit_v2/bg_phone.png';
-import captureRimUrl from '@/client/modules/board/kit_v2/capture_rim.png';
-import moveRimUrl from '@/client/modules/board/kit_v2/move_rim.png';
-import pit00Url from '@/client/modules/board/kit_v2/pits/pit_00.png';
-import pit03Url from '@/client/modules/board/kit_v2/pits/pit_03.png';
-import pit07Url from '@/client/modules/board/kit_v2/pits/pit_07.png';
-import pit10Url from '@/client/modules/board/kit_v2/pits/pit_10.png';
-import pit11Url from '@/client/modules/board/kit_v2/pits/pit_11.png';
-import selectRimUrl from '@/client/modules/board/kit_v2/select_rim.png';
+import tongue0IdleUrl from '@/client/modules/board/fire_rocket/tongue_0_idle.png';
+import tongue0LandUrl from '@/client/modules/board/fire_rocket/tongue_0_land.png';
+import tongue0UpUrl from '@/client/modules/board/fire_rocket/tongue_0_up.png';
+import tongue1IdleUrl from '@/client/modules/board/fire_rocket/tongue_1_idle.png';
+import tongue1LandUrl from '@/client/modules/board/fire_rocket/tongue_1_land.png';
+import tongue1UpUrl from '@/client/modules/board/fire_rocket/tongue_1_up.png';
+import tongue2IdleUrl from '@/client/modules/board/fire_rocket/tongue_2_idle.png';
+import tongue2LandUrl from '@/client/modules/board/fire_rocket/tongue_2_land.png';
+import tongue2UpUrl from '@/client/modules/board/fire_rocket/tongue_2_up.png';
+import emberUrl from '@/client/modules/board/kit_v2/fx/ember.png';
+import puff0Url from '@/client/modules/board/kit_v2/fx/puff_0.png';
+import puff1Url from '@/client/modules/board/kit_v2/fx/puff_1.png';
+import puff2Url from '@/client/modules/board/kit_v2/fx/puff_2.png';
 import kingDarkUrl from '@/client/modules/board/pieces/king_dark.png';
 import kingLightUrl from '@/client/modules/board/pieces/king_light.png';
 import manDarkUrl from '@/client/modules/board/pieces/man_dark.png';
 import manLightUrl from '@/client/modules/board/pieces/man_light.png';
+import debrisStoneGmUrl from '@/client/modules/board/table_layers/debris_grass_stone_gm.png';
+import debrisStonePlUrl from '@/client/modules/board/table_layers/debris_grass_stone_pl.png';
+import earthGrassUrl from '@/client/modules/board/table_layers/earth_grass.png';
+import pitGrass00Url from '@/client/modules/board/table_layers/pit_grass_00.png';
+import pitGrass01Url from '@/client/modules/board/table_layers/pit_grass_01.png';
+import pitGrass02Url from '@/client/modules/board/table_layers/pit_grass_02.png';
+import pitGrass03Url from '@/client/modules/board/table_layers/pit_grass_03.png';
+import pitGrass04Url from '@/client/modules/board/table_layers/pit_grass_04.png';
+import pitGrass05Url from '@/client/modules/board/table_layers/pit_grass_05.png';
+import pitGrass06Url from '@/client/modules/board/table_layers/pit_grass_06.png';
+import pitGrass07Url from '@/client/modules/board/table_layers/pit_grass_07.png';
+import selectMaskUrl from '@/client/modules/board/table_layers/select_mask.png';
 import { pickBotMove } from '@/client/modules/bot';
 import captureUrl from '@/client/modules/sfx/capture.ogg';
 import {
 	createTableSfx,
 	preloadTableSfx,
 } from '@/client/modules/sfx/createTableSfx';
-import moveUrl from '@/client/modules/sfx/move.ogg';
+import flightUrl from '@/client/modules/sfx/hop/flight.ogg';
+import hoverUrl from '@/client/modules/sfx/hop/hover.ogg';
+import igniteUrl from '@/client/modules/sfx/hop/ignite.ogg';
+import landUrl from '@/client/modules/sfx/hop/land.ogg';
 import selectUrl from '@/client/modules/sfx/select.ogg';
 import { sameSquare } from '@/client/shared/sameSquare';
 import type { IMove, IPosition, ISquare, Side } from '@/rules';
 import { apply, createInitialPosition, legalMoves, winner } from '@/rules';
+import { createHud } from './createHud';
 import type { IYandexSdk } from './IYandexSdk';
 import { createResultOverlay } from './resultOverlay';
+import hudMenuUrl from './ui/hud_menu.png';
+import mascotLoseUrl from './ui/result/mascot_lose.png';
+import mascotWin0Url from './ui/result/mascot_win_00.png';
+import mascotWin1Url from './ui/result/mascot_win_01.png';
+import mascotWin2Url from './ui/result/mascot_win_02.png';
+import mascotWin3Url from './ui/result/mascot_win_03.png';
+import mascotWin4Url from './ui/result/mascot_win_04.png';
+import resultBtnUrl from './ui/result/result_btn.png';
+import resultGlassLoseUrl from './ui/result/result_glass_lose.png';
+import resultGlassWinUrl from './ui/result/result_glass_win.png';
+import resultMonitorUrl from './ui/result/result_monitor.png';
 
 export class GameScene extends Phaser.Scene {
 	private board!: IBoardView;
-	private overlay!: { show: (side: Side) => void; hide: () => void };
+	private hud!: ReturnType<typeof createHud>;
+	private overlay!: ReturnType<typeof createResultOverlay>;
 	private sdk!: IYandexSdk;
-	private sfx!: { play: (kind: 'select' | 'move' | 'capture') => void };
+	private sfx!: ReturnType<typeof createTableSfx>;
 	private position: IPosition = createInitialPosition();
 	private selected: ISquare | null = null;
 	private phase: 'human' | 'bot' | 'over' = 'human';
 	private paused = false;
 	private pendingBot = false;
 	private moving = false;
-	private status!: Phaser.GameObjects.Text;
+	private elapsedMs = 0;
+	private runningSince = 0;
 	private botTimer?: Phaser.Time.TimerEvent;
 
 	constructor() {
@@ -55,23 +89,52 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	preload(): void {
-		this.load.image(tableBgs.portrait.key, bgPhoneUrl);
-		this.load.image(tableBgs.landscape.key, bgDeskUrl);
-		this.load.image(pitSprites.keys[0], pit00Url);
-		this.load.image(pitSprites.keys[1], pit03Url);
-		this.load.image(pitSprites.keys[2], pit07Url);
-		this.load.image(pitSprites.keys[3], pit10Url);
-		this.load.image(pitSprites.keys[4], pit11Url);
+		this.load.image(tableLayers.earth, earthGrassUrl);
+		this.load.image(pitSprites.keys[0], pitGrass00Url);
+		this.load.image(pitSprites.keys[1], pitGrass01Url);
+		this.load.image(pitSprites.keys[2], pitGrass02Url);
+		this.load.image(pitSprites.keys[3], pitGrass03Url);
+		this.load.image(pitSprites.keys[4], pitGrass04Url);
+		this.load.image(pitSprites.keys[5], pitGrass05Url);
+		this.load.image(pitSprites.keys[6], pitGrass06Url);
+		this.load.image(pitSprites.keys[7], pitGrass07Url);
+		this.load.image(debrisSprites.stonePl, debrisStonePlUrl);
+		this.load.image(debrisSprites.stoneGm, debrisStoneGmUrl);
 		this.load.image(pieceSprites.manLight, manLightUrl);
 		this.load.image(pieceSprites.manDark, manDarkUrl);
 		this.load.image(pieceSprites.kingLight, kingLightUrl);
 		this.load.image(pieceSprites.kingDark, kingDarkUrl);
-		this.load.image(pieceSprites.selectRim, selectRimUrl);
-		this.load.image(pieceSprites.moveRim, moveRimUrl);
-		this.load.image(pieceSprites.captureRim, captureRimUrl);
+		this.load.image(wreathSprites.mask, selectMaskUrl);
+		this.load.image(fireSprites.ember, emberUrl);
+		this.load.image(fireSprites.idle[0], tongue0IdleUrl);
+		this.load.image(fireSprites.idle[1], tongue1IdleUrl);
+		this.load.image(fireSprites.idle[2], tongue2IdleUrl);
+		this.load.image(fireSprites.up[0], tongue0UpUrl);
+		this.load.image(fireSprites.up[1], tongue1UpUrl);
+		this.load.image(fireSprites.up[2], tongue2UpUrl);
+		this.load.image(fireSprites.land[0], tongue0LandUrl);
+		this.load.image(fireSprites.land[1], tongue1LandUrl);
+		this.load.image(fireSprites.land[2], tongue2LandUrl);
+		this.load.image(fireSprites.puffs[0], puff0Url);
+		this.load.image(fireSprites.puffs[1], puff1Url);
+		this.load.image(fireSprites.puffs[2], puff2Url);
+		this.load.image('hudMenu', hudMenuUrl);
+		this.load.image('resultMonitor', resultMonitorUrl);
+		this.load.image('resultGlassWin', resultGlassWinUrl);
+		this.load.image('resultGlassLose', resultGlassLoseUrl);
+		this.load.image('resultBtn', resultBtnUrl);
+		this.load.image('mascotLose', mascotLoseUrl);
+		this.load.image('mascotWin0', mascotWin0Url);
+		this.load.image('mascotWin1', mascotWin1Url);
+		this.load.image('mascotWin2', mascotWin2Url);
+		this.load.image('mascotWin3', mascotWin3Url);
+		this.load.image('mascotWin4', mascotWin4Url);
 		preloadTableSfx(this, {
 			select: selectUrl,
-			move: moveUrl,
+			hover: hoverUrl,
+			ignite: igniteUrl,
+			flight: flightUrl,
+			land: landUrl,
 			capture: captureUrl,
 		});
 	}
@@ -80,14 +143,7 @@ export class GameScene extends Phaser.Scene {
 		this.sdk = this.registry.get('sdk') as IYandexSdk;
 		this.cameras.main.setBackgroundColor(palette.background);
 		this.sfx = createTableSfx(this);
-		this.status = this.add
-			.text(0, 18, '', {
-				fontFamily: 'Arial, sans-serif',
-				fontSize: '20px',
-				color: palette.text,
-			})
-			.setOrigin(0.5, 0.5)
-			.setDepth(20);
+		this.hud = createHud(this);
 		this.board = createBoardView(this, (square) => {
 			this.onSquare(square);
 		});
@@ -103,6 +159,13 @@ export class GameScene extends Phaser.Scene {
 		this.scale.on('resize', (gameSize: { width: number; height: number }) => {
 			this.layout(gameSize.width, gameSize.height);
 		});
+		this.time.addEvent({
+			delay: 1000,
+			loop: true,
+			callback: () => {
+				this.hud.setTimer(this.matchSeconds());
+			},
+		});
 		this.startMatch();
 		this.layout(this.scale.width, this.scale.height);
 		this.sdk.ready();
@@ -116,24 +179,34 @@ export class GameScene extends Phaser.Scene {
 		this.selected = null;
 		this.phase = 'human';
 		this.pendingBot = false;
+		this.elapsedMs = 0;
+		this.runningSince = this.time.now;
+		this.hud.setTimer(0);
 		this.overlay.hide();
+		this.sfx.stopHover();
 		this.refresh();
 	}
 
 	private layout(width: number, height: number): void {
-		this.status.setPosition(width / 2, layout.statusHeight / 2);
 		this.board.layout(width, height);
+		this.hud.layout(width, height);
+		this.overlay.layout(width, height);
 		this.refresh();
+	}
+
+	private matchSeconds(): number {
+		const extra = this.paused ? 0 : this.time.now - this.runningSince;
+		return Math.floor((this.elapsedMs + extra) / 1000);
 	}
 
 	private refresh(): void {
 		this.board.sync(this.position, this.humanHighlights(), this.selected);
 		if (this.phase === 'human') {
-			this.status.setText('Ваш ход');
+			this.hud.setTurn('Ваш ход');
 		} else if (this.phase === 'bot') {
-			this.status.setText('Ход соперника');
+			this.hud.setTurn('Ход соперника');
 		} else {
-			this.status.setText('');
+			this.hud.setTurn('');
 		}
 	}
 
@@ -172,13 +245,14 @@ export class GameScene extends Phaser.Scene {
 		}
 		if (moves.some((move) => sameSquare(move.from, square))) {
 			this.selected = square;
-			this.sfx.play('select');
+			this.sfx.selectThenHover();
 			this.refresh();
 			return;
 		}
 		const piece = this.position.squares[square.row][square.col];
 		const denied = Boolean(piece && piece.side === this.position.turn);
 		this.selected = null;
+		this.sfx.stopHover();
 		this.refresh();
 		if (denied) {
 			this.board.deny(square);
@@ -196,7 +270,10 @@ export class GameScene extends Phaser.Scene {
 				after();
 			},
 			(took) => {
-				this.sfx.play(took ? 'capture' : 'move');
+				this.sfx.land(took);
+			},
+			() => {
+				this.sfx.takeoff();
 			},
 		);
 	}
@@ -268,6 +345,14 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private setPaused(paused: boolean): void {
+		if (paused === this.paused) {
+			return;
+		}
+		if (paused) {
+			this.elapsedMs += this.time.now - this.runningSince;
+		} else {
+			this.runningSince = this.time.now;
+		}
 		this.paused = paused;
 		this.sound.mute = paused;
 		if (paused) {

@@ -1,60 +1,199 @@
-import type Phaser from 'phaser';
+import Phaser from 'phaser';
 import { palette } from '@/client/config/palette';
 import type { Side } from '@/rules';
+
+const monW = 256;
+const monH = 192;
+const glassX = 16;
+const glassY = 12;
+const glassW = 224;
+const glassH = 168;
+const btnW = 224;
+const btnH = 48;
+const hitW = 224;
+const hitH = 64;
+const heroFit = 120;
+const floorPad = 2;
+const gap = 12;
+const titleSize = 28;
+const pressNudge = 2;
+const winKeys = [
+	'mascotWin0',
+	'mascotWin1',
+	'mascotWin2',
+	'mascotWin3',
+	'mascotWin4',
+] as const;
+const cheerMs = 120;
+const depth = 20;
+
+function stackHeight(): number {
+	return titleSize + gap + monH + gap + btnH;
+}
+
+function zoomFor(width: number, height: number): number {
+	if (height > width) {
+		return 1;
+	}
+	if (height >= stackHeight() * 1.5 + 24) {
+		return 1.5;
+	}
+	return 1;
+}
 
 export function createResultOverlay(
 	scene: Phaser.Scene,
 	onPlayAgain: () => void,
-): { show: (side: Side) => void; hide: () => void } {
-	const dim = scene.add.rectangle(0, 0, 16, 16, palette.overlay, 0.72);
-	const panel = scene.add.rectangle(0, 0, 280, 160, palette.button);
+): {
+	layout: (width: number, height: number) => void;
+	show: (side: Side) => void;
+	hide: () => void;
+} {
+	for (const key of [
+		'resultMonitor',
+		'resultGlassWin',
+		'resultGlassLose',
+		'resultBtn',
+		'mascotLose',
+		...winKeys,
+	]) {
+		scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
+	}
+
+	const dim = scene.add.rectangle(0, 0, 16, 16, palette.overlay, 0.4);
+	dim.setDepth(depth);
+	dim.setVisible(false);
+
+	const root = scene.add.container(0, 0);
+	root.setDepth(depth + 1);
+	root.setVisible(false);
+
 	const title = scene.add
 		.text(0, 0, '', {
 			fontFamily: 'Arial, sans-serif',
-			fontSize: '28px',
+			fontSize: `${titleSize}px`,
 			color: palette.text,
 		})
-		.setOrigin(0.5);
-	const button = scene.add.rectangle(0, 0, 180, 48, palette.darkSquare);
-	const buttonLabel = scene.add
+		.setOrigin(0.5, 1)
+		.setStroke('#1a1410', 2);
+
+	const glass = scene.add.image(0, 0, 'resultGlassWin').setOrigin(0, 0);
+	const monitor = scene.add.image(0, 0, 'resultMonitor').setOrigin(0, 0);
+	const hero = scene.add.image(0, 0, winKeys[0]).setOrigin(0.5, 1);
+	const btn = scene.add.image(0, 0, 'resultBtn').setOrigin(0, 0);
+	const label = scene.add
 		.text(0, 0, 'Ещё раз', {
 			fontFamily: 'Arial, sans-serif',
 			fontSize: '22px',
 			color: palette.text,
 		})
-		.setOrigin(0.5);
-	button.setInteractive({ useHandCursor: true });
-	button.on('pointerdown', () => {
-		onPlayAgain();
-	});
-	const objects = [dim, panel, title, button, buttonLabel];
-	for (const object of objects) {
-		object.setDepth(20);
-		object.setVisible(false);
+		.setOrigin(0.5)
+		.setStroke('#1a1410', 2);
+	const hit = scene.add.rectangle(0, 0, hitW, hitH, 0x000000, 0);
+	hit.setOrigin(0, 0);
+	hit.setInteractive({ useHandCursor: true });
+
+	root.add([title, glass, monitor, hero, btn, label, hit]);
+
+	let cheer: Phaser.Time.TimerEvent | undefined;
+	let cheerFrame = 0;
+	let btnY = 0;
+	let pressed = false;
+
+	function restBtn(): void {
+		btn.setY(btnY);
+		label.setY(btnY + btnH / 2);
+		pressed = false;
 	}
 
-	function place(): void {
-		const { width, height } = scene.scale;
+	hit.on('pointerdown', () => {
+		pressed = true;
+		btn.setY(btnY + pressNudge);
+		label.setY(btnY + btnH / 2 + pressNudge);
+	});
+	hit.on('pointerup', () => {
+		if (!pressed) {
+			return;
+		}
+		restBtn();
+		onPlayAgain();
+	});
+	hit.on('pointerout', () => {
+		if (pressed) {
+			restBtn();
+		}
+	});
+
+	function place(width: number, height: number): void {
 		dim.setPosition(width / 2, height / 2);
 		dim.setDisplaySize(width, height);
-		panel.setPosition(width / 2, height / 2);
-		title.setPosition(width / 2, height / 2 - 36);
-		button.setPosition(width / 2, height / 2 + 36);
-		buttonLabel.setPosition(width / 2, height / 2 + 36);
+		const zoom = zoomFor(width, height);
+		root.setScale(zoom);
+		const stackH = stackHeight();
+		root.setPosition(
+			Math.round((width - monW * zoom) / 2),
+			Math.round((height - stackH * zoom) / 2),
+		);
+		title.setPosition(monW / 2, titleSize);
+		const monX = 0;
+		const monY = titleSize + gap;
+		monitor.setPosition(monX, monY);
+		glass.setPosition(monX + glassX, monY + glassY);
+		hero.setPosition(
+			monX + glassX + glassW / 2,
+			monY + glassY + glassH - floorPad,
+		);
+		hero.setDisplaySize(heroFit, heroFit);
+		btnY = monY + monH + gap;
+		btn.setPosition(monX + (monW - btnW) / 2, btnY);
+		label.setPosition(monX + monW / 2, btnY + btnH / 2);
+		hit.setPosition(monX + (monW - hitW) / 2, btnY - (hitH - btnH) / 2);
+		hit.setSize(hitW, hitH);
+	}
+
+	function stopCheer(): void {
+		cheer?.remove(false);
+		cheer = undefined;
+	}
+
+	function startCheer(): void {
+		stopCheer();
+		cheerFrame = 0;
+		hero.setTexture(winKeys[0]);
+		cheer = scene.time.addEvent({
+			delay: cheerMs,
+			loop: true,
+			callback: () => {
+				cheerFrame = (cheerFrame + 1) % winKeys.length;
+				hero.setTexture(winKeys[cheerFrame]);
+			},
+		});
 	}
 
 	return {
+		layout: (width, height) => {
+			place(width, height);
+		},
 		show: (side) => {
-			place();
-			title.setText(side === 'white' ? 'Вы выиграли' : 'Вы проиграли');
-			for (const object of objects) {
-				object.setVisible(true);
+			const won = side === 'white';
+			title.setText(won ? 'Вы выиграли' : 'Вы проиграли');
+			glass.setTexture(won ? 'resultGlassWin' : 'resultGlassLose');
+			place(scene.scale.width, scene.scale.height);
+			if (won) {
+				startCheer();
+			} else {
+				stopCheer();
+				hero.setTexture('mascotLose');
 			}
+			hero.setDisplaySize(heroFit, heroFit);
+			dim.setVisible(true);
+			root.setVisible(true);
 		},
 		hide: () => {
-			for (const object of objects) {
-				object.setVisible(false);
-			}
+			stopCheer();
+			restBtn();
+			dim.setVisible(false);
+			root.setVisible(false);
 		},
 	};
 }
