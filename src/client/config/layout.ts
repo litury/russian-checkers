@@ -45,6 +45,8 @@ export const fireSprites = {
 export const captureSprites = {
 	igniteLight: 'captureIgniteLight',
 	igniteDark: 'captureIgniteDark',
+	igniteKingLight: 'captureIgniteKingLight',
+	igniteKingDark: 'captureIgniteKingDark',
 	swellLight: [
 		'captureSwellLight0',
 		'captureSwellLight1',
@@ -64,6 +66,20 @@ export const captureSprites = {
 		'captureSwellKingDark0',
 		'captureSwellKingDark1',
 		'captureSwellKingDark2',
+	] as const,
+	burstLight: ['captureBurstLight0', 'captureBurstLight1'] as const,
+	burstDark: ['captureBurstDark0', 'captureBurstDark1'] as const,
+	burstKingLight: ['captureBurstKingLight0', 'captureBurstKingLight1'] as const,
+	burstKingDark: ['captureBurstKingDark0', 'captureBurstKingDark1'] as const,
+	smolderLight: ['captureSmolderLight0', 'captureSmolderLight1'] as const,
+	smolderDark: ['captureSmolderDark0', 'captureSmolderDark1'] as const,
+	smolderKingLight: [
+		'captureSmolderKingLight0',
+		'captureSmolderKingLight1',
+	] as const,
+	smolderKingDark: [
+		'captureSmolderKingDark0',
+		'captureSmolderKingDark1',
 	] as const,
 	flash: [
 		'captureFlash0',

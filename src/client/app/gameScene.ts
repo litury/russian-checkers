@@ -40,13 +40,31 @@ import pitGrass05Url from '@/client/modules/board/table_layers/pit_grass_05.png'
 import pitGrass06Url from '@/client/modules/board/table_layers/pit_grass_06.png';
 import pitGrass07Url from '@/client/modules/board/table_layers/pit_grass_07.png';
 import selectMaskUrl from '@/client/modules/board/table_layers/select_mask.png';
+import captureBurstDark00Url from '@/client/modules/board/vfx_capture/capture_burst_dark_00.png';
+import captureBurstDark01Url from '@/client/modules/board/vfx_capture/capture_burst_dark_01.png';
+import captureBurstKingDark00Url from '@/client/modules/board/vfx_capture/capture_burst_king_dark_00.png';
+import captureBurstKingDark01Url from '@/client/modules/board/vfx_capture/capture_burst_king_dark_01.png';
+import captureBurstKingLight00Url from '@/client/modules/board/vfx_capture/capture_burst_king_light_00.png';
+import captureBurstKingLight01Url from '@/client/modules/board/vfx_capture/capture_burst_king_light_01.png';
+import captureBurstLight00Url from '@/client/modules/board/vfx_capture/capture_burst_light_00.png';
+import captureBurstLight01Url from '@/client/modules/board/vfx_capture/capture_burst_light_01.png';
 import captureFlash00Url from '@/client/modules/board/vfx_capture/capture_flash_00.png';
 import captureFlash01Url from '@/client/modules/board/vfx_capture/capture_flash_01.png';
 import captureFlash02Url from '@/client/modules/board/vfx_capture/capture_flash_02.png';
 import captureFlash03Url from '@/client/modules/board/vfx_capture/capture_flash_03.png';
 import captureIgniteDarkUrl from '@/client/modules/board/vfx_capture/capture_ignite_dark.png';
+import captureIgniteKingDarkUrl from '@/client/modules/board/vfx_capture/capture_ignite_king_dark.png';
+import captureIgniteKingLightUrl from '@/client/modules/board/vfx_capture/capture_ignite_king_light.png';
 import captureIgniteLightUrl from '@/client/modules/board/vfx_capture/capture_ignite_light.png';
 import captureScorchUrl from '@/client/modules/board/vfx_capture/capture_scorch_96.png';
+import captureSmolderDark00Url from '@/client/modules/board/vfx_capture/capture_smolder_dark_00.png';
+import captureSmolderDark01Url from '@/client/modules/board/vfx_capture/capture_smolder_dark_01.png';
+import captureSmolderKingDark00Url from '@/client/modules/board/vfx_capture/capture_smolder_king_dark_00.png';
+import captureSmolderKingDark01Url from '@/client/modules/board/vfx_capture/capture_smolder_king_dark_01.png';
+import captureSmolderKingLight00Url from '@/client/modules/board/vfx_capture/capture_smolder_king_light_00.png';
+import captureSmolderKingLight01Url from '@/client/modules/board/vfx_capture/capture_smolder_king_light_01.png';
+import captureSmolderLight00Url from '@/client/modules/board/vfx_capture/capture_smolder_light_00.png';
+import captureSmolderLight01Url from '@/client/modules/board/vfx_capture/capture_smolder_light_01.png';
 import captureSwellDark00Url from '@/client/modules/board/vfx_capture/capture_swell_dark_00.png';
 import captureSwellDark01Url from '@/client/modules/board/vfx_capture/capture_swell_dark_01.png';
 import captureSwellDark02Url from '@/client/modules/board/vfx_capture/capture_swell_dark_02.png';
@@ -146,6 +164,8 @@ export class GameScene extends Phaser.Scene {
 		this.load.image('hudMenu', hudMenuUrl);
 		this.load.image(captureSprites.igniteLight, captureIgniteLightUrl);
 		this.load.image(captureSprites.igniteDark, captureIgniteDarkUrl);
+		this.load.image(captureSprites.igniteKingLight, captureIgniteKingLightUrl);
+		this.load.image(captureSprites.igniteKingDark, captureIgniteKingDarkUrl);
 		this.load.image(captureSprites.swellLight[0], captureSwellLight00Url);
 		this.load.image(captureSprites.swellLight[1], captureSwellLight01Url);
 		this.load.image(captureSprites.swellLight[2], captureSwellLight02Url);
@@ -167,6 +187,40 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(captureSprites.swellKingDark[0], captureSwellKingDark00Url);
 		this.load.image(captureSprites.swellKingDark[1], captureSwellKingDark01Url);
 		this.load.image(captureSprites.swellKingDark[2], captureSwellKingDark02Url);
+		this.load.image(captureSprites.burstLight[0], captureBurstLight00Url);
+		this.load.image(captureSprites.burstLight[1], captureBurstLight01Url);
+		this.load.image(captureSprites.burstDark[0], captureBurstDark00Url);
+		this.load.image(captureSprites.burstDark[1], captureBurstDark01Url);
+		this.load.image(
+			captureSprites.burstKingLight[0],
+			captureBurstKingLight00Url,
+		);
+		this.load.image(
+			captureSprites.burstKingLight[1],
+			captureBurstKingLight01Url,
+		);
+		this.load.image(captureSprites.burstKingDark[0], captureBurstKingDark00Url);
+		this.load.image(captureSprites.burstKingDark[1], captureBurstKingDark01Url);
+		this.load.image(captureSprites.smolderLight[0], captureSmolderLight00Url);
+		this.load.image(captureSprites.smolderLight[1], captureSmolderLight01Url);
+		this.load.image(captureSprites.smolderDark[0], captureSmolderDark00Url);
+		this.load.image(captureSprites.smolderDark[1], captureSmolderDark01Url);
+		this.load.image(
+			captureSprites.smolderKingLight[0],
+			captureSmolderKingLight00Url,
+		);
+		this.load.image(
+			captureSprites.smolderKingLight[1],
+			captureSmolderKingLight01Url,
+		);
+		this.load.image(
+			captureSprites.smolderKingDark[0],
+			captureSmolderKingDark00Url,
+		);
+		this.load.image(
+			captureSprites.smolderKingDark[1],
+			captureSmolderKingDark01Url,
+		);
 		this.load.image(captureSprites.flash[0], captureFlash00Url);
 		this.load.image(captureSprites.flash[1], captureFlash01Url);
 		this.load.image(captureSprites.flash[2], captureFlash02Url);

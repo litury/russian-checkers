@@ -91,10 +91,20 @@ export function createBoardView(
 		fireSprites.ember,
 		captureSprites.igniteLight,
 		captureSprites.igniteDark,
+		captureSprites.igniteKingLight,
+		captureSprites.igniteKingDark,
 		...captureSprites.swellLight,
 		...captureSprites.swellDark,
 		...captureSprites.swellKingLight,
 		...captureSprites.swellKingDark,
+		...captureSprites.burstLight,
+		...captureSprites.burstDark,
+		...captureSprites.burstKingLight,
+		...captureSprites.burstKingDark,
+		...captureSprites.smolderLight,
+		...captureSprites.smolderDark,
+		...captureSprites.smolderKingLight,
+		...captureSprites.smolderKingDark,
 		...captureSprites.flash,
 		captureSprites.scorch,
 	]) {
@@ -189,6 +199,7 @@ export function createBoardView(
 		kind: 'swell' | 'flash';
 	};
 	const captureVfx: CaptureVfx[] = [];
+	const pendingLand = new Set<string>();
 
 	for (let row = 0; row < layout.rankCount; row += 1) {
 		for (let col = 0; col < layout.rankCount; col += 1) {
@@ -758,20 +769,68 @@ export function createBoardView(
 		return key === pieceSprites.kingLight || key === pieceSprites.kingDark;
 	}
 
-	function swellKeysFor(key: string): readonly string[] {
+	function suitKeys(
+		key: string,
+		manLight: readonly string[],
+		manDark: readonly string[],
+		kingLight: readonly string[],
+		kingDark: readonly string[],
+	): readonly string[] {
+		const light = isLightKey(key);
+		if (isKingKey(key)) {
+			return light ? kingLight : kingDark;
+		}
+		return light ? manLight : manDark;
+	}
+
+	function igniteKeyFor(key: string): string {
 		const light = isLightKey(key);
 		if (isKingKey(key)) {
 			return light
-				? captureSprites.swellKingLight
-				: captureSprites.swellKingDark;
+				? captureSprites.igniteKingLight
+				: captureSprites.igniteKingDark;
 		}
-		return light ? captureSprites.swellLight : captureSprites.swellDark;
+		return light ? captureSprites.igniteLight : captureSprites.igniteDark;
+	}
+
+	function swellKeysFor(key: string): readonly string[] {
+		return suitKeys(
+			key,
+			captureSprites.swellLight,
+			captureSprites.swellDark,
+			captureSprites.swellKingLight,
+			captureSprites.swellKingDark,
+		);
+	}
+
+	function burstKeysFor(key: string): readonly string[] {
+		return suitKeys(
+			key,
+			captureSprites.burstLight,
+			captureSprites.burstDark,
+			captureSprites.burstKingLight,
+			captureSprites.burstKingDark,
+		);
+	}
+
+	function smolderKeysFor(key: string): readonly string[] {
+		return suitKeys(
+			key,
+			captureSprites.smolderLight,
+			captureSprites.smolderDark,
+			captureSprites.smolderKingLight,
+			captureSprites.smolderKingDark,
+		);
 	}
 
 	function killCaptureVfx(square?: ISquare): void {
 		const keep: CaptureVfx[] = [];
 		for (const fx of captureVfx) {
 			if (square && squareKey(fx.square) !== squareKey(square)) {
+				keep.push(fx);
+				continue;
+			}
+			if (square && fx.kind === 'flash') {
 				keep.push(fx);
 				continue;
 			}
@@ -834,6 +893,13 @@ export function createBoardView(
 		});
 	}
 
+	function settleCapture(square: ISquare): void {
+		pendingLand.delete(squareKey(square));
+		playFlash(square);
+		killCaptureVfx(square);
+		spawnScorch(square);
+	}
+
 	function finishCapture(view: PieceView): void {
 		pieceViews.delete(squareKey(view.square));
 		if (pulsing === view) {
@@ -844,10 +910,16 @@ export function createBoardView(
 		view.shadow.setAlpha(0);
 		view.sprite.setVisible(false);
 		view.outline.setVisible(false);
-		killCaptureVfx(view.square);
-		spawnScorch(view.square);
-		playFlash(view.square);
+		const sqKey = squareKey(view.square);
+		const chain = captureVfx.find(
+			(fx) => fx.kind === 'swell' && squareKey(fx.square) === sqKey,
+		);
 		destroyView(view);
+		if (chain?.timer) {
+			pendingLand.add(sqKey);
+			return;
+		}
+		settleCapture(view.square);
 	}
 
 	function igniteCapture(view: PieceView): void {
@@ -866,13 +938,21 @@ export function createBoardView(
 		view.shadow.setVisible(false);
 		view.shadow.setAlpha(0);
 		const key = view.sprite.texture.key;
-		const igniteKey = isLightKey(key)
-			? captureSprites.igniteLight
-			: captureSprites.igniteDark;
+		const igniteKey = igniteKeyFor(key);
 		const swell = swellKeysFor(key);
+		const burst = burstKeysFor(key);
+		const smolder = smolderKeysFor(key);
 		const fx = addCaptureSprite(view.square, igniteKey, 3.7, 'swell');
 		fx.timer = scene.time.delayedCall(layout.captureBurstMs, () => {
-			playCaptureFrames(fx, swell, () => undefined);
+			playCaptureFrames(fx, swell, () => {
+				playCaptureFrames(fx, burst, () => {
+					playCaptureFrames(fx, smolder, () => {
+						if (pendingLand.has(squareKey(view.square))) {
+							settleCapture(view.square);
+						}
+					});
+				});
+			});
 		});
 	}
 
@@ -1390,6 +1470,7 @@ export function createBoardView(
 		deny,
 		playMove,
 		reset: () => {
+			pendingLand.clear();
 			killCaptureVfx();
 			clearScorches();
 		},
