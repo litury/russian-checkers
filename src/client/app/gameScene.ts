@@ -93,16 +93,8 @@ import type { IMove, IPosition, ISquare, Side } from '@/rules';
 import { apply, createInitialPosition, legalMoves, winner } from '@/rules';
 import { createHud } from './createHud';
 import type { IYandexSdk } from './IYandexSdk';
-import { getAutoMove } from './parts/createSfxPanel';
 import { createResultOverlay } from './resultOverlay';
-import hudAutoUrl from './ui/hud_auto.png';
-import hudAutoOffUrl from './ui/hud_auto_off.png';
-import hudEvmPanelUrl from './ui/hud_evm_panel.png';
 import hudMenuUrl from './ui/hud_menu.png';
-import hudMuteUrl from './ui/hud_mute.png';
-import hudMuteOffUrl from './ui/hud_mute_off.png';
-import hudResignUrl from './ui/hud_resign.png';
-import hudSliderKnobUrl from './ui/hud_slider_knob.png';
 import mascotLose0Url from './ui/result/mascot_lose_00.png';
 import mascotLose1Url from './ui/result/mascot_lose_01.png';
 import mascotLose2Url from './ui/result/mascot_lose_02.png';
@@ -170,13 +162,6 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(fireSprites.puffs[1], puff1Url);
 		this.load.image(fireSprites.puffs[2], puff2Url);
 		this.load.image('hudMenu', hudMenuUrl);
-		this.load.image('hudEvmPanel', hudEvmPanelUrl);
-		this.load.image('hudMute', hudMuteUrl);
-		this.load.image('hudMuteOff', hudMuteOffUrl);
-		this.load.image('hudResign', hudResignUrl);
-		this.load.image('hudAuto', hudAutoUrl);
-		this.load.image('hudAutoOff', hudAutoOffUrl);
-		this.load.image('hudSliderKnob', hudSliderKnobUrl);
 		this.load.image(captureSprites.igniteLight, captureIgniteLightUrl);
 		this.load.image(captureSprites.igniteDark, captureIgniteDarkUrl);
 		this.load.image(captureSprites.igniteKingLight, captureIgniteKingLightUrl);
@@ -269,27 +254,9 @@ export class GameScene extends Phaser.Scene {
 	create(): void {
 		this.sdk = this.registry.get('sdk') as IYandexSdk;
 		this.cameras.main.setBackgroundColor(palette.background);
-		for (const key of [
-			'hudMenu',
-			'hudEvmPanel',
-			'hudMute',
-			'hudMuteOff',
-			'hudResign',
-			'hudAuto',
-			'hudAutoOff',
-			'hudSliderKnob',
-		]) {
-			this.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
-		}
+		this.textures.get('hudMenu').setFilter(Phaser.Textures.FilterMode.NEAREST);
 		this.sfx = createTableSfx(this);
-		this.hud = createHud(this, {
-			onResign: () => {
-				this.resignMatch();
-			},
-			onAutoChange: () => {
-				this.maybeAutoMove();
-			},
-		});
+		this.hud = createHud(this);
 		this.board = createBoardView(this, (square) => {
 			this.onSquare(square);
 		});
@@ -355,31 +322,6 @@ export class GameScene extends Phaser.Scene {
 		} else {
 			this.hud.setTurn('');
 		}
-		this.maybeAutoMove();
-	}
-
-	private maybeAutoMove(): void {
-		if (this.paused || this.moving || this.phase !== 'human') {
-			return;
-		}
-		if (!getAutoMove()) {
-			return;
-		}
-		const moves = legalMoves(this.position);
-		if (moves.length === 1) {
-			this.playHuman(moves[0]);
-		}
-	}
-
-	private resignMatch(): void {
-		if (this.paused || this.moving || this.phase !== 'human') {
-			return;
-		}
-		this.phase = 'over';
-		this.selected = null;
-		this.sfx.stopHover();
-		this.refresh();
-		this.overlay.show('black');
 	}
 
 	private humanHighlights(): ISquare[] {

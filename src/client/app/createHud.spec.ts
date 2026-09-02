@@ -20,6 +20,9 @@ type StubGo = {
 	setStroke: () => StubGo;
 	setText: () => StubGo;
 	setTexture: (key: string) => StubGo;
+	clear: () => StubGo;
+	fillStyle: () => StubGo;
+	fillRect: () => StubGo;
 	on: (event: string, fn: Handler) => StubGo;
 	emit: (event: string, ...args: unknown[]) => void;
 };
@@ -66,6 +69,15 @@ function stubGo(key?: string): StubGo {
 			go.key = next;
 			return go;
 		},
+		clear() {
+			return go;
+		},
+		fillStyle() {
+			return go;
+		},
+		fillRect() {
+			return go;
+		},
 		on(event: string, fn: Handler) {
 			let list = handlers[event];
 			if (!list) {
@@ -106,6 +118,7 @@ function stubHudScene(): Phaser.Scene & {
 				rects.push(go);
 				return go;
 			},
+			graphics: () => stubGo(),
 		},
 		input: {
 			on() {},
@@ -125,15 +138,15 @@ function stubHudScene(): Phaser.Scene & {
 }
 
 describe('createHud', () => {
-	it('opens the EVM sfx panel from the hud menu and keeps it pressed', () => {
+	it('opens the result CRT sfx panel from the hud menu and keeps it pressed', () => {
 		const scene = stubHudScene();
 		createHud(scene);
 		const menuHit = scene.rects[0];
 		const menuIcon = scene.images[0];
-		const chrome = scene.images.find((img) => img.key === 'hudEvmPanel');
+		const chrome = scene.images.find((img) => img.key === 'resultMonitor');
 		expect(menuIcon.key).toBe('hudMenu');
 		expect(chrome?.visible).toBe(false);
-		expect(scene.images.some((img) => img.key === 'resultMonitor')).toBe(false);
+		expect(scene.images.some((img) => img.key === 'hudEvmPanel')).toBe(false);
 		menuHit.emit('pointerdown', { id: 1 });
 		expect(chrome?.visible).toBe(true);
 		expect(menuIcon.scaleY).toBe(layout.pressScaleY);

@@ -2,17 +2,11 @@ import type Phaser from 'phaser';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
 	getSfxMaster,
-	getSfxMuted,
 	setSfxMaster,
 	setSfxMuted,
 	sfxMaster,
 } from '@/client/modules/sfx/createTableSfx';
-import {
-	createSfxPanel,
-	evmPanel,
-	getAutoMove,
-	setAutoMove,
-} from './createSfxPanel';
+import { createSfxPanel, sfxMonitor } from './createSfxPanel';
 
 type Handler = (...args: unknown[]) => void;
 
@@ -30,9 +24,11 @@ type StubGo = {
 	setInteractive: () => StubGo;
 	disableInteractive: () => StubGo;
 	setOrigin: () => StubGo;
-	setTexture: (key: string) => StubGo;
 	on: (event: string, fn: Handler) => StubGo;
 	emit: (event: string, ...args: unknown[]) => void;
+	clear: () => StubGo;
+	fillStyle: () => StubGo;
+	fillRect: () => StubGo;
 };
 
 function stubGo(key?: string): StubGo {
@@ -71,10 +67,6 @@ function stubGo(key?: string): StubGo {
 		setOrigin() {
 			return go;
 		},
-		setTexture(next: string) {
-			go.key = next;
-			return go;
-		},
 		on(event: string, fn: Handler) {
 			let list = handlers[event];
 			if (!list) {
@@ -90,6 +82,15 @@ function stubGo(key?: string): StubGo {
 				fn(...args);
 			}
 		},
+		clear() {
+			return go;
+		},
+		fillStyle() {
+			return go;
+		},
+		fillRect() {
+			return go;
+		},
 	};
 	return go;
 }
@@ -97,14 +98,17 @@ function stubGo(key?: string): StubGo {
 function stubPanelScene(): Phaser.Scene & {
 	rects: StubGo[];
 	images: StubGo[];
+	graphics: StubGo[];
 	timeCalls: Array<() => void>;
 } {
 	const rects: StubGo[] = [];
 	const images: StubGo[] = [];
+	const graphics: StubGo[] = [];
 	const timeCalls: Array<() => void> = [];
 	return {
 		rects,
 		images,
+		graphics,
 		timeCalls,
 		add: {
 			rectangle: () => {
@@ -115,6 +119,11 @@ function stubPanelScene(): Phaser.Scene & {
 			image: (_x: number, _y: number, key: string) => {
 				const go = stubGo(key);
 				images.push(go);
+				return go;
+			},
+			graphics: () => {
+				const go = stubGo();
+				graphics.push(go);
 				return go;
 			},
 		},
@@ -130,6 +139,7 @@ function stubPanelScene(): Phaser.Scene & {
 	} as unknown as Phaser.Scene & {
 		rects: StubGo[];
 		images: StubGo[];
+		graphics: StubGo[];
 		timeCalls: Array<() => void>;
 	};
 }
@@ -138,81 +148,42 @@ describe('createSfxPanel', () => {
 	afterEach(() => {
 		setSfxMaster(sfxMaster);
 		setSfxMuted(false);
-		setAutoMove(true);
 	});
 
-	it('mounts hud_evm_panel chrome instead of HTML or result_monitor', () => {
+	it('mounts result_monitor chrome instead of HTML or hud_evm_panel', () => {
 		expect(typeof document).toBe('undefined');
-		expect(evmPanel.width).toBe(200);
-		expect(evmPanel.height).toBe(96);
-		expect(evmPanel.well).toBe(44);
+		expect(sfxMonitor.width).toBe(256);
+		expect(sfxMonitor.height).toBe(192);
 		const scene = stubPanelScene();
 		const panel = createSfxPanel(scene);
-		expect(scene.images.map((img) => img.key)).toEqual([
-			'hudEvmPanel',
-			'hudMute',
-			'hudResign',
-			'hudAuto',
-			'hudSliderKnob',
-		]);
-		expect(scene.images.some((img) => img.key === 'resultMonitor')).toBe(false);
-		expect(scene.images.some((img) => img.key === 'hudSliderTrack')).toBe(
-			false,
-		);
-		const knob = scene.images.find((img) => img.key === 'hudSliderKnob');
-		expect(knob?.displaySizeCalls).toEqual([]);
+		expect(scene.images.map((img) => img.key)).toEqual(['resultMonitor']);
+		expect(scene.images.some((img) => img.key === 'hudEvmPanel')).toBe(false);
+		expect(scene.images.some((img) => img.key === 'hudResign')).toBe(false);
+		expect(scene.images.some((img) => img.key === 'hudAuto')).toBe(false);
+		expect(scene.graphics).toHaveLength(1);
+		expect(scene.rects).toHaveLength(3);
 		panel.toggle();
 		expect(scene.images[0].visible).toBe(true);
 		expect(scene.images[0].interactive).toBe(true);
+		expect(scene.graphics[0].visible).toBe(true);
 		panel.hide();
 		expect(scene.images[0].visible).toBe(false);
 	});
 
-	it('toggles hud_mute sprites and keeps the slider value', () => {
+	it('toggles drawn mute and keeps the slider value', () => {
 		setSfxMaster(0.8);
 		const scene = stubPanelScene();
 		const panel = createSfxPanel(scene);
-		const mute = scene.images[1];
+		const muteHit = scene.rects[1];
 		panel.toggle();
-		expect(mute.visible).toBe(true);
-		expect(mute.interactive).toBe(true);
-		expect(mute.key).toBe('hudMute');
-		mute.emit('pointerdown');
-		expect(getSfxMuted()).toBe(true);
+		expect(muteHit.visible).toBe(true);
+		expect(muteHit.interactive).toBe(true);
+		muteHit.emit('pointerdown');
 		expect(getSfxMaster()).toBe(0.8);
-		expect(mute.key).toBe('hudMuteOff');
-		mute.emit('pointerdown');
-		expect(getSfxMuted()).toBe(false);
+		muteHit.emit('pointerdown');
 		expect(getSfxMaster()).toBe(0.8);
 		panel.hide();
-		expect(mute.interactive).toBe(false);
-	});
-
-	it('toggles auto-move sprites with a true default', () => {
-		expect(getAutoMove()).toBe(true);
-		const scene = stubPanelScene();
-		const panel = createSfxPanel(scene);
-		const auto = scene.images[3];
-		panel.toggle();
-		expect(auto.key).toBe('hudAuto');
-		auto.emit('pointerdown');
-		expect(getAutoMove()).toBe(false);
-		expect(auto.key).toBe('hudAutoOff');
-		auto.emit('pointerdown');
-		expect(getAutoMove()).toBe(true);
-	});
-
-	it('fires resign from the middle well', () => {
-		const scene = stubPanelScene();
-		let resigned = 0;
-		const panel = createSfxPanel(scene, {
-			onResign: () => {
-				resigned += 1;
-			},
-		});
-		panel.toggle();
-		scene.images[2].emit('pointerdown');
-		expect(resigned).toBe(1);
+		expect(muteHit.interactive).toBe(false);
 	});
 
 	it('closes from the catcher only outside the panel after arming', () => {
