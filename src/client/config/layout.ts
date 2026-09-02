@@ -17,7 +17,7 @@ export const layout = {
 	anticipateMs: 90,
 	landHoldMs: 180,
 	hitStopMs: 50,
-	captureBurstMs: 200,
+	captureBurstMs: 70,
 	captureShardCount: 7,
 	scorchPitScale: 1.2,
 	scorchFadeInMs: 120,
@@ -43,6 +43,34 @@ export const fireSprites = {
 } as const;
 
 export const captureSprites = {
+	igniteLight: 'captureIgniteLight',
+	igniteDark: 'captureIgniteDark',
+	swellLight: [
+		'captureSwellLight0',
+		'captureSwellLight1',
+		'captureSwellLight2',
+	] as const,
+	swellDark: [
+		'captureSwellDark0',
+		'captureSwellDark1',
+		'captureSwellDark2',
+	] as const,
+	swellKingLight: [
+		'captureSwellKingLight0',
+		'captureSwellKingLight1',
+		'captureSwellKingLight2',
+	] as const,
+	swellKingDark: [
+		'captureSwellKingDark0',
+		'captureSwellKingDark1',
+		'captureSwellKingDark2',
+	] as const,
+	flash: [
+		'captureFlash0',
+		'captureFlash1',
+		'captureFlash2',
+		'captureFlash3',
+	] as const,
 	scorch: 'captureScorch',
 } as const;
 

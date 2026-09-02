@@ -63,29 +63,6 @@ function mixRgb(from: number, to: number, t: number): number {
 	return (r << 16) | (g << 8) | b;
 }
 
-type CropRect = { x: number; y: number; w: number; h: number };
-
-function shardCrops(size: number, count: number): CropRect[] {
-	const cols = Math.ceil(Math.sqrt(count));
-	const rows = Math.ceil(count / cols);
-	const crops: CropRect[] = [];
-	let index = 0;
-	for (let row = 0; row < rows; row += 1) {
-		const remaining = count - index;
-		const rowsLeft = rows - row;
-		const rowCount = Math.ceil(remaining / rowsLeft);
-		for (let col = 0; col < rowCount; col += 1) {
-			const x0 = Math.round((col * size) / rowCount);
-			const x1 = Math.round(((col + 1) * size) / rowCount);
-			const y0 = Math.round((row * size) / rows);
-			const y1 = Math.round(((row + 1) * size) / rows);
-			crops.push({ x: x0, y: y0, w: x1 - x0, h: y1 - y0 });
-			index += 1;
-		}
-	}
-	return crops;
-}
-
 type PieceView = {
 	square: ISquare;
 	sprite: Phaser.GameObjects.Image;
@@ -112,6 +89,13 @@ export function createBoardView(
 		...fireSprites.land,
 		...fireSprites.puffs,
 		fireSprites.ember,
+		captureSprites.igniteLight,
+		captureSprites.igniteDark,
+		...captureSprites.swellLight,
+		...captureSprites.swellDark,
+		...captureSprites.swellKingLight,
+		...captureSprites.swellKingDark,
+		...captureSprites.flash,
 		captureSprites.scorch,
 	]) {
 		scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
@@ -198,6 +182,13 @@ export function createBoardView(
 	let pressTween: Phaser.Tweens.Tween | null = null;
 	let denyTween: Phaser.Tweens.Tween | null = null;
 	const scorches: { square: ISquare; sprite: Phaser.GameObjects.Image }[] = [];
+	type CaptureVfx = {
+		square: ISquare;
+		sprite: Phaser.GameObjects.Image;
+		timer?: Phaser.Time.TimerEvent;
+		kind: 'swell' | 'flash';
+	};
+	const captureVfx: CaptureVfx[] = [];
 
 	for (let row = 0; row < layout.rankCount; row += 1) {
 		for (let col = 0; col < layout.rankCount; col += 1) {
@@ -737,86 +728,113 @@ export function createBoardView(
 		scorches.length = 0;
 	}
 
-	function flashPitTongues(box: {
+	function capturePieceFit(square: ISquare): {
 		x: number;
 		y: number;
-		w: number;
-		h: number;
-	}): void {
-		const pieceSize = Math.min(box.w, box.h) * layout.pieceFit;
-		const cell = Math.min(box.w, box.h);
-		const radius = wellRadius(pieceSize, false);
-		const size = tongueSize('land', cell);
-		const keys = fireSprites.land;
-		const hold = layout.captureBurstMs;
-		fireRing.types.forEach((kind, index) => {
-			const angle = (fireRing.anglesDeg[index] * Math.PI) / 180;
-			const sprite = scene.add.image(
-				box.x + Math.sin(angle) * radius,
-				box.y - Math.cos(angle) * radius,
-				keys[kind],
-			);
-			sprite.setOrigin(0.5, 0.75);
-			sprite.setDisplaySize(size.w, size.h);
-			sprite.setDepth(2.8);
-			sprite.setAlpha(1);
-			sprite.disableInteractive();
-			scene.tweens.add({
-				targets: sprite,
-				alpha: 0,
-				duration: hold,
-				ease: 'Sine.easeIn',
-				onComplete: () => {
-					sprite.destroy();
-				},
-			});
+		size: number;
+	} {
+		const box = cellBox(square);
+		return {
+			x: box.x,
+			y: box.y,
+			size: Math.min(box.w, box.h) * layout.pieceFit,
+		};
+	}
+
+	function placeCaptureSprite(
+		sprite: Phaser.GameObjects.Image,
+		square: ISquare,
+	): void {
+		const at = capturePieceFit(square);
+		sprite.setPosition(at.x, at.y);
+		sprite.setDisplaySize(at.size, at.size);
+	}
+
+	function isLightKey(key: string): boolean {
+		return key === pieceSprites.manLight || key === pieceSprites.kingLight;
+	}
+
+	function isKingKey(key: string): boolean {
+		return key === pieceSprites.kingLight || key === pieceSprites.kingDark;
+	}
+
+	function swellKeysFor(key: string): readonly string[] {
+		const light = isLightKey(key);
+		if (isKingKey(key)) {
+			return light
+				? captureSprites.swellKingLight
+				: captureSprites.swellKingDark;
+		}
+		return light ? captureSprites.swellLight : captureSprites.swellDark;
+	}
+
+	function killCaptureVfx(square?: ISquare): void {
+		const keep: CaptureVfx[] = [];
+		for (const fx of captureVfx) {
+			if (square && squareKey(fx.square) !== squareKey(square)) {
+				keep.push(fx);
+				continue;
+			}
+			fx.timer?.remove(false);
+			fx.sprite.destroy();
+		}
+		captureVfx.length = 0;
+		captureVfx.push(...keep);
+	}
+
+	function addCaptureSprite(
+		square: ISquare,
+		key: string,
+		depth: number,
+		kind: CaptureVfx['kind'],
+	): CaptureVfx {
+		const at = capturePieceFit(square);
+		const sprite = scene.add.image(at.x, at.y, key);
+		sprite.setOrigin(0.5);
+		sprite.setDisplaySize(at.size, at.size);
+		sprite.setDepth(depth);
+		sprite.disableInteractive();
+		const fx: CaptureVfx = { square, sprite, kind };
+		captureVfx.push(fx);
+		return fx;
+	}
+
+	function playCaptureFrames(
+		fx: CaptureVfx,
+		keys: readonly string[],
+		onDone: () => void,
+	): void {
+		let frame = 0;
+		fx.sprite.setTexture(keys[0]);
+		fx.timer = scene.time.addEvent({
+			delay: layout.captureBurstMs,
+			loop: true,
+			callback: () => {
+				frame += 1;
+				if (frame >= keys.length) {
+					fx.timer?.remove(false);
+					fx.timer = undefined;
+					onDone();
+					return;
+				}
+				fx.sprite.setTexture(keys[frame]);
+			},
 		});
 	}
 
-	function burstLid(
-		view: PieceView,
-		box: {
-			x: number;
-			y: number;
-			w: number;
-			h: number;
-		},
-	): void {
-		const key = view.sprite.texture.key;
-		const scale = view.baseScale;
-		const cell = Math.min(box.w, box.h);
-		view.sprite.setVisible(false);
-		view.outline.setVisible(false);
-		destroyView(view);
-		for (const crop of shardCrops(
-			pieceSprites.size,
-			layout.captureShardCount,
-		)) {
-			const shard = scene.add.image(box.x, box.y, key);
-			shard.setOrigin(0.5);
-			shard.setScale(scale);
-			shard.setCrop(crop.x, crop.y, crop.w, crop.h);
-			shard.setDepth(3.8);
-			shard.disableInteractive();
-			const dist = cell * (0.3 + Math.random() * 0.4);
-			const dir = Math.random() * Math.PI * 2;
-			const spin = (Math.random() * 2 - 1) * 220;
-			scene.tweens.add({
-				targets: shard,
-				x: box.x + Math.cos(dir) * dist,
-				y: box.y + Math.sin(dir) * dist,
-				angle: spin,
-				alpha: 0,
-				duration: layout.captureBurstMs,
-				ease: 'Sine.easeOut',
-				onComplete: () => {
-					shard.destroy();
-				},
-			});
-		}
+	function playFlash(square: ISquare): void {
+		const fx = addCaptureSprite(square, captureSprites.flash[0], 2.2, 'flash');
+		playCaptureFrames(fx, captureSprites.flash, () => {
+			fx.timer?.remove(false);
+			fx.sprite.destroy();
+			const index = captureVfx.indexOf(fx);
+			if (index >= 0) {
+				captureVfx.splice(index, 1);
+			}
+		});
 	}
 
-	function playCapture(view: PieceView): void {
+	function finishCapture(view: PieceView): void {
 		pieceViews.delete(squareKey(view.square));
 		if (pulsing === view) {
 			pulsing = null;
@@ -824,25 +842,45 @@ export function createBoardView(
 		scene.tweens.killTweensOf(view.sprite);
 		view.shadow.setVisible(false);
 		view.shadow.setAlpha(0);
-		view.sprite.clearTint();
-		view.outline.clearTint();
-		view.outline.setTint(lidStroke);
-		const box = cellBox(view.square);
+		view.sprite.setVisible(false);
+		view.outline.setVisible(false);
+		killCaptureVfx(view.square);
 		spawnScorch(view.square);
-		burstLid(view, box);
+		playFlash(view.square);
+		destroyView(view);
 	}
 
 	function igniteCapture(view: PieceView): void {
-		view.sprite.setTint(0xffe0a8);
-		view.outline.setTint(0xffe0a8);
-		flashPitTongues(cellBox(view.square));
+		if (
+			captureVfx.some(
+				(fx) =>
+					fx.kind === 'swell' &&
+					squareKey(fx.square) === squareKey(view.square),
+			)
+		) {
+			return;
+		}
+		scene.tweens.killTweensOf(view.sprite);
+		view.sprite.setVisible(false);
+		view.outline.setVisible(false);
+		view.shadow.setVisible(false);
+		view.shadow.setAlpha(0);
+		const key = view.sprite.texture.key;
+		const igniteKey = isLightKey(key)
+			? captureSprites.igniteLight
+			: captureSprites.igniteDark;
+		const swell = swellKeysFor(key);
+		const fx = addCaptureSprite(view.square, igniteKey, 3.7, 'swell');
+		fx.timer = scene.time.delayedCall(layout.captureBurstMs, () => {
+			playCaptureFrames(fx, swell, () => undefined);
+		});
 	}
 
 	function captureBetween(from: ISquare, land: ISquare): void {
 		for (const between of squaresAlong(from, land)) {
 			const taken = pieceViews.get(squareKey(between));
 			if (taken) {
-				playCapture(taken);
+				finishCapture(taken);
 			}
 		}
 	}
@@ -1064,6 +1102,9 @@ export function createBoardView(
 		}
 		for (const stamp of scorches) {
 			placeScorch(stamp.sprite, stamp.square);
+		}
+		for (const fx of captureVfx) {
+			placeCaptureSprite(fx.sprite, fx.square);
 		}
 		for (const speck of debris) {
 			const box = cellBox(speck.square);
@@ -1348,6 +1389,9 @@ export function createBoardView(
 		press,
 		deny,
 		playMove,
-		reset: clearScorches,
+		reset: () => {
+			killCaptureVfx();
+			clearScorches();
+		},
 	};
 }

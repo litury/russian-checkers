@@ -40,7 +40,25 @@ import pitGrass05Url from '@/client/modules/board/table_layers/pit_grass_05.png'
 import pitGrass06Url from '@/client/modules/board/table_layers/pit_grass_06.png';
 import pitGrass07Url from '@/client/modules/board/table_layers/pit_grass_07.png';
 import selectMaskUrl from '@/client/modules/board/table_layers/select_mask.png';
+import captureFlash00Url from '@/client/modules/board/vfx_capture/capture_flash_00.png';
+import captureFlash01Url from '@/client/modules/board/vfx_capture/capture_flash_01.png';
+import captureFlash02Url from '@/client/modules/board/vfx_capture/capture_flash_02.png';
+import captureFlash03Url from '@/client/modules/board/vfx_capture/capture_flash_03.png';
+import captureIgniteDarkUrl from '@/client/modules/board/vfx_capture/capture_ignite_dark.png';
+import captureIgniteLightUrl from '@/client/modules/board/vfx_capture/capture_ignite_light.png';
 import captureScorchUrl from '@/client/modules/board/vfx_capture/capture_scorch_96.png';
+import captureSwellDark00Url from '@/client/modules/board/vfx_capture/capture_swell_dark_00.png';
+import captureSwellDark01Url from '@/client/modules/board/vfx_capture/capture_swell_dark_01.png';
+import captureSwellDark02Url from '@/client/modules/board/vfx_capture/capture_swell_dark_02.png';
+import captureSwellKingDark00Url from '@/client/modules/board/vfx_capture/capture_swell_king_dark_00.png';
+import captureSwellKingDark01Url from '@/client/modules/board/vfx_capture/capture_swell_king_dark_01.png';
+import captureSwellKingDark02Url from '@/client/modules/board/vfx_capture/capture_swell_king_dark_02.png';
+import captureSwellKingLight00Url from '@/client/modules/board/vfx_capture/capture_swell_king_light_00.png';
+import captureSwellKingLight01Url from '@/client/modules/board/vfx_capture/capture_swell_king_light_01.png';
+import captureSwellKingLight02Url from '@/client/modules/board/vfx_capture/capture_swell_king_light_02.png';
+import captureSwellLight00Url from '@/client/modules/board/vfx_capture/capture_swell_light_00.png';
+import captureSwellLight01Url from '@/client/modules/board/vfx_capture/capture_swell_light_01.png';
+import captureSwellLight02Url from '@/client/modules/board/vfx_capture/capture_swell_light_02.png';
 import { pickBotMove } from '@/client/modules/bot';
 import captureUrl from '@/client/modules/sfx/capture.ogg';
 import {
@@ -126,6 +144,33 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(fireSprites.puffs[1], puff1Url);
 		this.load.image(fireSprites.puffs[2], puff2Url);
 		this.load.image('hudMenu', hudMenuUrl);
+		this.load.image(captureSprites.igniteLight, captureIgniteLightUrl);
+		this.load.image(captureSprites.igniteDark, captureIgniteDarkUrl);
+		this.load.image(captureSprites.swellLight[0], captureSwellLight00Url);
+		this.load.image(captureSprites.swellLight[1], captureSwellLight01Url);
+		this.load.image(captureSprites.swellLight[2], captureSwellLight02Url);
+		this.load.image(captureSprites.swellDark[0], captureSwellDark00Url);
+		this.load.image(captureSprites.swellDark[1], captureSwellDark01Url);
+		this.load.image(captureSprites.swellDark[2], captureSwellDark02Url);
+		this.load.image(
+			captureSprites.swellKingLight[0],
+			captureSwellKingLight00Url,
+		);
+		this.load.image(
+			captureSprites.swellKingLight[1],
+			captureSwellKingLight01Url,
+		);
+		this.load.image(
+			captureSprites.swellKingLight[2],
+			captureSwellKingLight02Url,
+		);
+		this.load.image(captureSprites.swellKingDark[0], captureSwellKingDark00Url);
+		this.load.image(captureSprites.swellKingDark[1], captureSwellKingDark01Url);
+		this.load.image(captureSprites.swellKingDark[2], captureSwellKingDark02Url);
+		this.load.image(captureSprites.flash[0], captureFlash00Url);
+		this.load.image(captureSprites.flash[1], captureFlash01Url);
+		this.load.image(captureSprites.flash[2], captureFlash02Url);
+		this.load.image(captureSprites.flash[3], captureFlash03Url);
 		this.load.image(captureSprites.scorch, captureScorchUrl);
 		this.load.image('resultMonitor', resultMonitorUrl);
 		this.load.image('resultGlassWin', resultGlassWinUrl);
