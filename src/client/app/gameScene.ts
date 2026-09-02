@@ -2,7 +2,6 @@ import Phaser from 'phaser';
 import {
 	debrisSprites,
 	fireSprites,
-	layout,
 	pieceSprites,
 	pitSprites,
 	tableLayers,
@@ -54,11 +53,13 @@ import selectUrl from '@/client/modules/sfx/select.ogg';
 import { sameSquare } from '@/client/shared/sameSquare';
 import type { IMove, IPosition, ISquare, Side } from '@/rules';
 import { apply, createInitialPosition, legalMoves, winner } from '@/rules';
+import { createHud } from './createHud';
 import type { IYandexSdk } from './IYandexSdk';
 import { createResultOverlay } from './resultOverlay';
 
 export class GameScene extends Phaser.Scene {
 	private board!: IBoardView;
+	private hud!: ReturnType<typeof createHud>;
 	private overlay!: { show: (side: Side) => void; hide: () => void };
 	private sdk!: IYandexSdk;
 	private sfx!: ReturnType<typeof createTableSfx>;
@@ -68,7 +69,8 @@ export class GameScene extends Phaser.Scene {
 	private paused = false;
 	private pendingBot = false;
 	private moving = false;
-	private status!: Phaser.GameObjects.Text;
+	private elapsedMs = 0;
+	private runningSince = 0;
 	private botTimer?: Phaser.Time.TimerEvent;
 
 	constructor() {
@@ -119,14 +121,7 @@ export class GameScene extends Phaser.Scene {
 		this.sdk = this.registry.get('sdk') as IYandexSdk;
 		this.cameras.main.setBackgroundColor(palette.background);
 		this.sfx = createTableSfx(this);
-		this.status = this.add
-			.text(0, 18, '', {
-				fontFamily: 'Arial, sans-serif',
-				fontSize: '20px',
-				color: palette.text,
-			})
-			.setOrigin(0.5, 0.5)
-			.setDepth(20);
+		this.hud = createHud(this);
 		this.board = createBoardView(this, (square) => {
 			this.onSquare(square);
 		});
@@ -142,6 +137,13 @@ export class GameScene extends Phaser.Scene {
 		this.scale.on('resize', (gameSize: { width: number; height: number }) => {
 			this.layout(gameSize.width, gameSize.height);
 		});
+		this.time.addEvent({
+			delay: 1000,
+			loop: true,
+			callback: () => {
+				this.hud.setTimer(this.matchSeconds());
+			},
+		});
 		this.startMatch();
 		this.layout(this.scale.width, this.scale.height);
 		this.sdk.ready();
@@ -155,25 +157,33 @@ export class GameScene extends Phaser.Scene {
 		this.selected = null;
 		this.phase = 'human';
 		this.pendingBot = false;
+		this.elapsedMs = 0;
+		this.runningSince = this.time.now;
+		this.hud.setTimer(0);
 		this.overlay.hide();
 		this.sfx.stopHover();
 		this.refresh();
 	}
 
 	private layout(width: number, height: number): void {
-		this.status.setPosition(width / 2, layout.statusHeight / 2);
 		this.board.layout(width, height);
+		this.hud.layout(width, height);
 		this.refresh();
+	}
+
+	private matchSeconds(): number {
+		const extra = this.paused ? 0 : this.time.now - this.runningSince;
+		return Math.floor((this.elapsedMs + extra) / 1000);
 	}
 
 	private refresh(): void {
 		this.board.sync(this.position, this.humanHighlights(), this.selected);
 		if (this.phase === 'human') {
-			this.status.setText('Ваш ход');
+			this.hud.setTurn('Ваш ход');
 		} else if (this.phase === 'bot') {
-			this.status.setText('Ход соперника');
+			this.hud.setTurn('Ход соперника');
 		} else {
-			this.status.setText('');
+			this.hud.setTurn('');
 		}
 	}
 
@@ -312,6 +322,14 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private setPaused(paused: boolean): void {
+		if (paused === this.paused) {
+			return;
+		}
+		if (paused) {
+			this.elapsedMs += this.time.now - this.runningSince;
+		} else {
+			this.runningSince = this.time.now;
+		}
 		this.paused = paused;
 		this.sound.mute = paused;
 		if (paused) {

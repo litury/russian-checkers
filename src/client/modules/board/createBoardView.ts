@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { computeFieldLayout } from '@/client/config/fieldLayout';
 import {
 	debrisSprites,
 	fireRing,
@@ -863,11 +864,12 @@ export function createBoardView(
 	function layoutBoard(width: number, height: number): void {
 		ground.setPosition(0, 0);
 		ground.setSize(width, height);
-		const fieldSize = Math.min(width, height);
+		const field = computeFieldLayout(width, height);
+		const fieldSize = field.fieldSize;
 		const cell = fieldSize / layout.rankCount;
 		ground.setTileScale(cell / tableLayers.tile, cell / tableLayers.tile);
-		originX = height > width ? 0 : Math.round((width - fieldSize) / 2);
-		originY = height > width ? Math.round((height - fieldSize) / 2) : 0;
+		originX = field.originX;
+		originY = field.originY;
 		cellW = fieldSize / layout.rankCount;
 		cellH = fieldSize / layout.rankCount;
 		for (const pit of pits) {

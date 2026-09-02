@@ -1,6 +1,9 @@
 export const layout = {
 	rankCount: 8,
 	statusHeight: 52,
+	hudBar: 44,
+	hudMenu: 44,
+	boardBottomGap: 14,
 	pieceRadiusRatio: 0.34,
 	kingMarkRatio: 0.15,
 	highlightAlpha: 0.38,
