@@ -8,9 +8,13 @@ export const layout = {
 	pressScaleY: 0.85,
 	pressDipRatio: 0.05,
 	pressMs: 140,
-	liftRatio: 0.12,
+	liftRatio: 0.06,
 	selectMs: 180,
-	moveMs: 180,
+	moveMs: 380,
+	anticipateMs: 90,
+	landHoldMs: 180,
+	afterimageMs: 40,
+	hopArcRatio: 0.35,
 	markerFadeMs: 160,
 	markerBreathMin: 0.45,
 	markerBreathMax: 0.9,
@@ -18,32 +22,62 @@ export const layout = {
 	shadowAlpha: 0.35,
 	minCellPx: 44,
 	framePadPx: 12,
+	pitFit: 54 / 64,
+	pieceFit: 50 / 64,
 } as const;
 
-export const tableBgs = {
-	portrait: {
-		key: 'bgPhone',
-		width: 768,
-		height: 1376,
-		fieldX: 128,
-		fieldY: 432,
-		fieldW: 512,
-		fieldH: 512,
-	},
-	landscape: {
-		key: 'bgDesk',
-		width: 1376,
-		height: 768,
-		fieldX: 432,
-		fieldY: 128,
-		fieldW: 512,
-		fieldH: 512,
-	},
+export const fireSprites = {
+	idle: ['tongue0Idle', 'tongue1Idle', 'tongue2Idle'] as const,
+	up: ['tongue0Up', 'tongue1Up', 'tongue2Up'] as const,
+	land: ['tongue0Land', 'tongue1Land', 'tongue2Land'] as const,
+	puffs: ['puff0', 'puff1', 'puff2'] as const,
+	ember: 'ember',
+} as const;
+
+export const fireRing = {
+	types: [1, 0, 2, 1, 0, 2, 1] as const,
+	anglesDeg: [12, 64, 118, 171, 224, 281, 333] as const,
+	wellRatio: 0.86,
+	idle: { w: 16, h: 16 },
+	up: { w: 12, h: 20 },
+	land: { w: 16, h: 12 },
+	hopLean: 1,
+	hopTrail: 0.22,
+	hopRadius: 0.28,
+} as const;
+
+export const tableLayers = {
+	earth: 'earthGrass',
+	tile: 64,
+} as const;
+
+export const wreathSprites = {
+	mask: 'selectMask',
+	spinMs: 10000,
+	captureScale: 1.05,
 } as const;
 
 export const pitSprites = {
-	keys: ['pit00', 'pit03', 'pit07', 'pit10', 'pit11'] as const,
+	keys: [
+		'pitGrass00',
+		'pitGrass01',
+		'pitGrass02',
+		'pitGrass03',
+		'pitGrass04',
+		'pitGrass05',
+		'pitGrass06',
+		'pitGrass07',
+	] as const,
 	size: 64,
+} as const;
+
+export const debrisSprites = {
+	stonePl: 'debrisStonePl',
+	stoneGm: 'debrisStoneGm',
+	center: [
+		{ key: 'debrisStonePl', visRow: 3, col: 3, texW: 32, texH: 32 },
+		{ key: 'debrisStoneGm', visRow: 4, col: 4, texW: 32, texH: 29 },
+	] as const,
 } as const;
 
 export const pieceSprites = {

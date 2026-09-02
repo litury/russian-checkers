@@ -1,27 +1,45 @@
 import Phaser from 'phaser';
 import {
+	debrisSprites,
+	fireSprites,
 	layout,
 	pieceSprites,
 	pitSprites,
-	tableBgs,
+	tableLayers,
+	wreathSprites,
 } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
 import type { IBoardView } from '@/client/modules/board';
 import { createBoardView } from '@/client/modules/board';
-import bgDeskUrl from '@/client/modules/board/kit_v2/bg_desk.png';
-import bgPhoneUrl from '@/client/modules/board/kit_v2/bg_phone.png';
-import captureRimUrl from '@/client/modules/board/kit_v2/capture_rim.png';
-import moveRimUrl from '@/client/modules/board/kit_v2/move_rim.png';
-import pit00Url from '@/client/modules/board/kit_v2/pits/pit_00.png';
-import pit03Url from '@/client/modules/board/kit_v2/pits/pit_03.png';
-import pit07Url from '@/client/modules/board/kit_v2/pits/pit_07.png';
-import pit10Url from '@/client/modules/board/kit_v2/pits/pit_10.png';
-import pit11Url from '@/client/modules/board/kit_v2/pits/pit_11.png';
-import selectRimUrl from '@/client/modules/board/kit_v2/select_rim.png';
+import tongue0IdleUrl from '@/client/modules/board/fire_rocket/tongue_0_idle.png';
+import tongue0LandUrl from '@/client/modules/board/fire_rocket/tongue_0_land.png';
+import tongue0UpUrl from '@/client/modules/board/fire_rocket/tongue_0_up.png';
+import tongue1IdleUrl from '@/client/modules/board/fire_rocket/tongue_1_idle.png';
+import tongue1LandUrl from '@/client/modules/board/fire_rocket/tongue_1_land.png';
+import tongue1UpUrl from '@/client/modules/board/fire_rocket/tongue_1_up.png';
+import tongue2IdleUrl from '@/client/modules/board/fire_rocket/tongue_2_idle.png';
+import tongue2LandUrl from '@/client/modules/board/fire_rocket/tongue_2_land.png';
+import tongue2UpUrl from '@/client/modules/board/fire_rocket/tongue_2_up.png';
+import emberUrl from '@/client/modules/board/kit_v2/fx/ember.png';
+import puff0Url from '@/client/modules/board/kit_v2/fx/puff_0.png';
+import puff1Url from '@/client/modules/board/kit_v2/fx/puff_1.png';
+import puff2Url from '@/client/modules/board/kit_v2/fx/puff_2.png';
 import kingDarkUrl from '@/client/modules/board/pieces/king_dark.png';
 import kingLightUrl from '@/client/modules/board/pieces/king_light.png';
 import manDarkUrl from '@/client/modules/board/pieces/man_dark.png';
 import manLightUrl from '@/client/modules/board/pieces/man_light.png';
+import debrisStoneGmUrl from '@/client/modules/board/table_layers/debris_grass_stone_gm.png';
+import debrisStonePlUrl from '@/client/modules/board/table_layers/debris_grass_stone_pl.png';
+import earthGrassUrl from '@/client/modules/board/table_layers/earth_grass.png';
+import pitGrass00Url from '@/client/modules/board/table_layers/pit_grass_00.png';
+import pitGrass01Url from '@/client/modules/board/table_layers/pit_grass_01.png';
+import pitGrass02Url from '@/client/modules/board/table_layers/pit_grass_02.png';
+import pitGrass03Url from '@/client/modules/board/table_layers/pit_grass_03.png';
+import pitGrass04Url from '@/client/modules/board/table_layers/pit_grass_04.png';
+import pitGrass05Url from '@/client/modules/board/table_layers/pit_grass_05.png';
+import pitGrass06Url from '@/client/modules/board/table_layers/pit_grass_06.png';
+import pitGrass07Url from '@/client/modules/board/table_layers/pit_grass_07.png';
+import selectMaskUrl from '@/client/modules/board/table_layers/select_mask.png';
 import { pickBotMove } from '@/client/modules/bot';
 import captureUrl from '@/client/modules/sfx/capture.ogg';
 import {
@@ -58,20 +76,35 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	preload(): void {
-		this.load.image(tableBgs.portrait.key, bgPhoneUrl);
-		this.load.image(tableBgs.landscape.key, bgDeskUrl);
-		this.load.image(pitSprites.keys[0], pit00Url);
-		this.load.image(pitSprites.keys[1], pit03Url);
-		this.load.image(pitSprites.keys[2], pit07Url);
-		this.load.image(pitSprites.keys[3], pit10Url);
-		this.load.image(pitSprites.keys[4], pit11Url);
+		this.load.image(tableLayers.earth, earthGrassUrl);
+		this.load.image(pitSprites.keys[0], pitGrass00Url);
+		this.load.image(pitSprites.keys[1], pitGrass01Url);
+		this.load.image(pitSprites.keys[2], pitGrass02Url);
+		this.load.image(pitSprites.keys[3], pitGrass03Url);
+		this.load.image(pitSprites.keys[4], pitGrass04Url);
+		this.load.image(pitSprites.keys[5], pitGrass05Url);
+		this.load.image(pitSprites.keys[6], pitGrass06Url);
+		this.load.image(pitSprites.keys[7], pitGrass07Url);
+		this.load.image(debrisSprites.stonePl, debrisStonePlUrl);
+		this.load.image(debrisSprites.stoneGm, debrisStoneGmUrl);
 		this.load.image(pieceSprites.manLight, manLightUrl);
 		this.load.image(pieceSprites.manDark, manDarkUrl);
 		this.load.image(pieceSprites.kingLight, kingLightUrl);
 		this.load.image(pieceSprites.kingDark, kingDarkUrl);
-		this.load.image(pieceSprites.selectRim, selectRimUrl);
-		this.load.image(pieceSprites.moveRim, moveRimUrl);
-		this.load.image(pieceSprites.captureRim, captureRimUrl);
+		this.load.image(wreathSprites.mask, selectMaskUrl);
+		this.load.image(fireSprites.ember, emberUrl);
+		this.load.image(fireSprites.idle[0], tongue0IdleUrl);
+		this.load.image(fireSprites.idle[1], tongue1IdleUrl);
+		this.load.image(fireSprites.idle[2], tongue2IdleUrl);
+		this.load.image(fireSprites.up[0], tongue0UpUrl);
+		this.load.image(fireSprites.up[1], tongue1UpUrl);
+		this.load.image(fireSprites.up[2], tongue2UpUrl);
+		this.load.image(fireSprites.land[0], tongue0LandUrl);
+		this.load.image(fireSprites.land[1], tongue1LandUrl);
+		this.load.image(fireSprites.land[2], tongue2LandUrl);
+		this.load.image(fireSprites.puffs[0], puff0Url);
+		this.load.image(fireSprites.puffs[1], puff1Url);
+		this.load.image(fireSprites.puffs[2], puff2Url);
 		preloadTableSfx(this, {
 			select: selectUrl,
 			hover: hoverUrl,
