@@ -1,9 +1,10 @@
 import Phaser from 'phaser';
 import {
+	debrisSprites,
 	layout,
 	pieceSprites,
 	pitSprites,
-	tableBgs,
+	tableLayers,
 } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
 import { sameSquare } from '@/client/shared/sameSquare';
@@ -41,6 +42,10 @@ function squaresAlong(from: ISquare, to: ISquare): ISquare[] {
 	return between;
 }
 
+function cellHash(row: number, col: number): number {
+	return ((row * 73856093) ^ (col * 19349663) ^ 83492791) >>> 0;
+}
+
 function mixRgb(from: number, to: number, t: number): number {
 	const clamped = Math.min(1, Math.max(0, t));
 	const r = Math.round(
@@ -65,19 +70,19 @@ export function createBoardView(
 	onSquare: (square: ISquare) => void,
 ): IBoardView {
 	for (const key of [
-		tableBgs.portrait.key,
-		tableBgs.landscape.key,
+		tableLayers.earth,
 		...pitSprites.keys,
+		...debrisSprites.keys,
 		pieceSprites.selectRim,
 		pieceSprites.moveRim,
 		pieceSprites.captureRim,
 	]) {
 		scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
 	}
-	const frame = scene.add.image(0, 0, tableBgs.portrait.key);
-	frame.setOrigin(0, 0);
-	frame.setDepth(0);
-	frame.disableInteractive();
+	const ground = scene.add.tileSprite(0, 0, 64, 64, tableLayers.earth);
+	ground.setOrigin(0, 0);
+	ground.setDepth(0);
+	ground.disableInteractive();
 	const selectRim = scene.add.image(0, 0, pieceSprites.selectRim);
 	selectRim.setOrigin(0.5);
 	selectRim.setDepth(3);
@@ -116,18 +121,45 @@ export function createBoardView(
 	}
 
 	const pits: { square: ISquare; sprite: Phaser.GameObjects.Image }[] = [];
-	let pitCycle = 0;
+	const debris: { square: ISquare; sprite: Phaser.GameObjects.Image }[] = [];
+	const placedPits = new Map<string, string>();
+	const pitNeighbor = [
+		[-1, -1],
+		[-1, 1],
+		[0, -2],
+		[-2, 0],
+	];
 	for (let visRow = 0; visRow < layout.rankCount; visRow += 1) {
 		for (let col = 0; col < layout.rankCount; col += 1) {
-			if ((visRow + col) % 2 !== 1) {
+			const row = layout.rankCount - 1 - visRow;
+			const dark = (visRow + col) % 2 === 1;
+			if (!dark) {
+				if (cellHash(row, col) % 11 === 0) {
+					const dkey =
+						debrisSprites.keys[cellHash(col, row) % debrisSprites.keys.length];
+					const speck = scene.add.image(0, 0, dkey);
+					speck.setOrigin(0.5);
+					speck.setDepth(1);
+					speck.disableInteractive();
+					debris.push({ square: { row, col }, sprite: speck });
+				}
 				continue;
 			}
-			const row = layout.rankCount - 1 - visRow;
-			const key = pitSprites.keys[pitCycle % pitSprites.keys.length];
-			pitCycle += 1;
+			const forbidden = new Set<string>();
+			for (const [dr, dc] of pitNeighbor) {
+				const seen = placedPits.get(`${visRow + dr},${col + dc}`);
+				if (seen) {
+					forbidden.add(seen);
+				}
+			}
+			const pool = pitSprites.keys.filter((key) => !forbidden.has(key));
+			const choices = pool.length > 0 ? pool : pitSprites.keys;
+			const key = choices[cellHash(visRow, col) % choices.length];
+			placedPits.set(`${visRow},${col}`, key);
 			const sprite = scene.add.image(0, 0, key);
 			sprite.setOrigin(0.5);
 			sprite.setDepth(1);
+			sprite.disableInteractive();
 			pits.push({ square: { row, col }, sprite });
 		}
 	}
@@ -262,7 +294,7 @@ export function createBoardView(
 	function placePiece(view: PieceView, selected: boolean): void {
 		const box = cellBox(view.square);
 		const size = Math.min(box.w, box.h);
-		view.baseScale = size / pieceSprites.size;
+		view.baseScale = (size * layout.pieceFit) / pieceSprites.size;
 		const busy = pressView === view || pulsing === view;
 		if (!busy) {
 			view.sprite.setPosition(box.x, box.y);
@@ -473,25 +505,25 @@ export function createBoardView(
 	}
 
 	function layoutBoard(width: number, height: number): void {
-		const bg = height > width ? tableBgs.portrait : tableBgs.landscape;
+		ground.setPosition(0, 0);
+		ground.setSize(width, height);
 		const fieldSize = Math.min(width, height);
-		if (frame.texture.key !== bg.key) {
-			frame.setTexture(bg.key);
-		}
+		const cell = fieldSize / layout.rankCount;
+		ground.setTileScale(cell / tableLayers.tile, cell / tableLayers.tile);
 		originX = height > width ? 0 : Math.round((width - fieldSize) / 2);
 		originY = height > width ? Math.round((height - fieldSize) / 2) : 0;
-		const scale = fieldSize / bg.fieldW;
-		frame.setScale(scale);
-		frame.setPosition(
-			Math.round(originX - bg.fieldX * scale),
-			Math.round(originY - bg.fieldY * scale),
-		);
 		cellW = fieldSize / layout.rankCount;
 		cellH = fieldSize / layout.rankCount;
 		for (const pit of pits) {
 			const box = cellBox(pit.square);
 			pit.sprite.setPosition(box.x, box.y);
-			pit.sprite.setDisplaySize(box.w, box.h);
+			pit.sprite.setDisplaySize(box.w * layout.pitFit, box.h * layout.pitFit);
+		}
+		for (const speck of debris) {
+			const box = cellBox(speck.square);
+			const size = Math.min(box.w, box.h) * 0.3;
+			speck.sprite.setPosition(box.x, box.y);
+			speck.sprite.setDisplaySize(size, size);
 		}
 		for (const square of squares) {
 			const box = cellBox(square);

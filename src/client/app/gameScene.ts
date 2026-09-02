@@ -1,27 +1,33 @@
 import Phaser from 'phaser';
 import {
+	debrisSprites,
 	layout,
 	pieceSprites,
 	pitSprites,
-	tableBgs,
+	tableLayers,
 } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
 import type { IBoardView } from '@/client/modules/board';
 import { createBoardView } from '@/client/modules/board';
-import bgDeskUrl from '@/client/modules/board/kit_v2/bg_desk.png';
-import bgPhoneUrl from '@/client/modules/board/kit_v2/bg_phone.png';
 import captureRimUrl from '@/client/modules/board/kit_v2/capture_rim.png';
 import moveRimUrl from '@/client/modules/board/kit_v2/move_rim.png';
-import pit00Url from '@/client/modules/board/kit_v2/pits/pit_00.png';
-import pit03Url from '@/client/modules/board/kit_v2/pits/pit_03.png';
-import pit07Url from '@/client/modules/board/kit_v2/pits/pit_07.png';
-import pit10Url from '@/client/modules/board/kit_v2/pits/pit_10.png';
-import pit11Url from '@/client/modules/board/kit_v2/pits/pit_11.png';
 import selectRimUrl from '@/client/modules/board/kit_v2/select_rim.png';
 import kingDarkUrl from '@/client/modules/board/pieces/king_dark.png';
 import kingLightUrl from '@/client/modules/board/pieces/king_light.png';
 import manDarkUrl from '@/client/modules/board/pieces/man_dark.png';
 import manLightUrl from '@/client/modules/board/pieces/man_light.png';
+import debrisMossUrl from '@/client/modules/board/table_layers/debris_grass_moss.png';
+import debrisStoneUrl from '@/client/modules/board/table_layers/debris_grass_stone.png';
+import debrisTuftUrl from '@/client/modules/board/table_layers/debris_grass_tuft.png';
+import earthGrassUrl from '@/client/modules/board/table_layers/earth_grass.png';
+import pitGrass00Url from '@/client/modules/board/table_layers/pit_grass_00.png';
+import pitGrass01Url from '@/client/modules/board/table_layers/pit_grass_01.png';
+import pitGrass02Url from '@/client/modules/board/table_layers/pit_grass_02.png';
+import pitGrass03Url from '@/client/modules/board/table_layers/pit_grass_03.png';
+import pitGrass04Url from '@/client/modules/board/table_layers/pit_grass_04.png';
+import pitGrass05Url from '@/client/modules/board/table_layers/pit_grass_05.png';
+import pitGrass06Url from '@/client/modules/board/table_layers/pit_grass_06.png';
+import pitGrass07Url from '@/client/modules/board/table_layers/pit_grass_07.png';
 import { pickBotMove } from '@/client/modules/bot';
 import captureUrl from '@/client/modules/sfx/capture.ogg';
 import {
@@ -55,13 +61,18 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	preload(): void {
-		this.load.image(tableBgs.portrait.key, bgPhoneUrl);
-		this.load.image(tableBgs.landscape.key, bgDeskUrl);
-		this.load.image(pitSprites.keys[0], pit00Url);
-		this.load.image(pitSprites.keys[1], pit03Url);
-		this.load.image(pitSprites.keys[2], pit07Url);
-		this.load.image(pitSprites.keys[3], pit10Url);
-		this.load.image(pitSprites.keys[4], pit11Url);
+		this.load.image(tableLayers.earth, earthGrassUrl);
+		this.load.image(pitSprites.keys[0], pitGrass00Url);
+		this.load.image(pitSprites.keys[1], pitGrass01Url);
+		this.load.image(pitSprites.keys[2], pitGrass02Url);
+		this.load.image(pitSprites.keys[3], pitGrass03Url);
+		this.load.image(pitSprites.keys[4], pitGrass04Url);
+		this.load.image(pitSprites.keys[5], pitGrass05Url);
+		this.load.image(pitSprites.keys[6], pitGrass06Url);
+		this.load.image(pitSprites.keys[7], pitGrass07Url);
+		this.load.image(debrisSprites.keys[0], debrisTuftUrl);
+		this.load.image(debrisSprites.keys[1], debrisStoneUrl);
+		this.load.image(debrisSprites.keys[2], debrisMossUrl);
 		this.load.image(pieceSprites.manLight, manLightUrl);
 		this.load.image(pieceSprites.manDark, manDarkUrl);
 		this.load.image(pieceSprites.kingLight, kingLightUrl);
