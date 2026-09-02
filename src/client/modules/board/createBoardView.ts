@@ -223,14 +223,23 @@ export function createBoardView(
 		return 6;
 	}
 
+	function worldXY(sprite: Phaser.GameObjects.Image): { x: number; y: number } {
+		const parent = sprite.parentContainer;
+		if (parent) {
+			return { x: parent.x + sprite.x, y: parent.y + sprite.y };
+		}
+		return { x: sprite.x, y: sprite.y };
+	}
+
 	function syncOutline(view: PieceView): void {
 		const sprite = view.sprite;
 		const outline = view.outline;
+		const pos = worldXY(sprite);
 		if (outline.texture.key !== sprite.texture.key) {
 			outline.setTexture(sprite.texture.key);
 		}
 		outline.setOrigin(sprite.originX, sprite.originY);
-		outline.setPosition(sprite.x, sprite.y);
+		outline.setPosition(pos.x, pos.y);
 		outline.setDisplaySize(sprite.displayWidth + 2, sprite.displayHeight + 2);
 		outline.setDepth(sprite.depth - 0.05);
 		outline.setVisible(sprite.visible);
@@ -329,20 +338,20 @@ export function createBoardView(
 	}
 
 	function stickFlame(view: PieceView): void {
+		if (flame.parentContainer) {
+			return;
+		}
+		const pos = worldXY(view.sprite);
 		flame.setOrigin(0.5, 1);
-		flame.setPosition(
-			view.sprite.x,
-			view.sprite.y + view.sprite.displayHeight * 0.38,
-		);
+		flame.setPosition(pos.x, pos.y + view.sprite.displayHeight * 0.38);
 		flame.setDisplaySize(cellW, cellH);
 	}
 
 	function followEmitters(view: PieceView): void {
-		const x = view.sprite.x;
-		const y = view.sprite.y;
-		embers.setPosition(x, y);
+		const pos = worldXY(view.sprite);
+		embers.setPosition(pos.x, pos.y);
 		for (const puff of puffs) {
-			puff.setPosition(x, y);
+			puff.setPosition(pos.x, pos.y);
 		}
 	}
 
@@ -856,26 +865,13 @@ export function createBoardView(
 	}
 
 
-	function runOverMs(
-		duration: number,
-		onTick: (t: number) => void,
-		onDone: () => void,
-	): void {
-		let elapsed = 0;
-		const maxDt = 1000 / 30;
-		const tick = (_time: number, delta: number): void => {
-			const raw = Number.isFinite(delta) && delta > 0 ? delta : 16;
-			elapsed += Math.min(raw, maxDt);
-			const t = elapsed >= duration ? 1 : elapsed / duration;
-			onTick(t);
-			if (t >= 1) {
-				scene.events.off('update', tick);
-				onDone();
-			}
-		};
-		onTick(0);
-		scene.events.on('update', tick);
+	scene.tweens.setLagSmooth(40, 16);
+
+	function hopProgress(tween: Phaser.Tweens.Tween): number {
+		const duration = tween.duration > 0 ? tween.duration : layout.moveMs;
+		return Math.min(1, Math.max(0, tween.elapsed / duration));
 	}
+
 
 	function playMove(
 		move: IMove,
@@ -931,41 +927,66 @@ export function createBoardView(
 				view.sprite.setPosition(fromBox.x, fromBox.y);
 				flame.setVisible(true);
 				const arc = Math.min(fromBox.w, fromBox.h) * layout.hopArcRatio;
-				runOverMs(
-					layout.moveMs,
-					(t) => {
-						const eased = 0.5 - 0.5 * Math.cos(t * Math.PI);
-						view.sprite.setPosition(
-							fromBox.x + (box.x - fromBox.x) * eased,
-							fromBox.y +
-								(box.y - fromBox.y) * eased -
-								Math.sin(t * Math.PI) * arc,
+				const carrier = scene.add.container(fromBox.x, fromBox.y);
+				carrier.setDepth(6);
+				carrier.add(view.sprite);
+				view.sprite.setPosition(0, 0);
+				flame.setOrigin(0.5, 1);
+				flame.setDisplaySize(cellW, cellH);
+				carrier.add(flame);
+				flame.setPosition(0, cellH * 0.38);
+				const landHop = (): void => {
+					carrier.remove(view.sprite);
+					carrier.remove(flame);
+					view.sprite.setPosition(box.x, box.y);
+					view.sprite.setScale(view.baseScale);
+					view.sprite.setDepth(6);
+					flame.setDepth(2.7);
+					stickFlame(view);
+					syncOutline(view);
+					carrier.destroy();
+					if (capture) {
+						for (const between of squaresAlong(from, land)) {
+							const taken = pieceViews.get(squareKey(between));
+							if (taken) {
+								taken.sprite.setVisible(false);
+								taken.shadow.setVisible(false);
+								taken.shadow.setAlpha(0);
+							}
+						}
+					}
+					onLand?.(capture);
+					from = land;
+					step(index + 1);
+				};
+				scene.tweens.add({
+					targets: carrier,
+					x: box.x,
+					y: box.y,
+					duration: layout.moveMs,
+					ease: 'Sine.easeInOut',
+					onUpdate: (tween: Phaser.Tweens.Tween) => {
+						void hopProgress(tween);
+						const spanX = box.x - fromBox.x;
+						const spanY = box.y - fromBox.y;
+						const t = Math.min(
+							1,
+							Math.max(
+								0,
+								Math.abs(spanX) >= Math.abs(spanY)
+									? (carrier.x - fromBox.x) / (spanX || 1)
+									: (carrier.y - fromBox.y) / (spanY || 1),
+							),
 						);
-						view.sprite.setScale(view.baseScale);
-						stickFlame(view);
+						carrier.y =
+							fromBox.y +
+							spanY * t -
+							Math.sin(t * Math.PI) * arc;
 						followEmitters(view);
 						syncOutline(view);
 					},
-					() => {
-						view.sprite.setPosition(box.x, box.y);
-						view.sprite.setScale(view.baseScale);
-						stickFlame(view);
-						syncOutline(view);
-						if (capture) {
-							for (const between of squaresAlong(from, land)) {
-								const taken = pieceViews.get(squareKey(between));
-								if (taken) {
-									taken.sprite.setVisible(false);
-									taken.shadow.setVisible(false);
-									taken.shadow.setAlpha(0);
-								}
-							}
-						}
-						onLand?.(capture);
-						from = land;
-						step(index + 1);
-					},
-				);
+					onComplete: landHop,
+				});
 			};
 			placeFxAt(fromBox.x, fromBox.y, fromBox.w, fromBox.h);
 			stickFlame(view);
@@ -979,28 +1000,22 @@ export function createBoardView(
 					fly();
 				};
 				playFireTakeoff();
-				runOverMs(
-					layout.anticipateMs,
-					(t) => {
-						const squash =
-							1 - (1 - layout.pressScaleY) * t;
-						view.sprite.setScale(
-							view.baseScale,
-							view.baseScale * squash,
-						);
-						view.sprite.setPosition(
-							fromBox.x,
-							fromBox.y + pressDip() * t,
-						);
+				scene.tweens.add({
+					targets: view.sprite,
+					scaleY: view.baseScale * layout.pressScaleY,
+					y: fromBox.y + pressDip(),
+					duration: layout.anticipateMs,
+					ease: 'Sine.easeIn',
+					onUpdate: () => {
 						stickFlame(view);
 						syncOutline(view);
 					},
-					() => {
+					onComplete: () => {
 						view.sprite.setScale(view.baseScale);
 						view.sprite.setPosition(fromBox.x, fromBox.y);
-						go();
+						scene.time.delayedCall(1, go);
 					},
-				);
+				});
 			} else {
 				fly();
 			}
