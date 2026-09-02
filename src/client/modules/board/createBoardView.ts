@@ -471,34 +471,12 @@ export function createBoardView(
 		selectRim.setVisible(false);
 	}
 
-	function placeSelectRim(view: PieceView): void {
-		const box = cellBox(view.square);
-		selectRim.setPosition(box.x, box.y);
-		selectRim.setDisplaySize(box.w, box.h);
-		selectRim.setDepth(3);
-		selectRim.setTint(palette.selectedFill);
-		selectRim.setVisible(true);
+	function placeSelectRim(_view: PieceView): void {
+		hideSelectRim();
 	}
 
 	function breatheSelectRim(): void {
-		scene.tweens.killTweensOf(selectRim);
-		selectRim.setAlpha(0);
-		scene.tweens.add({
-			targets: selectRim,
-			alpha: layout.markerBreathMax,
-			duration: layout.markerFadeMs,
-			ease: 'Sine.easeOut',
-			onComplete: () => {
-				scene.tweens.add({
-					targets: selectRim,
-					alpha: layout.markerBreathMin,
-					duration: layout.markerBreathMs,
-					ease: 'Sine.easeInOut',
-					yoyo: true,
-					repeat: -1,
-				});
-			},
-		});
+		hideSelectRim();
 	}
 
 	function clearDeny(view?: PieceView): void {
@@ -714,74 +692,12 @@ export function createBoardView(
 		}
 	}
 
-	function breatheMarker(ring: Phaser.GameObjects.Image): void {
-		scene.tweens.add({
-			targets: ring,
-			alpha: layout.markerBreathMax,
-			duration: layout.markerFadeMs,
-			ease: 'Sine.easeOut',
-			onComplete: () => {
-				scene.tweens.add({
-					targets: ring,
-					alpha: layout.markerBreathMin,
-					duration: layout.markerBreathMs,
-					ease: 'Sine.easeInOut',
-					yoyo: true,
-					repeat: -1,
-				});
-			},
-		});
-	}
-
-	function addMoveRim(square: ISquare, texture: string): void {
-		const box = cellBox(square);
-		const rim = scene.add.image(box.x, box.y, texture);
-		rim.setOrigin(0.5);
-		rim.setDisplaySize(box.w, box.h);
-		rim.setDepth(3);
-		rim.setAlpha(0);
-		if (texture === pieceSprites.moveRim) {
-			rim.setTint(palette.quietFill);
-		}
-		breatheMarker(rim);
-		markers.push(rim);
-	}
-
 	function drawMarkers(
-		position: IPosition,
-		destinations: ISquare[],
-		selected: ISquare | null,
+		_position: IPosition,
+		_destinations: ISquare[],
+		_selected: ISquare | null,
 	): void {
 		clearMarkers();
-		const painted = new Set<string>();
-		const paint = (square: ISquare, texture: string): void => {
-			const key = squareKey(square);
-			if (painted.has(key)) {
-				return;
-			}
-			painted.add(key);
-			addMoveRim(square, texture);
-		};
-		for (const square of destinations) {
-			if (selected && sameSquare(square, selected)) {
-				continue;
-			}
-			paint(square, pieceSprites.moveRim);
-		}
-		if (!selected) {
-			return;
-		}
-		for (const dest of destinations) {
-			if (!isJump(selected, dest)) {
-				continue;
-			}
-			for (const between of squaresAlong(selected, dest)) {
-				const occupant = position.squares[between.row]?.[between.col];
-				if (occupant) {
-					paint(between, pieceSprites.captureRim);
-				}
-			}
-		}
 	}
 
 	function layoutBoard(width: number, height: number): void {
