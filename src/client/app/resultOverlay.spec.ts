@@ -8,20 +8,20 @@ vi.mock('phaser', () => ({
 
 import {
 	cheerMs,
+	loseHolds,
 	loseKeys,
-	loseMs,
 	replayPulseMs,
 	replayPulseScale,
 	winKeys,
 } from './resultOverlay';
 
 describe('resultOverlay mascot timing', () => {
-	it('plays six CRT lose frames slower than the win cheer loop', () => {
+	it('plays six CRT lose frames with per-frame holds then freezes on 05', () => {
 		expect(loseKeys).toHaveLength(6);
 		expect(winKeys).toHaveLength(5);
-		expect(loseMs).toBe(125);
+		expect(loseHolds).toEqual([200, 320, 280, 240, 180]);
+		expect(loseHolds).toHaveLength(loseKeys.length - 1);
 		expect(cheerMs).toBe(120);
-		expect(loseMs).toBeGreaterThan(cheerMs);
 	});
 
 	it('breathes the replay button while the overlay is shown', () => {

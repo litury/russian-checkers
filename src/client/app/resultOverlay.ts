@@ -35,7 +35,7 @@ export const loseKeys = [
 	'mascotLose4',
 	'mascotLose5',
 ] as const;
-export const loseMs = 125;
+export const loseHolds = [200, 320, 280, 240, 180] as const;
 const depth = 20;
 
 function stackHeight(): number {
@@ -215,21 +215,17 @@ export function createResultOverlay(
 		stopCheer();
 		loseFrame = 0;
 		hero.setTexture(loseKeys[0]);
-		loseAnim = scene.time.addEvent({
-			delay: loseMs,
-			loop: true,
-			callback: () => {
-				if (loseFrame >= loseKeys.length - 1) {
-					stopLose();
-					return;
-				}
+		const step = (): void => {
+			if (loseFrame >= loseKeys.length - 1) {
+				return;
+			}
+			loseAnim = scene.time.delayedCall(loseHolds[loseFrame], () => {
 				loseFrame += 1;
 				hero.setTexture(loseKeys[loseFrame]);
-				if (loseFrame >= loseKeys.length - 1) {
-					stopLose();
-				}
-			},
-		});
+				step();
+			});
+		};
+		step();
 	}
 
 	return {
