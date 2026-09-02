@@ -17,6 +17,8 @@ const floorPad = 2;
 const gap = 12;
 const titleSize = 28;
 const pressNudge = 2;
+export const replayPulseScale = 1.03;
+export const replayPulseMs = 800;
 export const winKeys = [
 	'mascotWin0',
 	'mascotWin1',
@@ -89,7 +91,7 @@ export function createResultOverlay(
 	const glass = scene.add.image(0, 0, 'resultGlassWin').setOrigin(0, 0);
 	const monitor = scene.add.image(0, 0, 'resultMonitor').setOrigin(0, 0);
 	const hero = scene.add.image(0, 0, winKeys[0]).setOrigin(0.5, 1);
-	const btn = scene.add.image(0, 0, 'resultBtn').setOrigin(0, 0);
+	const btn = scene.add.image(0, 0, 'resultBtn').setOrigin(0.5);
 	const label = scene.add
 		.text(0, 0, 'Ещё раз', {
 			fontFamily: 'Arial, sans-serif',
@@ -98,29 +100,50 @@ export function createResultOverlay(
 		})
 		.setOrigin(0.5)
 		.setStroke('#1a1410', 2);
+	const btnWrap = scene.add.container(0, 0);
+	btnWrap.add([btn, label]);
 	const hit = scene.add.rectangle(0, 0, hitW, hitH, 0x000000, 0);
 	hit.setOrigin(0, 0);
 	hit.setInteractive({ useHandCursor: true });
 
-	root.add([title, glass, monitor, hero, btn, label, hit]);
+	root.add([title, glass, monitor, hero, btnWrap, hit]);
 
 	let cheer: Phaser.Time.TimerEvent | undefined;
 	let loseAnim: Phaser.Time.TimerEvent | undefined;
+	let pulse: Phaser.Tweens.Tween | undefined;
 	let cheerFrame = 0;
 	let loseFrame = 0;
 	let btnY = 0;
 	let pressed = false;
 
 	function restBtn(): void {
-		btn.setY(btnY);
-		label.setY(btnY + btnH / 2);
+		btnWrap.setY(btnY + btnH / 2);
 		pressed = false;
 	}
 
+	function stopPulse(): void {
+		pulse?.stop();
+		pulse = undefined;
+		btnWrap.setScale(1);
+	}
+
+	function startPulse(): void {
+		stopPulse();
+		pulse = scene.tweens.add({
+			targets: btnWrap,
+			scaleX: replayPulseScale,
+			scaleY: replayPulseScale,
+			duration: replayPulseMs,
+			yoyo: true,
+			repeat: -1,
+			ease: 'Sine.easeInOut',
+		});
+	}
+
 	hit.on('pointerdown', () => {
+		stopPulse();
 		pressed = true;
-		btn.setY(btnY + pressNudge);
-		label.setY(btnY + btnH / 2 + pressNudge);
+		btnWrap.setY(btnY + btnH / 2 + pressNudge);
 	});
 	hit.on('pointerup', () => {
 		if (!pressed) {
@@ -156,8 +179,9 @@ export function createResultOverlay(
 		);
 		hero.setDisplaySize(heroFit, heroFit);
 		btnY = monY + monH + gap;
-		btn.setPosition(monX + (monW - btnW) / 2, btnY);
-		label.setPosition(monX + monW / 2, btnY + btnH / 2);
+		btnWrap.setPosition(monX + (monW - btnW) / 2 + btnW / 2, btnY + btnH / 2);
+		btn.setPosition(0, 0);
+		label.setPosition(0, 0);
 		hit.setPosition(monX + (monW - hitW) / 2, btnY - (hitH - btnH) / 2);
 		hit.setSize(hitW, hitH);
 	}
@@ -223,11 +247,13 @@ export function createResultOverlay(
 				startLose();
 			}
 			hero.setDisplaySize(heroFit, heroFit);
+			startPulse();
 			dim.setVisible(true);
 			root.setVisible(true);
 		},
 		hide: () => {
 			stopCheer();
+			stopPulse();
 			restBtn();
 			dim.setVisible(false);
 			root.setVisible(false);

@@ -25,11 +25,39 @@ export const sfxFadeMs = {
 
 export const sfxMaster = 0.4; // linear control 0..1, default
 
-/** Log taper: 0 → silence, 1 → unity. Future slider feeds this, not a linear multiply. */
+export const sfxStorageKeys = {
+	master: 'checkers.sfxMaster',
+	muted: 'checkers.sfxMuted',
+} as const;
+
+/** Log taper: 0 → silence, 1 → unity. Slider feeds this, not a linear multiply. */
 export function sfxMasterAmp(t = sfxMaster): number {
 	const x = Math.min(1, Math.max(0, t));
 	if (x <= 0) return 0;
 	return (10 ** x - 1) / 9;
+}
+
+export function clampSfxMaster(t: number): number {
+	if (!Number.isFinite(t)) {
+		return sfxMaster;
+	}
+	return Math.min(1, Math.max(0, t));
+}
+
+export function parseSfxMaster(raw: string | null): number {
+	if (raw == null || raw === '') {
+		return sfxMaster;
+	}
+	return clampSfxMaster(Number(raw));
+}
+
+export function parseSfxMuted(raw: string | null): boolean {
+	return raw === '1' || raw === 'true';
+}
+
+/** Scene volume from linear t. Mute uses amp(0); never multiply t on top of the log. */
+export function outputVolume(linear: number, muted: boolean): number {
+	return sfxMasterAmp(muted ? 0 : clampSfxMaster(linear));
 }
 
 export type HopSfxUrls = {
@@ -45,6 +73,74 @@ type VolSound = Phaser.Sound.BaseSound & {
 	volume: number;
 	setVolume: (value: number) => unknown;
 };
+
+type VolumeSound = { volume: number };
+
+let boundScene: Phaser.Scene | undefined;
+let sfxLinear = sfxMaster;
+let sfxMutedFlag = false;
+
+function readStorage(): Storage | undefined {
+	try {
+		return globalThis.localStorage;
+	} catch {
+		return undefined;
+	}
+}
+
+function loadPrefs(): void {
+	const store = readStorage();
+	if (!store) {
+		sfxLinear = sfxMaster;
+		sfxMutedFlag = false;
+		return;
+	}
+	sfxLinear = parseSfxMaster(store.getItem(sfxStorageKeys.master));
+	sfxMutedFlag = parseSfxMuted(store.getItem(sfxStorageKeys.muted));
+}
+
+function writePrefs(): void {
+	const store = readStorage();
+	if (!store) {
+		return;
+	}
+	try {
+		store.setItem(sfxStorageKeys.master, String(sfxLinear));
+		store.setItem(sfxStorageKeys.muted, sfxMutedFlag ? '1' : '0');
+	} catch {
+		return;
+	}
+}
+
+function applyAmp(): void {
+	if (!boundScene) {
+		return;
+	}
+	(boundScene.sound as VolumeSound).volume = outputVolume(
+		sfxLinear,
+		sfxMutedFlag,
+	);
+}
+
+export function getSfxMaster(): number {
+	return sfxLinear;
+}
+
+export function getSfxMuted(): boolean {
+	return sfxMutedFlag;
+}
+
+export function setSfxMaster(t: number): void {
+	sfxLinear = clampSfxMaster(t);
+	writePrefs();
+	applyAmp();
+}
+
+export function setSfxMuted(muted: boolean): void {
+	sfxMutedFlag = muted;
+	writePrefs();
+	applyAmp();
+}
 
 export function preloadTableSfx(scene: Phaser.Scene, urls: HopSfxUrls): void {
 	const loader = scene.load as Phaser.Loader.LoaderPlugin & {
@@ -80,7 +176,9 @@ export function createTableSfx(scene: Phaser.Scene): {
 	takeoff: () => void;
 	land: (took: boolean) => void;
 } {
-	(scene.sound as { volume: number }).volume = sfxMasterAmp(sfxMaster);
+	boundScene = scene;
+	loadPrefs();
+	applyAmp();
 
 	let hover: VolSound | undefined;
 	let flight: VolSound | undefined;

@@ -1,10 +1,12 @@
 import type Phaser from 'phaser';
+import { createSfxPanel } from '@/client/app/parts/createSfxPanel';
 import { computeFieldLayout, formatClock } from '@/client/config/fieldLayout';
 import { layout } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
 
 const textStroke = '#1a1410';
 const hudDepth = 12;
+const menuDepth = 15;
 const pad = 12;
 
 function hudText(
@@ -37,14 +39,17 @@ export function createHud(scene: Phaser.Scene): {
 		0x000000,
 		0,
 	);
-	menuHit.setDepth(hudDepth);
-	menuHit.setInteractive();
-	menuHit.on('pointerdown', () => undefined);
+	menuHit.setDepth(menuDepth);
+	menuHit.setInteractive({ useHandCursor: true });
 	const menuIcon = scene.add
 		.image(0, 0, 'hudMenu')
 		.setOrigin(0.5)
 		.setDisplaySize(layout.hudMenu, layout.hudMenu)
-		.setDepth(hudDepth);
+		.setDepth(menuDepth);
+	const sfxPanel = createSfxPanel(scene);
+	menuHit.on('pointerdown', () => {
+		sfxPanel.toggle();
+	});
 
 	function placeMenu(x: number, y: number): void {
 		menuHit.setPosition(x, y);
@@ -58,14 +63,19 @@ export function createHud(scene: Phaser.Scene): {
 				const mid = layout.hudBar / 2;
 				timer.setOrigin(0, 0.5).setPosition(pad, mid);
 				turn.setOrigin(0.5, 0.5).setPosition(width / 2, mid);
-				placeMenu(width - layout.hudMenu / 2, mid);
+				const menuX = width - layout.hudMenu / 2;
+				placeMenu(menuX, mid);
+				sfxPanel.layout(menuX, mid, width, height);
 				return;
 			}
 			timer.setOrigin(0, 0);
 			turn.setOrigin(0, 0);
 			turn.setPosition(pad, pad);
 			timer.setPosition(pad, pad + 28);
-			placeMenu(width - pad - layout.hudMenu / 2, pad + layout.hudMenu / 2);
+			const menuX = width - pad - layout.hudMenu / 2;
+			const menuY = pad + layout.hudMenu / 2;
+			placeMenu(menuX, menuY);
+			sfxPanel.layout(menuX, menuY, width, height);
 		},
 		setTurn: (copy) => {
 			turn.setText(copy);

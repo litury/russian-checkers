@@ -1,9 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import {
+	clampSfxMaster,
+	outputVolume,
+	parseSfxMaster,
+	parseSfxMuted,
 	sfxFadeMs,
 	sfxGain,
 	sfxMaster,
 	sfxMasterAmp,
+	sfxStorageKeys,
 } from '@/client/modules/sfx/createTableSfx';
 
 describe('sfxGain', () => {
@@ -30,5 +35,21 @@ describe('sfxGain', () => {
 		expect(sfxMasterAmp(1)).toBe(1);
 		expect(sfxMasterAmp(0.4)).toBeCloseTo((10 ** 0.4 - 1) / 9);
 		expect(sfxMasterAmp(0.4)).toBeLessThan(0.4);
+	});
+
+	it('maps the slider through log amp and keeps mute memory', () => {
+		expect(sfxStorageKeys.master).toBe('checkers.sfxMaster');
+		expect(sfxStorageKeys.muted).toBe('checkers.sfxMuted');
+		expect(parseSfxMaster(null)).toBe(sfxMaster);
+		expect(parseSfxMaster('0.8')).toBe(0.8);
+		expect(clampSfxMaster(2)).toBe(1);
+		expect(clampSfxMaster(-1)).toBe(0);
+		expect(parseSfxMuted('1')).toBe(true);
+		expect(parseSfxMuted('0')).toBe(false);
+		expect(outputVolume(0.4, false)).toBe(sfxMasterAmp(0.4));
+		expect(outputVolume(0.4, false)).not.toBe(0.4);
+		expect(outputVolume(0.4, true)).toBe(0);
+		expect(outputVolume(0.4, true)).toBe(sfxMasterAmp(0));
+		expect(outputVolume(0.8, true)).toBe(0);
 	});
 });
