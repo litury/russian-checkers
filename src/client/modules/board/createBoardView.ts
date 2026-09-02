@@ -72,8 +72,6 @@ export function createBoardView(
 	for (const key of [
 		tableLayers.earth,
 		...pitSprites.keys,
-		debrisSprites.tuft,
-		debrisSprites.moss,
 		debrisSprites.stonePl,
 		debrisSprites.stoneGm,
 		pieceSprites.selectRim,
@@ -131,11 +129,6 @@ export function createBoardView(
 		fitH: number;
 	}[] = [];
 	const placedPits = new Map<string, string>();
-	const stoneCells = new Set(
-		debrisSprites.center.map(
-			(stone) => `${layout.rankCount - 1 - stone.visRow},${stone.col}`,
-		),
-	);
 	const pitNeighbor = [
 		[-1, -1],
 		[-1, 1],
@@ -147,22 +140,6 @@ export function createBoardView(
 			const row = layout.rankCount - 1 - visRow;
 			const dark = (visRow + col) % 2 === 1;
 			if (!dark) {
-				if (!stoneCells.has(`${row},${col}`) && cellHash(row, col) % 11 === 0) {
-					const dkey =
-						debrisSprites.scatter[
-							cellHash(col, row) % debrisSprites.scatter.length
-						];
-					const speck = scene.add.image(0, 0, dkey);
-					speck.setOrigin(0.5);
-					speck.setDepth(1);
-					speck.disableInteractive();
-					debris.push({
-						square: { row, col },
-						sprite: speck,
-						fitW: 0.3,
-						fitH: 0.3,
-					});
-				}
 				continue;
 			}
 			const forbidden = new Set<string>();
