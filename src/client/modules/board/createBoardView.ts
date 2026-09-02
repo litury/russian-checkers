@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import {
 	debrisSprites,
+	fireRing,
 	fireSprites,
 	layout,
 	pieceSprites,
@@ -81,9 +82,9 @@ export function createBoardView(
 		debrisSprites.stonePl,
 		debrisSprites.stoneGm,
 		wreathSprites.mask,
-		...fireSprites.flameLoop,
-		...fireSprites.flameUp,
-		...fireSprites.flameLand,
+		...fireSprites.idle,
+		...fireSprites.up,
+		...fireSprites.land,
 		...fireSprites.puffs,
 		fireSprites.ember,
 	]) {
@@ -99,11 +100,24 @@ export function createBoardView(
 	selectRim.setAlpha(0);
 	selectRim.setVisible(false);
 	selectRim.disableInteractive();
-	const flame = scene.add.sprite(0, 0, fireSprites.flameLoop[0]);
-	flame.setOrigin(0.5, 1);
-	flame.setDepth(2.7);
-	flame.setVisible(false);
-	flame.disableInteractive();
+	type FirePose = 'idle' | 'up' | 'land';
+	type Tongue = {
+		sprite: Phaser.GameObjects.Image;
+		kind: 0 | 1 | 2;
+		angle: number;
+	};
+	const tongues: Tongue[] = fireRing.types.map((kind, index) => {
+		const sprite = scene.add.image(0, 0, fireSprites.idle[kind]);
+		sprite.setOrigin(0.5, 1);
+		sprite.setDepth(2.7);
+		sprite.setVisible(false);
+		sprite.disableInteractive();
+		return {
+			sprite,
+			kind: kind as Tongue['kind'],
+			angle: (fireRing.anglesDeg[index] * Math.PI) / 180,
+		};
+	});
 	const rim = new Phaser.Geom.Circle(0, 0, 16);
 	const puffWeakFreqs = [100, 130, 160];
 	const puffs = fireSprites.puffs.map((key, index) => {
@@ -135,27 +149,10 @@ export function createBoardView(
 		emitting: false,
 	});
 	embers.setDepth(5.8);
-	if (!scene.anims.exists('flame-loop')) {
-		scene.anims.create({
-			key: 'flame-loop',
-			frames: fireSprites.flameLoop.map((key) => ({ key })),
-			frameRate: 10,
-			repeat: -1,
-		});
-		scene.anims.create({
-			key: 'flame-up',
-			frames: fireSprites.flameUp.map((key) => ({ key })),
-			frameRate: 12,
-			repeat: 0,
-		});
-		scene.anims.create({
-			key: 'flame-land',
-			frames: fireSprites.flameLand.map((key) => ({ key })),
-			frameRate: 12,
-			repeat: 0,
-		});
-	}
 	let fireGen = 0;
+	let firePose: FirePose = 'idle';
+	let fireOn = false;
+	let hopBack: number | null = null;
 	const squares: {
 		row: number;
 		col: number;
@@ -340,11 +337,91 @@ export function createBoardView(
 		}
 	}
 
+	function wrapAngle(angle: number): number {
+		return Math.atan2(Math.sin(angle), Math.cos(angle));
+	}
+
+	function tongueSize(pose: FirePose, cell: number): { w: number; h: number } {
+		const unit = cell / 64;
+		if (pose === 'up') {
+			return { w: fireRing.up.w * unit, h: fireRing.up.h * unit };
+		}
+		if (pose === 'land') {
+			return { w: fireRing.land.w * unit, h: fireRing.land.h * unit };
+		}
+		const idle = fireRing.idle * unit;
+		return { w: idle, h: idle };
+	}
+
+	function layoutTongues(
+		cx: number,
+		cy: number,
+		pieceSize: number,
+		pose: FirePose,
+		backRot: number | null,
+	): void {
+		firePose = pose;
+		const cell = pieceSize / layout.pieceFit;
+		const radius = (pieceSize / 2) * fireRing.radiusRatio;
+		const size = tongueSize(pose, cell);
+		const keys = fireSprites[pose];
+		for (const tongue of tongues) {
+			const lean =
+				backRot === null
+					? 0
+					: wrapAngle(backRot - tongue.angle) * fireRing.hopLean;
+			const rot = tongue.angle + lean;
+			tongue.sprite.setTexture(keys[tongue.kind]);
+			tongue.sprite.setOrigin(0.5, 1);
+			tongue.sprite.setRotation(rot);
+			tongue.sprite.setPosition(
+				cx + Math.sin(tongue.angle) * radius,
+				cy - Math.cos(tongue.angle) * radius,
+			);
+			tongue.sprite.setDisplaySize(size.w, size.h);
+		}
+	}
+
+	function stopTongueWobble(): void {
+		for (const tongue of tongues) {
+			scene.tweens.killTweensOf(tongue.sprite);
+			tongue.sprite.setAlpha(fireOn ? 1 : 0);
+		}
+	}
+
+	function startTongueWobble(): void {
+		stopTongueWobble();
+		tongues.forEach((tongue, index) => {
+			const baseX = tongue.sprite.scaleX;
+			const baseY = tongue.sprite.scaleY;
+			tongue.sprite.setAlpha(0.78);
+			scene.tweens.add({
+				targets: tongue.sprite,
+				alpha: { from: 0.72, to: 1 },
+				scaleX: { from: baseX * 0.92, to: baseX * 1.06 },
+				scaleY: { from: baseY * 0.92, to: baseY * 1.06 },
+				duration: 260 + index * 70,
+				delay: index * 45,
+				yoyo: true,
+				repeat: -1,
+				ease: 'Sine.easeInOut',
+			});
+		});
+	}
+
+	function showTongues(): void {
+		fireOn = true;
+		for (const tongue of tongues) {
+			tongue.sprite.setVisible(true);
+			tongue.sprite.setAlpha(1);
+			tongue.sprite.setDepth(2.7);
+		}
+	}
+
 	function placeFxAt(x: number, y: number, w: number, h: number): void {
-		flame.setOrigin(0.5, 1);
-		flame.setPosition(x, y);
-		flame.setDisplaySize(w, h);
-		rim.setTo(0, 0, Math.min(w, h) * 0.38);
+		const pieceSize = Math.min(w, h) * layout.pieceFit;
+		layoutTongues(x, y, pieceSize, firePose, hopBack);
+		rim.setTo(0, 0, pieceSize * 0.5);
 		for (const puff of puffs) {
 			puff.setPosition(x, y);
 			for (const zone of puff.emitZones) {
@@ -356,36 +433,55 @@ export function createBoardView(
 
 	function hideFire(): void {
 		fireGen += 1;
-		flame.off('animationcomplete');
-		flame.anims.stop();
-		scene.tweens.killTweensOf(flame);
+		hopBack = null;
+		firePose = 'idle';
+		stopTongueWobble();
 		scene.tweens.killTweensOf(embers);
 		for (const puff of puffs) {
 			scene.tweens.killTweensOf(puff);
 		}
-		flame.setVisible(false);
+		fireOn = false;
+		for (const tongue of tongues) {
+			tongue.sprite.setVisible(false);
+			tongue.sprite.setAlpha(0);
+		}
 		puffsStop();
 		embers.stop();
 	}
 
-	function playFireLoop(): void {
-		flame.setVisible(true);
-		if (flame.anims.currentAnim?.key !== 'flame-loop') {
-			flame.play('flame-loop');
+	function ringCenter(): { x: number; y: number; pieceSize: number } {
+		const pieceSize = Math.min(cellW, cellH) * layout.pieceFit;
+		const t0 = tongues[0];
+		if (!t0) {
+			return { x: 0, y: 0, pieceSize };
 		}
+		const radius = (pieceSize / 2) * fireRing.radiusRatio;
+		return {
+			x: t0.sprite.x - Math.sin(t0.angle) * radius,
+			y: t0.sprite.y + Math.cos(t0.angle) * radius,
+			pieceSize,
+		};
+	}
+
+	function playFireLoop(): void {
+		hopBack = null;
+		showTongues();
+		if (!tongues[0]?.sprite.parentContainer) {
+			const at = ringCenter();
+			layoutTongues(at.x, at.y, at.pieceSize, 'idle', null);
+		}
+		startTongueWobble();
 		puffsStartWeak();
 		embers.setFrequency(140, 1);
 		embers.start();
 	}
 
 	function stickFlame(view: PieceView): void {
-		if (flame.parentContainer) {
+		if (tongues[0]?.sprite.parentContainer) {
 			return;
 		}
 		const pos = worldXY(view.sprite);
-		flame.setOrigin(0.5, 1);
-		flame.setPosition(pos.x, pos.y + view.sprite.displayHeight * 0.38);
-		flame.setDisplaySize(cellW, cellH);
+		layoutTongues(pos.x, pos.y, view.sprite.displayWidth, firePose, hopBack);
 	}
 
 	function followEmitters(view: PieceView): void {
@@ -416,46 +512,38 @@ export function createBoardView(
 		});
 	}
 
-	function playFireTakeoff(onUp?: () => void): void {
-		const gen = fireGen;
-		flame.setVisible(true);
+	function playFireTakeoff(): void {
+		showTongues();
+		stopTongueWobble();
+		const at = ringCenter();
+		layoutTongues(at.x, at.y, at.pieceSize, 'up', hopBack);
 		puffsQuieter();
 		embers.setFrequency(90, 1);
 		embers.start();
-		flame.off('animationcomplete');
-		flame.once('animationcomplete', (anim: Phaser.Animations.Animation) => {
-			if (gen !== fireGen) {
-				return;
-			}
-			if (anim.key === 'flame-up') {
-				flame.play('flame-loop');
-				onUp?.();
-			}
-		});
-		flame.play('flame-up');
 	}
 
 	function playFireStreak(): void {
-		flame.setVisible(true);
+		showTongues();
+		stopTongueWobble();
 		puffsQuieter();
 		embers.setFrequency(90, 1);
 		embers.start();
-		const key = flame.anims.currentAnim?.key;
-		if (key !== 'flame-loop' && key !== 'flame-up') {
-			flame.play('flame-loop');
-		}
+		const at = ringCenter();
+		layoutTongues(at.x, at.y, at.pieceSize, 'up', hopBack);
 	}
 
 	function playFireOut(): void {
-		if (!flame.visible) {
+		if (!fireOn) {
 			return;
 		}
 		const gen = fireGen;
-		flame.off('animationcomplete');
-		flame.setVisible(true);
+		stopTongueWobble();
+		showTongues();
+		hopBack = null;
+		const at = ringCenter();
+		layoutTongues(at.x, at.y, at.pieceSize, 'land', null);
 		puffsBurst();
 		embers.explode(6);
-		flame.play('flame-land');
 		scene.time.delayedCall(layout.landHoldMs, () => {
 			if (gen !== fireGen) {
 				return;
@@ -944,23 +1032,30 @@ export function createBoardView(
 				playFireStreak();
 				view.sprite.setScale(view.baseScale);
 				view.sprite.setPosition(fromBox.x, fromBox.y);
-				flame.setVisible(true);
 				const arc = Math.min(fromBox.w, fromBox.h) * layout.hopArcRatio;
+				const spanX = box.x - fromBox.x;
+				const spanY = box.y - fromBox.y;
+				hopBack = Math.atan2(spanX, -spanY) + Math.PI;
 				const carrier = scene.add.container(fromBox.x, fromBox.y);
 				carrier.setDepth(6);
+				showTongues();
+				stopTongueWobble();
+				for (const tongue of tongues) {
+					carrier.add(tongue.sprite);
+				}
+				layoutTongues(0, 0, view.sprite.displayWidth, 'up', hopBack);
 				carrier.add(view.sprite);
 				view.sprite.setPosition(0, 0);
-				flame.setOrigin(0.5, 1);
-				flame.setDisplaySize(cellW, cellH);
-				carrier.add(flame);
-				flame.setPosition(0, cellH * 0.38);
 				const landHop = (): void => {
 					carrier.remove(view.sprite);
-					carrier.remove(flame);
+					for (const tongue of tongues) {
+						carrier.remove(tongue.sprite);
+						tongue.sprite.setDepth(2.7);
+					}
 					view.sprite.setPosition(box.x, box.y);
 					view.sprite.setScale(view.baseScale);
 					view.sprite.setDepth(6);
-					flame.setDepth(2.7);
+					hopBack = null;
 					stickFlame(view);
 					syncOutline(view);
 					carrier.destroy();
@@ -986,8 +1081,6 @@ export function createBoardView(
 					ease: 'Sine.easeInOut',
 					onUpdate: (tween: Phaser.Tweens.Tween) => {
 						void hopProgress(tween);
-						const spanX = box.x - fromBox.x;
-						const spanY = box.y - fromBox.y;
 						const t = Math.min(
 							1,
 							Math.max(
@@ -998,6 +1091,7 @@ export function createBoardView(
 							),
 						);
 						carrier.y = fromBox.y + spanY * t - Math.sin(t * Math.PI) * arc;
+						layoutTongues(0, 0, view.sprite.displayWidth, 'up', hopBack);
 						followEmitters(view);
 						syncOutline(view);
 					},

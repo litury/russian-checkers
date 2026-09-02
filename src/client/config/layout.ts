@@ -27,20 +27,21 @@ export const layout = {
 } as const;
 
 export const fireSprites = {
-	flameLoop: [
-		'flameLoop0',
-		'flameLoop1',
-		'flameLoop2',
-		'flameLoop3',
-		'flameLoop4',
-		'flameLoop5',
-		'flameLoop6',
-		'flameLoop7',
-	] as const,
-	flameUp: ['flameUp0', 'flameUp1', 'flameUp2', 'flameUp3'] as const,
-	flameLand: ['flameLand0', 'flameLand1', 'flameLand2', 'flameLand3'] as const,
+	idle: ['tongue0Idle', 'tongue1Idle', 'tongue2Idle'] as const,
+	up: ['tongue0Up', 'tongue1Up', 'tongue2Up'] as const,
+	land: ['tongue0Land', 'tongue1Land', 'tongue2Land'] as const,
 	puffs: ['puff0', 'puff1', 'puff2'] as const,
 	ember: 'ember',
+} as const;
+
+export const fireRing = {
+	types: [1, 0, 2, 1, 0, 2] as const,
+	anglesDeg: [18, 79, 141, 203, 268, 331] as const,
+	radiusRatio: 0.88,
+	idle: 10,
+	up: { w: 9, h: 14 },
+	land: { w: 12, h: 7 },
+	hopLean: 0.7,
 } as const;
 
 export const tableLayers = {
