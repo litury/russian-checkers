@@ -68,6 +68,7 @@ export function createBoardView(
 	scene: Phaser.Scene,
 	onSquare: (square: ISquare) => void,
 ): IBoardView {
+	scene.input.topOnly = false;
 	for (const key of [
 		tableBgs.portrait.key,
 		tableBgs.landscape.key,
@@ -92,10 +93,12 @@ export function createBoardView(
 	selectRim.setDepth(3);
 	selectRim.setAlpha(0);
 	selectRim.setVisible(false);
+	selectRim.disableInteractive();
 	const flame = scene.add.sprite(0, 0, fireSprites.flameLoop[0]);
 	flame.setOrigin(0.5, 1);
 	flame.setDepth(2.7);
 	flame.setVisible(false);
+	flame.disableInteractive();
 	const rim = new Phaser.Geom.Circle(0, 0, 16);
 	const puffWeakFreqs = [100, 130, 160];
 	const puffs = fireSprites.puffs.map((key, index) => {
@@ -633,6 +636,7 @@ export function createBoardView(
 					const outline = scene.add.image(0, 0, texture);
 					outline.setTint(lidStroke);
 					outline.setDepth(3.95);
+					outline.disableInteractive();
 					const sprite = scene.add.image(0, 0, texture);
 					sprite.setDepth(4);
 					const shadow = scene.add.ellipse(0, 0, 8, 8, 0x000000, 1);
@@ -944,13 +948,15 @@ export function createBoardView(
 			placeFxAt(fromBox.x, fromBox.y, fromBox.w, fromBox.h);
 			stickFlame(view);
 			if (index === 0) {
-				let ready = 0;
+				let flown = false;
 				const go = (): void => {
-					ready += 1;
-					if (ready >= 2) {
-						fly();
+					if (flown) {
+						return;
 					}
+					flown = true;
+					fly();
 				};
+				playFireTakeoff();
 				scene.tweens.add({
 					targets: view.sprite,
 					scaleY: view.baseScale * layout.pressScaleY,
@@ -963,7 +969,6 @@ export function createBoardView(
 						go();
 					},
 				});
-				playFireTakeoff(go);
 			} else {
 				fly();
 			}
