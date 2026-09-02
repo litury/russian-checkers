@@ -177,6 +177,7 @@ export class GameScene extends Phaser.Scene {
 	private startMatch(): void {
 		this.botTimer?.remove(false);
 		this.tweens.killAll();
+		this.board.reset();
 		this.moving = false;
 		this.position = createInitialPosition();
 		this.selected = null;

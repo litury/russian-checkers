@@ -174,6 +174,7 @@ export function createBoardView(
 	let pressView: PieceView | null = null;
 	let pressTween: Phaser.Tweens.Tween | null = null;
 	let denyTween: Phaser.Tweens.Tween | null = null;
+	const scorches: { square: ISquare; sprite: Phaser.GameObjects.Image }[] = [];
 
 	for (let row = 0; row < layout.rankCount; row += 1) {
 		for (let col = 0; col < layout.rankCount; col += 1) {
@@ -672,29 +673,43 @@ export function createBoardView(
 		view.shadow.destroy();
 	}
 
-	function spawnScorch(box: {
-		x: number;
-		y: number;
-		w: number;
-		h: number;
-	}): void {
-		const cell = Math.min(box.w, box.h);
-		const size = layout.scorchPx * (cell / 64);
+	function scorchSize(box: { w: number; h: number }): number {
+		return Math.min(box.w, box.h) * layout.pitFit * layout.scorchPitScale;
+	}
+
+	function placeScorch(
+		sprite: Phaser.GameObjects.Image,
+		square: ISquare,
+	): void {
+		const box = cellBox(square);
+		const size = scorchSize(box);
+		sprite.setPosition(box.x, box.y);
+		sprite.setDisplaySize(size, size);
+	}
+
+	function spawnScorch(square: ISquare): void {
+		const box = cellBox(square);
+		const size = scorchSize(box);
 		const scorch = scene.add.image(box.x, box.y, captureSprites.scorch);
 		scorch.setOrigin(0.5);
 		scorch.setDisplaySize(size, size);
 		scorch.setDepth(1.2);
-		scorch.setAlpha(1);
+		scorch.setAlpha(0);
 		scorch.disableInteractive();
+		scorches.push({ square, sprite: scorch });
 		scene.tweens.add({
 			targets: scorch,
-			alpha: 0,
-			duration: layout.scorchFadeMs,
-			ease: 'Sine.easeIn',
-			onComplete: () => {
-				scorch.destroy();
-			},
+			alpha: 1,
+			duration: layout.scorchFadeInMs,
+			ease: 'Sine.easeOut',
 		});
+	}
+
+	function clearScorches(): void {
+		for (const stamp of scorches) {
+			stamp.sprite.destroy();
+		}
+		scorches.length = 0;
 	}
 
 	function flashPitTongues(box: {
@@ -744,7 +759,7 @@ export function createBoardView(
 		view.sprite.setDepth(3.5);
 		const box = cellBox(view.square);
 		const cell = Math.min(box.w, box.h);
-		spawnScorch(box);
+		spawnScorch(view.square);
 		flashPitTongues(box);
 		scene.tweens.add({
 			targets: view.sprite,
@@ -990,6 +1005,9 @@ export function createBoardView(
 			const box = cellBox(pit.square);
 			pit.sprite.setPosition(box.x, box.y);
 			pit.sprite.setDisplaySize(box.w * layout.pitFit, box.h * layout.pitFit);
+		}
+		for (const stamp of scorches) {
+			placeScorch(stamp.sprite, stamp.square);
 		}
 		for (const speck of debris) {
 			const box = cellBox(speck.square);
@@ -1274,5 +1292,6 @@ export function createBoardView(
 		press,
 		deny,
 		playMove,
+		reset: clearScorches,
 	};
 }

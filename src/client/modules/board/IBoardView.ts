@@ -15,4 +15,5 @@ export interface IBoardView {
 		onLand?: (took: boolean) => void,
 		onTakeoff?: () => void,
 	) => void;
+	reset: () => void;
 }
