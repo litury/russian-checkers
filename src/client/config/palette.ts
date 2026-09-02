@@ -1,5 +1,6 @@
 export const palette = {
 	background: 0x1a1410,
+	earth: 0x9c6837,
 	lightSquare: 0xe6d5b8,
 	darkSquare: 0x7a4a28,
 	human: 0xf4efe4,

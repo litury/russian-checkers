@@ -68,6 +68,7 @@ export function createBoardView(
 	for (const key of [
 		tableBgs.portrait.key,
 		tableBgs.landscape.key,
+		'earthFill',
 		...pitSprites.keys,
 		pieceSprites.selectRim,
 		pieceSprites.moveRim,
@@ -75,6 +76,14 @@ export function createBoardView(
 	]) {
 		scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
 	}
+	const earth = scene.add.tileSprite(0, 0, 8, 8, 'earthFill');
+	earth.setOrigin(0, 0);
+	earth.setDepth(-1);
+	earth.setScrollFactor(0);
+	const bottomPad = scene.add.tileSprite(0, 0, 8, 8, 'earthFill');
+	bottomPad.setOrigin(0, 0);
+	bottomPad.setDepth(1);
+	bottomPad.setScrollFactor(0);
 	const frame = scene.add.image(0, 0, tableBgs.portrait.key);
 	frame.setOrigin(0, 0);
 	frame.setDepth(0);
@@ -474,7 +483,16 @@ export function createBoardView(
 	}
 
 	function layoutBoard(width: number, height: number): void {
+		earth.setPosition(0, 0);
+		earth.setSize(width, height);
 		const field = computeFieldLayout(width, height);
+		if (field.portrait) {
+			bottomPad.setVisible(true);
+			bottomPad.setPosition(0, height - layout.boardBottomGap);
+			bottomPad.setSize(width, layout.boardBottomGap);
+		} else {
+			bottomPad.setVisible(false);
+		}
 		const bg = field.portrait ? tableBgs.portrait : tableBgs.landscape;
 		const fieldSize = field.fieldSize;
 		if (frame.texture.key !== bg.key) {

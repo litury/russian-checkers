@@ -6,6 +6,7 @@ import { createBoardView } from '@/client/modules/board';
 import bgDeskUrl from '@/client/modules/board/kit_v2/bg_desk.png';
 import bgPhoneUrl from '@/client/modules/board/kit_v2/bg_phone.png';
 import captureRimUrl from '@/client/modules/board/kit_v2/capture_rim.png';
+import earthFillUrl from '@/client/modules/board/kit_v2/earth_fill.png';
 import moveRimUrl from '@/client/modules/board/kit_v2/move_rim.png';
 import pit00Url from '@/client/modules/board/kit_v2/pits/pit_00.png';
 import pit03Url from '@/client/modules/board/kit_v2/pits/pit_03.png';
@@ -54,6 +55,7 @@ export class GameScene extends Phaser.Scene {
 
 	preload(): void {
 		this.load.image(tableBgs.portrait.key, bgPhoneUrl);
+		this.load.image('earthFill', earthFillUrl);
 		this.load.image(tableBgs.landscape.key, bgDeskUrl);
 		this.load.image(pitSprites.keys[0], pit00Url);
 		this.load.image(pitSprites.keys[1], pit03Url);
@@ -76,7 +78,7 @@ export class GameScene extends Phaser.Scene {
 
 	create(): void {
 		this.sdk = this.registry.get('sdk') as IYandexSdk;
-		this.cameras.main.setBackgroundColor(palette.background);
+		this.cameras.main.setBackgroundColor(palette.earth);
 		this.sfx = createTableSfx(this);
 		this.hud = createHud(this);
 		this.board = createBoardView(this, (square) => {

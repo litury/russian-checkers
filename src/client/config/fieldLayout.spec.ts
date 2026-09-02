@@ -15,6 +15,15 @@ describe('computeFieldLayout', () => {
 		expect(field.originY + field.fieldSize).toBe(694 - layout.boardBottomGap);
 	});
 
+	it('pins 390x844 board to canvas minus 14 with HUD 44 clear', () => {
+		const field = computeFieldLayout(390, 844);
+		expect(field.portrait).toBe(true);
+		expect(field.fieldSize).toBe(390);
+		expect(field.originX).toBe(0);
+		expect(field.originY).toBe(440);
+		expect(field.originY).toBeGreaterThanOrEqual(layout.hudBar);
+		expect(field.originY + field.fieldSize).toBe(844 - layout.boardBottomGap);
+	});
 	it('sizes 16:9 board by height and keeps side gutters', () => {
 		const field = computeFieldLayout(1280, 720);
 		expect(field.portrait).toBe(false);

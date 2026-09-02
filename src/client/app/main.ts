@@ -10,7 +10,7 @@ async function boot(): Promise<void> {
 		pixelArt: true,
 		roundPixels: true,
 		parent: 'game',
-		backgroundColor: palette.background,
+		backgroundColor: palette.earth,
 		scale: {
 			mode: Phaser.Scale.RESIZE,
 			parent: 'game',
