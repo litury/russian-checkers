@@ -5,6 +5,7 @@ import {
 	debrisSprites,
 	fireRing,
 	fireSprites,
+	hopPathReady,
 	layout,
 	pathSprites,
 	pieceSprites,
@@ -155,6 +156,9 @@ export function createBoardView(
 		...captureSprites.flash,
 		captureSprites.scorch,
 	]) {
+		if (!scene.textures.exists(key)) {
+			continue;
+		}
 		scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
 	}
 	const ground = scene.add.tileSprite(0, 0, 64, 64, tableLayers.earth);
@@ -440,6 +444,18 @@ export function createBoardView(
 		const dashW = pathSprites.dashW * unit;
 		const dashH = pathSprites.dashH * unit;
 		const spacing = dashW + 4 * unit;
+		if (
+			!Number.isFinite(unit) ||
+			unit <= 0 ||
+			!Number.isFinite(dashW) ||
+			!Number.isFinite(dashH) ||
+			dashW <= 0 ||
+			dashH <= 0 ||
+			!Number.isFinite(spacing) ||
+			spacing <= 0
+		) {
+			return;
+		}
 		if (length < spacing * 0.5) {
 			return;
 		}
@@ -1385,7 +1401,7 @@ export function createBoardView(
 
 	function drawPaths(position: IPosition, options: IMove[]): void {
 		clearPathStamps();
-		if (options.length === 0) {
+		if (options.length === 0 || !hopPathReady(Math.min(cellW, cellH))) {
 			return;
 		}
 		void prefersReducedMotion();
@@ -1429,6 +1445,14 @@ export function createBoardView(
 			}
 			painted.add(key);
 			const box = cellBox(dest);
+			if (
+				!(box.w > 0) ||
+				!(box.h > 0) ||
+				!Number.isFinite(box.w) ||
+				!Number.isFinite(box.h)
+			) {
+				continue;
+			}
 			const cross = takeCross();
 			cross.setPosition(box.x, box.y);
 			cross.setDisplaySize(box.w, box.h);

@@ -122,6 +122,18 @@ export const pathSprites = {
 	crossSize: 44,
 } as const;
 
+/** False until the board has a positive cell; zero cell makes dash spacing 0 and the stamp loop hang. */
+export function hopPathReady(cell: number): boolean {
+	if (!Number.isFinite(cell) || cell <= 0) {
+		return false;
+	}
+	const unit = cell / pathSprites.crossSize;
+	const dashW = pathSprites.dashW * unit;
+	const dashH = pathSprites.dashH * unit;
+	const spacing = dashW + 4 * unit;
+	return dashW > 0 && dashH > 0 && spacing > 0 && Number.isFinite(spacing);
+}
+
 export const pitSprites = {
 	keys: [
 		'pitGrass00',

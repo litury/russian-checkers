@@ -297,6 +297,9 @@ export class GameScene extends Phaser.Scene {
 			'hudMusicOff',
 			'resultMonitor',
 		]) {
+			if (!this.textures.exists(key)) {
+				continue;
+			}
 			this.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
 		}
 		this.sfx = createTableSfx(this);
@@ -330,8 +333,10 @@ export class GameScene extends Phaser.Scene {
 				this.hud.setTimer(this.matchSeconds());
 			},
 		});
+		this.board.layout(this.scale.width, this.scale.height);
+		this.hud.layout(this.scale.width, this.scale.height);
+		this.overlay.layout(this.scale.width, this.scale.height);
 		this.startMatch();
-		this.layout(this.scale.width, this.scale.height);
 		this.sdk.ready();
 	}
 

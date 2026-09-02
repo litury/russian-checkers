@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { captureSprites, layout } from '@/client/config/layout';
+import {
+	captureSprites,
+	hopPathReady,
+	layout,
+	pathSprites,
+} from '@/client/config/layout';
 
 describe('layout capture burst', () => {
 	it('plays ignite swell flash instead of lid scale or sink', () => {
@@ -25,5 +30,16 @@ describe('layout capture burst', () => {
 		expect(captureSprites.smolderKingDark).toHaveLength(2);
 		expect(captureSprites.flash).toHaveLength(4);
 		expect(captureSprites.scorch).toBe('captureScorch');
+	});
+});
+
+describe('hop path stamps', () => {
+	it('refuses to stamp until cell is positive so dash spacing is not zero', () => {
+		expect(pathSprites.dash).toBe('pathDash');
+		expect(pathSprites.cross).toBe('pathCross');
+		expect(hopPathReady(0)).toBe(false);
+		expect(hopPathReady(Number.NaN)).toBe(false);
+		expect(hopPathReady(-1)).toBe(false);
+		expect(hopPathReady(layout.minCellPx)).toBe(true);
 	});
 });

@@ -68,6 +68,9 @@ export function createResultOverlay(
 		...loseKeys,
 		...winKeys,
 	]) {
+		if (!scene.textures.exists(key)) {
+			continue;
+		}
 		scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
 	}
 
