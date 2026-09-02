@@ -8,9 +8,13 @@ export const layout = {
 	pressScaleY: 0.85,
 	pressDipRatio: 0.05,
 	pressMs: 140,
-	liftRatio: 0.12,
+	liftRatio: 0.06,
 	selectMs: 180,
-	moveMs: 180,
+	moveMs: 380,
+	anticipateMs: 90,
+	landHoldMs: 180,
+	afterimageMs: 40,
+	hopArcRatio: 0.35,
 	markerFadeMs: 160,
 	markerBreathMin: 0.45,
 	markerBreathMax: 0.9,
@@ -20,6 +24,23 @@ export const layout = {
 	framePadPx: 12,
 	pitFit: 54 / 64,
 	pieceFit: 50 / 64,
+} as const;
+
+export const fireSprites = {
+	flameLoop: [
+		'flameLoop0',
+		'flameLoop1',
+		'flameLoop2',
+		'flameLoop3',
+		'flameLoop4',
+		'flameLoop5',
+		'flameLoop6',
+		'flameLoop7',
+	] as const,
+	flameUp: ['flameUp0', 'flameUp1', 'flameUp2', 'flameUp3'] as const,
+	flameLand: ['flameLand0', 'flameLand1', 'flameLand2', 'flameLand3'] as const,
+	puffs: ['puff0', 'puff1', 'puff2'] as const,
+	ember: 'ember',
 } as const;
 
 export const tableLayers = {

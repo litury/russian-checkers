@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import {
 	debrisSprites,
+	fireSprites,
 	layout,
 	pieceSprites,
 	pitSprites,
@@ -61,14 +62,18 @@ function mixRgb(from: number, to: number, t: number): number {
 type PieceView = {
 	square: ISquare;
 	sprite: Phaser.GameObjects.Image;
+	outline: Phaser.GameObjects.Image;
 	shadow: Phaser.GameObjects.Ellipse;
 	baseScale: number;
 };
+
+const lidStroke = 0x141210;
 
 export function createBoardView(
 	scene: Phaser.Scene,
 	onSquare: (square: ISquare) => void,
 ): IBoardView {
+	scene.input.topOnly = false;
 	for (const key of [
 		tableLayers.earth,
 		...pitSprites.keys,
@@ -77,6 +82,11 @@ export function createBoardView(
 		pieceSprites.selectRim,
 		pieceSprites.moveRim,
 		pieceSprites.captureRim,
+		...fireSprites.flameLoop,
+		...fireSprites.flameUp,
+		...fireSprites.flameLand,
+		...fireSprites.puffs,
+		fireSprites.ember,
 	]) {
 		scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
 	}
@@ -89,6 +99,64 @@ export function createBoardView(
 	selectRim.setDepth(3);
 	selectRim.setAlpha(0);
 	selectRim.setVisible(false);
+	selectRim.disableInteractive();
+	const flame = scene.add.sprite(0, 0, fireSprites.flameLoop[0]);
+	flame.setOrigin(0.5, 1);
+	flame.setDepth(2.7);
+	flame.setVisible(false);
+	flame.disableInteractive();
+	const rim = new Phaser.Geom.Circle(0, 0, 16);
+	const puffWeakFreqs = [100, 130, 160];
+	const puffs = fireSprites.puffs.map((key, index) => {
+		const puff = scene.add.particles(0, 0, key, {
+			lifespan: 650,
+			speedY: { min: -36, max: -14 },
+			speedX: { min: -8, max: 8 },
+			gravityY: -12,
+			scale: { start: 1, end: 1.35 },
+			alpha: { start: 0.55, end: 0 },
+			frequency: puffWeakFreqs[index],
+			quantity: 1,
+			emitting: false,
+			rotate: { min: -20, max: 20 },
+			emitZone: { type: 'edge', source: rim, quantity: 16 },
+		});
+		puff.setDepth(6);
+		return puff;
+	});
+	const embers = scene.add.particles(0, 0, fireSprites.ember, {
+		lifespan: 420,
+		speed: { min: 16, max: 40 },
+		angle: { min: 250, max: 290 },
+		gravityY: -30,
+		scale: { start: 1.1, end: 0 },
+		alpha: { start: 0.85, end: 0 },
+		frequency: 140,
+		quantity: 1,
+		emitting: false,
+	});
+	embers.setDepth(5.8);
+	if (!scene.anims.exists('flame-loop')) {
+		scene.anims.create({
+			key: 'flame-loop',
+			frames: fireSprites.flameLoop.map((key) => ({ key })),
+			frameRate: 10,
+			repeat: -1,
+		});
+		scene.anims.create({
+			key: 'flame-up',
+			frames: fireSprites.flameUp.map((key) => ({ key })),
+			frameRate: 12,
+			repeat: 0,
+		});
+		scene.anims.create({
+			key: 'flame-land',
+			frames: fireSprites.flameLand.map((key) => ({ key })),
+			frameRate: 12,
+			repeat: 0,
+		});
+	}
+	let fireGen = 0;
 	const squares: {
 		row: number;
 		col: number;
@@ -194,7 +262,31 @@ export function createBoardView(
 	}
 
 	function liftPx(): number {
-		return Math.round(Math.min(cellW, cellH) * layout.liftRatio);
+		return 6;
+	}
+
+	function worldXY(sprite: Phaser.GameObjects.Image): { x: number; y: number } {
+		const parent = sprite.parentContainer;
+		if (parent) {
+			return { x: parent.x + sprite.x, y: parent.y + sprite.y };
+		}
+		return { x: sprite.x, y: sprite.y };
+	}
+
+	function syncOutline(view: PieceView): void {
+		const sprite = view.sprite;
+		const outline = view.outline;
+		const pos = worldXY(sprite);
+		if (outline.texture.key !== sprite.texture.key) {
+			outline.setTexture(sprite.texture.key);
+		}
+		outline.setOrigin(sprite.originX, sprite.originY);
+		outline.setPosition(pos.x, pos.y);
+		outline.setDisplaySize(sprite.displayWidth + 2, sprite.displayHeight + 2);
+		outline.setDepth(sprite.depth - 0.05);
+		outline.setVisible(sprite.visible);
+		outline.setAlpha(sprite.alpha);
+		outline.setTint(lidStroke);
 	}
 
 	function pressDip(): number {
@@ -223,6 +315,156 @@ export function createBoardView(
 		}
 	}
 
+	function puffsStartWeak(): void {
+		puffs.forEach((puff, index) => {
+			puff.setFrequency(puffWeakFreqs[index], 1);
+			puff.start();
+		});
+	}
+
+	function puffsQuieter(): void {
+		puffs.forEach((puff, index) => {
+			puff.setFrequency(200 + index * 30, 1);
+			puff.start();
+		});
+	}
+
+	function puffsStop(): void {
+		for (const puff of puffs) {
+			puff.stop();
+		}
+	}
+
+	function puffsBurst(): void {
+		for (const puff of puffs) {
+			puff.explode(4);
+		}
+	}
+
+	function placeFxAt(x: number, y: number, w: number, h: number): void {
+		flame.setOrigin(0.5, 1);
+		flame.setPosition(x, y);
+		flame.setDisplaySize(w, h);
+		rim.setTo(0, 0, Math.min(w, h) * 0.38);
+		for (const puff of puffs) {
+			puff.setPosition(x, y);
+			for (const zone of puff.emitZones) {
+				(zone as Phaser.GameObjects.Particles.Zones.EdgeZone).updateSource();
+			}
+		}
+		embers.setPosition(x, y);
+	}
+
+	function hideFire(): void {
+		fireGen += 1;
+		flame.off('animationcomplete');
+		flame.anims.stop();
+		scene.tweens.killTweensOf(flame);
+		scene.tweens.killTweensOf(embers);
+		for (const puff of puffs) {
+			scene.tweens.killTweensOf(puff);
+		}
+		flame.setVisible(false);
+		puffsStop();
+		embers.stop();
+	}
+
+	function playFireLoop(): void {
+		flame.setVisible(true);
+		if (flame.anims.currentAnim?.key !== 'flame-loop') {
+			flame.play('flame-loop');
+		}
+		puffsStartWeak();
+		embers.setFrequency(140, 1);
+		embers.start();
+	}
+
+	function stickFlame(view: PieceView): void {
+		if (flame.parentContainer) {
+			return;
+		}
+		const pos = worldXY(view.sprite);
+		flame.setOrigin(0.5, 1);
+		flame.setPosition(pos.x, pos.y + view.sprite.displayHeight * 0.38);
+		flame.setDisplaySize(cellW, cellH);
+	}
+
+	function followEmitters(view: PieceView): void {
+		const pos = worldXY(view.sprite);
+		embers.setPosition(pos.x, pos.y);
+		for (const puff of puffs) {
+			puff.setPosition(pos.x, pos.y);
+		}
+	}
+
+	function flashGhost(view: PieceView): void {
+		const ghost = scene.add.image(
+			view.sprite.x,
+			view.sprite.y,
+			view.sprite.texture.key,
+		);
+		ghost.setOrigin(view.sprite.originX, view.sprite.originY);
+		ghost.setDisplaySize(view.sprite.displayWidth, view.sprite.displayHeight);
+		ghost.setAlpha(0.3);
+		ghost.setDepth(5);
+		scene.tweens.add({
+			targets: ghost,
+			alpha: 0,
+			duration: layout.afterimageMs,
+			onComplete: () => {
+				ghost.destroy();
+			},
+		});
+	}
+
+	function playFireTakeoff(onUp?: () => void): void {
+		const gen = fireGen;
+		flame.setVisible(true);
+		puffsQuieter();
+		embers.setFrequency(90, 1);
+		embers.start();
+		flame.off('animationcomplete');
+		flame.once('animationcomplete', (anim: Phaser.Animations.Animation) => {
+			if (gen !== fireGen) {
+				return;
+			}
+			if (anim.key === 'flame-up') {
+				flame.play('flame-loop');
+				onUp?.();
+			}
+		});
+		flame.play('flame-up');
+	}
+
+	function playFireStreak(): void {
+		flame.setVisible(true);
+		puffsQuieter();
+		embers.setFrequency(90, 1);
+		embers.start();
+		const key = flame.anims.currentAnim?.key;
+		if (key !== 'flame-loop' && key !== 'flame-up') {
+			flame.play('flame-loop');
+		}
+	}
+
+	function playFireOut(): void {
+		if (!flame.visible) {
+			return;
+		}
+		const gen = fireGen;
+		flame.off('animationcomplete');
+		flame.setVisible(true);
+		puffsBurst();
+		embers.explode(6);
+		flame.play('flame-land');
+		scene.time.delayedCall(layout.landHoldMs, () => {
+			if (gen !== fireGen) {
+				return;
+			}
+			hideFire();
+		});
+	}
+
 	function hideSelectRim(): void {
 		scene.tweens.killTweensOf(selectRim);
 		selectRim.setAlpha(0);
@@ -234,6 +476,7 @@ export function createBoardView(
 		selectRim.setPosition(box.x, box.y);
 		selectRim.setDisplaySize(box.w, box.h);
 		selectRim.setDepth(3);
+		selectRim.setTint(palette.selectedFill);
 		selectRim.setVisible(true);
 	}
 
@@ -268,7 +511,7 @@ export function createBoardView(
 		}
 	}
 
-	function stopPulse(view: PieceView | null): void {
+	function stopPulse(view: PieceView | null, keepFire = false): void {
 		if (!view) {
 			return;
 		}
@@ -283,11 +526,15 @@ export function createBoardView(
 		view.sprite.setScale(view.baseScale);
 		view.sprite.setPosition(box.x, box.y);
 		view.sprite.setDepth(4);
+		syncOutline(view);
 		view.shadow.setVisible(false);
 		view.shadow.setAlpha(0);
 		if (pulsing === view) {
 			pulsing = null;
 			hideSelectRim();
+			if (!keepFire) {
+				playFireOut();
+			}
 		}
 	}
 
@@ -315,12 +562,14 @@ export function createBoardView(
 		}
 		view.sprite.setDepth(selected ? 5 : 4);
 		placeShadow(view, selected);
+		syncOutline(view);
 	}
 
 	function destroyView(view: PieceView): void {
 		clearDeny(view);
 		stopPulse(view);
 		view.sprite.destroy();
+		view.outline.destroy();
 		view.shadow.destroy();
 	}
 
@@ -336,6 +585,11 @@ export function createBoardView(
 			scaleY: view.baseScale,
 			duration: layout.selectMs,
 			ease: 'Sine.easeOut',
+			onUpdate: () => {
+				stickFlame(view);
+				followEmitters(view);
+				syncOutline(view);
+			},
 		});
 	}
 
@@ -357,6 +611,9 @@ export function createBoardView(
 			duration: layout.pressMs,
 			ease: 'Sine.easeInOut',
 			yoyo: true,
+			onUpdate: () => {
+				syncOutline(view);
+			},
 			onComplete: () => {
 				view.sprite.setScale(view.baseScale);
 				view.sprite.setPosition(box.x, box.y);
@@ -377,7 +634,10 @@ export function createBoardView(
 		pulsing = view;
 		view.sprite.setDepth(5);
 		placeSelectRim(view);
+		const box = cellBox(view.square);
+		placeFxAt(box.x, box.y, box.w, box.h);
 		if (!already) {
+			playFireLoop();
 			breatheSelectRim();
 			view.shadow.setVisible(true);
 			view.shadow.setAlpha(0);
@@ -392,9 +652,11 @@ export function createBoardView(
 			placeShadow(view, true);
 		}
 		if (already && pressView !== view) {
-			const box = cellBox(view.square);
 			view.sprite.setPosition(box.x, box.y - liftPx());
 			view.sprite.setScale(view.baseScale);
+			syncOutline(view);
+			placeFxAt(box.x, box.y, box.w, box.h);
+			playFireLoop();
 			return;
 		}
 		if (pressView === view && pressTween) {
@@ -422,18 +684,23 @@ export function createBoardView(
 				let view = pieceViews.get(key);
 				const texture = pieceKey(piece.side, piece.kind);
 				if (!view) {
+					const outline = scene.add.image(0, 0, texture);
+					outline.setTint(lidStroke);
+					outline.setDepth(3.95);
+					outline.disableInteractive();
 					const sprite = scene.add.image(0, 0, texture);
 					sprite.setDepth(4);
 					const shadow = scene.add.ellipse(0, 0, 8, 8, 0x000000, 1);
 					shadow.setDepth(3);
 					shadow.setAlpha(0);
 					shadow.setVisible(false);
-					view = { square, sprite, shadow, baseScale: 1 };
+					view = { square, sprite, outline, shadow, baseScale: 1 };
 					pieceViews.set(key, view);
 				} else {
 					view.square = square;
 					if (view.sprite.texture.key !== texture) {
 						view.sprite.setTexture(texture);
+						view.outline.setTexture(texture);
 					}
 				}
 				placePiece(view, Boolean(selected && sameSquare(square, selected)));
@@ -473,6 +740,9 @@ export function createBoardView(
 		rim.setDisplaySize(box.w, box.h);
 		rim.setDepth(3);
 		rim.setAlpha(0);
+		if (texture === pieceSprites.moveRim) {
+			rim.setTint(palette.quietFill);
+		}
 		breatheMarker(rim);
 		markers.push(rim);
 	}
@@ -545,6 +815,8 @@ export function createBoardView(
 		}
 		if (pulsing) {
 			placeSelectRim(pulsing);
+			const box = cellBox(pulsing.square);
+			placeFxAt(box.x, box.y, box.w, box.h);
 		} else {
 			hideSelectRim();
 		}
@@ -634,6 +906,13 @@ export function createBoardView(
 		});
 	}
 
+	scene.tweens.setLagSmooth(40, 16);
+
+	function hopProgress(tween: Phaser.Tweens.Tween): number {
+		const duration = tween.duration > 0 ? tween.duration : layout.moveMs;
+		return Math.min(1, Math.max(0, tween.elapsed / duration));
+	}
+
 	function playMove(
 		move: IMove,
 		onDone: () => void,
@@ -649,8 +928,8 @@ export function createBoardView(
 		}
 		moving = true;
 		clearMarkers();
-		stopPulse(view);
-		stopPulse(pulsing);
+		stopPulse(view, true);
+		stopPulse(pulsing, true);
 		hideSelectRim();
 		clearDeny(view);
 		view.shadow.setAlpha(0);
@@ -666,6 +945,9 @@ export function createBoardView(
 			view.square = land;
 			pieceViews.set(squareKey(land), view);
 			placePiece(view, false);
+			const landBox = cellBox(land);
+			placeFxAt(landBox.x, landBox.y, landBox.w, landBox.h);
+			playFireOut();
 			moving = false;
 			onDone();
 		};
@@ -676,16 +958,33 @@ export function createBoardView(
 			}
 			const land = hops[index];
 			const box = cellBox(land);
+			const fromBox = cellBox(from);
 			const capture = isJump(from, land);
-			scene.tweens.add({
-				targets: view.sprite,
-				x: box.x,
-				y: box.y,
-				scaleX: view.baseScale,
-				scaleY: view.baseScale,
-				duration: layout.moveMs,
-				ease: 'Sine.easeInOut',
-				onComplete: () => {
+			const fly = (): void => {
+				flashGhost(view);
+				playFireStreak();
+				view.sprite.setScale(view.baseScale);
+				view.sprite.setPosition(fromBox.x, fromBox.y);
+				flame.setVisible(true);
+				const arc = Math.min(fromBox.w, fromBox.h) * layout.hopArcRatio;
+				const carrier = scene.add.container(fromBox.x, fromBox.y);
+				carrier.setDepth(6);
+				carrier.add(view.sprite);
+				view.sprite.setPosition(0, 0);
+				flame.setOrigin(0.5, 1);
+				flame.setDisplaySize(cellW, cellH);
+				carrier.add(flame);
+				flame.setPosition(0, cellH * 0.38);
+				const landHop = (): void => {
+					carrier.remove(view.sprite);
+					carrier.remove(flame);
+					view.sprite.setPosition(box.x, box.y);
+					view.sprite.setScale(view.baseScale);
+					view.sprite.setDepth(6);
+					flame.setDepth(2.7);
+					stickFlame(view);
+					syncOutline(view);
+					carrier.destroy();
 					if (capture) {
 						for (const between of squaresAlong(from, land)) {
 							const taken = pieceViews.get(squareKey(between));
@@ -699,11 +998,73 @@ export function createBoardView(
 					onLand?.(capture);
 					from = land;
 					step(index + 1);
-				},
-			});
+				};
+				scene.tweens.add({
+					targets: carrier,
+					x: box.x,
+					y: box.y,
+					duration: layout.moveMs,
+					ease: 'Sine.easeInOut',
+					onUpdate: (tween: Phaser.Tweens.Tween) => {
+						void hopProgress(tween);
+						const spanX = box.x - fromBox.x;
+						const spanY = box.y - fromBox.y;
+						const t = Math.min(
+							1,
+							Math.max(
+								0,
+								Math.abs(spanX) >= Math.abs(spanY)
+									? (carrier.x - fromBox.x) / (spanX || 1)
+									: (carrier.y - fromBox.y) / (spanY || 1),
+							),
+						);
+						carrier.y = fromBox.y + spanY * t - Math.sin(t * Math.PI) * arc;
+						followEmitters(view);
+						syncOutline(view);
+					},
+					onComplete: landHop,
+				});
+			};
+			placeFxAt(fromBox.x, fromBox.y, fromBox.w, fromBox.h);
+			stickFlame(view);
+			if (index === 0) {
+				let flown = false;
+				const go = (): void => {
+					if (flown) {
+						return;
+					}
+					flown = true;
+					fly();
+				};
+				playFireTakeoff();
+				scene.tweens.add({
+					targets: view.sprite,
+					scaleY: view.baseScale * layout.pressScaleY,
+					y: fromBox.y + pressDip(),
+					duration: layout.anticipateMs,
+					ease: 'Sine.easeIn',
+					onUpdate: () => {
+						stickFlame(view);
+						syncOutline(view);
+					},
+					onComplete: () => {
+						view.sprite.setScale(view.baseScale);
+						view.sprite.setPosition(fromBox.x, fromBox.y);
+						scene.time.delayedCall(1, go);
+					},
+				});
+			} else {
+				fly();
+			}
 		};
 		step(0);
 	}
+
+	scene.events.on('update', () => {
+		for (const view of pieceViews.values()) {
+			syncOutline(view);
+		}
+	});
 
 	return {
 		sync,

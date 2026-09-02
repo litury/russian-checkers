@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import {
 	debrisSprites,
+	fireSprites,
 	layout,
 	pieceSprites,
 	pitSprites,
@@ -10,6 +11,26 @@ import { palette } from '@/client/config/palette';
 import type { IBoardView } from '@/client/modules/board';
 import { createBoardView } from '@/client/modules/board';
 import captureRimUrl from '@/client/modules/board/kit_v2/capture_rim.png';
+import emberUrl from '@/client/modules/board/kit_v2/fx/ember.png';
+import flameLand0Url from '@/client/modules/board/kit_v2/fx/flame_land_0.png';
+import flameLand1Url from '@/client/modules/board/kit_v2/fx/flame_land_1.png';
+import flameLand2Url from '@/client/modules/board/kit_v2/fx/flame_land_2.png';
+import flameLand3Url from '@/client/modules/board/kit_v2/fx/flame_land_3.png';
+import flameLoop0Url from '@/client/modules/board/kit_v2/fx/flame_loop_0.png';
+import flameLoop1Url from '@/client/modules/board/kit_v2/fx/flame_loop_1.png';
+import flameLoop2Url from '@/client/modules/board/kit_v2/fx/flame_loop_2.png';
+import flameLoop3Url from '@/client/modules/board/kit_v2/fx/flame_loop_3.png';
+import flameLoop4Url from '@/client/modules/board/kit_v2/fx/flame_loop_4.png';
+import flameLoop5Url from '@/client/modules/board/kit_v2/fx/flame_loop_5.png';
+import flameLoop6Url from '@/client/modules/board/kit_v2/fx/flame_loop_6.png';
+import flameLoop7Url from '@/client/modules/board/kit_v2/fx/flame_loop_7.png';
+import flameUp0Url from '@/client/modules/board/kit_v2/fx/flame_up_0.png';
+import flameUp1Url from '@/client/modules/board/kit_v2/fx/flame_up_1.png';
+import flameUp2Url from '@/client/modules/board/kit_v2/fx/flame_up_2.png';
+import flameUp3Url from '@/client/modules/board/kit_v2/fx/flame_up_3.png';
+import puff0Url from '@/client/modules/board/kit_v2/fx/puff_0.png';
+import puff1Url from '@/client/modules/board/kit_v2/fx/puff_1.png';
+import puff2Url from '@/client/modules/board/kit_v2/fx/puff_2.png';
 import moveRimUrl from '@/client/modules/board/kit_v2/move_rim.png';
 import selectRimUrl from '@/client/modules/board/kit_v2/select_rim.png';
 import kingDarkUrl from '@/client/modules/board/pieces/king_dark.png';
@@ -78,6 +99,26 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(pieceSprites.selectRim, selectRimUrl);
 		this.load.image(pieceSprites.moveRim, moveRimUrl);
 		this.load.image(pieceSprites.captureRim, captureRimUrl);
+		this.load.image(fireSprites.ember, emberUrl);
+		this.load.image(fireSprites.flameLoop[0], flameLoop0Url);
+		this.load.image(fireSprites.flameLoop[1], flameLoop1Url);
+		this.load.image(fireSprites.flameLoop[2], flameLoop2Url);
+		this.load.image(fireSprites.flameLoop[3], flameLoop3Url);
+		this.load.image(fireSprites.flameLoop[4], flameLoop4Url);
+		this.load.image(fireSprites.flameLoop[5], flameLoop5Url);
+		this.load.image(fireSprites.flameLoop[6], flameLoop6Url);
+		this.load.image(fireSprites.flameLoop[7], flameLoop7Url);
+		this.load.image(fireSprites.flameUp[0], flameUp0Url);
+		this.load.image(fireSprites.flameUp[1], flameUp1Url);
+		this.load.image(fireSprites.flameUp[2], flameUp2Url);
+		this.load.image(fireSprites.flameUp[3], flameUp3Url);
+		this.load.image(fireSprites.flameLand[0], flameLand0Url);
+		this.load.image(fireSprites.flameLand[1], flameLand1Url);
+		this.load.image(fireSprites.flameLand[2], flameLand2Url);
+		this.load.image(fireSprites.flameLand[3], flameLand3Url);
+		this.load.image(fireSprites.puffs[0], puff0Url);
+		this.load.image(fireSprites.puffs[1], puff1Url);
+		this.load.image(fireSprites.puffs[2], puff2Url);
 		preloadTableSfx(this, {
 			select: selectUrl,
 			move: moveUrl,
