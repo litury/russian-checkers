@@ -6,6 +6,7 @@ import {
 	fireRing,
 	fireSprites,
 	layout,
+	pathSprites,
 	pieceSprites,
 	pitSprites,
 	tableLayers,
@@ -65,9 +66,6 @@ function mixRgb(from: number, to: number, t: number): number {
 
 const arcTin = 0x8a8478;
 const arcGold = 0xd4b45a;
-const dashOn = 4;
-const dashOff = 3;
-
 function prefersReducedMotion(): boolean {
 	try {
 		return Boolean(
@@ -94,81 +92,20 @@ function quadPoint(
 	};
 }
 
-function drawDashedQuad(
-	g: Phaser.GameObjects.Graphics,
+function quadTangent(
+	t: number,
 	x0: number,
 	y0: number,
 	cx: number,
 	cy: number,
 	x1: number,
 	y1: number,
-	color: number,
-): void {
-	const steps = 28;
-	const pts: { x: number; y: number }[] = [];
-	for (let i = 0; i <= steps; i += 1) {
-		const p = quadPoint(i / steps, x0, y0, cx, cy, x1, y1);
-		pts.push({ x: Math.round(p.x), y: Math.round(p.y) });
-	}
-	g.lineStyle(1, color, 0.95);
-	let on = true;
-	let run = 0;
-	let budget = dashOn;
-	for (let i = 1; i < pts.length; i += 1) {
-		const a = pts[i - 1];
-		const b = pts[i];
-		let x = a.x;
-		let y = a.y;
-		const dx = b.x - a.x;
-		const dy = b.y - a.y;
-		const len = Math.hypot(dx, dy);
-		if (len < 0.5) {
-			continue;
-		}
-		const nx = dx / len;
-		const ny = dy / len;
-		let remain = len;
-		while (remain > 0.01) {
-			const step = Math.min(budget - run, remain);
-			const x2 = x + nx * step;
-			const y2 = y + ny * step;
-			if (on) {
-				g.lineBetween(
-					Math.round(x),
-					Math.round(y),
-					Math.round(x2),
-					Math.round(y2),
-				);
-			}
-			x = x2;
-			y = y2;
-			remain -= step;
-			run += step;
-			if (run >= budget - 0.001) {
-				on = !on;
-				run = 0;
-				budget = on ? dashOn : dashOff;
-			}
-		}
-	}
-}
-
-function drawSight(
-	g: Phaser.GameObjects.Graphics,
-	x: number,
-	y: number,
-	arm: number,
-): void {
-	const cx = Math.round(x);
-	const cy = Math.round(y);
-	const span = Math.max(5, Math.round(arm));
-	const gap = 2;
-	g.lineStyle(1, arcGold, 1);
-	g.lineBetween(cx - span, cy, cx - gap, cy);
-	g.lineBetween(cx + gap, cy, cx + span, cy);
-	g.lineStyle(1, arcTin, 1);
-	g.lineBetween(cx, cy - span, cx, cy - gap);
-	g.lineBetween(cx, cy + gap, cx, cy + span);
+): { x: number; y: number } {
+	const u = 1 - t;
+	return {
+		x: 2 * u * (cx - x0) + 2 * t * (x1 - cx),
+		y: 2 * u * (cy - y0) + 2 * t * (y1 - cy),
+	};
 }
 
 type PieceView = {
@@ -192,6 +129,8 @@ export function createBoardView(
 		debrisSprites.stonePl,
 		debrisSprites.stoneGm,
 		wreathSprites.mask,
+		pathSprites.dash,
+		pathSprites.cross,
 		...fireSprites.idle,
 		...fireSprites.up,
 		...fireSprites.land,
@@ -287,11 +226,13 @@ export function createBoardView(
 		rect: Phaser.GameObjects.Rectangle;
 	}[] = [];
 	const markers: Phaser.GameObjects.Image[] = [];
+	const dashPool: Phaser.GameObjects.Image[] = [];
+	const crossPool: Phaser.GameObjects.Image[] = [];
+	let dashUsed = 0;
+	let crossUsed = 0;
 	const pieceViews = new Map<string, PieceView>();
 	const grid = scene.add.graphics();
 	grid.setDepth(1);
-	const pathGfx = scene.add.graphics();
-	pathGfx.setDepth(3.2);
 	let originX = 0;
 	let originY = 0;
 	let cellW = 0;
@@ -430,13 +371,110 @@ export function createBoardView(
 		return Math.round(Math.min(cellW, cellH) * layout.pressDipRatio);
 	}
 
+	function takeDash(): Phaser.GameObjects.Image {
+		if (dashUsed < dashPool.length) {
+			const stamp = dashPool[dashUsed];
+			dashUsed += 1;
+			stamp.setVisible(true);
+			return stamp;
+		}
+		const stamp = scene.add.image(0, 0, pathSprites.dash);
+		stamp.setOrigin(0.5);
+		stamp.setDepth(3.2);
+		stamp.disableInteractive();
+		dashPool.push(stamp);
+		dashUsed += 1;
+		return stamp;
+	}
+
+	function takeCross(): Phaser.GameObjects.Image {
+		if (crossUsed < crossPool.length) {
+			const stamp = crossPool[crossUsed];
+			crossUsed += 1;
+			stamp.setVisible(true);
+			return stamp;
+		}
+		const stamp = scene.add.image(0, 0, pathSprites.cross);
+		stamp.setOrigin(0.5);
+		stamp.setDepth(3.3);
+		stamp.disableInteractive();
+		crossPool.push(stamp);
+		crossUsed += 1;
+		return stamp;
+	}
+
+	function clearPathStamps(): void {
+		for (const stamp of dashPool) {
+			scene.tweens.killTweensOf(stamp);
+			stamp.setVisible(false);
+		}
+		for (const stamp of crossPool) {
+			scene.tweens.killTweensOf(stamp);
+			stamp.setVisible(false);
+		}
+		dashUsed = 0;
+		crossUsed = 0;
+	}
+
+	function stampArc(
+		x0: number,
+		y0: number,
+		cx: number,
+		cy: number,
+		x1: number,
+		y1: number,
+		tint: number,
+		unit: number,
+	): void {
+		const samples = 32;
+		const pts: { x: number; y: number }[] = [];
+		for (let i = 0; i <= samples; i += 1) {
+			pts.push(quadPoint(i / samples, x0, y0, cx, cy, x1, y1));
+		}
+		const dist = [0];
+		let length = 0;
+		for (let i = 1; i < pts.length; i += 1) {
+			length += Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y);
+			dist.push(length);
+		}
+		const dashW = pathSprites.dashW * unit;
+		const dashH = pathSprites.dashH * unit;
+		const spacing = dashW + 4 * unit;
+		if (length < spacing * 0.5) {
+			return;
+		}
+		const start = spacing * 0.5;
+		const end = length - spacing * 0.5;
+		for (let along = start; along <= end + 0.001; along += spacing) {
+			let i = 1;
+			while (i < dist.length && dist[i] < along) {
+				i += 1;
+			}
+			const a = pts[i - 1];
+			const b = pts[Math.min(i, pts.length - 1)];
+			const span = dist[Math.min(i, dist.length - 1)] - dist[i - 1] || 1;
+			const u = (along - dist[i - 1]) / span;
+			const x = a.x + (b.x - a.x) * u;
+			const y = a.y + (b.y - a.y) * u;
+			const t = length > 0 ? along / length : 0;
+			const tan = quadTangent(t, x0, y0, cx, cy, x1, y1);
+			const stamp = takeDash();
+			stamp.setPosition(Math.round(x), Math.round(y));
+			stamp.setDisplaySize(dashW, dashH);
+			stamp.setRotation(Math.atan2(tan.y, tan.x));
+			stamp.setTint(tint);
+			stamp.setAlpha(0.95);
+			stamp.setDepth(3.2);
+		}
+	}
+
 	function clearMarkers(): void {
 		for (const marker of markers) {
 			scene.tweens.killTweensOf(marker);
 			marker.destroy();
 		}
 		markers.length = 0;
-		pathGfx.clear();
+		clearPathStamps();
 	}
 
 	function drawGrid(): void {
@@ -1346,18 +1384,20 @@ export function createBoardView(
 	}
 
 	function drawPaths(position: IPosition, options: IMove[]): void {
-		pathGfx.clear();
+		clearPathStamps();
 		if (options.length === 0) {
 			return;
 		}
-		pathGfx.setAlpha(prefersReducedMotion() ? 1 : 0.95);
+		void prefersReducedMotion();
 		const painted = new Set<string>();
 		for (const move of options) {
 			let from = move.from;
 			for (const land of move.path) {
 				const fromBox = cellBox(from);
 				const landBox = cellBox(land);
-				const arc = Math.min(fromBox.w, fromBox.h) * layout.hopArcRatio;
+				const cell = Math.min(fromBox.w, fromBox.h);
+				const unit = cell / pathSprites.crossSize;
+				const arc = cell * layout.hopArcRatio;
 				let cx = (fromBox.x + landBox.x) / 2;
 				let cy = (fromBox.y + landBox.y) / 2 - arc;
 				if (isJump(from, land)) {
@@ -1370,8 +1410,7 @@ export function createBoardView(
 						cy = pit.y - arc;
 					}
 				}
-				drawDashedQuad(
-					pathGfx,
+				stampArc(
 					fromBox.x,
 					fromBox.y,
 					cx,
@@ -1379,6 +1418,7 @@ export function createBoardView(
 					landBox.x,
 					landBox.y,
 					isJump(from, land) ? arcGold : arcTin,
+					unit,
 				);
 				from = land;
 			}
@@ -1389,7 +1429,13 @@ export function createBoardView(
 			}
 			painted.add(key);
 			const box = cellBox(dest);
-			drawSight(pathGfx, box.x, box.y, Math.min(box.w, box.h) * 0.18);
+			const cross = takeCross();
+			cross.setPosition(box.x, box.y);
+			cross.setDisplaySize(box.w, box.h);
+			cross.clearTint();
+			cross.setAlpha(1);
+			cross.setRotation(0);
+			cross.setDepth(3.3);
 		}
 	}
 
@@ -1658,7 +1704,7 @@ export function createBoardView(
 			pendingLand.clear();
 			killCaptureVfx();
 			clearScorches();
-			pathGfx.clear();
+			clearPathStamps();
 		},
 	};
 }

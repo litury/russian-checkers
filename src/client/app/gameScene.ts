@@ -3,6 +3,7 @@ import {
 	captureSprites,
 	debrisSprites,
 	fireSprites,
+	pathSprites,
 	pieceSprites,
 	pitSprites,
 	tableLayers,
@@ -24,6 +25,8 @@ import emberUrl from '@/client/modules/board/kit_v2/fx/ember.png';
 import puff0Url from '@/client/modules/board/kit_v2/fx/puff_0.png';
 import puff1Url from '@/client/modules/board/kit_v2/fx/puff_1.png';
 import puff2Url from '@/client/modules/board/kit_v2/fx/puff_2.png';
+import pathCrossUrl from '@/client/modules/board/path_cross.png';
+import pathDashUrl from '@/client/modules/board/path_dash.png';
 import kingDarkUrl from '@/client/modules/board/pieces/king_dark.png';
 import kingLightUrl from '@/client/modules/board/pieces/king_light.png';
 import manDarkUrl from '@/client/modules/board/pieces/man_dark.png';
@@ -160,6 +163,8 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(pieceSprites.kingLight, kingLightUrl);
 		this.load.image(pieceSprites.kingDark, kingDarkUrl);
 		this.load.image(wreathSprites.mask, selectMaskUrl);
+		this.load.image(pathSprites.dash, pathDashUrl);
+		this.load.image(pathSprites.cross, pathCrossUrl);
 		this.load.image(fireSprites.ember, emberUrl);
 		this.load.image(fireSprites.idle[0], tongue0IdleUrl);
 		this.load.image(fireSprites.idle[1], tongue1IdleUrl);

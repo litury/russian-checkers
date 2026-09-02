@@ -113,6 +113,14 @@ export const wreathSprites = {
 	captureScale: 1.05,
 } as const;
 
+export const pathSprites = {
+	dash: 'pathDash',
+	cross: 'pathCross',
+	dashW: 12,
+	dashH: 4,
+	crossSize: 44,
+} as const;
+
 export const pitSprites = {
 	keys: [
 		'pitGrass00',
