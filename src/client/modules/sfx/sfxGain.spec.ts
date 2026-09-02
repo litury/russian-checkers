@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { sfxFadeMs, sfxGain } from '@/client/modules/sfx/createTableSfx';
+import {
+	sfxFadeMs,
+	sfxGain,
+	sfxMaster,
+	sfxMasterAmp,
+} from '@/client/modules/sfx/createTableSfx';
 
 describe('sfxGain', () => {
 	it('uses per-clip volumes from the 8-bit pack', () => {
@@ -17,5 +22,13 @@ describe('sfxGain', () => {
 	it('fades engine loops instead of hard stop', () => {
 		expect(sfxFadeMs.in).toBe(100);
 		expect(sfxFadeMs.out).toBe(150);
+	});
+
+	it('applies a log master gain defaulted to 0.4', () => {
+		expect(sfxMaster).toBe(0.4);
+		expect(sfxMasterAmp(0)).toBe(0);
+		expect(sfxMasterAmp(1)).toBe(1);
+		expect(sfxMasterAmp(0.4)).toBeCloseTo((10 ** 0.4 - 1) / 9);
+		expect(sfxMasterAmp(0.4)).toBeLessThan(0.4);
 	});
 });

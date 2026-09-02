@@ -23,6 +23,15 @@ export const sfxFadeMs = {
 	out: 150,
 } as const;
 
+export const sfxMaster = 0.4; // linear control 0..1, default
+
+/** Log taper: 0 → silence, 1 → unity. Future slider feeds this, not a linear multiply. */
+export function sfxMasterAmp(t = sfxMaster): number {
+	const x = Math.min(1, Math.max(0, t));
+	if (x <= 0) return 0;
+	return (10 ** x - 1) / 9;
+}
+
 export type HopSfxUrls = {
 	select: string;
 	hover: string;
@@ -71,6 +80,8 @@ export function createTableSfx(scene: Phaser.Scene): {
 	takeoff: () => void;
 	land: (took: boolean) => void;
 } {
+	(scene.sound as { volume: number }).volume = sfxMasterAmp(sfxMaster);
+
 	let hover: VolSound | undefined;
 	let flight: VolSound | undefined;
 	let hoverFade: Phaser.Tweens.Tween | undefined;
