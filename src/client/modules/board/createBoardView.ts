@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { computeFieldLayout } from '@/client/config/fieldLayout';
 import {
+	captureSprites,
 	debrisSprites,
 	fireRing,
 	fireSprites,
@@ -88,6 +89,7 @@ export function createBoardView(
 		...fireSprites.land,
 		...fireSprites.puffs,
 		fireSprites.ember,
+		captureSprites.scorch,
 	]) {
 		scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
 	}
@@ -678,29 +680,19 @@ export function createBoardView(
 	}): void {
 		const cell = Math.min(box.w, box.h);
 		const size = layout.scorchPx * (cell / 64);
-		const scorch = scene.add.ellipse(
-			box.x,
-			box.y,
-			size,
-			size * 0.92,
-			0x1a100c,
-			0.82,
-		);
+		const scorch = scene.add.image(box.x, box.y, captureSprites.scorch);
+		scorch.setOrigin(0.5);
+		scorch.setDisplaySize(size, size);
 		scorch.setDepth(1.2);
+		scorch.setAlpha(1);
 		scorch.disableInteractive();
-		const ember = scene.add.image(box.x, box.y, fireSprites.ember);
-		ember.setDepth(1.25);
-		ember.setDisplaySize(size * 0.55, size * 0.55);
-		ember.setAlpha(0.7);
-		ember.disableInteractive();
 		scene.tweens.add({
-			targets: [scorch, ember],
+			targets: scorch,
 			alpha: 0,
 			duration: layout.scorchFadeMs,
 			ease: 'Sine.easeIn',
 			onComplete: () => {
 				scorch.destroy();
-				ember.destroy();
 			},
 		});
 	}

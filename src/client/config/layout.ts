@@ -42,6 +42,10 @@ export const fireSprites = {
 	ember: 'ember',
 } as const;
 
+export const captureSprites = {
+	scorch: 'captureScorch',
+} as const;
+
 export const fireRing = {
 	types: [1, 0, 2, 1, 0, 2, 1] as const,
 	anglesDeg: [12, 64, 118, 171, 224, 281, 333] as const,

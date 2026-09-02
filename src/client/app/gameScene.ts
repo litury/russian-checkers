@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import {
+	captureSprites,
 	debrisSprites,
 	fireSprites,
 	pieceSprites,
@@ -39,6 +40,7 @@ import pitGrass05Url from '@/client/modules/board/table_layers/pit_grass_05.png'
 import pitGrass06Url from '@/client/modules/board/table_layers/pit_grass_06.png';
 import pitGrass07Url from '@/client/modules/board/table_layers/pit_grass_07.png';
 import selectMaskUrl from '@/client/modules/board/table_layers/select_mask.png';
+import captureScorchUrl from '@/client/modules/board/vfx_capture/capture_scorch_96.png';
 import { pickBotMove } from '@/client/modules/bot';
 import captureUrl from '@/client/modules/sfx/capture.ogg';
 import {
@@ -119,6 +121,7 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(fireSprites.puffs[1], puff1Url);
 		this.load.image(fireSprites.puffs[2], puff2Url);
 		this.load.image('hudMenu', hudMenuUrl);
+		this.load.image(captureSprites.scorch, captureScorchUrl);
 		this.load.image('resultMonitor', resultMonitorUrl);
 		this.load.image('resultGlassWin', resultGlassWinUrl);
 		this.load.image('resultGlassLose', resultGlassLoseUrl);
