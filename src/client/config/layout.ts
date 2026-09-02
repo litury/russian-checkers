@@ -37,11 +37,13 @@ export const fireSprites = {
 export const fireRing = {
 	types: [1, 0, 2, 1, 0, 2] as const,
 	anglesDeg: [18, 79, 141, 203, 268, 331] as const,
-	radiusRatio: 0.88,
-	idle: 10,
-	up: { w: 9, h: 14 },
-	land: { w: 12, h: 7 },
-	hopLean: 0.7,
+	radiusRatio: 0.9,
+	idle: 5,
+	up: { w: 8, h: 16 },
+	land: { w: 11, h: 6 },
+	hopLean: 1,
+	hopTrail: 0.38,
+	hopRadius: 0.45,
 } as const;
 
 export const tableLayers = {

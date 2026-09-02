@@ -362,21 +362,24 @@ export function createBoardView(
 	): void {
 		firePose = pose;
 		const cell = pieceSize / layout.pieceFit;
-		const radius = (pieceSize / 2) * fireRing.radiusRatio;
+		const half = pieceSize / 2;
+		const trailing = backRot !== null;
+		const radius = half * (trailing ? fireRing.hopRadius : fireRing.radiusRatio);
+		const ox = trailing ? Math.sin(backRot) * half * fireRing.hopTrail : 0;
+		const oy = trailing ? -Math.cos(backRot) * half * fireRing.hopTrail : 0;
 		const size = tongueSize(pose, cell);
 		const keys = fireSprites[pose];
 		for (const tongue of tongues) {
-			const lean =
-				backRot === null
-					? 0
-					: wrapAngle(backRot - tongue.angle) * fireRing.hopLean;
+			const lean = trailing
+				? wrapAngle(backRot - tongue.angle) * fireRing.hopLean
+				: 0;
 			const rot = tongue.angle + lean;
 			tongue.sprite.setTexture(keys[tongue.kind]);
 			tongue.sprite.setOrigin(0.5, 1);
 			tongue.sprite.setRotation(rot);
 			tongue.sprite.setPosition(
-				cx + Math.sin(tongue.angle) * radius,
-				cy - Math.cos(tongue.angle) * radius,
+				cx + ox + Math.sin(tongue.angle) * radius,
+				cy + oy - Math.cos(tongue.angle) * radius,
 			);
 			tongue.sprite.setDisplaySize(size.w, size.h);
 		}
