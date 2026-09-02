@@ -63,6 +63,29 @@ function mixRgb(from: number, to: number, t: number): number {
 	return (r << 16) | (g << 8) | b;
 }
 
+type CropRect = { x: number; y: number; w: number; h: number };
+
+function shardCrops(size: number, count: number): CropRect[] {
+	const cols = Math.ceil(Math.sqrt(count));
+	const rows = Math.ceil(count / cols);
+	const crops: CropRect[] = [];
+	let index = 0;
+	for (let row = 0; row < rows; row += 1) {
+		const remaining = count - index;
+		const rowsLeft = rows - row;
+		const rowCount = Math.ceil(remaining / rowsLeft);
+		for (let col = 0; col < rowCount; col += 1) {
+			const x0 = Math.round((col * size) / rowCount);
+			const x1 = Math.round(((col + 1) * size) / rowCount);
+			const y0 = Math.round((row * size) / rows);
+			const y1 = Math.round(((row + 1) * size) / rows);
+			crops.push({ x: x0, y: y0, w: x1 - x0, h: y1 - y0 });
+			index += 1;
+		}
+	}
+	return crops;
+}
+
 type PieceView = {
 	square: ISquare;
 	sprite: Phaser.GameObjects.Image;
@@ -723,7 +746,7 @@ export function createBoardView(
 		const radius = wellRadius(pieceSize, false);
 		const size = tongueSize('land', cell);
 		const keys = fireSprites.land;
-		const hold = layout.captureSquashMs + layout.captureSinkMs;
+		const hold = layout.capturePopMs + layout.captureBurstMs;
 		fireRing.types.forEach((kind, index) => {
 			const angle = (fireRing.anglesDeg[index] * Math.PI) / 180;
 			const sprite = scene.add.image(
@@ -748,6 +771,49 @@ export function createBoardView(
 		});
 	}
 
+	function burstLid(
+		view: PieceView,
+		box: {
+			x: number;
+			y: number;
+			w: number;
+			h: number;
+		},
+	): void {
+		const key = view.sprite.texture.key;
+		const scale = view.baseScale;
+		const cell = Math.min(box.w, box.h);
+		view.sprite.setVisible(false);
+		view.outline.setVisible(false);
+		destroyView(view);
+		for (const crop of shardCrops(
+			pieceSprites.size,
+			layout.captureShardCount,
+		)) {
+			const shard = scene.add.image(box.x, box.y, key);
+			shard.setOrigin(0.5);
+			shard.setScale(scale);
+			shard.setCrop(crop.x, crop.y, crop.w, crop.h);
+			shard.setDepth(3.8);
+			shard.disableInteractive();
+			const dist = cell * (0.3 + Math.random() * 0.4);
+			const dir = Math.random() * Math.PI * 2;
+			const spin = (Math.random() * 2 - 1) * 220;
+			scene.tweens.add({
+				targets: shard,
+				x: box.x + Math.cos(dir) * dist,
+				y: box.y + Math.sin(dir) * dist,
+				angle: spin,
+				alpha: 0,
+				duration: layout.captureBurstMs,
+				ease: 'Sine.easeOut',
+				onComplete: () => {
+					shard.destroy();
+				},
+			});
+		}
+	}
+
 	function playCapture(view: PieceView): void {
 		pieceViews.delete(squareKey(view.square));
 		if (pulsing === view) {
@@ -758,35 +824,19 @@ export function createBoardView(
 		view.shadow.setAlpha(0);
 		view.sprite.setDepth(3.5);
 		const box = cellBox(view.square);
-		const cell = Math.min(box.w, box.h);
 		spawnScorch(view.square);
 		flashPitTongues(box);
 		scene.tweens.add({
 			targets: view.sprite,
 			scaleX: view.baseScale * 1.12,
-			scaleY: view.baseScale * 0.55,
-			duration: layout.captureSquashMs,
+			scaleY: view.baseScale * 1.12,
+			duration: layout.capturePopMs,
 			ease: 'Sine.easeOut',
 			onUpdate: () => {
 				syncOutline(view);
 			},
 			onComplete: () => {
-				scene.tweens.add({
-					targets: view.sprite,
-					scaleX: view.baseScale * 0.2,
-					scaleY: view.baseScale * 0.2,
-					y: box.y + cell * 0.28,
-					alpha: 0,
-					duration: layout.captureSinkMs,
-					ease: 'Sine.easeIn',
-					onUpdate: () => {
-						view.outline.setAlpha(view.sprite.alpha);
-						syncOutline(view);
-					},
-					onComplete: () => {
-						destroyView(view);
-					},
-				});
+				burstLid(view, box);
 			},
 		});
 	}
