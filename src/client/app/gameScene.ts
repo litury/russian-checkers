@@ -57,11 +57,21 @@ import { createHud } from './createHud';
 import type { IYandexSdk } from './IYandexSdk';
 import { createResultOverlay } from './resultOverlay';
 import hudMenuUrl from './ui/hud_menu.png';
+import mascotLoseUrl from './ui/result/mascot_lose.png';
+import mascotWin0Url from './ui/result/mascot_win_00.png';
+import mascotWin1Url from './ui/result/mascot_win_01.png';
+import mascotWin2Url from './ui/result/mascot_win_02.png';
+import mascotWin3Url from './ui/result/mascot_win_03.png';
+import mascotWin4Url from './ui/result/mascot_win_04.png';
+import resultBtnUrl from './ui/result/result_btn.png';
+import resultGlassLoseUrl from './ui/result/result_glass_lose.png';
+import resultGlassWinUrl from './ui/result/result_glass_win.png';
+import resultMonitorUrl from './ui/result/result_monitor.png';
 
 export class GameScene extends Phaser.Scene {
 	private board!: IBoardView;
 	private hud!: ReturnType<typeof createHud>;
-	private overlay!: { show: (side: Side) => void; hide: () => void };
+	private overlay!: ReturnType<typeof createResultOverlay>;
 	private sdk!: IYandexSdk;
 	private sfx!: ReturnType<typeof createTableSfx>;
 	private position: IPosition = createInitialPosition();
@@ -109,6 +119,16 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(fireSprites.puffs[1], puff1Url);
 		this.load.image(fireSprites.puffs[2], puff2Url);
 		this.load.image('hudMenu', hudMenuUrl);
+		this.load.image('resultMonitor', resultMonitorUrl);
+		this.load.image('resultGlassWin', resultGlassWinUrl);
+		this.load.image('resultGlassLose', resultGlassLoseUrl);
+		this.load.image('resultBtn', resultBtnUrl);
+		this.load.image('mascotLose', mascotLoseUrl);
+		this.load.image('mascotWin0', mascotWin0Url);
+		this.load.image('mascotWin1', mascotWin1Url);
+		this.load.image('mascotWin2', mascotWin2Url);
+		this.load.image('mascotWin3', mascotWin3Url);
+		this.load.image('mascotWin4', mascotWin4Url);
 		preloadTableSfx(this, {
 			select: selectUrl,
 			hover: hoverUrl,
@@ -170,6 +190,7 @@ export class GameScene extends Phaser.Scene {
 	private layout(width: number, height: number): void {
 		this.board.layout(width, height);
 		this.hud.layout(width, height);
+		this.overlay.layout(width, height);
 		this.refresh();
 	}
 
