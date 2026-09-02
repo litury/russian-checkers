@@ -596,6 +596,7 @@ export function createBoardView(
 		move: IMove,
 		onDone: () => void,
 		onLand?: (took: boolean) => void,
+		onTakeoff?: () => void,
 	): void {
 		if (moving) {
 			return;
@@ -643,6 +644,9 @@ export function createBoardView(
 				scaleY: view.baseScale,
 				duration: layout.moveMs,
 				ease: 'Sine.easeInOut',
+				onStart: () => {
+					onTakeoff?.();
+				},
 				onComplete: () => {
 					if (capture) {
 						for (const between of squaresAlong(from, land)) {

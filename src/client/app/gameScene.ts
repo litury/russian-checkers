@@ -28,7 +28,10 @@ import {
 	createTableSfx,
 	preloadTableSfx,
 } from '@/client/modules/sfx/createTableSfx';
-import moveUrl from '@/client/modules/sfx/move.ogg';
+import flightUrl from '@/client/modules/sfx/hop/flight.ogg';
+import hoverUrl from '@/client/modules/sfx/hop/hover.ogg';
+import igniteUrl from '@/client/modules/sfx/hop/ignite.ogg';
+import landUrl from '@/client/modules/sfx/hop/land.ogg';
 import selectUrl from '@/client/modules/sfx/select.ogg';
 import { sameSquare } from '@/client/shared/sameSquare';
 import type { IMove, IPosition, ISquare, Side } from '@/rules';
@@ -40,7 +43,7 @@ export class GameScene extends Phaser.Scene {
 	private board!: IBoardView;
 	private overlay!: { show: (side: Side) => void; hide: () => void };
 	private sdk!: IYandexSdk;
-	private sfx!: { play: (kind: 'select' | 'move' | 'capture') => void };
+	private sfx!: ReturnType<typeof createTableSfx>;
 	private position: IPosition = createInitialPosition();
 	private selected: ISquare | null = null;
 	private phase: 'human' | 'bot' | 'over' = 'human';
@@ -71,7 +74,10 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(pieceSprites.captureRim, captureRimUrl);
 		preloadTableSfx(this, {
 			select: selectUrl,
-			move: moveUrl,
+			hover: hoverUrl,
+			ignite: igniteUrl,
+			flight: flightUrl,
+			land: landUrl,
 			capture: captureUrl,
 		});
 	}
@@ -117,6 +123,7 @@ export class GameScene extends Phaser.Scene {
 		this.phase = 'human';
 		this.pendingBot = false;
 		this.overlay.hide();
+		this.sfx.stopHover();
 		this.refresh();
 	}
 
@@ -172,13 +179,14 @@ export class GameScene extends Phaser.Scene {
 		}
 		if (moves.some((move) => sameSquare(move.from, square))) {
 			this.selected = square;
-			this.sfx.play('select');
+			this.sfx.selectThenHover();
 			this.refresh();
 			return;
 		}
 		const piece = this.position.squares[square.row][square.col];
 		const denied = Boolean(piece && piece.side === this.position.turn);
 		this.selected = null;
+		this.sfx.stopHover();
 		this.refresh();
 		if (denied) {
 			this.board.deny(square);
@@ -196,7 +204,10 @@ export class GameScene extends Phaser.Scene {
 				after();
 			},
 			(took) => {
-				this.sfx.play(took ? 'capture' : 'move');
+				this.sfx.land(took);
+			},
+			() => {
+				this.sfx.takeoff();
 			},
 		);
 	}
