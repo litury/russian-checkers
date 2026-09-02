@@ -42,7 +42,15 @@ export const pitSprites = {
 } as const;
 
 export const debrisSprites = {
-	keys: ['debrisTuft', 'debrisStone', 'debrisMoss'] as const,
+	tuft: 'debrisTuft',
+	moss: 'debrisMoss',
+	stonePl: 'debrisStonePl',
+	stoneGm: 'debrisStoneGm',
+	scatter: ['debrisTuft', 'debrisMoss'] as const,
+	center: [
+		{ key: 'debrisStonePl', visRow: 3, col: 3, texW: 32, texH: 32 },
+		{ key: 'debrisStoneGm', visRow: 4, col: 4, texW: 32, texH: 29 },
+	] as const,
 } as const;
 
 export const pieceSprites = {

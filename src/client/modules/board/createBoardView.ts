@@ -72,7 +72,10 @@ export function createBoardView(
 	for (const key of [
 		tableLayers.earth,
 		...pitSprites.keys,
-		...debrisSprites.keys,
+		debrisSprites.tuft,
+		debrisSprites.moss,
+		debrisSprites.stonePl,
+		debrisSprites.stoneGm,
 		pieceSprites.selectRim,
 		pieceSprites.moveRim,
 		pieceSprites.captureRim,
@@ -121,8 +124,18 @@ export function createBoardView(
 	}
 
 	const pits: { square: ISquare; sprite: Phaser.GameObjects.Image }[] = [];
-	const debris: { square: ISquare; sprite: Phaser.GameObjects.Image }[] = [];
+	const debris: {
+		square: ISquare;
+		sprite: Phaser.GameObjects.Image;
+		fitW: number;
+		fitH: number;
+	}[] = [];
 	const placedPits = new Map<string, string>();
+	const stoneCells = new Set(
+		debrisSprites.center.map(
+			(stone) => `${layout.rankCount - 1 - stone.visRow},${stone.col}`,
+		),
+	);
 	const pitNeighbor = [
 		[-1, -1],
 		[-1, 1],
@@ -134,14 +147,21 @@ export function createBoardView(
 			const row = layout.rankCount - 1 - visRow;
 			const dark = (visRow + col) % 2 === 1;
 			if (!dark) {
-				if (cellHash(row, col) % 11 === 0) {
+				if (!stoneCells.has(`${row},${col}`) && cellHash(row, col) % 11 === 0) {
 					const dkey =
-						debrisSprites.keys[cellHash(col, row) % debrisSprites.keys.length];
+						debrisSprites.scatter[
+							cellHash(col, row) % debrisSprites.scatter.length
+						];
 					const speck = scene.add.image(0, 0, dkey);
 					speck.setOrigin(0.5);
 					speck.setDepth(1);
 					speck.disableInteractive();
-					debris.push({ square: { row, col }, sprite: speck });
+					debris.push({
+						square: { row, col },
+						sprite: speck,
+						fitW: 0.3,
+						fitH: 0.3,
+					});
 				}
 				continue;
 			}
@@ -162,6 +182,19 @@ export function createBoardView(
 			sprite.disableInteractive();
 			pits.push({ square: { row, col }, sprite });
 		}
+	}
+	for (const stone of debrisSprites.center) {
+		const row = layout.rankCount - 1 - stone.visRow;
+		const sprite = scene.add.image(0, 0, stone.key);
+		sprite.setOrigin(0.5);
+		sprite.setDepth(1);
+		sprite.disableInteractive();
+		debris.push({
+			square: { row, col: stone.col },
+			sprite,
+			fitW: stone.texW / 64,
+			fitH: stone.texH / 64,
+		});
 	}
 
 	function cellBox(square: ISquare): {
@@ -521,9 +554,9 @@ export function createBoardView(
 		}
 		for (const speck of debris) {
 			const box = cellBox(speck.square);
-			const size = Math.min(box.w, box.h) * 0.3;
+			const cellPx = Math.min(box.w, box.h);
 			speck.sprite.setPosition(box.x, box.y);
-			speck.sprite.setDisplaySize(size, size);
+			speck.sprite.setDisplaySize(cellPx * speck.fitW, cellPx * speck.fitH);
 		}
 		for (const square of squares) {
 			const box = cellBox(square);
