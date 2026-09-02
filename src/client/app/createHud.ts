@@ -9,6 +9,11 @@ const hudDepth = 12;
 const menuDepth = 15;
 const pad = 12;
 
+type HudHandlers = {
+	onResign?: () => void;
+	onAutoChange?: () => void;
+};
+
 function hudText(
 	scene: Phaser.Scene,
 	content: string,
@@ -24,7 +29,10 @@ function hudText(
 		.setDepth(hudDepth);
 }
 
-export function createHud(scene: Phaser.Scene): {
+export function createHud(
+	scene: Phaser.Scene,
+	handlers: HudHandlers = {},
+): {
 	layout: (width: number, height: number) => void;
 	setTurn: (copy: string) => void;
 	setTimer: (elapsedSec: number) => void;
@@ -47,12 +55,13 @@ export function createHud(scene: Phaser.Scene): {
 		.setDisplaySize(layout.hudMenu, layout.hudMenu)
 		.setDepth(menuDepth);
 
-	function applyMenuPress(open: boolean): void {
-		const scaleY = open ? layout.pressScaleY : 1;
-		menuIcon.setScale(1, scaleY);
+	function tweenScaleY(scaleY: number): void {
 		const tweens = scene.tweens;
-		if (tweens && typeof tweens.add === 'function') {
+		if (tweens && typeof tweens.killTweensOf === 'function') {
 			tweens.killTweensOf(menuIcon);
+		}
+		menuIcon.setScale(1, scaleY);
+		if (tweens && typeof tweens.add === 'function') {
 			tweens.add({
 				targets: menuIcon,
 				scaleY,
@@ -62,10 +71,22 @@ export function createHud(scene: Phaser.Scene): {
 		}
 	}
 
+	function applyMenuPress(open: boolean): void {
+		if (open) {
+			return;
+		}
+		tweenScaleY(1);
+	}
+
 	const sfxPanel = createSfxPanel(scene, {
+		onResign: handlers.onResign,
+		onAutoChange: handlers.onAutoChange,
 		onOpenChange: applyMenuPress,
 	});
 	menuHit.on('pointerdown', (pointer: { id?: number }) => {
+		if (!sfxPanel.isOpen()) {
+			tweenScaleY(layout.pressScaleY);
+		}
 		sfxPanel.toggle(pointer);
 	});
 
