@@ -17,7 +17,6 @@ export const layout = {
 	anticipateMs: 90,
 	landHoldMs: 180,
 	hitStopMs: 50,
-	capturePopMs: 40,
 	captureBurstMs: 200,
 	captureShardCount: 7,
 	scorchPitScale: 1.2,

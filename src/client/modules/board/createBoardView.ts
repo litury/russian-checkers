@@ -309,7 +309,9 @@ export function createBoardView(
 		outline.setDepth(sprite.depth - 0.05);
 		outline.setVisible(sprite.visible);
 		outline.setAlpha(sprite.alpha);
-		outline.setTint(lidStroke);
+		outline.setTint(
+			sprite.isTinted && sprite.tintTopLeft === 0xffe0a8 ? 0xffe0a8 : lidStroke,
+		);
 	}
 
 	function pressDip(): number {
@@ -746,7 +748,7 @@ export function createBoardView(
 		const radius = wellRadius(pieceSize, false);
 		const size = tongueSize('land', cell);
 		const keys = fireSprites.land;
-		const hold = layout.capturePopMs + layout.captureBurstMs;
+		const hold = layout.captureBurstMs;
 		fireRing.types.forEach((kind, index) => {
 			const angle = (fireRing.anglesDeg[index] * Math.PI) / 180;
 			const sprite = scene.add.image(
@@ -822,23 +824,18 @@ export function createBoardView(
 		scene.tweens.killTweensOf(view.sprite);
 		view.shadow.setVisible(false);
 		view.shadow.setAlpha(0);
-		view.sprite.setDepth(3.5);
+		view.sprite.clearTint();
+		view.outline.clearTint();
+		view.outline.setTint(lidStroke);
 		const box = cellBox(view.square);
 		spawnScorch(view.square);
-		flashPitTongues(box);
-		scene.tweens.add({
-			targets: view.sprite,
-			scaleX: view.baseScale * 1.12,
-			scaleY: view.baseScale * 1.12,
-			duration: layout.capturePopMs,
-			ease: 'Sine.easeOut',
-			onUpdate: () => {
-				syncOutline(view);
-			},
-			onComplete: () => {
-				burstLid(view, box);
-			},
-		});
+		burstLid(view, box);
+	}
+
+	function igniteCapture(view: PieceView): void {
+		view.sprite.setTint(0xffe0a8);
+		view.outline.setTint(0xffe0a8);
+		flashPitTongues(cellBox(view.square));
 	}
 
 	function captureBetween(from: ISquare, land: ISquare): void {
@@ -846,6 +843,15 @@ export function createBoardView(
 			const taken = pieceViews.get(squareKey(between));
 			if (taken) {
 				playCapture(taken);
+			}
+		}
+	}
+
+	function igniteBetween(from: ISquare, land: ISquare): void {
+		for (const between of squaresAlong(from, land)) {
+			const taken = pieceViews.get(squareKey(between));
+			if (taken) {
+				igniteCapture(taken);
 			}
 		}
 	}
@@ -1286,7 +1292,7 @@ export function createBoardView(
 						if (capture && !struck && t >= 0.45) {
 							struck = true;
 							tween.pause();
-							captureBetween(from, land);
+							igniteBetween(from, land);
 							scene.time.delayedCall(layout.hitStopMs, () => {
 								tween.resume();
 							});
