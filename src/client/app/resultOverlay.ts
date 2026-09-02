@@ -17,14 +17,23 @@ const floorPad = 2;
 const gap = 12;
 const titleSize = 28;
 const pressNudge = 2;
-const winKeys = [
+export const winKeys = [
 	'mascotWin0',
 	'mascotWin1',
 	'mascotWin2',
 	'mascotWin3',
 	'mascotWin4',
 ] as const;
-const cheerMs = 120;
+export const cheerMs = 120;
+export const loseKeys = [
+	'mascotLose0',
+	'mascotLose1',
+	'mascotLose2',
+	'mascotLose3',
+	'mascotLose4',
+	'mascotLose5',
+] as const;
+export const loseMs = 125;
 const depth = 20;
 
 function stackHeight(): number {
@@ -54,7 +63,7 @@ export function createResultOverlay(
 		'resultGlassWin',
 		'resultGlassLose',
 		'resultBtn',
-		'mascotLose',
+		...loseKeys,
 		...winKeys,
 	]) {
 		scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
@@ -96,7 +105,9 @@ export function createResultOverlay(
 	root.add([title, glass, monitor, hero, btn, label, hit]);
 
 	let cheer: Phaser.Time.TimerEvent | undefined;
+	let loseAnim: Phaser.Time.TimerEvent | undefined;
 	let cheerFrame = 0;
+	let loseFrame = 0;
 	let btnY = 0;
 	let pressed = false;
 
@@ -151,9 +162,15 @@ export function createResultOverlay(
 		hit.setSize(hitW, hitH);
 	}
 
+	function stopLose(): void {
+		loseAnim?.remove(false);
+		loseAnim = undefined;
+	}
+
 	function stopCheer(): void {
 		cheer?.remove(false);
 		cheer = undefined;
+		stopLose();
 	}
 
 	function startCheer(): void {
@@ -170,6 +187,27 @@ export function createResultOverlay(
 		});
 	}
 
+	function startLose(): void {
+		stopCheer();
+		loseFrame = 0;
+		hero.setTexture(loseKeys[0]);
+		loseAnim = scene.time.addEvent({
+			delay: loseMs,
+			loop: true,
+			callback: () => {
+				if (loseFrame >= loseKeys.length - 1) {
+					stopLose();
+					return;
+				}
+				loseFrame += 1;
+				hero.setTexture(loseKeys[loseFrame]);
+				if (loseFrame >= loseKeys.length - 1) {
+					stopLose();
+				}
+			},
+		});
+	}
+
 	return {
 		layout: (width, height) => {
 			place(width, height);
@@ -182,8 +220,7 @@ export function createResultOverlay(
 			if (won) {
 				startCheer();
 			} else {
-				stopCheer();
-				hero.setTexture('mascotLose');
+				startLose();
 			}
 			hero.setDisplaySize(heroFit, heroFit);
 			dim.setVisible(true);
