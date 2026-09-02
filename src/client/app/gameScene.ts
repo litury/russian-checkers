@@ -56,6 +56,7 @@ import { apply, createInitialPosition, legalMoves, winner } from '@/rules';
 import { createHud } from './createHud';
 import type { IYandexSdk } from './IYandexSdk';
 import { createResultOverlay } from './resultOverlay';
+import hudMenuUrl from './ui/hud_menu.png';
 
 export class GameScene extends Phaser.Scene {
 	private board!: IBoardView;
@@ -107,6 +108,7 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(fireSprites.puffs[0], puff0Url);
 		this.load.image(fireSprites.puffs[1], puff1Url);
 		this.load.image(fireSprites.puffs[2], puff2Url);
+		this.load.image('hudMenu', hudMenuUrl);
 		preloadTableSfx(this, {
 			select: selectUrl,
 			hover: hoverUrl,

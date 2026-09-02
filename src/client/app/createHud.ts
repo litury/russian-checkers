@@ -40,7 +40,11 @@ export function createHud(scene: Phaser.Scene): {
 	menuHit.setDepth(hudDepth);
 	menuHit.setInteractive();
 	menuHit.on('pointerdown', () => undefined);
-	const menuIcon = hudText(scene, '≡', '28px').setOrigin(0.5);
+	const menuIcon = scene.add
+		.image(0, 0, 'hudMenu')
+		.setOrigin(0.5)
+		.setDisplaySize(layout.hudMenu, layout.hudMenu)
+		.setDepth(hudDepth);
 
 	function placeMenu(x: number, y: number): void {
 		menuHit.setPosition(x, y);
