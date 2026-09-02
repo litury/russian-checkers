@@ -6,11 +6,11 @@ import {
 	pieceSprites,
 	pitSprites,
 	tableLayers,
+	wreathSprites,
 } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
 import type { IBoardView } from '@/client/modules/board';
 import { createBoardView } from '@/client/modules/board';
-import captureRimUrl from '@/client/modules/board/kit_v2/capture_rim.png';
 import emberUrl from '@/client/modules/board/kit_v2/fx/ember.png';
 import flameLand0Url from '@/client/modules/board/kit_v2/fx/flame_land_0.png';
 import flameLand1Url from '@/client/modules/board/kit_v2/fx/flame_land_1.png';
@@ -31,8 +31,6 @@ import flameUp3Url from '@/client/modules/board/kit_v2/fx/flame_up_3.png';
 import puff0Url from '@/client/modules/board/kit_v2/fx/puff_0.png';
 import puff1Url from '@/client/modules/board/kit_v2/fx/puff_1.png';
 import puff2Url from '@/client/modules/board/kit_v2/fx/puff_2.png';
-import moveRimUrl from '@/client/modules/board/kit_v2/move_rim.png';
-import selectRimUrl from '@/client/modules/board/kit_v2/select_rim.png';
 import kingDarkUrl from '@/client/modules/board/pieces/king_dark.png';
 import kingLightUrl from '@/client/modules/board/pieces/king_light.png';
 import manDarkUrl from '@/client/modules/board/pieces/man_dark.png';
@@ -48,6 +46,7 @@ import pitGrass04Url from '@/client/modules/board/table_layers/pit_grass_04.png'
 import pitGrass05Url from '@/client/modules/board/table_layers/pit_grass_05.png';
 import pitGrass06Url from '@/client/modules/board/table_layers/pit_grass_06.png';
 import pitGrass07Url from '@/client/modules/board/table_layers/pit_grass_07.png';
+import selectMaskUrl from '@/client/modules/board/table_layers/select_mask.png';
 import { pickBotMove } from '@/client/modules/bot';
 import captureUrl from '@/client/modules/sfx/capture.ogg';
 import {
@@ -96,9 +95,7 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(pieceSprites.manDark, manDarkUrl);
 		this.load.image(pieceSprites.kingLight, kingLightUrl);
 		this.load.image(pieceSprites.kingDark, kingDarkUrl);
-		this.load.image(pieceSprites.selectRim, selectRimUrl);
-		this.load.image(pieceSprites.moveRim, moveRimUrl);
-		this.load.image(pieceSprites.captureRim, captureRimUrl);
+		this.load.image(wreathSprites.mask, selectMaskUrl);
 		this.load.image(fireSprites.ember, emberUrl);
 		this.load.image(fireSprites.flameLoop[0], flameLoop0Url);
 		this.load.image(fireSprites.flameLoop[1], flameLoop1Url);

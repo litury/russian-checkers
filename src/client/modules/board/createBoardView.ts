@@ -6,6 +6,7 @@ import {
 	pieceSprites,
 	pitSprites,
 	tableLayers,
+	wreathSprites,
 } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
 import { sameSquare } from '@/client/shared/sameSquare';
@@ -79,9 +80,7 @@ export function createBoardView(
 		...pitSprites.keys,
 		debrisSprites.stonePl,
 		debrisSprites.stoneGm,
-		pieceSprites.selectRim,
-		pieceSprites.moveRim,
-		pieceSprites.captureRim,
+		wreathSprites.mask,
 		...fireSprites.flameLoop,
 		...fireSprites.flameUp,
 		...fireSprites.flameLand,
@@ -94,7 +93,7 @@ export function createBoardView(
 	ground.setOrigin(0, 0);
 	ground.setDepth(0);
 	ground.disableInteractive();
-	const selectRim = scene.add.image(0, 0, pieceSprites.selectRim);
+	const selectRim = scene.add.image(0, 0, wreathSprites.mask);
 	selectRim.setOrigin(0.5);
 	selectRim.setDepth(3);
 	selectRim.setAlpha(0);
@@ -469,14 +468,37 @@ export function createBoardView(
 		scene.tweens.killTweensOf(selectRim);
 		selectRim.setAlpha(0);
 		selectRim.setVisible(false);
+		selectRim.setAngle(0);
 	}
 
-	function placeSelectRim(_view: PieceView): void {
-		hideSelectRim();
+	function placeSelectRim(view: PieceView): void {
+		const box = cellBox(view.square);
+		scene.tweens.killTweensOf(selectRim);
+		selectRim.setTexture(wreathSprites.mask);
+		selectRim.setTint(palette.selectedFill);
+		selectRim.setPosition(box.x, box.y);
+		selectRim.setDisplaySize(box.w, box.h);
+		selectRim.setDepth(3);
+		selectRim.setAngle(0);
+		selectRim.setVisible(true);
+		selectRim.setAlpha(0);
+		scene.tweens.add({
+			targets: selectRim,
+			alpha: layout.markerBreathMax,
+			duration: layout.markerFadeMs,
+			ease: 'Sine.easeOut',
+		});
+		scene.tweens.add({
+			targets: selectRim,
+			angle: 360,
+			duration: wreathSprites.spinMs,
+			repeat: -1,
+			ease: 'Linear',
+		});
 	}
 
 	function breatheSelectRim(): void {
-		hideSelectRim();
+		return;
 	}
 
 	function clearDeny(view?: PieceView): void {
@@ -692,12 +714,53 @@ export function createBoardView(
 		}
 	}
 
+	function addWreath(square: ISquare, tint: number, scale: number): void {
+		const box = cellBox(square);
+		const wreath = scene.add.image(box.x, box.y, wreathSprites.mask);
+		wreath.setOrigin(0.5);
+		wreath.setDisplaySize(box.w * scale, box.h * scale);
+		wreath.setTint(tint);
+		wreath.setDepth(3);
+		wreath.setAlpha(layout.markerBreathMax);
+		wreath.disableInteractive();
+		markers.push(wreath);
+	}
+
 	function drawMarkers(
-		_position: IPosition,
-		_destinations: ISquare[],
-		_selected: ISquare | null,
+		position: IPosition,
+		destinations: ISquare[],
+		selected: ISquare | null,
 	): void {
 		clearMarkers();
+		const painted = new Set<string>();
+		const paint = (square: ISquare, tint: number, scale: number): void => {
+			const key = squareKey(square);
+			if (painted.has(key)) {
+				return;
+			}
+			if (selected && sameSquare(square, selected)) {
+				return;
+			}
+			painted.add(key);
+			addWreath(square, tint, scale);
+		};
+		for (const square of destinations) {
+			paint(square, palette.quietFill, 1);
+		}
+		if (!selected) {
+			return;
+		}
+		for (const dest of destinations) {
+			if (!isJump(selected, dest)) {
+				continue;
+			}
+			for (const between of squaresAlong(selected, dest)) {
+				const occupant = position.squares[between.row]?.[between.col];
+				if (occupant) {
+					paint(between, palette.captureFill, wreathSprites.captureScale);
+				}
+			}
+		}
 	}
 
 	function layoutBoard(width: number, height: number): void {

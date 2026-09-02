@@ -48,6 +48,12 @@ export const tableLayers = {
 	tile: 64,
 } as const;
 
+export const wreathSprites = {
+	mask: 'selectMask',
+	spinMs: 10000,
+	captureScale: 1.05,
+} as const;
+
 export const pitSprites = {
 	keys: [
 		'pitGrass00',
