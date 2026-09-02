@@ -714,7 +714,16 @@ export function createBoardView(
 		sprite.setDisplaySize(size, size);
 	}
 
+	function hasScorch(square: ISquare): boolean {
+		return scorches.some(
+			(stamp) => squareKey(stamp.square) === squareKey(square),
+		);
+	}
+
 	function spawnScorch(square: ISquare): void {
+		if (hasScorch(square)) {
+			return;
+		}
 		const box = cellBox(square);
 		const size = scorchSize(box);
 		const scorch = scene.add.image(box.x, box.y, captureSprites.scorch);
@@ -862,11 +871,12 @@ export function createBoardView(
 		fx: CaptureVfx,
 		keys: readonly string[],
 		onDone: () => void,
+		frameMs: number = layout.captureBurstMs,
 	): void {
 		let frame = 0;
 		fx.sprite.setTexture(keys[0]);
 		fx.timer = scene.time.addEvent({
-			delay: layout.captureBurstMs,
+			delay: frameMs,
 			loop: true,
 			callback: () => {
 				frame += 1;
@@ -882,7 +892,15 @@ export function createBoardView(
 	}
 
 	function playFlash(square: ISquare): void {
-		const fx = addCaptureSprite(square, captureSprites.flash[0], 2.2, 'flash');
+		if (
+			captureVfx.some(
+				(fx) =>
+					fx.kind === 'flash' && squareKey(fx.square) === squareKey(square),
+			)
+		) {
+			return;
+		}
+		const fx = addCaptureSprite(square, captureSprites.flash[0], 4.6, 'flash');
 		playCaptureFrames(fx, captureSprites.flash, () => {
 			fx.timer?.remove(false);
 			fx.sprite.destroy();
@@ -893,11 +911,9 @@ export function createBoardView(
 		});
 	}
 
-	function settleCapture(square: ISquare): void {
+	function hideCaptureDebris(square: ISquare): void {
 		pendingLand.delete(squareKey(square));
-		playFlash(square);
 		killCaptureVfx(square);
-		spawnScorch(square);
 	}
 
 	function finishCapture(view: PieceView): void {
@@ -919,7 +935,8 @@ export function createBoardView(
 			pendingLand.add(sqKey);
 			return;
 		}
-		settleCapture(view.square);
+		spawnScorch(view.square);
+		hideCaptureDebris(view.square);
 	}
 
 	function igniteCapture(view: PieceView): void {
@@ -945,13 +962,20 @@ export function createBoardView(
 		const fx = addCaptureSprite(view.square, igniteKey, 3.7, 'swell');
 		fx.timer = scene.time.delayedCall(layout.captureBurstMs, () => {
 			playCaptureFrames(fx, swell, () => {
-				playCaptureFrames(fx, burst, () => {
-					playCaptureFrames(fx, smolder, () => {
-						if (pendingLand.has(squareKey(view.square))) {
-							settleCapture(view.square);
-						}
-					});
-				});
+				playCaptureFrames(
+					fx,
+					burst,
+					() => {
+						playCaptureFrames(fx, smolder, () => {
+							if (pendingLand.has(squareKey(view.square))) {
+								hideCaptureDebris(view.square);
+							}
+						});
+					},
+					layout.hitStopMs,
+				);
+				playFlash(view.square);
+				spawnScorch(view.square);
 			});
 		});
 	}
