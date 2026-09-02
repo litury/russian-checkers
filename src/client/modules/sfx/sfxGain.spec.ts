@@ -1,9 +1,15 @@
-import { describe, expect, it } from 'vitest';
+import type Phaser from 'phaser';
+import { afterEach, describe, expect, it } from 'vitest';
 import {
 	clampSfxMaster,
+	createTableSfx,
+	getSfxMaster,
+	getSfxMuted,
 	outputVolume,
 	parseSfxMaster,
 	parseSfxMuted,
+	setSfxMaster,
+	setSfxMuted,
 	sfxFadeMs,
 	sfxGain,
 	sfxMaster,
@@ -11,7 +17,25 @@ import {
 	sfxStorageKeys,
 } from '@/client/modules/sfx/createTableSfx';
 
+function stubScene(): Phaser.Scene {
+	const sound = { volume: 1, mute: false, play() {}, add() {} };
+	return {
+		sound,
+		cache: { audio: { exists: () => false } },
+		tweens: {
+			add() {
+				return {};
+			},
+		},
+	} as unknown as Phaser.Scene;
+}
+
 describe('sfxGain', () => {
+	afterEach(() => {
+		setSfxMaster(sfxMaster);
+		setSfxMuted(false);
+	});
+
 	it('uses per-clip volumes from the 8-bit pack', () => {
 		expect(sfxGain.select).toBe(0.28);
 		expect(sfxGain.hover).toBe(0.16);
@@ -48,8 +72,34 @@ describe('sfxGain', () => {
 		expect(parseSfxMuted('0')).toBe(false);
 		expect(outputVolume(0.4, false)).toBe(sfxMasterAmp(0.4));
 		expect(outputVolume(0.4, false)).not.toBe(0.4);
+		expect(outputVolume(0.4, false)).not.toBe(0.4 * sfxMasterAmp(0.4));
 		expect(outputVolume(0.4, true)).toBe(0);
 		expect(outputVolume(0.4, true)).toBe(sfxMasterAmp(0));
 		expect(outputVolume(0.8, true)).toBe(0);
+		expect(outputVolume(0.8, false)).not.toBe(0.8 * sfxMasterAmp(0.8));
+	});
+
+	it('sets scene.sound.volume through log amp and restores linear on unmute', () => {
+		const scene = stubScene();
+		createTableSfx(scene);
+		expect(scene.sound.volume).toBe(sfxMasterAmp(sfxMaster));
+		expect(scene.sound.volume).not.toBe(sfxMaster);
+		expect(scene.sound.volume).not.toBe(sfxMaster * sfxMasterAmp(sfxMaster));
+
+		setSfxMaster(0.8);
+		expect(getSfxMaster()).toBe(0.8);
+		expect(scene.sound.volume).toBe(sfxMasterAmp(0.8));
+		expect(scene.sound.volume).not.toBe(0.8);
+		expect(scene.sound.volume).not.toBe(0.8 * sfxMasterAmp(0.8));
+
+		setSfxMuted(true);
+		expect(getSfxMuted()).toBe(true);
+		expect(getSfxMaster()).toBe(0.8);
+		expect(scene.sound.volume).toBe(sfxMasterAmp(0));
+
+		setSfxMuted(false);
+		expect(getSfxMuted()).toBe(false);
+		expect(getSfxMaster()).toBe(0.8);
+		expect(scene.sound.volume).toBe(sfxMasterAmp(0.8));
 	});
 });

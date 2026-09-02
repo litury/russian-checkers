@@ -66,6 +66,7 @@ export function createSfxPanel(scene: Phaser.Scene): {
 	}
 
 	function paint(): void {
+		// hud_mute / hud_mute_off / hud_slider_knob will replace the drawn mute/knob when 2D drops them.
 		const linear = getSfxMaster();
 		const muted = getSfxMuted();
 		g.clear();
