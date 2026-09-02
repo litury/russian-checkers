@@ -474,6 +474,7 @@ export function createBoardView(
 	}
 
 	function playFireLoop(): void {
+		fireGen += 1;
 		hopBack = null;
 		showTongues();
 		if (!tongues[0]?.sprite.parentContainer) {
@@ -727,7 +728,7 @@ export function createBoardView(
 	function startPulse(view: PieceView): void {
 		const already = pulsing === view;
 		if (pulsing && pulsing !== view) {
-			stopPulse(pulsing);
+			stopPulse(pulsing, true);
 		}
 		pulsing = view;
 		view.sprite.setDepth(5);
@@ -911,7 +912,7 @@ export function createBoardView(
 		}
 		const next = selected ? pieceViews.get(squareKey(selected)) : null;
 		if (pulsing && pulsing !== next) {
-			stopPulse(pulsing);
+			stopPulse(pulsing, Boolean(next));
 		}
 		reconcile(position, selected);
 		drawMarkers(position, destinations, selected);
