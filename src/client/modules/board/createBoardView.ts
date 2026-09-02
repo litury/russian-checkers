@@ -343,14 +343,21 @@ export function createBoardView(
 
 	function tongueSize(pose: FirePose, cell: number): { w: number; h: number } {
 		const unit = cell / 64;
-		if (pose === 'up') {
-			return { w: fireRing.up.w * unit, h: fireRing.up.h * unit };
+		const spec =
+			pose === 'up'
+				? fireRing.up
+				: pose === 'land'
+					? fireRing.land
+					: fireRing.idle;
+		return { w: spec.w * unit, h: spec.h * unit };
+	}
+
+	function wellRadius(pieceSize: number, trailing: boolean): number {
+		const cell = pieceSize / layout.pieceFit;
+		if (trailing) {
+			return (pieceSize / 2) * fireRing.hopRadius;
 		}
-		if (pose === 'land') {
-			return { w: fireRing.land.w * unit, h: fireRing.land.h * unit };
-		}
-		const idle = fireRing.idle * unit;
-		return { w: idle, h: idle };
+		return ((cell * layout.pitFit) / 2) * fireRing.pitRadius;
 	}
 
 	function layoutTongues(
@@ -364,16 +371,15 @@ export function createBoardView(
 		const cell = pieceSize / layout.pieceFit;
 		const half = pieceSize / 2;
 		const trailing = backRot !== null;
-		const radius = half * (trailing ? fireRing.hopRadius : fireRing.radiusRatio);
+		const radius = wellRadius(pieceSize, trailing);
 		const ox = trailing ? Math.sin(backRot) * half * fireRing.hopTrail : 0;
 		const oy = trailing ? -Math.cos(backRot) * half * fireRing.hopTrail : 0;
 		const size = tongueSize(pose, cell);
 		const keys = fireSprites[pose];
 		for (const tongue of tongues) {
-			const lean = trailing
-				? wrapAngle(backRot - tongue.angle) * fireRing.hopLean
-				: 0;
-			const rot = tongue.angle + lean;
+			const rot = trailing
+				? backRot + wrapAngle(tongue.angle) * 0.12
+				: tongue.angle + Math.PI;
 			tongue.sprite.setTexture(keys[tongue.kind]);
 			tongue.sprite.setOrigin(0.5, 1);
 			tongue.sprite.setRotation(rot);
@@ -458,7 +464,7 @@ export function createBoardView(
 		if (!t0) {
 			return { x: 0, y: 0, pieceSize };
 		}
-		const radius = (pieceSize / 2) * fireRing.radiusRatio;
+		const radius = wellRadius(pieceSize, hopBack !== null);
 		return {
 			x: t0.sprite.x - Math.sin(t0.angle) * radius,
 			y: t0.sprite.y + Math.cos(t0.angle) * radius,
