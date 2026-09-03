@@ -91,6 +91,8 @@ import flightUrl from '@/client/modules/sfx/hop/flight.ogg';
 import hoverUrl from '@/client/modules/sfx/hop/hover.ogg';
 import igniteUrl from '@/client/modules/sfx/hop/ignite.ogg';
 import landUrl from '@/client/modules/sfx/hop/land.ogg';
+import meadowUrl from '@/client/modules/sfx/meadow_loop.ogg';
+import firstCaptureUrl from '@/client/modules/sfx/pervyy_vzryv.ogg';
 import selectUrl from '@/client/modules/sfx/select.ogg';
 import { sameSquare } from '@/client/shared/sameSquare';
 import type { IMove, IPosition, ISquare, Side } from '@/rules';
@@ -303,7 +305,10 @@ export class GameScene extends Phaser.Scene {
 			}
 			this.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
 		}
-		this.sfx = createTableSfx(this);
+		this.sfx = createTableSfx(this, {
+			meadow: meadowUrl,
+			firstCapture: firstCaptureUrl,
+		});
 		this.hud = createHud(this, {
 			onResign: () => {
 				this.resignMatch();
@@ -354,7 +359,7 @@ export class GameScene extends Phaser.Scene {
 		this.runningSince = this.time.now;
 		this.hud.setTimer(0);
 		this.overlay.hide();
-		this.sfx.stopHover();
+		this.sfx.resetMatch();
 		this.refresh();
 	}
 
@@ -563,6 +568,7 @@ export class GameScene extends Phaser.Scene {
 		}
 		this.paused = paused;
 		this.sound.mute = paused;
+		this.sfx.setPaused(paused);
 		if (paused) {
 			this.tweens.pauseAll();
 		} else {

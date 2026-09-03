@@ -30,6 +30,14 @@ export const sfxStorageKeys = {
 	muted: 'checkers.sfxMuted',
 } as const;
 
+export const musicStorageKey = 'checkers.musicMuted';
+
+export const musicGain = {
+	meadow: 0.32,
+	duck: 0.1,
+	firstCapture: 0.8,
+} as const;
+
 /** Log taper: 0 → silence, 1 → unity. Slider feeds this, not a linear multiply. */
 export function sfxMasterAmp(t = sfxMaster): number {
 	const x = Math.min(1, Math.max(0, t));
@@ -55,6 +63,10 @@ export function parseSfxMuted(raw: string | null): boolean {
 	return raw === '1' || raw === 'true';
 }
 
+export function parseMusicMuted(raw: string | null): boolean {
+	return raw === '1' || raw === 'true';
+}
+
 /** Scene volume from linear t. Mute uses amp(0); never multiply t on top of the log. */
 export function outputVolume(linear: number, muted: boolean): number {
 	return sfxMasterAmp(muted ? 0 : clampSfxMaster(linear));
@@ -69,6 +81,11 @@ export type HopSfxUrls = {
 	capture: string;
 };
 
+export type TableMusicUrls = {
+	meadow: string;
+	firstCapture: string;
+};
+
 type VolSound = Phaser.Sound.BaseSound & {
 	volume: number;
 	setVolume: (value: number) => unknown;
@@ -79,6 +96,8 @@ type VolumeSound = { volume: number };
 let boundScene: Phaser.Scene | undefined;
 let sfxLinear = sfxMaster;
 let sfxMutedFlag = false;
+let musicMutedFlag = false;
+let applyMusicVol: () => void = () => undefined;
 
 function readStorage(): Storage | undefined {
 	try {
@@ -93,10 +112,12 @@ function loadPrefs(): void {
 	if (!store) {
 		sfxLinear = sfxMaster;
 		sfxMutedFlag = false;
+		musicMutedFlag = false;
 		return;
 	}
 	sfxLinear = parseSfxMaster(store.getItem(sfxStorageKeys.master));
 	sfxMutedFlag = parseSfxMuted(store.getItem(sfxStorageKeys.muted));
+	musicMutedFlag = parseMusicMuted(store.getItem(musicStorageKey));
 }
 
 function writePrefs(): void {
@@ -107,6 +128,7 @@ function writePrefs(): void {
 	try {
 		store.setItem(sfxStorageKeys.master, String(sfxLinear));
 		store.setItem(sfxStorageKeys.muted, sfxMutedFlag ? '1' : '0');
+		store.setItem(musicStorageKey, musicMutedFlag ? '1' : '0');
 	} catch {
 		return;
 	}
@@ -130,6 +152,10 @@ export function getSfxMuted(): boolean {
 	return sfxMutedFlag;
 }
 
+export function getMusicMuted(): boolean {
+	return musicMutedFlag;
+}
+
 export function setSfxMaster(t: number): void {
 	sfxLinear = clampSfxMaster(t);
 	writePrefs();
@@ -140,6 +166,12 @@ export function setSfxMuted(muted: boolean): void {
 	sfxMutedFlag = muted;
 	writePrefs();
 	applyAmp();
+}
+
+export function setMusicMuted(muted: boolean): void {
+	musicMutedFlag = muted;
+	writePrefs();
+	applyMusicVol();
 }
 
 export function preloadTableSfx(scene: Phaser.Scene, urls: HopSfxUrls): void {
@@ -170,11 +202,33 @@ function equalPower(t: number, from: number, to: number): number {
 	return from + (to - from) * w;
 }
 
-export function createTableSfx(scene: Phaser.Scene): {
+function makeHtmlAudio(
+	url: string,
+	loop: boolean,
+): HTMLAudioElement | undefined {
+	try {
+		if (typeof Audio === 'undefined') {
+			return undefined;
+		}
+		const el = new Audio(url);
+		el.loop = loop;
+		el.preload = 'auto';
+		return el;
+	} catch {
+		return undefined;
+	}
+}
+
+export function createTableSfx(
+	scene: Phaser.Scene,
+	music?: TableMusicUrls,
+): {
 	selectThenHover: () => void;
 	stopHover: () => void;
 	takeoff: () => void;
 	land: (took: boolean) => void;
+	resetMatch: () => void;
+	setPaused: (paused: boolean) => void;
 } {
 	boundScene = scene;
 	loadPrefs();
@@ -184,6 +238,13 @@ export function createTableSfx(scene: Phaser.Scene): {
 	let flight: VolSound | undefined;
 	let hoverFade: Phaser.Tweens.Tween | undefined;
 	let flightFade: Phaser.Tweens.Tween | undefined;
+	let ducked = false;
+	let paused = false;
+	let firstCapturePlayed = false;
+	const meadow = music?.meadow ? makeHtmlAudio(music.meadow, true) : undefined;
+	const firstCapture = music?.firstCapture
+		? makeHtmlAudio(music.firstCapture, false)
+		: undefined;
 
 	function drop(sound: Phaser.Sound.BaseSound | undefined): void {
 		sound?.stop();
@@ -247,10 +308,43 @@ export function createTableSfx(scene: Phaser.Scene): {
 		fadeOutHover(sfxFadeMs.out);
 	}
 
+	function applyMusic(): void {
+		if (!meadow) {
+			return;
+		}
+		if (paused || musicMutedFlag) {
+			meadow.pause();
+			return;
+		}
+		meadow.volume = ducked ? musicGain.duck : musicGain.meadow;
+		void meadow.play().catch(() => undefined);
+	}
+
+	applyMusicVol = applyMusic;
+	applyMusic();
+
+	function playFirstCapture(): void {
+		if (firstCapturePlayed || paused) {
+			return;
+		}
+		firstCapturePlayed = true;
+		if (!firstCapture) {
+			return;
+		}
+		try {
+			firstCapture.currentTime = 0;
+			firstCapture.volume = musicGain.firstCapture;
+			void firstCapture.play().catch(() => undefined);
+		} catch {
+			return;
+		}
+	}
+
 	return {
 		selectThenHover: () => {
 			playOne(scene, sfxKeys.select, sfxGain.select);
 			fadeOutHover(sfxFadeMs.out);
+			applyMusic();
 			if (scene.sound.mute || !scene.cache.audio.exists(sfxKeys.hover)) {
 				return;
 			}
@@ -266,6 +360,8 @@ export function createTableSfx(scene: Phaser.Scene): {
 		takeoff: () => {
 			fadeOutHover(sfxFadeMs.in);
 			fadeOutFlight();
+			ducked = true;
+			applyMusic();
 			playOne(scene, sfxKeys.ignite, sfxGain.ignite);
 			if (scene.sound.mute || !scene.cache.audio.exists(sfxKeys.flight)) {
 				return;
@@ -283,7 +379,31 @@ export function createTableSfx(scene: Phaser.Scene): {
 			playOne(scene, sfxKeys.land, sfxGain.land);
 			if (took) {
 				playOne(scene, sfxKeys.capture, sfxGain.capture);
+				playFirstCapture();
 			}
+			ducked = false;
+			applyMusic();
+		},
+		resetMatch: () => {
+			firstCapturePlayed = false;
+			ducked = false;
+			stopHover();
+			if (firstCapture) {
+				firstCapture.pause();
+				try {
+					firstCapture.currentTime = 0;
+				} catch {
+					// ignore
+				}
+			}
+			applyMusic();
+		},
+		setPaused: (next) => {
+			paused = next;
+			if (next) {
+				firstCapture?.pause();
+			}
+			applyMusic();
 		},
 	};
 }

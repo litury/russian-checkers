@@ -3,11 +3,15 @@ import { afterEach, describe, expect, it } from 'vitest';
 import {
 	clampSfxMaster,
 	createTableSfx,
+	getMusicMuted,
 	getSfxMaster,
 	getSfxMuted,
+	musicStorageKey,
 	outputVolume,
+	parseMusicMuted,
 	parseSfxMaster,
 	parseSfxMuted,
+	setMusicMuted,
 	setSfxMaster,
 	setSfxMuted,
 	sfxFadeMs,
@@ -34,6 +38,7 @@ describe('sfxGain', () => {
 	afterEach(() => {
 		setSfxMaster(sfxMaster);
 		setSfxMuted(false);
+		setMusicMuted(false);
 	});
 
 	it('uses per-clip volumes from the 8-bit pack', () => {
@@ -101,5 +106,25 @@ describe('sfxGain', () => {
 		expect(getSfxMuted()).toBe(false);
 		expect(getSfxMaster()).toBe(0.8);
 		expect(scene.sound.volume).toBe(sfxMasterAmp(0.8));
+	});
+
+	it('keeps meadow music mute separate from the SFX note', () => {
+		expect(musicStorageKey).toBe('checkers.musicMuted');
+		expect(parseMusicMuted(null)).toBe(false);
+		expect(parseMusicMuted('1')).toBe(true);
+		expect(getMusicMuted()).toBe(false);
+		const scene = stubScene();
+		createTableSfx(scene);
+		const sfxVol = scene.sound.volume;
+		setMusicMuted(true);
+		expect(getMusicMuted()).toBe(true);
+		expect(getSfxMuted()).toBe(false);
+		expect(scene.sound.volume).toBe(sfxVol);
+		setSfxMuted(true);
+		expect(getMusicMuted()).toBe(true);
+		expect(scene.sound.volume).toBe(sfxMasterAmp(0));
+		setSfxMuted(false);
+		expect(getMusicMuted()).toBe(true);
+		expect(scene.sound.volume).toBe(sfxVol);
 	});
 });
