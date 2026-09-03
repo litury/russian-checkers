@@ -5,6 +5,7 @@ export interface IBoardView {
 		position: IPosition,
 		highlights: ISquare[],
 		selected: ISquare | null,
+		options?: IMove[],
 	) => void;
 	layout: (width: number, height: number) => void;
 	press: (square: ISquare) => void;
@@ -13,6 +14,8 @@ export interface IBoardView {
 		move: IMove,
 		onDone: () => void,
 		onLand?: (took: boolean) => void,
-		onTakeoff?: () => void,
+		onTakeoff?: (took: boolean) => void,
 	) => void;
+	reset: () => void;
+	setPlayfieldVisible: (on: boolean) => void;
 }

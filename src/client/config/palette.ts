@@ -17,4 +17,6 @@ export const palette = {
 	overlay: 0x140e0a,
 	button: 0x7a4a28,
 	text: '#f4efe4',
+	meterTin: 0x8a8478,
+	meterGold: 0xd4b45a,
 } as const;

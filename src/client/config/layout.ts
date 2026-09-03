@@ -3,7 +3,19 @@ export const layout = {
 	statusHeight: 52,
 	hudBar: 44,
 	hudMenu: 44,
-	boardBottomGap: 14,
+	hudAction: 64,
+	hudAiW: 64,
+	hudAiH: 48,
+	hudResign: 64,
+	hudStripInset: 14,
+	hudMoatW: 384,
+	hudMoatH: 104,
+	hudMoatBtnInset: 10,
+	hudMoatResignX: 42,
+	hudMoatResignY: 52,
+	hudMoatAiX: 342,
+	hudMoatAiY: 52,
+	boardBottomGap: 128,
 	pieceRadiusRatio: 0.34,
 	kingMarkRatio: 0.15,
 	highlightAlpha: 0.38,
@@ -11,13 +23,20 @@ export const layout = {
 	pressScaleY: 0.85,
 	pressDipRatio: 0.05,
 	pressMs: 140,
+	menuFoldMs: 70,
 	liftRatio: 0.06,
 	selectMs: 180,
 	moveMs: 380,
 	anticipateMs: 90,
 	landHoldMs: 180,
+	hitStopMs: 50,
+	captureBurstMs: 70,
+	captureShardCount: 7,
+	scorchPitScale: 1.2,
+	scorchFadeInMs: 120,
 	afterimageMs: 40,
 	hopArcRatio: 0.35,
+	hopDashPxPerSec: 48,
 	markerFadeMs: 160,
 	markerBreathMin: 0.45,
 	markerBreathMax: 0.9,
@@ -35,6 +54,54 @@ export const fireSprites = {
 	land: ['tongue0Land', 'tongue1Land', 'tongue2Land'] as const,
 	puffs: ['puff0', 'puff1', 'puff2'] as const,
 	ember: 'ember',
+} as const;
+
+export const captureSprites = {
+	igniteLight: 'captureIgniteLight',
+	igniteDark: 'captureIgniteDark',
+	igniteKingLight: 'captureIgniteKingLight',
+	igniteKingDark: 'captureIgniteKingDark',
+	swellLight: [
+		'captureSwellLight0',
+		'captureSwellLight1',
+		'captureSwellLight2',
+	] as const,
+	swellDark: [
+		'captureSwellDark0',
+		'captureSwellDark1',
+		'captureSwellDark2',
+	] as const,
+	swellKingLight: [
+		'captureSwellKingLight0',
+		'captureSwellKingLight1',
+		'captureSwellKingLight2',
+	] as const,
+	swellKingDark: [
+		'captureSwellKingDark0',
+		'captureSwellKingDark1',
+		'captureSwellKingDark2',
+	] as const,
+	burstLight: ['captureBurstLight0', 'captureBurstLight1'] as const,
+	burstDark: ['captureBurstDark0', 'captureBurstDark1'] as const,
+	burstKingLight: ['captureBurstKingLight0', 'captureBurstKingLight1'] as const,
+	burstKingDark: ['captureBurstKingDark0', 'captureBurstKingDark1'] as const,
+	smolderLight: ['captureSmolderLight0', 'captureSmolderLight1'] as const,
+	smolderDark: ['captureSmolderDark0', 'captureSmolderDark1'] as const,
+	smolderKingLight: [
+		'captureSmolderKingLight0',
+		'captureSmolderKingLight1',
+	] as const,
+	smolderKingDark: [
+		'captureSmolderKingDark0',
+		'captureSmolderKingDark1',
+	] as const,
+	flash: [
+		'captureFlash0',
+		'captureFlash1',
+		'captureFlash2',
+		'captureFlash3',
+	] as const,
+	scorch: 'captureScorch',
 } as const;
 
 export const fireRing = {
@@ -59,6 +126,26 @@ export const wreathSprites = {
 	spinMs: 10000,
 	captureScale: 1.05,
 } as const;
+
+export const pathSprites = {
+	dash: 'pathDash',
+	cross: 'pathCross',
+	dashW: 12,
+	dashH: 4,
+	crossSize: 44,
+} as const;
+
+/** False until the board has a positive cell; zero cell makes dash spacing 0 and the stamp loop hang. */
+export function hopPathReady(cell: number): boolean {
+	if (!Number.isFinite(cell) || cell <= 0) {
+		return false;
+	}
+	const unit = cell / pathSprites.crossSize;
+	const dashW = pathSprites.dashW * unit;
+	const dashH = pathSprites.dashH * unit;
+	const spacing = dashW + 4 * unit;
+	return dashW > 0 && dashH > 0 && spacing > 0 && Number.isFinite(spacing);
+}
 
 export const pitSprites = {
 	keys: [

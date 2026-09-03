@@ -3,26 +3,34 @@ import { computeFieldLayout, formatClock } from '@/client/config/fieldLayout';
 import { layout } from '@/client/config/layout';
 
 describe('computeFieldLayout', () => {
-	it('pins 9:16 board to canvas minus 14 and leaves HUD clear', () => {
+	it('pins 9:16 board above the action moat and leaves HUD clear', () => {
 		const field = computeFieldLayout(390, 694);
 		expect(field.portrait).toBe(true);
 		expect(field.fieldSize).toBe(390);
 		expect(field.originX).toBe(0);
-		expect(field.originY).toBe(290);
+		expect(field.originY).toBe(176);
 		expect(field.cell).toBeCloseTo(48.75);
 		expect(field.cell).toBeGreaterThanOrEqual(layout.minCellPx);
 		expect(field.originY).toBeGreaterThanOrEqual(layout.hudBar);
+		expect(layout.boardBottomGap).toBe(128);
+		expect(layout.hudStripInset).toBe(14);
+		expect(layout.hudMoatH).toBe(104);
+		expect(layout.hudMoatW).toBe(384);
+		expect(layout.hudStripInset + layout.hudMoatH).toBeLessThanOrEqual(
+			layout.boardBottomGap,
+		);
 		expect(field.originY + field.fieldSize).toBe(694 - layout.boardBottomGap);
 	});
 
-	it('sizes 16:9 board by height and keeps side gutters', () => {
+	it('sizes 16:9 board by height minus the action strip and keeps side gutters', () => {
 		const field = computeFieldLayout(1280, 720);
 		expect(field.portrait).toBe(false);
-		expect(field.fieldSize).toBe(720);
-		expect(field.originX).toBe(280);
+		expect(field.fieldSize).toBe(592);
+		expect(field.originX).toBe(344);
 		expect(field.originY).toBe(0);
-		expect(field.cell).toBe(90);
-		expect(1280 - field.originX - field.fieldSize).toBe(280);
+		expect(field.cell).toBe(74);
+		expect(1280 - field.originX - field.fieldSize).toBe(344);
+		expect(720 - field.fieldSize).toBe(layout.boardBottomGap);
 	});
 
 	it('shrinks portrait field so HUD does not cover cells', () => {
