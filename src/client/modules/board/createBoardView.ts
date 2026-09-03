@@ -549,8 +549,7 @@ export function createBoardView(
 		if (prefersReducedMotion()) {
 			return 0;
 		}
-		const period = layout.markerBreathMs / 2;
-		return ((scene.time.now / period) * spacing) % spacing;
+		return ((scene.time.now * layout.hopDashPxPerSec) / 1000) % spacing;
 	}
 
 	function paintDashes(): void {

@@ -24,6 +24,7 @@ export const layout = {
 	scorchFadeInMs: 120,
 	afterimageMs: 40,
 	hopArcRatio: 0.35,
+	hopDashPxPerSec: 48,
 	markerFadeMs: 160,
 	markerBreathMin: 0.45,
 	markerBreathMax: 0.9,

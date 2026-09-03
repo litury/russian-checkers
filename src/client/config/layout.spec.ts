@@ -41,5 +41,6 @@ describe('hop path stamps', () => {
 		expect(hopPathReady(Number.NaN)).toBe(false);
 		expect(hopPathReady(-1)).toBe(false);
 		expect(hopPathReady(layout.minCellPx)).toBe(true);
+		expect(layout.hopDashPxPerSec).toBe(48);
 	});
 });
