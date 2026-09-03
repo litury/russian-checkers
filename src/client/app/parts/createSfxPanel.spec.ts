@@ -204,6 +204,8 @@ describe('createSfxPanel', () => {
 		expect(keys).not.toContain('hudSliderKnob');
 		expect(keys).not.toContain('hudResign');
 		expect(keys).not.toContain('hudAuto');
+		expect(keys).not.toContain('hudAi');
+		expect(keys).not.toContain('hudActionMoat');
 		expect(keys).not.toContain('hudEvmPanel');
 		expect(keys).not.toContain('hudMute');
 		expect(keys).not.toContain('hudMuteOff');

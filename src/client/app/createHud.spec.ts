@@ -199,7 +199,9 @@ describe('createHud', () => {
 		const chrome = scene.images.find((img) => img.key === 'resultMonitor');
 		expect(menuIcon.key).toBe('hudMenu');
 		expect(scene.images.some((img) => img.key === 'hudResign')).toBe(true);
-		expect(scene.images.some((img) => img.key === 'hudAuto')).toBe(true);
+		expect(scene.images.some((img) => img.key === 'hudAi')).toBe(true);
+		expect(scene.images.some((img) => img.key === 'hudActionMoat')).toBe(true);
+		expect(scene.images.some((img) => img.key === 'hudAuto')).toBe(false);
 		expect(scene.images.some((img) => img.key === 'hudMusic')).toBe(false);
 		expect(chrome?.visible).toBe(false);
 		expect(scene.images.some((img) => img.key === 'hudEvmPanel')).toBe(false);
@@ -230,20 +232,27 @@ describe('createHud', () => {
 		const scene = stubHudScene();
 		const hud = createHud(scene);
 		hud.layout(390, 694);
+		const moat = scene.images.find((img) => img.key === 'hudActionMoat');
 		const resign = scene.images.find((img) => img.key === 'hudResign');
-		const auto = scene.images.find((img) => img.key === 'hudAuto');
+		const ai = scene.images.find((img) => img.key === 'hudAi');
 		expect(layout.hudStripInset).toBe(14);
-		expect(layout.hudMoatH).toBe(0);
-		expect(scene.images.some((img) => img.key === 'hudAuto')).toBe(true);
-		expect(scene.images.some((img) => img.key === 'hudAi')).toBe(false);
-		const y = Math.round(
-			694 - layout.hudStripInset - layout.hudMoatH - layout.hudAction / 2,
-		);
-		expect(resign?.y).toBe(y);
-		expect(auto?.y).toBe(y);
-		expect(y + layout.hudAction / 2).toBe(694 - layout.hudStripInset);
+		expect(layout.hudMoatH).toBe(80);
+		expect(layout.hudMoatW).toBe(160);
+		expect(scene.images.some((img) => img.key === 'hudAi')).toBe(true);
+		expect(scene.images.some((img) => img.key === 'hudAuto')).toBe(false);
+		expect(scene.images.some((img) => img.key === 'hudAutoOff')).toBe(false);
+		const moatX = Math.round((390 - layout.hudMoatW) / 2);
+		const moatY = Math.round(694 - layout.hudStripInset - layout.hudMoatH);
+		expect(moat?.x).toBe(moatX);
+		expect(moat?.y).toBe(moatY);
+		expect(resign?.x).toBe(moatX + layout.hudMoatResignX);
+		expect(resign?.y).toBe(moatY + layout.hudMoatResignY);
+		expect(ai?.x).toBe(moatX + layout.hudMoatAiX);
+		expect(ai?.y).toBe(moatY + layout.hudMoatAiY);
+		expect(resign?.scaleY).toBe(1);
+		expect(ai?.scaleY).toBe(1);
 		expect(
-			layout.hudAction + layout.hudStripInset + layout.hudMoatH,
+			layout.hudStripInset + layout.hudMoatH,
 		).toBeLessThanOrEqual(layout.boardBottomGap);
 	});
 
@@ -259,12 +268,16 @@ describe('createHud', () => {
 		const restY = resign?.y ?? 0;
 		resign?.emit('pointerdown');
 		expect(resigns).toBe(0);
+		expect(resign?.key).toBe('hudResignWave');
 		expect((resign?.y ?? 0) > restY).toBe(true);
+		expect(resign?.scaleY).toBe(1);
 		resign?.emit('pointerup');
 		expect(resigns).toBe(0);
+		expect(resign?.key).toBe('hudResignWave');
 		expect((resign?.y ?? 0) > restY).toBe(true);
 		resign?.emit('pointerdown');
 		expect(resigns).toBe(1);
+		expect(resign?.key).toBe('hudResign');
 	});
 
 	it('resets the resign arm after the timeout', () => {
@@ -285,7 +298,7 @@ describe('createHud', () => {
 		expect(resigns).toBe(1);
 	});
 
-	it('disarms resign when auto or elsewhere is tapped', () => {
+	it('disarms resign when AI or elsewhere is tapped', () => {
 		const scene = stubHudScene();
 		let resigns = 0;
 		createHud(scene, {
@@ -294,10 +307,10 @@ describe('createHud', () => {
 			},
 		});
 		const resign = scene.images.find((img) => img.key === 'hudResign');
-		const auto = scene.images.find((img) => img.key === 'hudAuto');
+		const ai = scene.images.find((img) => img.key === 'hudAi');
 		resign?.emit('pointerdown');
 		resign?.emit('pointerup');
-		auto?.emit('pointerdown');
+		ai?.emit('pointerdown');
 		resign?.emit('pointerdown');
 		expect(resigns).toBe(0);
 		flushMs(scene, 0);

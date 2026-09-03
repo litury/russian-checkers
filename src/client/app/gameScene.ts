@@ -101,8 +101,9 @@ import { createHud } from './createHud';
 import type { IYandexSdk } from './IYandexSdk';
 import { getAutoMove } from './parts/createSfxPanel';
 import { createResultOverlay } from './resultOverlay';
-import hudAutoUrl from './ui/hud_auto.png';
-import hudAutoOffUrl from './ui/hud_auto_off.png';
+import hudActionMoatUrl from './ui/hud_action_moat.png';
+import hudAiUrl from './ui/hud_ai.png';
+import hudAiOffUrl from './ui/hud_ai_off.png';
 import hudGlassMeadowUrl from './ui/hud_glass_meadow.png';
 import hudMenuUrl from './ui/hud_menu.png';
 import hudMenuOpenUrl from './ui/hud_menu_open.png';
@@ -112,6 +113,7 @@ import hudNoteOffUrl from './ui/hud_note_off.png';
 import hudPlateUrl from './ui/hud_plate.png';
 import hudPlateVolUrl from './ui/hud_plate_vol.png';
 import hudResignUrl from './ui/hud_resign.png';
+import hudResignWaveUrl from './ui/hud_resign_wave.png';
 import hudSliderKnobUrl from './ui/hud_slider_knob.png';
 import mascotLose0Url from './ui/result/mascot_lose_00.png';
 import mascotLose1Url from './ui/result/mascot_lose_01.png';
@@ -190,9 +192,11 @@ export class GameScene extends Phaser.Scene {
 		this.load.image('hudNote', hudNoteUrl);
 		this.load.image('hudNoteOff', hudNoteOffUrl);
 		this.load.image('hudSliderKnob', hudSliderKnobUrl);
+		this.load.image('hudActionMoat', hudActionMoatUrl);
 		this.load.image('hudResign', hudResignUrl);
-		this.load.image('hudAuto', hudAutoUrl);
-		this.load.image('hudAutoOff', hudAutoOffUrl);
+		this.load.image('hudResignWave', hudResignWaveUrl);
+		this.load.image('hudAi', hudAiUrl);
+		this.load.image('hudAiOff', hudAiOffUrl);
 		this.load.image(captureSprites.igniteLight, captureIgniteLightUrl);
 		this.load.image(captureSprites.igniteDark, captureIgniteDarkUrl);
 		this.load.image(captureSprites.igniteKingLight, captureIgniteKingLightUrl);
@@ -295,9 +299,11 @@ export class GameScene extends Phaser.Scene {
 			'hudNote',
 			'hudNoteOff',
 			'hudSliderKnob',
+			'hudActionMoat',
 			'hudResign',
-			'hudAuto',
-			'hudAutoOff',
+			'hudResignWave',
+			'hudAi',
+			'hudAiOff',
 			'resultMonitor',
 		]) {
 			if (!this.textures.exists(key)) {

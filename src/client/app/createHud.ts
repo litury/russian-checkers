@@ -108,64 +108,61 @@ export function createHud(
 	});
 
 	const action = layout.hudAction;
-	const stripGap = 8;
-	const resignPlate = scene.add.image(0, 0, 'hudPlate').setOrigin(0.5);
-	resignPlate.setDisplaySize(action, action);
-	resignPlate.setDepth(hudDepth);
-	resignPlate.setInteractive({ useHandCursor: true });
+	const moat = scene.add.image(0, 0, 'hudActionMoat').setOrigin(0, 0);
+	moat.setDisplaySize(layout.hudMoatW, layout.hudMoatH);
+	moat.setDepth(hudDepth);
 	const resignIcon = scene.add.image(0, 0, 'hudResign').setOrigin(0.5);
 	resignIcon.setDisplaySize(action, action);
 	resignIcon.setDepth(hudDepth + 1);
 	resignIcon.setInteractive({ useHandCursor: true });
-	const autoPlate = scene.add.image(0, 0, 'hudPlate').setOrigin(0.5);
-	autoPlate.setDisplaySize(action, action);
-	autoPlate.setDepth(hudDepth);
-	autoPlate.setInteractive({ useHandCursor: true });
-	const autoIcon = scene.add.image(0, 0, 'hudAuto').setOrigin(0.5);
-	autoIcon.setDisplaySize(action, action);
-	autoIcon.setDepth(hudDepth + 1);
-	autoIcon.setInteractive({ useHandCursor: true });
+	const aiIcon = scene.add.image(0, 0, 'hudAi').setOrigin(0.5);
+	aiIcon.setDisplaySize(action, action);
+	aiIcon.setDepth(hudDepth + 1);
+	aiIcon.setInteractive({ useHandCursor: true });
 
 	let resignRestX = 0;
 	let resignRestY = 0;
-	let autoRestX = 0;
-	let autoRestY = 0;
+	let aiRestX = 0;
+	let aiRestY = 0;
+	let resignArmed = false;
+	let resignCatcherArmed = false;
+	let resignArmTimer: { remove: (dispatch?: boolean) => void } | undefined;
+	let resignCatcherTimer: { remove: (dispatch?: boolean) => void } | undefined;
 
-	function juiceAction(
-		plate: Phaser.GameObjects.Image,
+	function juiceIcon(
 		icon: Phaser.GameObjects.Image,
 		restX: () => number,
 		restY: () => number,
 		down: boolean,
 	): void {
 		const dip = down ? dipPx(action) : 0;
-		plate.setPosition(restX(), restY() + dip);
 		icon.setPosition(restX(), restY() + dip);
 		icon.setScale(1, 1);
 	}
 
-	function paintAuto(): void {
-		autoIcon.setTexture(getAutoMove() ? 'hudAuto' : 'hudAutoOff');
+	function paintAi(): void {
+		aiIcon.setTexture(getAutoMove() ? 'hudAi' : 'hudAiOff');
+		aiIcon.setScale(1, 1);
+	}
+
+	function paintResign(): void {
+		resignIcon.setTexture(resignArmed ? 'hudResignWave' : 'hudResign');
+		resignIcon.setScale(1, 1);
 	}
 
 	function juiceResign(down: boolean): void {
-		juiceAction(
-			resignPlate,
+		juiceIcon(
 			resignIcon,
 			() => resignRestX,
 			() => resignRestY,
 			down,
 		);
+		paintResign();
 	}
 
 	function fireResign(): void {
 		handlers.onResign?.();
 	}
-
-	let resignArmed = false;
-	let resignCatcherArmed = false;
-	let resignArmTimer: { remove: (dispatch?: boolean) => void } | undefined;
-	let resignCatcherTimer: { remove: (dispatch?: boolean) => void } | undefined;
 
 	function disarmResign(): void {
 		if (!resignArmed) {
@@ -185,7 +182,12 @@ export function createHud(
 	}
 
 	function onResignDown(): void {
-		juiceResign(true);
+		juiceIcon(
+			resignIcon,
+			() => resignRestX,
+			() => resignRestY,
+			true,
+		);
 		if (resignArmed) {
 			resignArmed = false;
 			resignCatcherArmed = false;
@@ -199,6 +201,7 @@ export function createHud(
 		}
 		resignArmed = true;
 		resignCatcherArmed = false;
+		paintResign();
 		resignArmTimer?.remove(false);
 		resignCatcherTimer?.remove(false);
 		resignArmTimer = scene.time.delayedCall(resignArmMs, () => {
@@ -221,70 +224,36 @@ export function createHud(
 	function toggleAuto(): void {
 		disarmResign();
 		setAutoMove(!getAutoMove());
-		paintAuto();
+		paintAi();
 		handlers.onAutoChange?.();
 	}
 
-	paintAuto();
-	resignPlate.on('pointerdown', onResignDown);
+	paintAi();
 	resignIcon.on('pointerdown', onResignDown);
-	resignPlate.on('pointerup', onResignUp);
 	resignIcon.on('pointerup', onResignUp);
-	resignPlate.on('pointerout', onResignUp);
 	resignIcon.on('pointerout', onResignUp);
-	autoPlate.on('pointerdown', () => {
-		juiceAction(
-			autoPlate,
-			autoIcon,
-			() => autoRestX,
-			() => autoRestY,
+	aiIcon.on('pointerdown', () => {
+		juiceIcon(
+			aiIcon,
+			() => aiRestX,
+			() => aiRestY,
 			true,
 		);
 		toggleAuto();
 	});
-	autoIcon.on('pointerdown', () => {
-		juiceAction(
-			autoPlate,
-			autoIcon,
-			() => autoRestX,
-			() => autoRestY,
-			true,
-		);
-		toggleAuto();
-	});
-	autoPlate.on('pointerup', () => {
-		juiceAction(
-			autoPlate,
-			autoIcon,
-			() => autoRestX,
-			() => autoRestY,
+	aiIcon.on('pointerup', () => {
+		juiceIcon(
+			aiIcon,
+			() => aiRestX,
+			() => aiRestY,
 			false,
 		);
 	});
-	autoIcon.on('pointerup', () => {
-		juiceAction(
-			autoPlate,
-			autoIcon,
-			() => autoRestX,
-			() => autoRestY,
-			false,
-		);
-	});
-	autoPlate.on('pointerout', () => {
-		juiceAction(
-			autoPlate,
-			autoIcon,
-			() => autoRestX,
-			() => autoRestY,
-			false,
-		);
-	});
-	autoIcon.on('pointerout', () => {
-		juiceAction(
-			autoPlate,
-			autoIcon,
-			() => autoRestX,
-			() => autoRestY,
+	aiIcon.on('pointerout', () => {
+		juiceIcon(
+			aiIcon,
+			() => aiRestX,
+			() => aiRestY,
 			false,
 		);
 	});
@@ -296,7 +265,7 @@ export function createHud(
 				return;
 			}
 			const over = currentlyOver ?? [];
-			if (over.includes(resignPlate) || over.includes(resignIcon)) {
+			if (over.includes(resignIcon)) {
 				return;
 			}
 			disarmResign();
@@ -311,21 +280,18 @@ export function createHud(
 	}
 
 	function placeStrip(width: number, height: number): void {
-		const pairW = action * 2 + stripGap;
-		const left = Math.round((width - pairW) / 2 + action / 2);
-		const right = left + action + stripGap;
-		const y = Math.round(
-			height - layout.hudStripInset - layout.hudMoatH - action / 2,
-		);
-		resignRestX = left;
-		resignRestY = y;
-		autoRestX = right;
-		autoRestY = y;
-		resignPlate.setPosition(left, y);
-		resignIcon.setPosition(left, y);
-		autoPlate.setPosition(right, y);
-		autoIcon.setPosition(right, y);
-		paintAuto();
+		const moatX = Math.round((width - layout.hudMoatW) / 2);
+		const moatY = Math.round(height - layout.hudStripInset - layout.hudMoatH);
+		moat.setPosition(moatX, moatY);
+		moat.setDisplaySize(layout.hudMoatW, layout.hudMoatH);
+		resignRestX = moatX + layout.hudMoatResignX;
+		resignRestY = moatY + layout.hudMoatResignY;
+		aiRestX = moatX + layout.hudMoatAiX;
+		aiRestY = moatY + layout.hudMoatAiY;
+		resignIcon.setPosition(resignRestX, resignRestY);
+		aiIcon.setPosition(aiRestX, aiRestY);
+		paintAi();
+		paintResign();
 	}
 
 	return {
