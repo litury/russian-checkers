@@ -71,6 +71,7 @@ describe('uniqueHopLands', () => {
 		expect(uniqueHopLands(moves)).toEqual([
 			{ row: 3, col: 3 },
 			{ row: 4, col: 4 },
+			{ row: 4, col: 0 },
 			{ row: 6, col: 2 },
 		]);
 	});

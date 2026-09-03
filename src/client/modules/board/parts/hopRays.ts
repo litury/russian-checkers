@@ -59,16 +59,14 @@ export function uniqueHopLands(moves: IMove[]): ISquare[] {
 	const seen = new Set<string>();
 	const lands: ISquare[] = [];
 	for (const move of moves) {
-		const dest = move.path[move.path.length - 1];
-		if (!dest) {
-			continue;
+		for (const dest of move.path) {
+			const key = `${dest.row},${dest.col}`;
+			if (seen.has(key)) {
+				continue;
+			}
+			seen.add(key);
+			lands.push(dest);
 		}
-		const key = `${dest.row},${dest.col}`;
-		if (seen.has(key)) {
-			continue;
-		}
-		seen.add(key);
-		lands.push(dest);
 	}
 	return lands;
 }
