@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { apply } from './apply';
 import { createInitialPosition } from './createInitialPosition';
 import { legalMoves } from './legalMoves';
-import { emptyBoard, getPiece } from './parts/board';
+import { emptyBoard, getPiece, inBounds } from './parts/board';
 import type { IMove } from './types/IMove';
 import type { IPiece } from './types/IPiece';
 import type { IPosition } from './types/IPosition';
@@ -136,6 +136,77 @@ describe('legalMoves', () => {
 			expect(new Set(keys).size).toBe(keys.length);
 		}
 	});
+
+	it('keeps the captured man as a blocker so the king cannot bounce back', () => {
+		const pos = position('white', [
+			[sq(0, 0), king('white')],
+			[sq(2, 2), man('black')],
+		]);
+		const moves = legalMoves(pos);
+		expect(hasMove(moves, sq(0, 0), [sq(3, 3)])).toBe(true);
+		expect(hasMove(moves, sq(0, 0), [sq(4, 4), sq(0, 0)])).toBe(false);
+		expect(hasMove(moves, sq(0, 0), [sq(4, 4), sq(1, 1)])).toBe(false);
+	});
+
+	it('allows a man a quiet step only forward', () => {
+		const pos = position('white', [[sq(4, 4), man('white')]]);
+		const moves = legalMoves(pos);
+		expect(hasMove(moves, sq(4, 4), [sq(5, 3)])).toBe(true);
+		expect(hasMove(moves, sq(4, 4), [sq(5, 5)])).toBe(true);
+		expect(hasMove(moves, sq(4, 4), [sq(3, 3)])).toBe(false);
+		expect(hasMove(moves, sq(4, 4), [sq(3, 5)])).toBe(false);
+	});
+
+	it('lets a king slide any open distance on a diagonal', () => {
+		const pos = position('white', [[sq(0, 0), king('white')]]);
+		const moves = legalMoves(pos);
+		expect(hasMove(moves, sq(0, 0), [sq(1, 1)])).toBe(true);
+		expect(hasMove(moves, sq(0, 0), [sq(7, 7)])).toBe(true);
+	});
+
+	it('does not fly through two adjacent enemies', () => {
+		const pos = position('white', [
+			[sq(0, 0), king('white')],
+			[sq(2, 2), man('black')],
+			[sq(3, 3), man('black')],
+		]);
+		const moves = legalMoves(pos);
+		expect(hasMove(moves, sq(0, 0), [sq(4, 4)])).toBe(false);
+		expect(hasMove(moves, sq(0, 0), [sq(1, 1)])).toBe(true);
+	});
+
+	it('offers every complete capture branch, not only the longest', () => {
+		const pos = position('white', [
+			[sq(2, 2), man('white')],
+			[sq(3, 3), man('black')],
+			[sq(3, 5), man('black')],
+			[sq(5, 5), man('black')],
+		]);
+		const moves = legalMoves(pos);
+		expect(hasMove(moves, sq(2, 2), [sq(4, 4)])).toBe(false);
+		expect(hasMove(moves, sq(2, 2), [sq(4, 4), sq(2, 6)])).toBe(true);
+		expect(hasMove(moves, sq(2, 2), [sq(4, 4), sq(6, 6)])).toBe(true);
+	});
+
+	it('never emits squares outside the board', () => {
+		const start = createInitialPosition();
+		for (const move of legalMoves(start)) {
+			expect(inBounds(move.from)).toBe(true);
+			for (const square of move.path) {
+				expect(inBounds(square)).toBe(true);
+			}
+		}
+		const edge = position('white', [
+			[sq(0, 0), man('white')],
+			[sq(1, 1), man('black')],
+		]);
+		for (const move of legalMoves(edge)) {
+			expect(inBounds(move.from)).toBe(true);
+			for (const square of move.path) {
+				expect(inBounds(square)).toBe(true);
+			}
+		}
+	});
 });
 
 describe('apply', () => {
@@ -192,6 +263,45 @@ describe('apply', () => {
 	it('rejects moving from an empty square', () => {
 		const pos = createInitialPosition();
 		expect(apply(pos, { from: sq(4, 4), path: [sq(5, 5)] })).toBeNull();
+	});
+
+	it('does not mutate the input position', () => {
+		const pos = position('white', [
+			[sq(2, 2), man('white')],
+			[sq(3, 3), man('black')],
+		]);
+		const snapshot = structuredClone(pos);
+		const move: IMove = { from: sq(2, 2), path: [sq(4, 4)] };
+		const next = apply(pos, move);
+		expect(next).not.toBeNull();
+		expect(pos).toEqual(snapshot);
+		expect(getPiece(pos, sq(2, 2))).toEqual(man('white'));
+		expect(getPiece(pos, sq(3, 3))).toEqual(man('black'));
+	});
+
+	it('promotes a quiet man that lands on the king row', () => {
+		const pos = position('white', [[sq(6, 2), man('white')]]);
+		const move: IMove = { from: sq(6, 2), path: [sq(7, 1)] };
+		expect(hasMove(legalMoves(pos), move.from, move.path)).toBe(true);
+		const next = apply(pos, move);
+		expect(next).not.toBeNull();
+		if (!next) {
+			return;
+		}
+		expect(getPiece(next, sq(7, 1))).toEqual(king('white'));
+		expect(getPiece(next, sq(6, 2))).toBeNull();
+	});
+});
+
+describe('bounds', () => {
+	it('reads out-of-bounds squares as empty, not a throw', () => {
+		const pos = createInitialPosition();
+		expect(getPiece(pos, sq(-1, 0))).toBeNull();
+		expect(getPiece(pos, sq(0, -1))).toBeNull();
+		expect(getPiece(pos, sq(8, 0))).toBeNull();
+		expect(getPiece(pos, sq(0, 8))).toBeNull();
+		expect(inBounds(sq(-1, 3))).toBe(false);
+		expect(inBounds(sq(3, 8))).toBe(false);
 	});
 });
 
