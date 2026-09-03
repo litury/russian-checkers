@@ -25,6 +25,7 @@ import emberUrl from '@/client/modules/board/kit_v2/fx/ember.png';
 import puff0Url from '@/client/modules/board/kit_v2/fx/puff_0.png';
 import puff1Url from '@/client/modules/board/kit_v2/fx/puff_1.png';
 import puff2Url from '@/client/modules/board/kit_v2/fx/puff_2.png';
+import { hopMovesForSelection } from '@/client/modules/board/parts/hopRays';
 import pathCrossUrl from '@/client/modules/board/path_cross.png';
 import pathDashUrl from '@/client/modules/board/path_dash.png';
 import kingDarkUrl from '@/client/modules/board/pieces/king_dark.png';
@@ -403,15 +404,7 @@ export class GameScene extends Phaser.Scene {
 		if (this.phase !== 'human' || this.paused) {
 			return [];
 		}
-		const moves = legalMoves(this.position);
-		const selected = this.selected;
-		if (selected) {
-			return moves.filter((move) => sameSquare(move.from, selected));
-		}
-		if (!getAutoMove() || moves.length !== 1) {
-			return moves;
-		}
-		return [];
+		return hopMovesForSelection(legalMoves(this.position), this.selected);
 	}
 
 	private humanHighlights(): ISquare[] {

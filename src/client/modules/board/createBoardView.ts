@@ -17,6 +17,7 @@ import { palette } from '@/client/config/palette';
 import { sameSquare } from '@/client/shared/sameSquare';
 import type { IMove, IPosition, ISquare } from '@/rules';
 import type { IBoardView } from './IBoardView';
+import { uniqueHopLands, uniqueHopRays } from './parts/hopRays';
 
 function squareKey(square: ISquare): string {
 	return `${square.row},${square.col}`;
@@ -234,6 +235,24 @@ export function createBoardView(
 	const crossPool: Phaser.GameObjects.Image[] = [];
 	let dashUsed = 0;
 	let crossUsed = 0;
+	type PathArc = {
+		x0: number;
+		y0: number;
+		cx: number;
+		cy: number;
+		x1: number;
+		y1: number;
+		tint: number;
+		dashW: number;
+		dashH: number;
+		spacing: number;
+		length: number;
+		start: number;
+		end: number;
+		pts: { x: number; y: number }[];
+		dist: number[];
+	};
+	let pathArcs: PathArc[] = [];
 	const pieceViews = new Map<string, PieceView>();
 	const grid = scene.add.graphics();
 	grid.setDepth(1);
@@ -408,6 +427,7 @@ export function createBoardView(
 	}
 
 	function clearPathStamps(): void {
+		pathArcs = [];
 		for (const stamp of dashPool) {
 			scene.tweens.killTweensOf(stamp);
 			stamp.setVisible(false);
@@ -420,7 +440,7 @@ export function createBoardView(
 		crossUsed = 0;
 	}
 
-	function stampArc(
+	function makePathArc(
 		x0: number,
 		y0: number,
 		cx: number,
@@ -429,7 +449,7 @@ export function createBoardView(
 		y1: number,
 		tint: number,
 		unit: number,
-	): void {
+	): PathArc | null {
 		const samples = 32;
 		const pts: { x: number; y: number }[] = [];
 		for (let i = 0; i <= samples; i += 1) {
@@ -454,34 +474,123 @@ export function createBoardView(
 			!Number.isFinite(spacing) ||
 			spacing <= 0
 		) {
-			return;
+			return null;
 		}
 		if (length < spacing * 0.5) {
-			return;
+			return null;
 		}
-		const start = spacing * 0.5;
-		const end = length - spacing * 0.5;
-		for (let along = start; along <= end + 0.001; along += spacing) {
-			let i = 1;
-			while (i < dist.length && dist[i] < along) {
-				i += 1;
-			}
-			const a = pts[i - 1];
-			const b = pts[Math.min(i, pts.length - 1)];
-			const span = dist[Math.min(i, dist.length - 1)] - dist[i - 1] || 1;
-			const u = (along - dist[i - 1]) / span;
-			const x = a.x + (b.x - a.x) * u;
-			const y = a.y + (b.y - a.y) * u;
-			const t = length > 0 ? along / length : 0;
-			const tan = quadTangent(t, x0, y0, cx, cy, x1, y1);
+		return {
+			x0,
+			y0,
+			cx,
+			cy,
+			x1,
+			y1,
+			tint,
+			dashW,
+			dashH,
+			spacing,
+			length,
+			start: spacing * 0.5,
+			end: length - spacing * 0.5,
+			pts,
+			dist,
+		};
+	}
+
+	function pointAlong(
+		arc: PathArc,
+		along: number,
+	): { x: number; y: number; t: number } {
+		let i = 1;
+		while (i < arc.dist.length && arc.dist[i] < along) {
+			i += 1;
+		}
+		const a = arc.pts[i - 1];
+		const b = arc.pts[Math.min(i, arc.pts.length - 1)];
+		const span =
+			arc.dist[Math.min(i, arc.dist.length - 1)] - arc.dist[i - 1] || 1;
+		const u = (along - arc.dist[i - 1]) / span;
+		return {
+			x: a.x + (b.x - a.x) * u,
+			y: a.y + (b.y - a.y) * u,
+			t: arc.length > 0 ? along / arc.length : 0,
+		};
+	}
+
+	function stampArc(arc: PathArc, phase: number): void {
+		const shift = ((phase % arc.spacing) + arc.spacing) % arc.spacing;
+		for (
+			let along = arc.start + shift;
+			along <= arc.end + 0.001;
+			along += arc.spacing
+		) {
+			const at = pointAlong(arc, along);
+			const tan = quadTangent(
+				at.t,
+				arc.x0,
+				arc.y0,
+				arc.cx,
+				arc.cy,
+				arc.x1,
+				arc.y1,
+			);
 			const stamp = takeDash();
-			stamp.setPosition(Math.round(x), Math.round(y));
-			stamp.setDisplaySize(dashW, dashH);
+			stamp.setPosition(Math.round(at.x), Math.round(at.y));
+			stamp.setDisplaySize(arc.dashW, arc.dashH);
 			stamp.setRotation(Math.atan2(tan.y, tan.x));
-			stamp.setTint(tint);
+			stamp.setTint(arc.tint);
 			stamp.setAlpha(0.95);
 			stamp.setDepth(3.2);
 		}
+	}
+
+	function dashPhase(spacing: number): number {
+		if (prefersReducedMotion()) {
+			return 0;
+		}
+		const period = layout.markerBreathMs / 2;
+		return ((scene.time.now / period) * spacing) % spacing;
+	}
+
+	function paintDashes(): void {
+		dashUsed = 0;
+		for (const arc of pathArcs) {
+			stampArc(arc, dashPhase(arc.spacing));
+		}
+		for (let i = dashUsed; i < dashPool.length; i += 1) {
+			dashPool[i].setVisible(false);
+		}
+	}
+
+	function breatheCross(
+		cross: Phaser.GameObjects.Image,
+		box: { w: number; h: number },
+	): void {
+		scene.tweens.killTweensOf(cross);
+		cross.setDisplaySize(box.w, box.h);
+		const baseX = cross.scaleX;
+		const baseY = cross.scaleY;
+		if (prefersReducedMotion()) {
+			cross.setAlpha(layout.markerBreathMax);
+			cross.setScale(baseX, baseY);
+			return;
+		}
+		cross.setAlpha(layout.markerBreathMax);
+		cross.setScale(
+			baseX * layout.markerBreathMax,
+			baseY * layout.markerBreathMax,
+		);
+		scene.tweens.add({
+			targets: cross,
+			alpha: layout.markerBreathMin,
+			scaleX: baseX * layout.markerBreathMin,
+			scaleY: baseY * layout.markerBreathMin,
+			duration: layout.markerBreathMs,
+			yoyo: true,
+			repeat: -1,
+			ease: 'Sine.easeInOut',
+		});
 	}
 
 	function clearMarkers(): void {
@@ -1404,46 +1513,41 @@ export function createBoardView(
 		if (options.length === 0 || !hopPathReady(Math.min(cellW, cellH))) {
 			return;
 		}
-		void prefersReducedMotion();
-		const painted = new Set<string>();
-		for (const move of options) {
-			let from = move.from;
-			for (const land of move.path) {
-				const fromBox = cellBox(from);
-				const landBox = cellBox(land);
-				const cell = Math.min(fromBox.w, fromBox.h);
-				const unit = cell / pathSprites.crossSize;
-				const arc = cell * layout.hopArcRatio;
-				let cx = (fromBox.x + landBox.x) / 2;
-				let cy = (fromBox.y + landBox.y) / 2 - arc;
-				if (isJump(from, land)) {
-					const captured = squaresAlong(from, land).find((sq) =>
-						Boolean(position.squares[sq.row]?.[sq.col]),
-					);
-					if (captured) {
-						const pit = cellBox(captured);
-						cx = pit.x;
-						cy = pit.y - arc;
-					}
-				}
-				stampArc(
-					fromBox.x,
-					fromBox.y,
-					cx,
-					cy,
-					landBox.x,
-					landBox.y,
-					isJump(from, land) ? arcGold : arcTin,
-					unit,
+		const reduced = prefersReducedMotion();
+		for (const ray of uniqueHopRays(options)) {
+			const fromBox = cellBox(ray.from);
+			const landBox = cellBox(ray.land);
+			const cell = Math.min(fromBox.w, fromBox.h);
+			const unit = cell / pathSprites.crossSize;
+			const lift = cell * layout.hopArcRatio;
+			let cx = (fromBox.x + landBox.x) / 2;
+			let cy = (fromBox.y + landBox.y) / 2 - lift;
+			if (isJump(ray.from, ray.land)) {
+				const captured = squaresAlong(ray.from, ray.land).find((sq) =>
+					Boolean(position.squares[sq.row]?.[sq.col]),
 				);
-				from = land;
+				if (captured) {
+					const pit = cellBox(captured);
+					cx = pit.x;
+					cy = pit.y - lift;
+				}
 			}
-			const dest = move.path[move.path.length - 1];
-			const key = squareKey(dest);
-			if (painted.has(key)) {
-				continue;
+			const arc = makePathArc(
+				fromBox.x,
+				fromBox.y,
+				cx,
+				cy,
+				landBox.x,
+				landBox.y,
+				isJump(ray.from, ray.land) ? arcGold : arcTin,
+				unit,
+			);
+			if (arc) {
+				pathArcs.push(arc);
 			}
-			painted.add(key);
+		}
+		paintDashes();
+		for (const dest of uniqueHopLands(options)) {
 			const box = cellBox(dest);
 			if (
 				!(box.w > 0) ||
@@ -1455,11 +1559,15 @@ export function createBoardView(
 			}
 			const cross = takeCross();
 			cross.setPosition(box.x, box.y);
-			cross.setDisplaySize(box.w, box.h);
-			cross.clearTint();
-			cross.setAlpha(1);
 			cross.setRotation(0);
+			cross.clearTint();
 			cross.setDepth(3.3);
+			if (reduced) {
+				cross.setDisplaySize(box.w, box.h);
+				cross.setAlpha(layout.markerBreathMax);
+			} else {
+				breatheCross(cross, box);
+			}
 		}
 	}
 
@@ -1715,6 +1823,9 @@ export function createBoardView(
 	scene.events.on('update', () => {
 		for (const view of pieceViews.values()) {
 			syncOutline(view);
+		}
+		if (pathArcs.length > 0 && !prefersReducedMotion()) {
+			paintDashes();
 		}
 	});
 
