@@ -65,24 +65,38 @@ export function createHud(
 
 	let menuRestX = 0;
 	let menuRestY = 0;
+	let menuHeld = false;
 
-	function applyMenuPress(open: boolean): void {
-		const tweens = scene.tweens;
-		if (tweens && typeof tweens.killTweensOf === 'function') {
-			tweens.killTweensOf(menuIcon);
-		}
+	function paintMenu(): void {
 		menuIcon.setScale(1, 1);
-		menuIcon.setPosition(
-			menuRestX,
-			menuRestY + (open ? dipPx(layout.hudMenu) : 0),
-		);
+		if (menuHeld) {
+			menuIcon.setTexture('hudMenuPress');
+		} else if (sfxPanel.isOpen()) {
+			menuIcon.setTexture('hudMenuOpen');
+		} else {
+			menuIcon.setTexture('hudMenu');
+		}
+		menuIcon.setPosition(menuRestX, menuRestY);
+		menuIcon.setDisplaySize(layout.hudMenu, layout.hudMenu);
 	}
 
 	const sfxPanel = createSfxPanel(scene, {
-		onOpenChange: applyMenuPress,
+		onOpenChange: () => {
+			paintMenu();
+		},
 	});
 	menuHit.on('pointerdown', (pointer: { id?: number }) => {
+		menuHeld = true;
 		sfxPanel.toggle(pointer);
+		paintMenu();
+	});
+	menuHit.on('pointerup', () => {
+		menuHeld = false;
+		paintMenu();
+	});
+	menuHit.on('pointerout', () => {
+		menuHeld = false;
+		paintMenu();
 	});
 
 	const action = layout.hudAction;
@@ -117,10 +131,9 @@ export function createHud(
 		down: boolean,
 	): void {
 		const dip = down ? dipPx(action) : 0;
-		const scaleY = down ? layout.pressScaleY : 1;
 		plate.setPosition(restX(), restY() + dip);
 		icon.setPosition(restX(), restY() + dip);
-		icon.setScale(1, scaleY);
+		icon.setScale(1, 1);
 	}
 
 	function paintAuto(): void {
@@ -255,7 +268,7 @@ export function createHud(
 		menuRestX = x;
 		menuRestY = y;
 		menuHit.setPosition(x, y);
-		applyMenuPress(sfxPanel.isOpen());
+		paintMenu();
 	}
 
 	function placeStrip(width: number, height: number): void {

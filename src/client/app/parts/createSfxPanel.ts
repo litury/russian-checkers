@@ -375,7 +375,7 @@ export function createSfxPanel(
 			const pr = plateRest();
 			const ir = iconRest();
 			plateGo.setPosition(pr.x, pr.y + dip);
-			iconGo.setScale(1, layout.pressScaleY);
+			iconGo.setScale(1, 1);
 			iconGo.setPosition(ir.x, ir.y + dip);
 			onDown();
 		};

@@ -293,7 +293,7 @@ describe('createSfxPanel', () => {
 		panel.toggle({ worldX: 380, worldY: 22, id: 1 });
 		const restY = note?.y ?? 0;
 		note?.emit('pointerdown');
-		expect(note?.scaleY).toBeLessThan(1);
+		expect(note?.scaleY).toBe(1);
 		expect(note?.y).toBeGreaterThan(restY);
 		note?.emit('pointerup');
 		expect(note?.scaleY).toBe(1);

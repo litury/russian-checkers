@@ -1,6 +1,5 @@
 import type Phaser from 'phaser';
 import { describe, expect, it } from 'vitest';
-import { layout } from '@/client/config/layout';
 import { createHud } from './createHud';
 
 type Handler = (...args: unknown[]) => void;
@@ -148,7 +147,7 @@ function stubHudScene(): Phaser.Scene & {
 }
 
 describe('createHud', () => {
-	it('opens the result CRT sfx panel from the hud menu and keeps it dipped', () => {
+	it('swaps hamburger to press then open frames without scaleY', () => {
 		const scene = stubHudScene();
 		createHud(scene);
 		const menuHit = scene.rects[0];
@@ -163,10 +162,17 @@ describe('createHud', () => {
 		expect(menuIcon.scaleY).toBe(1);
 		menuHit.emit('pointerdown', { id: 1 });
 		expect(chrome?.visible).toBe(true);
+		expect(menuIcon.key).toBe('hudMenuPress');
 		expect(menuIcon.scaleY).toBe(1);
-		expect(menuIcon.y).toBe(Math.round(layout.hudMenu * layout.pressDipRatio));
+		expect(menuIcon.y).toBe(0);
+		menuHit.emit('pointerup', { id: 1 });
+		expect(menuIcon.key).toBe('hudMenuOpen');
+		expect(menuIcon.scaleY).toBe(1);
 		menuHit.emit('pointerdown', { id: 2 });
 		expect(chrome?.visible).toBe(false);
+		expect(menuIcon.key).toBe('hudMenuPress');
+		menuHit.emit('pointerup', { id: 2 });
+		expect(menuIcon.key).toBe('hudMenu');
 		expect(menuIcon.scaleY).toBe(1);
 		expect(menuIcon.y).toBe(0);
 	});

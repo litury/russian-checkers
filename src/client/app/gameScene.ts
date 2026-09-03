@@ -105,6 +105,8 @@ import hudAutoUrl from './ui/hud_auto.png';
 import hudAutoOffUrl from './ui/hud_auto_off.png';
 import hudGlassMeadowUrl from './ui/hud_glass_meadow.png';
 import hudMenuUrl from './ui/hud_menu.png';
+import hudMenuOpenUrl from './ui/hud_menu_open.png';
+import hudMenuPressUrl from './ui/hud_menu_press.png';
 import hudMusicUrl from './ui/hud_music.png';
 import hudMusicOffUrl from './ui/hud_music_off.png';
 import hudNoteUrl from './ui/hud_note.png';
@@ -182,6 +184,8 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(fireSprites.puffs[1], puff1Url);
 		this.load.image(fireSprites.puffs[2], puff2Url);
 		this.load.image('hudMenu', hudMenuUrl);
+		this.load.image('hudMenuOpen', hudMenuOpenUrl);
+		this.load.image('hudMenuPress', hudMenuPressUrl);
 		this.load.image('hudGlassMeadow', hudGlassMeadowUrl);
 		this.load.image('hudPlateVol', hudPlateVolUrl);
 		this.load.image('hudPlate', hudPlateUrl);
@@ -287,6 +291,8 @@ export class GameScene extends Phaser.Scene {
 		this.cameras.main.setBackgroundColor(palette.background);
 		for (const key of [
 			'hudMenu',
+			'hudMenuOpen',
+			'hudMenuPress',
 			'hudGlassMeadow',
 			'hudPlateVol',
 			'hudPlate',
