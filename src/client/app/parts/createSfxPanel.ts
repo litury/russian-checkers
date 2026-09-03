@@ -3,22 +3,18 @@ import { computeFieldLayout } from '@/client/config/fieldLayout';
 import { layout } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
 import {
-	getMusicMuted,
 	getSfxMaster,
 	getSfxMuted,
-	musicStorageKey as musicMutedKey,
-	setMusicMuted,
 	setSfxMaster,
 	setSfxMuted,
 } from '@/client/modules/sfx/createTableSfx';
 
 export const sfxMonitor = {
 	width: 188,
-	height: 148,
+	height: 100,
 } as const;
 
 export const autoStorageKey = 'checkers.autoMove';
-export const musicStorageKey = musicMutedKey;
 
 const glassX = 16;
 const glassY = 12;
@@ -38,8 +34,6 @@ const rowY = inset;
 const meterX = inset;
 const meterY = rowY + plate + clusterGap;
 const meterW = plate * 3 + clusterGap * 2;
-const musicY = meterY + meterH + clusterGap;
-const musicX = inset + (meterW - plate) / 2;
 
 let autoMove = true;
 
@@ -102,10 +96,6 @@ function noteTexture(): string {
 	return getSfxMuted() ? 'hudNoteOff' : 'hudNote';
 }
 
-function musicTexture(): string {
-	return getMusicMuted() ? 'hudMusicOff' : 'hudMusic';
-}
-
 function dipPx(size: number): number {
 	return Math.round(size * layout.pressDipRatio);
 }
@@ -153,11 +143,6 @@ export function createSfxPanel(
 	plusPlate.setVisible(false);
 	plusPlate.setDisplaySize(plate, plate);
 
-	const musicPlate = scene.add.image(0, 0, 'hudPlate').setOrigin(0, 0);
-	musicPlate.setDepth(panelDepth + 2);
-	musicPlate.setVisible(false);
-	musicPlate.setDisplaySize(plate, plate);
-
 	const note = scene.add.image(0, 0, noteTexture()).setOrigin(0.5);
 	note.setDepth(panelDepth + 3);
 	note.setVisible(false);
@@ -184,10 +169,6 @@ export function createSfxPanel(
 		.setDepth(panelDepth + 3)
 		.setVisible(false);
 
-	const music = scene.add.image(0, 0, musicTexture()).setOrigin(0.5);
-	music.setDepth(panelDepth + 3);
-	music.setVisible(false);
-
 	const meter = scene.add.graphics();
 	meter.setDepth(panelDepth + 2);
 	meter.setVisible(false);
@@ -203,11 +184,9 @@ export function createSfxPanel(
 		notePlate: { x: 0, y: 0 } as Rest,
 		minusPlate: { x: 0, y: 0 } as Rest,
 		plusPlate: { x: 0, y: 0 } as Rest,
-		musicPlate: { x: 0, y: 0 } as Rest,
 		note: { x: 0, y: 0 } as Rest,
 		minusGlyph: { x: 0, y: 0 } as Rest,
 		plusGlyph: { x: 0, y: 0 } as Rest,
-		music: { x: 0, y: 0 } as Rest,
 	};
 
 	function insidePanel(x: number, y: number): boolean {
@@ -234,7 +213,6 @@ export function createSfxPanel(
 
 	function paint(): void {
 		note.setTexture(noteTexture());
-		music.setTexture(musicTexture());
 		paintMeter();
 	}
 
@@ -253,10 +231,6 @@ export function createSfxPanel(
 			x: px + glassX + plusX,
 			y: py + glassY + rowY,
 		};
-		rest.musicPlate = {
-			x: px + glassX + musicX,
-			y: py + glassY + musicY,
-		};
 		rest.note = {
 			x: rest.notePlate.x + plate / 2,
 			y: rest.notePlate.y + plate / 2,
@@ -269,22 +243,15 @@ export function createSfxPanel(
 			x: rest.plusPlate.x + plate / 2,
 			y: rest.plusPlate.y + plate / 2,
 		};
-		rest.music = {
-			x: rest.musicPlate.x + plate / 2,
-			y: rest.musicPlate.y + plate / 2,
-		};
 		notePlate.setPosition(rest.notePlate.x, rest.notePlate.y);
 		minusPlate.setPosition(rest.minusPlate.x, rest.minusPlate.y);
 		plusPlate.setPosition(rest.plusPlate.x, rest.plusPlate.y);
-		musicPlate.setPosition(rest.musicPlate.x, rest.musicPlate.y);
 		note.setPosition(rest.note.x, rest.note.y);
 		minusGlyph.setPosition(rest.minusGlyph.x, rest.minusGlyph.y);
 		plusGlyph.setPosition(rest.plusGlyph.x, rest.plusGlyph.y);
-		music.setPosition(rest.music.x, rest.music.y);
 		note.setScale(1, 1);
 		minusGlyph.setScale(1, 1);
 		plusGlyph.setScale(1, 1);
-		music.setScale(1, 1);
 		paintMeter();
 	}
 
@@ -292,8 +259,8 @@ export function createSfxPanel(
 		catcherArmed = true;
 	}
 
-	const plates = [notePlate, minusPlate, plusPlate, musicPlate];
-	const icons = [note, minusGlyph, plusGlyph, music];
+	const plates = [notePlate, minusPlate, plusPlate];
+	const icons = [note, minusGlyph, plusGlyph];
 
 	function setOpen(next: boolean, pointer?: Pointer): void {
 		open = next;
@@ -319,8 +286,6 @@ export function createSfxPanel(
 			plusPlate.setInteractive({ useHandCursor: true });
 			minusGlyph.setInteractive({ useHandCursor: true });
 			plusGlyph.setInteractive({ useHandCursor: true });
-			musicPlate.setInteractive({ useHandCursor: true });
-			music.setInteractive({ useHandCursor: true });
 			catcher.setInteractive();
 			placeHits();
 			paint();
@@ -341,8 +306,6 @@ export function createSfxPanel(
 			plusPlate.disableInteractive();
 			minusGlyph.disableInteractive();
 			plusGlyph.disableInteractive();
-			musicPlate.disableInteractive();
-			music.disableInteractive();
 			catcher.disableInteractive();
 		}
 		handlers.onOpenChange?.(next);
@@ -353,14 +316,9 @@ export function createSfxPanel(
 		paint();
 	}
 
-	function toggleMusic(): void {
-		setMusicMuted(!getMusicMuted());
-		paint();
-	}
-
 	function bumpMaster(delta: number): void {
 		setSfxMaster(getSfxMaster() + delta);
-		paintMeter();
+		paint();
 	}
 
 	function bindJuice(
@@ -418,13 +376,6 @@ export function createSfxPanel(
 		() => {
 			bumpMaster(volStep);
 		},
-	);
-	bindJuice(
-		musicPlate,
-		music,
-		() => rest.musicPlate,
-		() => rest.music,
-		toggleMusic,
 	);
 	catcher.on('pointerdown', (pointer: Pointer) => {
 		if (!catcherArmed) {

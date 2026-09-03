@@ -2,10 +2,8 @@ import type Phaser from 'phaser';
 import { afterEach, describe, expect, it } from 'vitest';
 import { palette } from '@/client/config/palette';
 import {
-	getMusicMuted,
 	getSfxMaster,
 	getSfxMuted,
-	setMusicMuted,
 	setSfxMaster,
 	setSfxMuted,
 	sfxMaster,
@@ -14,7 +12,6 @@ import {
 	autoStorageKey,
 	createSfxPanel,
 	getAutoMove,
-	musicStorageKey,
 	setAutoMove,
 	sfxMonitor,
 } from './createSfxPanel';
@@ -185,16 +182,14 @@ describe('createSfxPanel', () => {
 	afterEach(() => {
 		setSfxMaster(sfxMaster);
 		setSfxMuted(false);
-		setMusicMuted(false);
 		setAutoMove(true);
 	});
 
-	it('mounts a raised CRT with meter and music clef, no resign', () => {
+	it('mounts a raised CRT with meter and no music key or resign', () => {
 		expect(typeof document).toBe('undefined');
 		expect(sfxMonitor.width).toBe(188);
-		expect(sfxMonitor.height).toBe(148);
+		expect(sfxMonitor.height).toBe(100);
 		expect(autoStorageKey).toBe('checkers.autoMove');
-		expect(musicStorageKey).toBe('checkers.musicMuted');
 		expect(getAutoMove()).toBe(true);
 		const scene = stubPanelScene();
 		const panel = createSfxPanel(scene);
@@ -203,7 +198,8 @@ describe('createSfxPanel', () => {
 		expect(keys).toContain('hudGlassMeadow');
 		expect(keys).toContain('hudNote');
 		expect(keys).toContain('hudPlate');
-		expect(keys).toContain('hudMusic');
+		expect(keys).not.toContain('hudMusic');
+		expect(keys).not.toContain('hudMusicOff');
 		expect(keys).not.toContain('hudPlateVol');
 		expect(keys).not.toContain('hudSliderKnob');
 		expect(keys).not.toContain('hudResign');
@@ -221,21 +217,29 @@ describe('createSfxPanel', () => {
 		expect(chrome?.visible).toBe(false);
 	});
 
-	it('toggles the SFX note without touching music or the meter value', () => {
+	it('toggles the SFX note to zero master and restores on unmute', () => {
 		setSfxMaster(0.8);
 		const scene = stubPanelScene();
 		const panel = createSfxPanel(scene);
 		const note = scene.images.find((img) => img.key === 'hudNote');
+		panel.layout(380, 22, 400, 300);
 		panel.toggle();
 		expect(note?.visible).toBe(true);
 		expect(note?.interactive).toBe(true);
 		note?.emit('pointerdown');
-		expect(getSfxMaster()).toBe(0.8);
+		expect(getSfxMaster()).toBe(0);
 		expect(getSfxMuted()).toBe(true);
-		expect(getMusicMuted()).toBe(false);
+		const goldMuted = scene.graphics[0]?.fills.find(
+			(fill) => fill.color === palette.meterGold,
+		);
+		expect(goldMuted?.w).toBe(0);
 		note?.emit('pointerdown');
 		expect(getSfxMaster()).toBe(0.8);
 		expect(getSfxMuted()).toBe(false);
+		const goldRestored = scene.graphics[0]?.fills.find(
+			(fill) => fill.color === palette.meterGold,
+		);
+		expect(goldRestored?.w).toBeCloseTo(140 * 0.8);
 		panel.hide();
 		expect(note?.interactive).toBe(false);
 	});
@@ -246,16 +250,14 @@ describe('createSfxPanel', () => {
 		const panel = createSfxPanel(scene);
 		panel.layout(380, 22, 400, 300);
 		const chrome = scene.images.find((img) => img.key === 'resultMonitor');
-		const note = scene.images.find((img) => img.key === 'hudNote');
 		const plates = scene.images.filter((img) => img.key === 'hudPlate');
-		expect(plates).toHaveLength(4);
+		expect(plates).toHaveLength(3);
 		panel.toggle({ worldX: 380, worldY: 22, id: 1 });
 		expect(chrome?.visible).toBe(true);
 		const gold = scene.graphics[0]?.fills.find(
 			(fill) => fill.color === palette.meterGold,
 		);
 		expect(gold?.w).toBeCloseTo(140 * 0.4);
-		note?.emit('pointerdown');
 		plates[1]?.emit('pointerdown');
 		expect(getSfxMaster()).toBeCloseTo(0.3);
 		plates[2]?.emit('pointerdown');
@@ -269,20 +271,45 @@ describe('createSfxPanel', () => {
 		expect(getAutoMove()).toBe(true);
 	});
 
-	it('toggles music under the meter without mixing SFX mute', () => {
+	it('has no hudMusic in the panel and three plates not four', () => {
 		const scene = stubPanelScene();
 		const panel = createSfxPanel(scene);
-		const music = scene.images.find((img) => img.key === 'hudMusic');
+		const keys = scene.images.map((img) => img.key);
+		expect(keys).not.toContain('hudMusic');
+		expect(keys).not.toContain('hudMusicOff');
+		const plates = scene.images.filter((img) => img.key === 'hudPlate');
+		expect(plates).toHaveLength(3);
+		setSfxMaster(0.4);
 		const note = scene.images.find((img) => img.key === 'hudNote');
+		panel.layout(380, 22, 400, 300);
 		panel.toggle();
-		expect(getMusicMuted()).toBe(false);
-		music?.emit('pointerdown');
-		expect(getMusicMuted()).toBe(true);
-		expect(getSfxMuted()).toBe(false);
-		expect(music?.key).toBe('hudMusicOff');
 		note?.emit('pointerdown');
-		expect(getSfxMuted()).toBe(true);
-		expect(getMusicMuted()).toBe(true);
+		expect(getSfxMaster()).toBe(0);
+		plates[2]?.emit('pointerdown');
+		expect(getSfxMaster()).toBeCloseTo(0.1);
+		expect(getSfxMuted()).toBe(false);
+	});
+
+	it('unmutes from zero when plus steps the live master', () => {
+		setSfxMaster(0.4);
+		setSfxMuted(true);
+		expect(getSfxMaster()).toBe(0);
+		const scene = stubPanelScene();
+		const panel = createSfxPanel(scene);
+		panel.layout(380, 22, 400, 300);
+		const plates = scene.images.filter((img) => img.key === 'hudPlate');
+		panel.toggle({ worldX: 380, worldY: 22, id: 1 });
+		const goldMuted = scene.graphics[0]?.fills.find(
+			(fill) => fill.color === palette.meterGold,
+		);
+		expect(goldMuted?.w).toBe(0);
+		plates[2]?.emit('pointerdown');
+		expect(getSfxMaster()).toBeCloseTo(0.1);
+		expect(getSfxMuted()).toBe(false);
+		const goldPlus = scene.graphics[0]?.fills.find(
+			(fill) => fill.color === palette.meterGold,
+		);
+		expect(goldPlus?.w).toBeCloseTo(140 * 0.1);
 	});
 
 	it('dips CRT note on pointerdown and restores on pointerup', () => {

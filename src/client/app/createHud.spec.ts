@@ -156,7 +156,7 @@ describe('createHud', () => {
 		expect(menuIcon.key).toBe('hudMenu');
 		expect(scene.images.some((img) => img.key === 'hudResign')).toBe(true);
 		expect(scene.images.some((img) => img.key === 'hudAuto')).toBe(true);
-		expect(scene.images.some((img) => img.key === 'hudMusic')).toBe(true);
+		expect(scene.images.some((img) => img.key === 'hudMusic')).toBe(false);
 		expect(chrome?.visible).toBe(false);
 		expect(scene.images.some((img) => img.key === 'hudEvmPanel')).toBe(false);
 		expect(menuIcon.scaleY).toBe(1);
