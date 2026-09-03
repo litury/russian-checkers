@@ -15,10 +15,14 @@ const hitH = 64;
 const heroFit = 120;
 const floorPad = 2;
 const gap = 12;
+const btnGap = 8;
 const titleSize = 28;
 const pressNudge = 2;
+const rowMin = 460;
 export const replayPulseScale = 1.03;
 export const replayPulseMs = 800;
+export const resultAgainCopy = 'Ещё раз';
+export const resultMenuCopy = 'В меню';
 export const winKeys = [
 	'mascotWin0',
 	'mascotWin1',
@@ -38,15 +42,22 @@ export const loseKeys = [
 export const loseHolds = [200, 320, 280, 240, 180] as const;
 const depth = 20;
 
-function stackHeight(): number {
-	return titleSize + gap + monH + gap + btnH;
+function isRow(width: number): boolean {
+	return width >= rowMin;
 }
 
-function zoomFor(width: number, height: number): number {
+function stackSize(row: boolean): { w: number; h: number } {
+	return {
+		w: row ? btnW * 2 + btnGap : monW,
+		h: titleSize + gap + monH + gap + btnH + (row ? 0 : btnGap + btnH),
+	};
+}
+
+function zoomFor(width: number, height: number, row: boolean): number {
 	if (height > width) {
 		return 1;
 	}
-	if (height >= stackHeight() * 1.5 + 24) {
+	if (height >= stackSize(row).h * 1.5 + 24) {
 		return 1.5;
 	}
 	return 1;
@@ -54,7 +65,10 @@ function zoomFor(width: number, height: number): number {
 
 export function createResultOverlay(
 	scene: Phaser.Scene,
-	onPlayAgain: () => void,
+	handlers: {
+		onPlayAgain: () => void;
+		onMenu: () => void;
+	},
 ): {
 	layout: (width: number, height: number) => void;
 	show: (side: Side) => void;
@@ -94,46 +108,78 @@ export function createResultOverlay(
 	const glass = scene.add.image(0, 0, 'resultGlassWin').setOrigin(0, 0);
 	const monitor = scene.add.image(0, 0, 'resultMonitor').setOrigin(0, 0);
 	const hero = scene.add.image(0, 0, winKeys[0]).setOrigin(0.5, 1);
-	const btn = scene.add.image(0, 0, 'resultBtn').setOrigin(0.5);
-	const label = scene.add
-		.text(0, 0, 'Ещё раз', {
+
+	const againBtn = scene.add.image(0, 0, 'resultBtn').setOrigin(0.5);
+	const againLabel = scene.add
+		.text(0, 0, resultAgainCopy, {
 			fontFamily: 'Arial, sans-serif',
 			fontSize: '22px',
 			color: palette.text,
 		})
 		.setOrigin(0.5)
 		.setStroke('#1a1410', 2);
-	const btnWrap = scene.add.container(0, 0);
-	btnWrap.add([btn, label]);
-	const hit = scene.add.rectangle(0, 0, hitW, hitH, 0x000000, 0);
-	hit.setOrigin(0, 0);
-	hit.setInteractive({ useHandCursor: true });
+	const againWrap = scene.add.container(0, 0);
+	againWrap.add([againBtn, againLabel]);
+	const againHit = scene.add.rectangle(0, 0, hitW, hitH, 0x000000, 0);
+	againHit.setOrigin(0, 0);
+	againHit.setInteractive({ useHandCursor: true });
 
-	root.add([title, glass, monitor, hero, btnWrap, hit]);
+	const menuBtn = scene.add.image(0, 0, 'resultBtn').setOrigin(0.5);
+	const menuLabel = scene.add
+		.text(0, 0, resultMenuCopy, {
+			fontFamily: 'Arial, sans-serif',
+			fontSize: '22px',
+			color: palette.text,
+		})
+		.setOrigin(0.5)
+		.setStroke('#1a1410', 2);
+	const menuWrap = scene.add.container(0, 0);
+	menuWrap.add([menuBtn, menuLabel]);
+	const menuHit = scene.add.rectangle(0, 0, hitW, hitH, 0x000000, 0);
+	menuHit.setOrigin(0, 0);
+	menuHit.setInteractive({ useHandCursor: true });
+
+	root.add([
+		title,
+		glass,
+		monitor,
+		hero,
+		againWrap,
+		againHit,
+		menuWrap,
+		menuHit,
+	]);
 
 	let cheer: Phaser.Time.TimerEvent | undefined;
 	let loseAnim: Phaser.Time.TimerEvent | undefined;
 	let pulse: Phaser.Tweens.Tween | undefined;
 	let cheerFrame = 0;
 	let loseFrame = 0;
-	let btnY = 0;
-	let pressed = false;
+	let againY = 0;
+	let menuY = 0;
+	let againPressed = false;
+	let menuPressed = false;
 
-	function restBtn(): void {
-		btnWrap.setY(btnY + btnH / 2);
-		pressed = false;
+	function restAgain(): void {
+		againWrap.setY(againY + btnH / 2);
+		againPressed = false;
+	}
+
+	function restMenu(): void {
+		menuWrap.setY(menuY + btnH / 2);
+		menuPressed = false;
 	}
 
 	function stopPulse(): void {
 		pulse?.stop();
 		pulse = undefined;
-		btnWrap.setScale(1);
+		againWrap.setScale(1);
 	}
 
 	function startPulse(): void {
 		stopPulse();
 		pulse = scene.tweens.add({
-			targets: btnWrap,
+			targets: againWrap,
 			scaleX: replayPulseScale,
 			scaleY: replayPulseScale,
 			duration: replayPulseMs,
@@ -143,36 +189,54 @@ export function createResultOverlay(
 		});
 	}
 
-	hit.on('pointerdown', () => {
+	againHit.on('pointerdown', () => {
 		stopPulse();
-		pressed = true;
-		btnWrap.setY(btnY + btnH / 2 + pressNudge);
+		againPressed = true;
+		againWrap.setY(againY + btnH / 2 + pressNudge);
 	});
-	hit.on('pointerup', () => {
-		if (!pressed) {
+	againHit.on('pointerup', () => {
+		if (!againPressed) {
 			return;
 		}
-		restBtn();
-		onPlayAgain();
+		restAgain();
+		handlers.onPlayAgain();
 	});
-	hit.on('pointerout', () => {
-		if (pressed) {
-			restBtn();
+	againHit.on('pointerout', () => {
+		if (againPressed) {
+			restAgain();
+		}
+	});
+
+	menuHit.on('pointerdown', () => {
+		menuPressed = true;
+		menuWrap.setY(menuY + btnH / 2 + pressNudge);
+	});
+	menuHit.on('pointerup', () => {
+		if (!menuPressed) {
+			return;
+		}
+		restMenu();
+		handlers.onMenu();
+	});
+	menuHit.on('pointerout', () => {
+		if (menuPressed) {
+			restMenu();
 		}
 	});
 
 	function place(width: number, height: number): void {
 		dim.setPosition(width / 2, height / 2);
 		dim.setDisplaySize(width, height);
-		const zoom = zoomFor(width, height);
+		const row = isRow(width);
+		const zoom = zoomFor(width, height, row);
+		const stack = stackSize(row);
 		root.setScale(zoom);
-		const stackH = stackHeight();
 		root.setPosition(
-			Math.round((width - monW * zoom) / 2),
-			Math.round((height - stackH * zoom) / 2),
+			Math.round((width - stack.w * zoom) / 2),
+			Math.round((height - stack.h * zoom) / 2),
 		);
-		title.setPosition(monW / 2, titleSize);
-		const monX = 0;
+		title.setPosition(stack.w / 2, titleSize);
+		const monX = Math.round((stack.w - monW) / 2);
 		const monY = titleSize + gap;
 		monitor.setPosition(monX, monY);
 		glass.setPosition(monX + glassX, monY + glassY);
@@ -181,12 +245,31 @@ export function createResultOverlay(
 			monY + glassY + glassH - floorPad,
 		);
 		hero.setDisplaySize(heroFit, heroFit);
-		btnY = monY + monH + gap;
-		btnWrap.setPosition(monX + (monW - btnW) / 2 + btnW / 2, btnY + btnH / 2);
-		btn.setPosition(0, 0);
-		label.setPosition(0, 0);
-		hit.setPosition(monX + (monW - hitW) / 2, btnY - (hitH - btnH) / 2);
-		hit.setSize(hitW, hitH);
+		const btnTop = monY + monH + gap;
+		if (row) {
+			const againX = btnW / 2;
+			const menuX = btnW + btnGap + btnW / 2;
+			againY = btnTop;
+			menuY = btnTop;
+			againWrap.setPosition(againX, againY + btnH / 2);
+			againHit.setPosition(againX - hitW / 2, againY - (hitH - btnH) / 2);
+			menuWrap.setPosition(menuX, menuY + btnH / 2);
+			menuHit.setPosition(menuX - hitW / 2, menuY - (hitH - btnH) / 2);
+		} else {
+			const cx = stack.w / 2;
+			againY = btnTop;
+			menuY = btnTop + btnH + btnGap;
+			againWrap.setPosition(cx, againY + btnH / 2);
+			againHit.setPosition(cx - hitW / 2, againY - (hitH - btnH) / 2);
+			menuWrap.setPosition(cx, menuY + btnH / 2);
+			menuHit.setPosition(cx - hitW / 2, menuY - (hitH - btnH) / 2);
+		}
+		againBtn.setPosition(0, 0);
+		againLabel.setPosition(0, 0);
+		menuBtn.setPosition(0, 0);
+		menuLabel.setPosition(0, 0);
+		againHit.setSize(hitW, hitH);
+		menuHit.setSize(hitW, hitH);
 	}
 
 	function stopLose(): void {
@@ -253,7 +336,8 @@ export function createResultOverlay(
 		hide: () => {
 			stopCheer();
 			stopPulse();
-			restBtn();
+			restAgain();
+			restMenu();
 			dim.setVisible(false);
 			root.setVisible(false);
 		},

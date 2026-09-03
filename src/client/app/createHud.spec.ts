@@ -220,6 +220,9 @@ describe('createHud', () => {
 		expect(menuIcon.key).toBe('hudMenuPress');
 		expect(menuIcon.scaleY).toBe(1);
 		flushMs(scene, layout.pressMs);
+		expect(menuIcon.key).toBe('hudMenuFold');
+		expect(menuIcon.scaleY).toBe(1);
+		flushMs(scene, layout.menuFoldMs);
 		expect(menuIcon.key).toBe('hudMenuOpen');
 		expect(menuIcon.scaleY).toBe(1);
 		menuHit.emit('pointerdown', { id: 2 });
@@ -228,9 +231,45 @@ describe('createHud', () => {
 		menuHit.emit('pointerup', { id: 2 });
 		expect(menuIcon.key).toBe('hudMenuPress');
 		flushMs(scene, layout.pressMs);
+		expect(menuIcon.key).toBe('hudMenuFold');
+		flushMs(scene, layout.menuFoldMs);
 		expect(menuIcon.key).toBe('hudMenu');
 		expect(menuIcon.scaleY).toBe(1);
 		expect(menuIcon.y).toBe(0);
+	});
+
+	it('jumps hamburger to X or idle when reduced-motion is set', () => {
+		const previous = globalThis.matchMedia;
+		(
+			globalThis as { matchMedia?: (query: string) => { matches: boolean } }
+		).matchMedia = () => ({ matches: true });
+		try {
+			const scene = stubHudScene();
+			createHud(scene);
+			const menuHit = scene.rects[0];
+			const menuIcon = scene.images[0];
+			menuHit.emit('pointerdown', { id: 1 });
+			expect(menuIcon.key).toBe('hudMenuOpen');
+			expect(menuIcon.scaleY).toBe(1);
+			menuHit.emit('pointerdown', { id: 2 });
+			expect(menuIcon.key).toBe('hudMenu');
+		} finally {
+			if (previous) {
+				globalThis.matchMedia = previous;
+			} else {
+				Reflect.deleteProperty(globalThis, 'matchMedia');
+			}
+		}
+	});
+
+	it('hides the hamburger on title', () => {
+		const scene = stubHudScene();
+		const hud = createHud(scene);
+		const menuIcon = scene.images[0];
+		hud.setVisible(false);
+		expect(menuIcon.visible).toBe(false);
+		hud.setVisible(true);
+		expect(menuIcon.visible).toBe(true);
 	});
 
 	it('lifts the action strip by inset plus moat without clipping the field', () => {
@@ -241,8 +280,8 @@ describe('createHud', () => {
 		const resign = scene.images.find((img) => img.key === 'hudResign');
 		const ai = scene.images.find((img) => img.key === 'hudAi');
 		expect(layout.hudStripInset).toBe(14);
-		expect(layout.hudMoatH).toBe(80);
-		expect(layout.hudMoatW).toBe(160);
+		expect(layout.hudMoatH).toBe(104);
+		expect(layout.hudMoatW).toBe(384);
 		expect(scene.images.some((img) => img.key === 'hudAi')).toBe(true);
 		expect(scene.images.some((img) => img.key === 'hudAuto')).toBe(false);
 		expect(scene.images.some((img) => img.key === 'hudAutoOff')).toBe(false);

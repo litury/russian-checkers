@@ -261,6 +261,7 @@ export function createBoardView(
 	let cellW = 0;
 	let cellH = 0;
 	let moving = false;
+	let playfieldOn = true;
 	let pulsing: PieceView | null = null;
 	let pressView: PieceView | null = null;
 	let pressTween: Phaser.Tweens.Tween | null = null;
@@ -1576,7 +1577,7 @@ export function createBoardView(
 		selected: ISquare | null,
 		options: IMove[] = [],
 	): void {
-		if (moving) {
+		if (moving || !playfieldOn) {
 			return;
 		}
 		const next = selected ? pieceViews.get(squareKey(selected)) : null;
@@ -1828,6 +1829,36 @@ export function createBoardView(
 		}
 	});
 
+	function setPlayfieldVisible(on: boolean): void {
+		playfieldOn = on;
+		for (const pit of pits) {
+			pit.sprite.setVisible(on);
+		}
+		for (const speck of debris) {
+			speck.sprite.setVisible(on);
+		}
+		for (const sq of squares) {
+			if (on) {
+				sq.rect.setInteractive();
+			} else {
+				sq.rect.disableInteractive();
+			}
+		}
+		if (on) {
+			return;
+		}
+		for (const view of pieceViews.values()) {
+			view.sprite.setVisible(false);
+			view.outline.setVisible(false);
+			view.shadow.setVisible(false);
+		}
+		selectRim.setVisible(false);
+		clearPathStamps();
+		for (const tongue of tongues) {
+			tongue.sprite.setVisible(false);
+		}
+	}
+
 	return {
 		sync,
 		layout: layoutBoard,
@@ -1840,5 +1871,6 @@ export function createBoardView(
 			clearScorches();
 			clearPathStamps();
 		},
+		setPlayfieldVisible,
 	};
 }

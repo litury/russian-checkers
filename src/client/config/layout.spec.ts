@@ -47,16 +47,32 @@ describe('hop path stamps', () => {
 
 describe('hud action moat', () => {
 	it('sizes the empty moat and clears the field by inset plus moat', () => {
-		expect(layout.hudMoatW).toBe(160);
-		expect(layout.hudMoatH).toBe(80);
+		expect(layout.hudMoatW).toBe(384);
+		expect(layout.hudMoatBtnInset).toBe(10);
+		expect(layout.hudMoatH).toBe(104);
 		expect(layout.hudStripInset).toBe(14);
-		expect(layout.boardBottomGap).toBe(96);
-		expect(layout.hudMoatResignX).toBe(44);
-		expect(layout.hudMoatResignY).toBe(40);
-		expect(layout.hudMoatAiX).toBe(116);
-		expect(layout.hudMoatAiY).toBe(40);
+		expect(layout.boardBottomGap).toBe(128);
+		expect(layout.hudMoatResignX).toBe(42);
+		expect(layout.hudMoatResignY).toBe(52);
+		expect(layout.hudMoatAiX).toBe(342);
+		expect(layout.hudMoatAiY).toBe(52);
 		expect(layout.hudStripInset + layout.hudMoatH).toBeLessThanOrEqual(
 			layout.boardBottomGap,
 		);
+		expect(layout.hudResign).toBe(64);
+		expect(layout.hudAiW).toBe(64);
+		expect(layout.hudAiH).toBe(48);
+		expect(layout.hudAction).toBe(64);
+		expect(
+			layout.hudMoatResignX - layout.hudResign / 2,
+		).toBeGreaterThanOrEqual(layout.hudMoatBtnInset);
+		expect(
+			layout.hudMoatW - (layout.hudMoatAiX + layout.hudAiW / 2),
+		).toBeGreaterThanOrEqual(layout.hudMoatBtnInset);
+		expect(layout.hudMoatResignX).not.toBe(layout.hudMoatW / 2);
+		expect(layout.hudMoatAiX).not.toBe(layout.hudMoatW / 2);
+		expect(
+			layout.boardBottomGap - layout.hudStripInset - layout.hudMoatH,
+		).toBeGreaterThanOrEqual(layout.hudMoatBtnInset);
 	});
 });

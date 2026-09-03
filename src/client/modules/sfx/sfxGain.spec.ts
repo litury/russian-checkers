@@ -172,12 +172,13 @@ describe('sfxGain', () => {
 		const fake = installFakeAudio();
 		try {
 			const scene = stubScene();
-			createTableSfx(scene, {
+			const table = createTableSfx(scene, {
 				meadow: 'meadow.ogg',
 				firstCapture: 'pervyy_vzryv.ogg',
 			});
 			const meadow = fake.made[0];
 			expect(meadow?.playCount).toBe(0);
+			table.startMeadow();
 			scene.emitPointer();
 			expect(meadow?.playCount).toBe(1);
 			expect(meadow?.volume).toBeCloseTo(
@@ -196,7 +197,7 @@ describe('sfxGain', () => {
 		}
 	});
 
-	it('starts meadow on the first gesture, not from the constructor', () => {
+	it('starts meadow only on the title after a gesture', () => {
 		const fake = installFakeAudio();
 		try {
 			const scene = stubScene();
@@ -207,7 +208,17 @@ describe('sfxGain', () => {
 			const meadow = fake.made[0];
 			expect(meadow?.playCount).toBe(0);
 			table.selectThenHover();
+			expect(meadow?.playCount).toBe(0);
+			table.startMeadow();
 			expect(meadow?.playCount).toBe(1);
+			table.takeoff(true);
+			expect(meadow?.paused).toBe(false);
+			table.stopMeadow();
+			expect(meadow?.paused).toBe(true);
+			table.selectThenHover();
+			table.takeoff(false);
+			table.land(true);
+			expect(meadow?.paused).toBe(true);
 		} finally {
 			fake.restore();
 		}

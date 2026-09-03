@@ -98,6 +98,7 @@ import { sameSquare } from '@/client/shared/sameSquare';
 import type { IMove, IPosition, ISquare, Side } from '@/rules';
 import { apply, createInitialPosition, legalMoves, winner } from '@/rules';
 import { createHud } from './createHud';
+import { createTitleOverlay } from './titleOverlay';
 import type { IYandexSdk } from './IYandexSdk';
 import { getAutoMove } from './parts/createSfxPanel';
 import { createResultOverlay } from './resultOverlay';
@@ -106,6 +107,7 @@ import hudAiUrl from './ui/hud_ai.png';
 import hudAiOffUrl from './ui/hud_ai_off.png';
 import hudGlassMeadowUrl from './ui/hud_glass_meadow.png';
 import hudMenuUrl from './ui/hud_menu.png';
+import hudMenuFoldUrl from './ui/hud_menu_fold.png';
 import hudMenuOpenUrl from './ui/hud_menu_open.png';
 import hudMenuPressUrl from './ui/hud_menu_press.png';
 import hudNoteUrl from './ui/hud_note.png';
@@ -115,6 +117,11 @@ import hudPlateVolUrl from './ui/hud_plate_vol.png';
 import hudResignUrl from './ui/hud_resign.png';
 import hudResignWaveUrl from './ui/hud_resign_wave.png';
 import hudSliderKnobUrl from './ui/hud_slider_knob.png';
+import mascotIdleUrl from './ui/result/mascot_idle.png';
+import mascotIdle0Url from './ui/result/mascot_idle_00.png';
+import mascotIdle1Url from './ui/result/mascot_idle_01.png';
+import mascotIdle2Url from './ui/result/mascot_idle_02.png';
+import mascotIdle3Url from './ui/result/mascot_idle_03.png';
 import mascotLose0Url from './ui/result/mascot_lose_00.png';
 import mascotLose1Url from './ui/result/mascot_lose_01.png';
 import mascotLose2Url from './ui/result/mascot_lose_02.png';
@@ -127,6 +134,7 @@ import mascotWin2Url from './ui/result/mascot_win_02.png';
 import mascotWin3Url from './ui/result/mascot_win_03.png';
 import mascotWin4Url from './ui/result/mascot_win_04.png';
 import resultBtnUrl from './ui/result/result_btn.png';
+import resultGlassMeadowUrl from './ui/result/result_glass_meadow.png';
 import resultGlassLoseUrl from './ui/result/result_glass_lose.png';
 import resultGlassWinUrl from './ui/result/result_glass_win.png';
 import resultMonitorUrl from './ui/result/result_monitor.png';
@@ -135,11 +143,12 @@ export class GameScene extends Phaser.Scene {
 	private board!: IBoardView;
 	private hud!: ReturnType<typeof createHud>;
 	private overlay!: ReturnType<typeof createResultOverlay>;
+	private title!: ReturnType<typeof createTitleOverlay>;
 	private sdk!: IYandexSdk;
 	private sfx!: ReturnType<typeof createTableSfx>;
 	private position: IPosition = createInitialPosition();
 	private selected: ISquare | null = null;
-	private phase: 'human' | 'bot' | 'over' = 'human';
+	private phase: 'title' | 'human' | 'bot' | 'over' = 'title';
 	private paused = false;
 	private pendingBot = false;
 	private moving = false;
@@ -184,6 +193,7 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(fireSprites.puffs[1], puff1Url);
 		this.load.image(fireSprites.puffs[2], puff2Url);
 		this.load.image('hudMenu', hudMenuUrl);
+		this.load.image('hudMenuFold', hudMenuFoldUrl);
 		this.load.image('hudMenuOpen', hudMenuOpenUrl);
 		this.load.image('hudMenuPress', hudMenuPressUrl);
 		this.load.image('hudGlassMeadow', hudGlassMeadowUrl);
@@ -262,6 +272,12 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(captureSprites.flash[3], captureFlash03Url);
 		this.load.image(captureSprites.scorch, captureScorchUrl);
 		this.load.image('resultMonitor', resultMonitorUrl);
+		this.load.image('resultGlassMeadow', resultGlassMeadowUrl);
+		this.load.image('mascotIdle', mascotIdleUrl);
+		this.load.image('mascotIdle0', mascotIdle0Url);
+		this.load.image('mascotIdle1', mascotIdle1Url);
+		this.load.image('mascotIdle2', mascotIdle2Url);
+		this.load.image('mascotIdle3', mascotIdle3Url);
 		this.load.image('resultGlassWin', resultGlassWinUrl);
 		this.load.image('resultGlassLose', resultGlassLoseUrl);
 		this.load.image('resultBtn', resultBtnUrl);
@@ -292,6 +308,7 @@ export class GameScene extends Phaser.Scene {
 		for (const key of [
 			'hudMenu',
 			'hudMenuOpen',
+			'hudMenuFold',
 			'hudMenuPress',
 			'hudGlassMeadow',
 			'hudPlateVol',
@@ -305,6 +322,12 @@ export class GameScene extends Phaser.Scene {
 			'hudAi',
 			'hudAiOff',
 			'resultMonitor',
+			'resultGlassMeadow',
+			'mascotIdle',
+			'mascotIdle0',
+			'mascotIdle1',
+			'mascotIdle2',
+			'mascotIdle3',
 		]) {
 			if (!this.textures.exists(key)) {
 				continue;
@@ -323,11 +346,23 @@ export class GameScene extends Phaser.Scene {
 				this.refresh();
 			},
 		});
+		this.hud.setVisible(false);
 		this.board = createBoardView(this, (square) => {
 			this.onSquare(square);
 		});
-		this.overlay = createResultOverlay(this, () => {
-			this.startMatch();
+		this.board.setPlayfieldVisible(false);
+		this.title = createTitleOverlay(this, {
+			onPlayBot: () => {
+				this.startMatch();
+			},
+		});
+		this.overlay = createResultOverlay(this, {
+			onPlayAgain: () => {
+				this.startMatch();
+			},
+			onMenu: () => {
+				this.showTitle();
+			},
 		});
 		this.sdk.onPause(() => {
 			this.setPaused(true);
@@ -348,8 +383,28 @@ export class GameScene extends Phaser.Scene {
 		this.board.layout(this.scale.width, this.scale.height);
 		this.hud.layout(this.scale.width, this.scale.height);
 		this.overlay.layout(this.scale.width, this.scale.height);
-		this.startMatch();
+		this.title.layout(this.scale.width, this.scale.height);
+		this.showTitle();
 		this.sdk.ready();
+	}
+
+	private showTitle(): void {
+		this.botTimer?.remove(false);
+		this.tweens.killAll();
+		this.board.reset();
+		this.moving = false;
+		this.position = createInitialPosition();
+		this.selected = null;
+		this.phase = 'title';
+		this.pendingBot = false;
+		this.overlay.hide();
+		this.hud.setVisible(false);
+		this.board.setPlayfieldVisible(false);
+		this.sfx.stopHover();
+		this.sfx.stopMeadow();
+		this.title.show();
+		this.sfx.startMeadow();
+		this.refresh();
 	}
 
 	private startMatch(): void {
@@ -364,7 +419,11 @@ export class GameScene extends Phaser.Scene {
 		this.elapsedMs = 0;
 		this.runningSince = this.time.now;
 		this.hud.setTimer(0);
+		this.title.hide();
 		this.overlay.hide();
+		this.sfx.stopMeadow();
+		this.hud.setVisible(true);
+		this.board.setPlayfieldVisible(true);
 		this.sfx.resetMatch();
 		this.refresh();
 	}
@@ -373,6 +432,7 @@ export class GameScene extends Phaser.Scene {
 		this.board.layout(width, height);
 		this.hud.layout(width, height);
 		this.overlay.layout(width, height);
+		this.title.layout(width, height);
 		this.refresh();
 	}
 
@@ -382,6 +442,10 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private refresh(): void {
+		if (this.phase === 'title') {
+			this.hud.setTurn('');
+			return;
+		}
 		this.board.sync(
 			this.position,
 			this.humanHighlights(),

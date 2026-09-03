@@ -17,4 +17,5 @@ export interface IBoardView {
 		onTakeoff?: (took: boolean) => void,
 	) => void;
 	reset: () => void;
+	setPlayfieldVisible: (on: boolean) => void;
 }

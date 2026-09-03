@@ -12,6 +12,8 @@ import {
 	loseKeys,
 	replayPulseMs,
 	replayPulseScale,
+	resultAgainCopy,
+	resultMenuCopy,
 	winKeys,
 } from './resultOverlay';
 
@@ -27,5 +29,7 @@ describe('resultOverlay mascot timing', () => {
 	it('breathes the replay button while the overlay is shown', () => {
 		expect(replayPulseScale).toBe(1.03);
 		expect(replayPulseMs).toBe(800);
+		expect(resultAgainCopy).toBe('Ещё раз');
+		expect(resultMenuCopy).toBe('В меню');
 	});
 });

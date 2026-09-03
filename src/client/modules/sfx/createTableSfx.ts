@@ -238,6 +238,8 @@ export function createTableSfx(
 	land: (took: boolean) => void;
 	resetMatch: () => void;
 	setPaused: (paused: boolean) => void;
+	startMeadow: () => void;
+	stopMeadow: () => void;
 } {
 	boundScene = scene;
 	musicUnlocked = false;
@@ -248,8 +250,8 @@ export function createTableSfx(
 	let flight: VolSound | undefined;
 	let hoverFade: Phaser.Tweens.Tween | undefined;
 	let flightFade: Phaser.Tweens.Tween | undefined;
-	let ducked = false;
 	let paused = false;
+	let meadowWanted = false;
 	let firstCapturePlayed = false;
 	const meadow = music?.meadow ? makeHtmlAudio(music.meadow, true) : undefined;
 	const firstCapture = music?.firstCapture
@@ -323,11 +325,12 @@ export function createTableSfx(
 			return;
 		}
 		const amp = sfxMasterAmp(getSfxMaster());
-		meadow.volume = amp * (ducked ? musicGain.duck : musicGain.meadow);
-		if (paused || amp <= 0) {
+		if (!meadowWanted || paused || amp <= 0) {
+			meadow.volume = 0;
 			meadow.pause();
 			return;
 		}
+		meadow.volume = amp * musicGain.meadow;
 		if (!musicUnlocked) {
 			return;
 		}
@@ -388,8 +391,6 @@ export function createTableSfx(
 			unlockMusic();
 			fadeOutHover(sfxFadeMs.in);
 			fadeOutFlight();
-			ducked = true;
-			applyMusic();
 			playOne(scene, sfxKeys.ignite, sfxGain.ignite);
 			if (took) {
 				playFirstCapture();
@@ -411,12 +412,9 @@ export function createTableSfx(
 			if (took) {
 				playOne(scene, sfxKeys.capture, sfxGain.capture);
 			}
-			ducked = false;
-			applyMusic();
 		},
 		resetMatch: () => {
 			firstCapturePlayed = false;
-			ducked = false;
 			stopHover();
 			if (firstCapture) {
 				firstCapture.pause();
@@ -426,13 +424,20 @@ export function createTableSfx(
 					// ignore
 				}
 			}
-			applyMusic();
 		},
 		setPaused: (next) => {
 			paused = next;
 			if (next) {
 				firstCapture?.pause();
 			}
+			applyMusic();
+		},
+		startMeadow: () => {
+			meadowWanted = true;
+			applyMusic();
+		},
+		stopMeadow: () => {
+			meadowWanted = false;
 			applyMusic();
 		},
 	};

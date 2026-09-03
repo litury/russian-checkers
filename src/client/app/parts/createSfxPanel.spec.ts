@@ -213,7 +213,7 @@ describe('createSfxPanel', () => {
 		const chrome = scene.images.find((img) => img.key === 'resultMonitor');
 		panel.toggle();
 		expect(chrome?.visible).toBe(true);
-		expect(chrome?.interactive).toBe(true);
+		expect(chrome?.interactive).toBe(false);
 		expect(scene.graphics[0]?.visible).toBe(true);
 		panel.hide();
 		expect(chrome?.visible).toBe(false);
@@ -244,6 +244,33 @@ describe('createSfxPanel', () => {
 		expect(goldRestored?.w).toBeCloseTo(140 * 0.8);
 		panel.hide();
 		expect(note?.interactive).toBe(false);
+	});
+
+	it('keeps chrome and glass inert so the note plate gets pointerdown', () => {
+		setSfxMaster(0.8);
+		const scene = stubPanelScene();
+		const panel = createSfxPanel(scene);
+		const chrome = scene.images.find((img) => img.key === 'resultMonitor');
+		const glass = scene.images.find((img) => img.key === 'hudGlassMeadow');
+		const note = scene.images.find((img) => img.key === 'hudNote');
+		const plates = scene.images.filter((img) => img.key === 'hudPlate');
+		panel.layout(380, 22, 400, 300);
+		panel.toggle();
+		expect(chrome?.interactive).toBe(false);
+		expect(glass?.interactive).toBe(false);
+		expect(note?.interactive).toBe(true);
+		expect(plates[0]?.interactive).toBe(true);
+		plates[0]?.emit('pointerdown');
+		expect(getSfxMuted()).toBe(true);
+		expect(getSfxMaster()).toBe(0);
+		expect(note?.key).toBe('hudNoteOff');
+		const goldMuted = scene.graphics[0]?.fills.find(
+			(fill) => fill.color === palette.meterGold,
+		);
+		expect(goldMuted?.w).toBe(0);
+		note?.emit('pointerdown');
+		expect(getSfxMuted()).toBe(false);
+		expect(getSfxMaster()).toBe(0.8);
 	});
 
 	it('steps volume on minus and plus and paints a tin/gold meter', () => {
@@ -288,11 +315,12 @@ describe('createSfxPanel', () => {
 		note?.emit('pointerdown');
 		expect(getSfxMaster()).toBe(0);
 		plates[2]?.emit('pointerdown');
-		expect(getSfxMaster()).toBeCloseTo(0.1);
-		expect(getSfxMuted()).toBe(false);
+		plates[1]?.emit('pointerdown');
+		expect(getSfxMaster()).toBe(0);
+		expect(getSfxMuted()).toBe(true);
 	});
 
-	it('unmutes from zero when plus steps the live master', () => {
+	it('keeps mute and meter at zero when plus or minus are tapped', () => {
 		setSfxMaster(0.4);
 		setSfxMuted(true);
 		expect(getSfxMaster()).toBe(0);
@@ -300,18 +328,27 @@ describe('createSfxPanel', () => {
 		const panel = createSfxPanel(scene);
 		panel.layout(380, 22, 400, 300);
 		const plates = scene.images.filter((img) => img.key === 'hudPlate');
+		const note = scene.images.find(
+			(img) => img.key === 'hudNote' || img.key === 'hudNoteOff',
+		);
 		panel.toggle({ worldX: 380, worldY: 22, id: 1 });
 		const goldMuted = scene.graphics[0]?.fills.find(
 			(fill) => fill.color === palette.meterGold,
 		);
 		expect(goldMuted?.w).toBe(0);
+		expect(note?.key).toBe('hudNoteOff');
 		plates[2]?.emit('pointerdown');
-		expect(getSfxMaster()).toBeCloseTo(0.1);
-		expect(getSfxMuted()).toBe(false);
+		plates[1]?.emit('pointerdown');
+		expect(getSfxMaster()).toBe(0);
+		expect(getSfxMuted()).toBe(true);
 		const goldPlus = scene.graphics[0]?.fills.find(
 			(fill) => fill.color === palette.meterGold,
 		);
-		expect(goldPlus?.w).toBeCloseTo(140 * 0.1);
+		expect(goldPlus?.w).toBe(0);
+		note?.emit('pointerdown');
+		expect(getSfxMuted()).toBe(false);
+		expect(getSfxMaster()).toBe(0.4);
+		expect(note?.key).toBe('hudNote');
 	});
 
 	it('dips CRT note on pointerdown and restores on pointerup', () => {

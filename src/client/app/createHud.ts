@@ -22,6 +22,18 @@ type HudHandlers = {
 	onAutoChange?: () => void;
 };
 
+type MenuPhase = 'idle' | 'press' | 'fold' | 'open';
+
+function prefersReducedMotion(): boolean {
+	try {
+		return Boolean(
+			globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
+		);
+	} catch {
+		return false;
+	}
+}
+
 function hudText(
 	scene: Phaser.Scene,
 	content: string,
@@ -48,6 +60,7 @@ export function createHud(
 	layout: (width: number, height: number) => void;
 	setTurn: (copy: string) => void;
 	setTimer: (elapsedSec: number) => void;
+	setVisible: (on: boolean) => void;
 } {
 	const timer = hudText(scene, '0:00', '20px');
 	const turn = hudText(scene, '', '20px');
@@ -70,13 +83,16 @@ export function createHud(
 	let menuRestX = 0;
 	let menuRestY = 0;
 	let menuHeld = false;
-	let menuPressTimer: { remove: (dispatch?: boolean) => void } | undefined;
+	let menuPhase: MenuPhase = 'idle';
+	let menuAnimTimer: { remove: (dispatch?: boolean) => void } | undefined;
 
 	function paintMenu(): void {
 		menuIcon.setScale(1, 1);
-		if (menuHeld) {
+		if (menuHeld || menuPhase === 'press') {
 			menuIcon.setTexture('hudMenuPress');
-		} else if (sfxPanel.isOpen()) {
+		} else if (menuPhase === 'fold') {
+			menuIcon.setTexture('hudMenuFold');
+		} else if (menuPhase === 'open' || sfxPanel.isOpen()) {
 			menuIcon.setTexture('hudMenuOpen');
 		} else {
 			menuIcon.setTexture('hudMenu');
@@ -91,34 +107,54 @@ export function createHud(
 		},
 	});
 
-	function holdMenuPress(): void {
-		menuHeld = true;
+	function clearMenuTimer(): void {
+		menuAnimTimer?.remove(false);
+		menuAnimTimer = undefined;
+	}
+
+	function finishMenu(open: boolean): void {
+		menuHeld = false;
+		menuPhase = open ? 'open' : 'idle';
+		menuAnimTimer = undefined;
 		paintMenu();
-		menuPressTimer?.remove(false);
-		menuPressTimer = scene.time.delayedCall(layout.pressMs, () => {
+	}
+
+	function playMenuAnim(open: boolean): void {
+		clearMenuTimer();
+		if (prefersReducedMotion()) {
+			finishMenu(open);
+			return;
+		}
+		menuHeld = true;
+		menuPhase = 'press';
+		paintMenu();
+		menuAnimTimer = scene.time.delayedCall(layout.pressMs, () => {
 			menuHeld = false;
-			menuPressTimer = undefined;
+			menuPhase = 'fold';
 			paintMenu();
+			menuAnimTimer = scene.time.delayedCall(layout.menuFoldMs, () => {
+				finishMenu(open);
+			});
 		});
 	}
 
 	menuHit.on('pointerdown', (pointer: { id?: number }) => {
 		disarmResign();
-		menuHeld = true;
+		const opening = !sfxPanel.isOpen();
 		sfxPanel.toggle(pointer);
-		holdMenuPress();
+		playMenuAnim(opening);
 	});
 
-	const action = layout.hudAction;
+	const resignSize = layout.hudResign;
 	const moat = scene.add.image(0, 0, 'hudActionMoat').setOrigin(0, 0);
 	moat.setDisplaySize(layout.hudMoatW, layout.hudMoatH);
 	moat.setDepth(hudDepth);
 	const resignIcon = scene.add.image(0, 0, 'hudResign').setOrigin(0.5);
-	resignIcon.setDisplaySize(action, action);
+	resignIcon.setDisplaySize(resignSize, resignSize);
 	resignIcon.setDepth(hudDepth + 1);
 	resignIcon.setInteractive({ useHandCursor: true });
 	const aiIcon = scene.add.image(0, 0, 'hudAi').setOrigin(0.5);
-	aiIcon.setDisplaySize(action, action);
+	aiIcon.setDisplaySize(layout.hudAiW, layout.hudAiH);
 	aiIcon.setDepth(hudDepth + 1);
 	aiIcon.setInteractive({ useHandCursor: true });
 
@@ -137,9 +173,10 @@ export function createHud(
 		icon: Phaser.GameObjects.Image,
 		restX: () => number,
 		restY: () => number,
+		size: number,
 		down: boolean,
 	): void {
-		const dip = down ? dipPx(action) : 0;
+		const dip = down ? dipPx(size) : 0;
 		icon.setPosition(restX(), restY() + dip);
 		icon.setScale(1, 1);
 	}
@@ -147,6 +184,7 @@ export function createHud(
 	function paintAi(): void {
 		aiIcon.setTexture(getAutoMove() ? 'hudAi' : 'hudAiOff');
 		aiIcon.setScale(1, 1);
+		aiIcon.setDisplaySize(layout.hudAiW, layout.hudAiH);
 	}
 
 	function paintResign(): void {
@@ -154,6 +192,7 @@ export function createHud(
 			resignArmed || resignIdleWave ? 'hudResignWave' : 'hudResign',
 		);
 		resignIcon.setScale(1, 1);
+		resignIcon.setDisplaySize(resignSize, resignSize);
 	}
 
 	function juiceResign(down: boolean): void {
@@ -161,6 +200,7 @@ export function createHud(
 			resignIcon,
 			() => resignRestX,
 			() => resignRestY,
+			resignSize,
 			down,
 		);
 		paintResign();
@@ -192,6 +232,7 @@ export function createHud(
 			resignIcon,
 			() => resignRestX,
 			() => resignRestY,
+			resignSize,
 			true,
 		);
 		if (resignArmed) {
@@ -257,6 +298,7 @@ export function createHud(
 			aiIcon,
 			() => aiRestX,
 			() => aiRestY,
+			layout.hudAiH,
 			true,
 		);
 		toggleAuto();
@@ -266,6 +308,7 @@ export function createHud(
 			aiIcon,
 			() => aiRestX,
 			() => aiRestY,
+			layout.hudAiH,
 			false,
 		);
 	});
@@ -274,6 +317,7 @@ export function createHud(
 			aiIcon,
 			() => aiRestX,
 			() => aiRestY,
+			layout.hudAiH,
 			false,
 		);
 	});
@@ -314,6 +358,30 @@ export function createHud(
 		paintResign();
 	}
 
+	function setHudVisible(on: boolean): void {
+		timer.setVisible(on);
+		turn.setVisible(on);
+		menuHit.setVisible(on);
+		menuIcon.setVisible(on);
+		moat.setVisible(on);
+		resignIcon.setVisible(on);
+		aiIcon.setVisible(on);
+		if (!on) {
+			sfxPanel.hide();
+			clearMenuTimer();
+			menuHeld = false;
+			menuPhase = 'idle';
+			menuHit.disableInteractive();
+			resignIcon.disableInteractive();
+			aiIcon.disableInteractive();
+			return;
+		}
+		menuHit.setInteractive({ useHandCursor: true });
+		resignIcon.setInteractive({ useHandCursor: true });
+		aiIcon.setInteractive({ useHandCursor: true });
+		paintMenu();
+	}
+
 	return {
 		layout: (width, height) => {
 			const field = computeFieldLayout(width, height);
@@ -341,6 +409,9 @@ export function createHud(
 		},
 		setTimer: (elapsedSec) => {
 			timer.setText(formatClock(elapsedSec));
+		},
+		setVisible: (on) => {
+			setHudVisible(on);
 		},
 	};
 }

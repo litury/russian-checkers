@@ -278,8 +278,6 @@ export function createSfxPanel(
 			ignorePointerId =
 				typeof pointer?.id === 'number' ? pointer.id : undefined;
 			catcherArmed = false;
-			chrome.setInteractive();
-			glass.setInteractive();
 			notePlate.setInteractive({ useHandCursor: true });
 			note.setInteractive({ useHandCursor: true });
 			minusPlate.setInteractive({ useHandCursor: true });
@@ -298,8 +296,6 @@ export function createSfxPanel(
 			ignorePointerId = undefined;
 			catcherArmed = false;
 			meter.clear();
-			chrome.disableInteractive();
-			glass.disableInteractive();
 			notePlate.disableInteractive();
 			note.disableInteractive();
 			minusPlate.disableInteractive();
@@ -317,6 +313,9 @@ export function createSfxPanel(
 	}
 
 	function bumpMaster(delta: number): void {
+		if (getSfxMuted()) {
+			return;
+		}
 		setSfxMaster(getSfxMaster() + delta);
 		paint();
 	}
