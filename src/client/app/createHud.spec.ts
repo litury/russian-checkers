@@ -9,14 +9,16 @@ type StubGo = {
 	visible: boolean;
 	key?: string;
 	scaleY: number;
+	x: number;
+	y: number;
 	setDepth: () => StubGo;
 	setVisible: (value: boolean) => StubGo;
-	setPosition: () => StubGo;
+	setPosition: (x?: number, y?: number) => StubGo;
 	setDisplaySize: () => StubGo;
 	setInteractive: () => StubGo;
 	disableInteractive: () => StubGo;
 	setOrigin: () => StubGo;
-	setScale: (x: number, y: number) => StubGo;
+	setScale: (x: number, y?: number) => StubGo;
 	setStroke: () => StubGo;
 	setText: () => StubGo;
 	setTexture: (key: string) => StubGo;
@@ -33,6 +35,8 @@ function stubGo(key?: string): StubGo {
 		visible: false,
 		key,
 		scaleY: 1,
+		x: 0,
+		y: 0,
 		setDepth() {
 			return go;
 		},
@@ -40,7 +44,13 @@ function stubGo(key?: string): StubGo {
 			go.visible = value;
 			return go;
 		},
-		setPosition() {
+		setPosition(x?: number, y?: number) {
+			if (typeof x === 'number') {
+				go.x = x;
+			}
+			if (typeof y === 'number') {
+				go.y = y;
+			}
 			return go;
 		},
 		setDisplaySize() {
@@ -55,8 +65,8 @@ function stubGo(key?: string): StubGo {
 		setOrigin() {
 			return go;
 		},
-		setScale(_x: number, y: number) {
-			go.scaleY = y;
+		setScale(_x: number, y?: number) {
+			go.scaleY = y ?? _x;
 			return go;
 		},
 		setStroke() {
@@ -138,7 +148,7 @@ function stubHudScene(): Phaser.Scene & {
 }
 
 describe('createHud', () => {
-	it('opens the result CRT sfx panel from the hud menu and keeps it pressed', () => {
+	it('opens the result CRT sfx panel from the hud menu and keeps it dipped', () => {
 		const scene = stubHudScene();
 		createHud(scene);
 		const menuHit = scene.rects[0];
@@ -147,14 +157,17 @@ describe('createHud', () => {
 		expect(menuIcon.key).toBe('hudMenu');
 		expect(scene.images.some((img) => img.key === 'hudResign')).toBe(true);
 		expect(scene.images.some((img) => img.key === 'hudAuto')).toBe(true);
-		expect(scene.images.some((img) => img.key === 'hudMusic')).toBe(false);
+		expect(scene.images.some((img) => img.key === 'hudMusic')).toBe(true);
 		expect(chrome?.visible).toBe(false);
 		expect(scene.images.some((img) => img.key === 'hudEvmPanel')).toBe(false);
+		expect(menuIcon.scaleY).toBe(1);
 		menuHit.emit('pointerdown', { id: 1 });
 		expect(chrome?.visible).toBe(true);
-		expect(menuIcon.scaleY).toBe(layout.pressScaleY);
+		expect(menuIcon.scaleY).toBe(1);
+		expect(menuIcon.y).toBe(Math.round(layout.hudMenu * layout.pressDipRatio));
 		menuHit.emit('pointerdown', { id: 2 });
 		expect(chrome?.visible).toBe(false);
 		expect(menuIcon.scaleY).toBe(1);
+		expect(menuIcon.y).toBe(0);
 	});
 });

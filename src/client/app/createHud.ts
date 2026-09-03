@@ -33,6 +33,10 @@ function hudText(
 		.setDepth(hudDepth);
 }
 
+function dipPx(size: number): number {
+	return Math.round(size * layout.pressDipRatio);
+}
+
 export function createHud(
 	scene: Phaser.Scene,
 	handlers: HudHandlers = {},
@@ -59,36 +63,25 @@ export function createHud(
 		.setDisplaySize(layout.hudMenu, layout.hudMenu)
 		.setDepth(menuDepth);
 
-	function tweenScaleY(scaleY: number): void {
+	let menuRestX = 0;
+	let menuRestY = 0;
+
+	function applyMenuPress(open: boolean): void {
 		const tweens = scene.tweens;
 		if (tweens && typeof tweens.killTweensOf === 'function') {
 			tweens.killTweensOf(menuIcon);
 		}
-		menuIcon.setScale(1, scaleY);
-		if (tweens && typeof tweens.add === 'function') {
-			tweens.add({
-				targets: menuIcon,
-				scaleY,
-				duration: layout.pressMs,
-				ease: 'Sine.easeOut',
-			});
-		}
-	}
-
-	function applyMenuPress(open: boolean): void {
-		if (open) {
-			return;
-		}
-		tweenScaleY(1);
+		menuIcon.setScale(1, 1);
+		menuIcon.setPosition(
+			menuRestX,
+			menuRestY + (open ? dipPx(layout.hudMenu) : 0),
+		);
 	}
 
 	const sfxPanel = createSfxPanel(scene, {
 		onOpenChange: applyMenuPress,
 	});
 	menuHit.on('pointerdown', (pointer: { id?: number }) => {
-		if (!sfxPanel.isOpen()) {
-			tweenScaleY(layout.pressScaleY);
-		}
 		sfxPanel.toggle(pointer);
 	});
 
@@ -111,6 +104,25 @@ export function createHud(
 	autoIcon.setDepth(hudDepth + 1);
 	autoIcon.setInteractive({ useHandCursor: true });
 
+	let resignRestX = 0;
+	let resignRestY = 0;
+	let autoRestX = 0;
+	let autoRestY = 0;
+
+	function juiceAction(
+		plate: Phaser.GameObjects.Image,
+		icon: Phaser.GameObjects.Image,
+		restX: () => number,
+		restY: () => number,
+		down: boolean,
+	): void {
+		const dip = down ? dipPx(action) : 0;
+		const scaleY = down ? layout.pressScaleY : 1;
+		plate.setPosition(restX(), restY() + dip);
+		icon.setPosition(restX(), restY() + dip);
+		icon.setScale(1, scaleY);
+	}
+
 	function paintAuto(): void {
 		autoIcon.setTexture(getAutoMove() ? 'hudAuto' : 'hudAutoOff');
 	}
@@ -126,14 +138,124 @@ export function createHud(
 	}
 
 	paintAuto();
-	resignPlate.on('pointerdown', fireResign);
-	resignIcon.on('pointerdown', fireResign);
-	autoPlate.on('pointerdown', toggleAuto);
-	autoIcon.on('pointerdown', toggleAuto);
+	resignPlate.on('pointerdown', () => {
+		juiceAction(
+			resignPlate,
+			resignIcon,
+			() => resignRestX,
+			() => resignRestY,
+			true,
+		);
+		fireResign();
+	});
+	resignIcon.on('pointerdown', () => {
+		juiceAction(
+			resignPlate,
+			resignIcon,
+			() => resignRestX,
+			() => resignRestY,
+			true,
+		);
+		fireResign();
+	});
+	resignPlate.on('pointerup', () => {
+		juiceAction(
+			resignPlate,
+			resignIcon,
+			() => resignRestX,
+			() => resignRestY,
+			false,
+		);
+	});
+	resignIcon.on('pointerup', () => {
+		juiceAction(
+			resignPlate,
+			resignIcon,
+			() => resignRestX,
+			() => resignRestY,
+			false,
+		);
+	});
+	resignPlate.on('pointerout', () => {
+		juiceAction(
+			resignPlate,
+			resignIcon,
+			() => resignRestX,
+			() => resignRestY,
+			false,
+		);
+	});
+	resignIcon.on('pointerout', () => {
+		juiceAction(
+			resignPlate,
+			resignIcon,
+			() => resignRestX,
+			() => resignRestY,
+			false,
+		);
+	});
+	autoPlate.on('pointerdown', () => {
+		juiceAction(
+			autoPlate,
+			autoIcon,
+			() => autoRestX,
+			() => autoRestY,
+			true,
+		);
+		toggleAuto();
+	});
+	autoIcon.on('pointerdown', () => {
+		juiceAction(
+			autoPlate,
+			autoIcon,
+			() => autoRestX,
+			() => autoRestY,
+			true,
+		);
+		toggleAuto();
+	});
+	autoPlate.on('pointerup', () => {
+		juiceAction(
+			autoPlate,
+			autoIcon,
+			() => autoRestX,
+			() => autoRestY,
+			false,
+		);
+	});
+	autoIcon.on('pointerup', () => {
+		juiceAction(
+			autoPlate,
+			autoIcon,
+			() => autoRestX,
+			() => autoRestY,
+			false,
+		);
+	});
+	autoPlate.on('pointerout', () => {
+		juiceAction(
+			autoPlate,
+			autoIcon,
+			() => autoRestX,
+			() => autoRestY,
+			false,
+		);
+	});
+	autoIcon.on('pointerout', () => {
+		juiceAction(
+			autoPlate,
+			autoIcon,
+			() => autoRestX,
+			() => autoRestY,
+			false,
+		);
+	});
 
 	function placeMenu(x: number, y: number): void {
+		menuRestX = x;
+		menuRestY = y;
 		menuHit.setPosition(x, y);
-		menuIcon.setPosition(x, y);
+		applyMenuPress(sfxPanel.isOpen());
 	}
 
 	function placeStrip(width: number, height: number): void {
@@ -141,6 +263,10 @@ export function createHud(
 		const left = Math.round((width - pairW) / 2 + action / 2);
 		const right = left + action + stripGap;
 		const y = Math.round(height - action / 2);
+		resignRestX = left;
+		resignRestY = y;
+		autoRestX = right;
+		autoRestY = y;
 		resignPlate.setPosition(left, y);
 		resignIcon.setPosition(left, y);
 		autoPlate.setPosition(right, y);

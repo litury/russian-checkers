@@ -3,19 +3,22 @@ import { computeFieldLayout } from '@/client/config/fieldLayout';
 import { layout } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
 import {
+	getMusicMuted,
 	getSfxMaster,
 	getSfxMuted,
+	musicStorageKey as musicMutedKey,
+	setMusicMuted,
 	setSfxMaster,
 	setSfxMuted,
 } from '@/client/modules/sfx/createTableSfx';
 
 export const sfxMonitor = {
 	width: 188,
-	height: 84,
+	height: 148,
 } as const;
 
 export const autoStorageKey = 'checkers.autoMove';
-export const musicStorageKey = 'checkers.musicMuted';
+export const musicStorageKey = musicMutedKey;
 
 const glassX = 16;
 const glassY = 12;
@@ -23,6 +26,7 @@ const plate = 44;
 const inset = 8;
 const clusterGap = 4;
 const volStep = 0.1;
+const meterH = 12;
 const catcherDepth = 13;
 const panelDepth = 14;
 const pad = 8;
@@ -31,6 +35,11 @@ const noteX = inset;
 const minusX = inset + plate + clusterGap;
 const plusX = minusX + plate + clusterGap;
 const rowY = inset;
+const meterX = inset;
+const meterY = rowY + plate + clusterGap;
+const meterW = plate * 3 + clusterGap * 2;
+const musicY = meterY + meterH + clusterGap;
+const musicX = inset + (meterW - plate) / 2;
 
 let autoMove = true;
 
@@ -93,6 +102,14 @@ function noteTexture(): string {
 	return getSfxMuted() ? 'hudNoteOff' : 'hudNote';
 }
 
+function musicTexture(): string {
+	return getMusicMuted() ? 'hudMusicOff' : 'hudMusic';
+}
+
+function dipPx(size: number): number {
+	return Math.round(size * layout.pressDipRatio);
+}
+
 export function createSfxPanel(
 	scene: Phaser.Scene,
 	handlers: PanelHandlers = {},
@@ -136,6 +153,11 @@ export function createSfxPanel(
 	plusPlate.setVisible(false);
 	plusPlate.setDisplaySize(plate, plate);
 
+	const musicPlate = scene.add.image(0, 0, 'hudPlate').setOrigin(0, 0);
+	musicPlate.setDepth(panelDepth + 2);
+	musicPlate.setVisible(false);
+	musicPlate.setDisplaySize(plate, plate);
+
 	const note = scene.add.image(0, 0, noteTexture()).setOrigin(0.5);
 	note.setDepth(panelDepth + 3);
 	note.setVisible(false);
@@ -162,11 +184,31 @@ export function createSfxPanel(
 		.setDepth(panelDepth + 3)
 		.setVisible(false);
 
+	const music = scene.add.image(0, 0, musicTexture()).setOrigin(0.5);
+	music.setDepth(panelDepth + 3);
+	music.setVisible(false);
+
+	const meter = scene.add.graphics();
+	meter.setDepth(panelDepth + 2);
+	meter.setVisible(false);
+
 	let px = 0;
 	let py = 0;
 	let open = false;
 	let catcherArmed = false;
 	let ignorePointerId: number | undefined;
+
+	type Rest = { x: number; y: number };
+	const rest = {
+		notePlate: { x: 0, y: 0 } as Rest,
+		minusPlate: { x: 0, y: 0 } as Rest,
+		plusPlate: { x: 0, y: 0 } as Rest,
+		musicPlate: { x: 0, y: 0 } as Rest,
+		note: { x: 0, y: 0 } as Rest,
+		minusGlyph: { x: 0, y: 0 } as Rest,
+		plusGlyph: { x: 0, y: 0 } as Rest,
+		music: { x: 0, y: 0 } as Rest,
+	};
 
 	function insidePanel(x: number, y: number): boolean {
 		return (
@@ -177,41 +219,87 @@ export function createSfxPanel(
 		);
 	}
 
+	function paintMeter(): void {
+		meter.clear();
+		if (!open) {
+			return;
+		}
+		const x = px + glassX + meterX;
+		const y = py + glassY + meterY;
+		meter.fillStyle(palette.meterTin, 1);
+		meter.fillRect(x, y, meterW, meterH);
+		meter.fillStyle(palette.meterGold, 1);
+		meter.fillRect(x, y, meterW * getSfxMaster(), meterH);
+	}
+
 	function paint(): void {
 		note.setTexture(noteTexture());
+		music.setTexture(musicTexture());
+		paintMeter();
 	}
 
 	function placeHits(): void {
 		chrome.setPosition(px, py);
 		glass.setPosition(px + glassX, py + glassY);
-		notePlate.setPosition(px + glassX + noteX, py + glassY + rowY);
-		minusPlate.setPosition(px + glassX + minusX, py + glassY + rowY);
-		plusPlate.setPosition(px + glassX + plusX, py + glassY + rowY);
-		note.setPosition(
-			px + glassX + noteX + plate / 2,
-			py + glassY + rowY + plate / 2,
-		);
-		minusGlyph.setPosition(
-			px + glassX + minusX + plate / 2,
-			py + glassY + rowY + plate / 2,
-		);
-		plusGlyph.setPosition(
-			px + glassX + plusX + plate / 2,
-			py + glassY + rowY + plate / 2,
-		);
+		rest.notePlate = {
+			x: px + glassX + noteX,
+			y: py + glassY + rowY,
+		};
+		rest.minusPlate = {
+			x: px + glassX + minusX,
+			y: py + glassY + rowY,
+		};
+		rest.plusPlate = {
+			x: px + glassX + plusX,
+			y: py + glassY + rowY,
+		};
+		rest.musicPlate = {
+			x: px + glassX + musicX,
+			y: py + glassY + musicY,
+		};
+		rest.note = {
+			x: rest.notePlate.x + plate / 2,
+			y: rest.notePlate.y + plate / 2,
+		};
+		rest.minusGlyph = {
+			x: rest.minusPlate.x + plate / 2,
+			y: rest.minusPlate.y + plate / 2,
+		};
+		rest.plusGlyph = {
+			x: rest.plusPlate.x + plate / 2,
+			y: rest.plusPlate.y + plate / 2,
+		};
+		rest.music = {
+			x: rest.musicPlate.x + plate / 2,
+			y: rest.musicPlate.y + plate / 2,
+		};
+		notePlate.setPosition(rest.notePlate.x, rest.notePlate.y);
+		minusPlate.setPosition(rest.minusPlate.x, rest.minusPlate.y);
+		plusPlate.setPosition(rest.plusPlate.x, rest.plusPlate.y);
+		musicPlate.setPosition(rest.musicPlate.x, rest.musicPlate.y);
+		note.setPosition(rest.note.x, rest.note.y);
+		minusGlyph.setPosition(rest.minusGlyph.x, rest.minusGlyph.y);
+		plusGlyph.setPosition(rest.plusGlyph.x, rest.plusGlyph.y);
+		music.setPosition(rest.music.x, rest.music.y);
+		note.setScale(1, 1);
+		minusGlyph.setScale(1, 1);
+		plusGlyph.setScale(1, 1);
+		music.setScale(1, 1);
+		paintMeter();
 	}
 
 	function armCatcher(): void {
 		catcherArmed = true;
 	}
 
-	const plates = [notePlate, minusPlate, plusPlate];
-	const icons = [note, minusGlyph, plusGlyph];
+	const plates = [notePlate, minusPlate, plusPlate, musicPlate];
+	const icons = [note, minusGlyph, plusGlyph, music];
 
 	function setOpen(next: boolean, pointer?: Pointer): void {
 		open = next;
 		glass.setVisible(next);
 		chrome.setVisible(next);
+		meter.setVisible(next);
 		for (const img of plates) {
 			img.setVisible(next);
 		}
@@ -225,12 +313,16 @@ export function createSfxPanel(
 			catcherArmed = false;
 			chrome.setInteractive();
 			glass.setInteractive();
+			notePlate.setInteractive({ useHandCursor: true });
 			note.setInteractive({ useHandCursor: true });
 			minusPlate.setInteractive({ useHandCursor: true });
 			plusPlate.setInteractive({ useHandCursor: true });
 			minusGlyph.setInteractive({ useHandCursor: true });
 			plusGlyph.setInteractive({ useHandCursor: true });
+			musicPlate.setInteractive({ useHandCursor: true });
+			music.setInteractive({ useHandCursor: true });
 			catcher.setInteractive();
+			placeHits();
 			paint();
 			if (typeof scene.time?.delayedCall === 'function') {
 				scene.time.delayedCall(0, armCatcher);
@@ -240,13 +332,17 @@ export function createSfxPanel(
 		} else {
 			ignorePointerId = undefined;
 			catcherArmed = false;
+			meter.clear();
 			chrome.disableInteractive();
 			glass.disableInteractive();
+			notePlate.disableInteractive();
 			note.disableInteractive();
 			minusPlate.disableInteractive();
 			plusPlate.disableInteractive();
 			minusGlyph.disableInteractive();
 			plusGlyph.disableInteractive();
+			musicPlate.disableInteractive();
+			music.disableInteractive();
 			catcher.disableInteractive();
 		}
 		handlers.onOpenChange?.(next);
@@ -257,23 +353,79 @@ export function createSfxPanel(
 		paint();
 	}
 
-	function bumpMaster(delta: number): void {
-		setSfxMaster(getSfxMaster() + delta);
+	function toggleMusic(): void {
+		setMusicMuted(!getMusicMuted());
+		paint();
 	}
 
-	note.on('pointerdown', toggleMute);
-	minusPlate.on('pointerdown', () => {
-		bumpMaster(-volStep);
-	});
-	plusPlate.on('pointerdown', () => {
-		bumpMaster(volStep);
-	});
-	minusGlyph.on('pointerdown', () => {
-		bumpMaster(-volStep);
-	});
-	plusGlyph.on('pointerdown', () => {
-		bumpMaster(volStep);
-	});
+	function bumpMaster(delta: number): void {
+		setSfxMaster(getSfxMaster() + delta);
+		paintMeter();
+	}
+
+	function bindJuice(
+		plateGo: Phaser.GameObjects.Image,
+		iconGo: Phaser.GameObjects.Image | Phaser.GameObjects.Text,
+		plateRest: () => Rest,
+		iconRest: () => Rest,
+		onDown: () => void,
+	): void {
+		const down = (): void => {
+			const dip = dipPx(plate);
+			const pr = plateRest();
+			const ir = iconRest();
+			plateGo.setPosition(pr.x, pr.y + dip);
+			iconGo.setScale(1, layout.pressScaleY);
+			iconGo.setPosition(ir.x, ir.y + dip);
+			onDown();
+		};
+		const up = (): void => {
+			const pr = plateRest();
+			const ir = iconRest();
+			plateGo.setPosition(pr.x, pr.y);
+			iconGo.setScale(1, 1);
+			iconGo.setPosition(ir.x, ir.y);
+		};
+		plateGo.on('pointerdown', down);
+		iconGo.on('pointerdown', down);
+		plateGo.on('pointerup', up);
+		iconGo.on('pointerup', up);
+		plateGo.on('pointerout', up);
+		iconGo.on('pointerout', up);
+	}
+
+	bindJuice(
+		notePlate,
+		note,
+		() => rest.notePlate,
+		() => rest.note,
+		toggleMute,
+	);
+	bindJuice(
+		minusPlate,
+		minusGlyph,
+		() => rest.minusPlate,
+		() => rest.minusGlyph,
+		() => {
+			bumpMaster(-volStep);
+		},
+	);
+	bindJuice(
+		plusPlate,
+		plusGlyph,
+		() => rest.plusPlate,
+		() => rest.plusGlyph,
+		() => {
+			bumpMaster(volStep);
+		},
+	);
+	bindJuice(
+		musicPlate,
+		music,
+		() => rest.musicPlate,
+		() => rest.music,
+		toggleMusic,
+	);
 	catcher.on('pointerdown', (pointer: Pointer) => {
 		if (!catcherArmed) {
 			return;

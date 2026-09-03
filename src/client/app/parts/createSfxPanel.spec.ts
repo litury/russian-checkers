@@ -1,7 +1,11 @@
 import type Phaser from 'phaser';
 import { afterEach, describe, expect, it } from 'vitest';
+import { palette } from '@/client/config/palette';
 import {
+	getMusicMuted,
 	getSfxMaster,
+	getSfxMuted,
+	setMusicMuted,
 	setSfxMaster,
 	setSfxMuted,
 	sfxMaster,
@@ -10,11 +14,14 @@ import {
 	autoStorageKey,
 	createSfxPanel,
 	getAutoMove,
+	musicStorageKey,
 	setAutoMove,
 	sfxMonitor,
 } from './createSfxPanel';
 
 type Handler = (...args: unknown[]) => void;
+
+type Fill = { color: number; x: number; y: number; w: number; h: number };
 
 type StubGo = {
 	visible: boolean;
@@ -22,7 +29,10 @@ type StubGo = {
 	key?: string;
 	x: number;
 	y: number;
+	scaleY: number;
 	displaySizeCalls: Array<[number, number]>;
+	fills: Fill[];
+	fillColor: number;
 	setDepth: () => StubGo;
 	setVisible: (value: boolean) => StubGo;
 	setPosition: (x: number, y: number) => StubGo;
@@ -32,11 +42,12 @@ type StubGo = {
 	setOrigin: () => StubGo;
 	setTexture: (key: string) => StubGo;
 	setStroke: () => StubGo;
+	setScale: (x: number, y?: number) => StubGo;
 	on: (event: string, fn: Handler) => StubGo;
 	emit: (event: string, ...args: unknown[]) => void;
 	clear: () => StubGo;
-	fillStyle: () => StubGo;
-	fillRect: () => StubGo;
+	fillStyle: (color: number) => StubGo;
+	fillRect: (x: number, y: number, w: number, h: number) => StubGo;
 };
 
 function stubGo(key?: string): StubGo {
@@ -47,7 +58,10 @@ function stubGo(key?: string): StubGo {
 		key,
 		x: 0,
 		y: 0,
+		scaleY: 1,
 		displaySizeCalls: [],
+		fills: [],
+		fillColor: 0,
 		setDepth() {
 			return go;
 		},
@@ -82,6 +96,10 @@ function stubGo(key?: string): StubGo {
 		setStroke() {
 			return go;
 		},
+		setScale(_x: number, y?: number) {
+			go.scaleY = y ?? _x;
+			return go;
+		},
 		on(event: string, fn: Handler) {
 			let list = handlers[event];
 			if (!list) {
@@ -98,12 +116,15 @@ function stubGo(key?: string): StubGo {
 			}
 		},
 		clear() {
+			go.fills = [];
 			return go;
 		},
-		fillStyle() {
+		fillStyle(color: number) {
+			go.fillColor = color;
 			return go;
 		},
-		fillRect() {
+		fillRect(x: number, y: number, w: number, h: number) {
+			go.fills.push({ color: go.fillColor, x, y, w, h });
 			return go;
 		},
 	};
@@ -164,14 +185,16 @@ describe('createSfxPanel', () => {
 	afterEach(() => {
 		setSfxMaster(sfxMaster);
 		setSfxMuted(false);
+		setMusicMuted(false);
 		setAutoMove(true);
 	});
 
-	it('mounts CRT glass HUD without EVM wells or megaphone', () => {
+	it('mounts a raised CRT with meter and music clef, no resign', () => {
 		expect(typeof document).toBe('undefined');
 		expect(sfxMonitor.width).toBe(188);
-		expect(sfxMonitor.height).toBe(84);
+		expect(sfxMonitor.height).toBe(148);
 		expect(autoStorageKey).toBe('checkers.autoMove');
+		expect(musicStorageKey).toBe('checkers.musicMuted');
 		expect(getAutoMove()).toBe(true);
 		const scene = stubPanelScene();
 		const panel = createSfxPanel(scene);
@@ -180,24 +203,25 @@ describe('createSfxPanel', () => {
 		expect(keys).toContain('hudGlassMeadow');
 		expect(keys).toContain('hudNote');
 		expect(keys).toContain('hudPlate');
+		expect(keys).toContain('hudMusic');
 		expect(keys).not.toContain('hudPlateVol');
-		expect(keys).not.toContain('hudMusic');
 		expect(keys).not.toContain('hudSliderKnob');
 		expect(keys).not.toContain('hudResign');
 		expect(keys).not.toContain('hudAuto');
 		expect(keys).not.toContain('hudEvmPanel');
 		expect(keys).not.toContain('hudMute');
 		expect(keys).not.toContain('hudMuteOff');
-		expect(scene.graphics).toHaveLength(0);
+		expect(scene.graphics).toHaveLength(1);
 		const chrome = scene.images.find((img) => img.key === 'resultMonitor');
 		panel.toggle();
 		expect(chrome?.visible).toBe(true);
 		expect(chrome?.interactive).toBe(true);
+		expect(scene.graphics[0]?.visible).toBe(true);
 		panel.hide();
 		expect(chrome?.visible).toBe(false);
 	});
 
-	it('toggles the SFX note and keeps the slider value', () => {
+	it('toggles the SFX note without touching music or the meter value', () => {
 		setSfxMaster(0.8);
 		const scene = stubPanelScene();
 		const panel = createSfxPanel(scene);
@@ -207,13 +231,16 @@ describe('createSfxPanel', () => {
 		expect(note?.interactive).toBe(true);
 		note?.emit('pointerdown');
 		expect(getSfxMaster()).toBe(0.8);
+		expect(getSfxMuted()).toBe(true);
+		expect(getMusicMuted()).toBe(false);
 		note?.emit('pointerdown');
 		expect(getSfxMaster()).toBe(0.8);
+		expect(getSfxMuted()).toBe(false);
 		panel.hide();
 		expect(note?.interactive).toBe(false);
 	});
 
-	it('steps volume on minus and plus plates and keeps the CRT open', () => {
+	it('steps volume on minus and plus and paints a tin/gold meter', () => {
 		setSfxMaster(0.4);
 		const scene = stubPanelScene();
 		const panel = createSfxPanel(scene);
@@ -221,17 +248,56 @@ describe('createSfxPanel', () => {
 		const chrome = scene.images.find((img) => img.key === 'resultMonitor');
 		const note = scene.images.find((img) => img.key === 'hudNote');
 		const plates = scene.images.filter((img) => img.key === 'hudPlate');
-		expect(plates).toHaveLength(3);
+		expect(plates).toHaveLength(4);
 		panel.toggle({ worldX: 380, worldY: 22, id: 1 });
 		expect(chrome?.visible).toBe(true);
+		const gold = scene.graphics[0]?.fills.find(
+			(fill) => fill.color === palette.meterGold,
+		);
+		expect(gold?.w).toBeCloseTo(140 * 0.4);
 		note?.emit('pointerdown');
 		plates[1]?.emit('pointerdown');
 		expect(getSfxMaster()).toBeCloseTo(0.3);
 		plates[2]?.emit('pointerdown');
 		plates[2]?.emit('pointerdown');
 		expect(getSfxMaster()).toBeCloseTo(0.5);
+		const goldAfter = scene.graphics[0]?.fills.find(
+			(fill) => fill.color === palette.meterGold,
+		);
+		expect(goldAfter?.w).toBeCloseTo(140 * 0.5);
 		expect(chrome?.visible).toBe(true);
 		expect(getAutoMove()).toBe(true);
+	});
+
+	it('toggles music under the meter without mixing SFX mute', () => {
+		const scene = stubPanelScene();
+		const panel = createSfxPanel(scene);
+		const music = scene.images.find((img) => img.key === 'hudMusic');
+		const note = scene.images.find((img) => img.key === 'hudNote');
+		panel.toggle();
+		expect(getMusicMuted()).toBe(false);
+		music?.emit('pointerdown');
+		expect(getMusicMuted()).toBe(true);
+		expect(getSfxMuted()).toBe(false);
+		expect(music?.key).toBe('hudMusicOff');
+		note?.emit('pointerdown');
+		expect(getSfxMuted()).toBe(true);
+		expect(getMusicMuted()).toBe(true);
+	});
+
+	it('dips CRT note on pointerdown and restores on pointerup', () => {
+		const scene = stubPanelScene();
+		const panel = createSfxPanel(scene);
+		panel.layout(380, 22, 400, 300);
+		const note = scene.images.find((img) => img.key === 'hudNote');
+		panel.toggle({ worldX: 380, worldY: 22, id: 1 });
+		const restY = note?.y ?? 0;
+		note?.emit('pointerdown');
+		expect(note?.scaleY).toBeLessThan(1);
+		expect(note?.y).toBeGreaterThan(restY);
+		note?.emit('pointerup');
+		expect(note?.scaleY).toBe(1);
+		expect(note?.y).toBe(restY);
 	});
 
 	it('closes from the catcher only outside the CRT after arming', () => {
