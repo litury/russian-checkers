@@ -3,15 +3,12 @@ import { afterEach, describe, expect, it } from 'vitest';
 import {
 	clampSfxMaster,
 	createTableSfx,
-	getMusicMuted,
 	getSfxMaster,
 	getSfxMuted,
-	musicStorageKey,
+	musicGain,
 	outputVolume,
-	parseMusicMuted,
 	parseSfxMaster,
 	parseSfxMuted,
-	setMusicMuted,
 	setSfxMaster,
 	setSfxMuted,
 	sfxFadeMs,
@@ -21,8 +18,11 @@ import {
 	sfxStorageKeys,
 } from '@/client/modules/sfx/createTableSfx';
 
-function stubScene(): Phaser.Scene {
+type PointerHandler = () => void;
+
+function stubScene(): Phaser.Scene & { emitPointer: () => void } {
 	const sound = { volume: 1, mute: false, play() {}, add() {} };
+	let once: PointerHandler | undefined;
 	return {
 		sound,
 		cache: { audio: { exists: () => false } },
@@ -31,14 +31,74 @@ function stubScene(): Phaser.Scene {
 				return {};
 			},
 		},
-	} as unknown as Phaser.Scene;
+		input: {
+			once(_event: string, fn: PointerHandler) {
+				once = fn;
+			},
+		},
+		emitPointer() {
+			once?.();
+			once = undefined;
+		},
+	} as unknown as Phaser.Scene & { emitPointer: () => void };
+}
+
+type FakeAudio = {
+	src: string;
+	loop: boolean;
+	preload: string;
+	volume: number;
+	paused: boolean;
+	currentTime: number;
+	playCount: number;
+	pauseCount: number;
+	play: () => Promise<void>;
+	pause: () => void;
+};
+
+function installFakeAudio(): { made: FakeAudio[]; restore: () => void } {
+	const made: FakeAudio[] = [];
+	const previous = (globalThis as { Audio?: typeof Audio }).Audio;
+	class Fake implements FakeAudio {
+		src: string;
+		loop = false;
+		preload = '';
+		volume = 1;
+		paused = true;
+		currentTime = 0;
+		playCount = 0;
+		pauseCount = 0;
+		constructor(src: string) {
+			this.src = src;
+			made.push(this);
+		}
+		play() {
+			this.playCount += 1;
+			this.paused = false;
+			return Promise.resolve();
+		}
+		pause() {
+			this.pauseCount += 1;
+			this.paused = true;
+		}
+	}
+	(globalThis as { Audio: unknown }).Audio = Fake;
+	return {
+		made,
+		restore: () => {
+			if (previous) {
+				(globalThis as { Audio: typeof Audio }).Audio = previous;
+			} else {
+				Reflect.deleteProperty(globalThis, 'Audio');
+			}
+		},
+	};
 }
 
 describe('sfxGain', () => {
 	afterEach(() => {
 		setSfxMaster(sfxMaster);
 		setSfxMuted(false);
-		setMusicMuted(false);
 	});
 
 	it('uses per-clip volumes from the 8-bit pack', () => {
@@ -99,7 +159,7 @@ describe('sfxGain', () => {
 
 		setSfxMuted(true);
 		expect(getSfxMuted()).toBe(true);
-		expect(getSfxMaster()).toBe(0.8);
+		expect(getSfxMaster()).toBe(0);
 		expect(scene.sound.volume).toBe(sfxMasterAmp(0));
 
 		setSfxMuted(false);
@@ -108,23 +168,79 @@ describe('sfxGain', () => {
 		expect(scene.sound.volume).toBe(sfxMasterAmp(0.8));
 	});
 
-	it('keeps meadow music mute separate from the SFX note', () => {
-		expect(musicStorageKey).toBe('checkers.musicMuted');
-		expect(parseMusicMuted(null)).toBe(false);
-		expect(parseMusicMuted('1')).toBe(true);
-		expect(getMusicMuted()).toBe(false);
-		const scene = stubScene();
-		createTableSfx(scene);
-		const sfxVol = scene.sound.volume;
-		setMusicMuted(true);
-		expect(getMusicMuted()).toBe(true);
-		expect(getSfxMuted()).toBe(false);
-		expect(scene.sound.volume).toBe(sfxVol);
-		setSfxMuted(true);
-		expect(getMusicMuted()).toBe(true);
-		expect(scene.sound.volume).toBe(sfxMasterAmp(0));
-		setSfxMuted(false);
-		expect(getMusicMuted()).toBe(true);
-		expect(scene.sound.volume).toBe(sfxVol);
+	it('zeros master and meadow on mute then restores both', () => {
+		const fake = installFakeAudio();
+		try {
+			const scene = stubScene();
+			createTableSfx(scene, {
+				meadow: 'meadow.ogg',
+				firstCapture: 'pervyy_vzryv.ogg',
+			});
+			const meadow = fake.made[0];
+			expect(meadow?.playCount).toBe(0);
+			scene.emitPointer();
+			expect(meadow?.playCount).toBe(1);
+			expect(meadow?.volume).toBeCloseTo(
+				sfxMasterAmp(sfxMaster) * musicGain.meadow,
+			);
+			setSfxMaster(0.8);
+			expect(meadow?.volume).toBeCloseTo(sfxMasterAmp(0.8) * musicGain.meadow);
+			setSfxMuted(true);
+			expect(getSfxMaster()).toBe(0);
+			expect(meadow?.volume).toBe(0);
+			setSfxMuted(false);
+			expect(getSfxMaster()).toBe(0.8);
+			expect(meadow?.volume).toBeCloseTo(sfxMasterAmp(0.8) * musicGain.meadow);
+		} finally {
+			fake.restore();
+		}
+	});
+
+	it('starts meadow on the first gesture, not from the constructor', () => {
+		const fake = installFakeAudio();
+		try {
+			const scene = stubScene();
+			const table = createTableSfx(scene, {
+				meadow: 'meadow.ogg',
+				firstCapture: 'pervyy_vzryv.ogg',
+			});
+			const meadow = fake.made[0];
+			expect(meadow?.playCount).toBe(0);
+			table.selectThenHover();
+			expect(meadow?.playCount).toBe(1);
+		} finally {
+			fake.restore();
+		}
+	});
+
+	it('plays the first-capture voiceline on takeoff and skips when muted', () => {
+		const fake = installFakeAudio();
+		try {
+			const scene = stubScene();
+			const table = createTableSfx(scene, {
+				meadow: 'meadow.ogg',
+				firstCapture: 'pervyy_vzryv.ogg',
+			});
+			const voice = fake.made[1];
+			table.takeoff(true);
+			expect(voice?.playCount).toBe(1);
+			expect(voice?.volume).toBeCloseTo(
+				sfxMasterAmp(sfxMaster) * musicGain.firstCapture,
+			);
+			table.land(true);
+			expect(voice?.playCount).toBe(1);
+			table.resetMatch();
+			setSfxMuted(true);
+			table.takeoff(true);
+			expect(voice?.playCount).toBe(1);
+			table.resetMatch();
+			setSfxMuted(false);
+			table.takeoff(false);
+			expect(voice?.playCount).toBe(1);
+			table.takeoff(true);
+			expect(voice?.playCount).toBe(2);
+		} finally {
+			fake.restore();
+		}
 	});
 });

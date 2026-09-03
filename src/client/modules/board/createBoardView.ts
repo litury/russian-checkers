@@ -1666,7 +1666,7 @@ export function createBoardView(
 		move: IMove,
 		onDone: () => void,
 		onLand?: (took: boolean) => void,
-		onTakeoff?: () => void,
+		onTakeoff?: (took: boolean) => void,
 	): void {
 		if (moving) {
 			return;
@@ -1711,7 +1711,7 @@ export function createBoardView(
 			const fromBox = cellBox(from);
 			const capture = isJump(from, land);
 			const fly = (): void => {
-				onTakeoff?.();
+				onTakeoff?.(capture);
 				flashGhost(view);
 				playFireStreak();
 				view.sprite.setScale(view.baseScale);

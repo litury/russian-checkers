@@ -107,8 +107,6 @@ import hudGlassMeadowUrl from './ui/hud_glass_meadow.png';
 import hudMenuUrl from './ui/hud_menu.png';
 import hudMenuOpenUrl from './ui/hud_menu_open.png';
 import hudMenuPressUrl from './ui/hud_menu_press.png';
-import hudMusicUrl from './ui/hud_music.png';
-import hudMusicOffUrl from './ui/hud_music_off.png';
 import hudNoteUrl from './ui/hud_note.png';
 import hudNoteOffUrl from './ui/hud_note_off.png';
 import hudPlateUrl from './ui/hud_plate.png';
@@ -195,8 +193,6 @@ export class GameScene extends Phaser.Scene {
 		this.load.image('hudResign', hudResignUrl);
 		this.load.image('hudAuto', hudAutoUrl);
 		this.load.image('hudAutoOff', hudAutoOffUrl);
-		this.load.image('hudMusic', hudMusicUrl);
-		this.load.image('hudMusicOff', hudMusicOffUrl);
 		this.load.image(captureSprites.igniteLight, captureIgniteLightUrl);
 		this.load.image(captureSprites.igniteDark, captureIgniteDarkUrl);
 		this.load.image(captureSprites.igniteKingLight, captureIgniteKingLightUrl);
@@ -302,8 +298,6 @@ export class GameScene extends Phaser.Scene {
 			'hudResign',
 			'hudAuto',
 			'hudAutoOff',
-			'hudMusic',
-			'hudMusicOff',
 			'resultMonitor',
 		]) {
 			if (!this.textures.exists(key)) {
@@ -480,8 +474,8 @@ export class GameScene extends Phaser.Scene {
 			(took) => {
 				this.sfx.land(took);
 			},
-			() => {
-				this.sfx.takeoff();
+			(took) => {
+				this.sfx.takeoff(took);
 			},
 		);
 	}

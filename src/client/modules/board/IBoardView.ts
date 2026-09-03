@@ -14,7 +14,7 @@ export interface IBoardView {
 		move: IMove,
 		onDone: () => void,
 		onLand?: (took: boolean) => void,
-		onTakeoff?: () => void,
+		onTakeoff?: (took: boolean) => void,
 	) => void;
 	reset: () => void;
 }
