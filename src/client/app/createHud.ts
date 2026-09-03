@@ -66,6 +66,7 @@ export function createHud(
 	let menuRestX = 0;
 	let menuRestY = 0;
 	let menuHeld = false;
+	let menuPressTimer: { remove: (dispatch?: boolean) => void } | undefined;
 
 	function paintMenu(): void {
 		menuIcon.setScale(1, 1);
@@ -85,18 +86,22 @@ export function createHud(
 			paintMenu();
 		},
 	});
+
+	function holdMenuPress(): void {
+		menuHeld = true;
+		paintMenu();
+		menuPressTimer?.remove(false);
+		menuPressTimer = scene.time.delayedCall(layout.pressMs, () => {
+			menuHeld = false;
+			menuPressTimer = undefined;
+			paintMenu();
+		});
+	}
+
 	menuHit.on('pointerdown', (pointer: { id?: number }) => {
 		menuHeld = true;
 		sfxPanel.toggle(pointer);
-		paintMenu();
-	});
-	menuHit.on('pointerup', () => {
-		menuHeld = false;
-		paintMenu();
-	});
-	menuHit.on('pointerout', () => {
-		menuHeld = false;
-		paintMenu();
+		holdMenuPress();
 	});
 
 	const action = layout.hudAction;

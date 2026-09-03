@@ -1,5 +1,6 @@
 import type Phaser from 'phaser';
 import { describe, expect, it } from 'vitest';
+import { layout } from '@/client/config/layout';
 import { createHud } from './createHud';
 
 type Handler = (...args: unknown[]) => void;
@@ -106,15 +107,26 @@ function stubGo(key?: string): StubGo {
 	return go;
 }
 
+type DelayCall = {
+	ms: number;
+	fn: () => void;
+	removed: boolean;
+};
+
 function stubHudScene(): Phaser.Scene & {
 	rects: StubGo[];
 	images: StubGo[];
+	timeCalls: DelayCall[];
+	emitInput: (event: string, ...args: unknown[]) => void;
 } {
 	const rects: StubGo[] = [];
 	const images: StubGo[] = [];
+	const timeCalls: DelayCall[] = [];
+	const inputHandlers: Record<string, Handler[]> = {};
 	return {
 		rects,
 		images,
+		timeCalls,
 		add: {
 			text: () => stubGo(),
 			image: (_x: number, _y: number, key: string) => {
@@ -130,11 +142,24 @@ function stubHudScene(): Phaser.Scene & {
 			graphics: () => stubGo(),
 		},
 		input: {
-			on() {},
+			on(event: string, fn: Handler) {
+				let list = inputHandlers[event];
+				if (!list) {
+					list = [];
+					inputHandlers[event] = list;
+				}
+				list.push(fn);
+			},
 		},
 		time: {
-			delayedCall() {
-				return {};
+			delayedCall(ms: number, fn: () => void) {
+				const call: DelayCall = { ms, fn, removed: false };
+				timeCalls.push(call);
+				return {
+					remove() {
+						call.removed = true;
+					},
+				};
 			},
 		},
 		tweens: {
@@ -143,7 +168,26 @@ function stubHudScene(): Phaser.Scene & {
 				return {};
 			},
 		},
-	} as unknown as Phaser.Scene & { rects: StubGo[]; images: StubGo[] };
+		emitInput(event: string, ...args: unknown[]) {
+			for (const fn of inputHandlers[event] ?? []) {
+				fn(...args);
+			}
+		},
+	} as unknown as Phaser.Scene & {
+		rects: StubGo[];
+		images: StubGo[];
+		timeCalls: DelayCall[];
+		emitInput: (event: string, ...args: unknown[]) => void;
+	};
+}
+
+function flushMs(scene: { timeCalls: DelayCall[] }, ms: number): void {
+	for (const call of scene.timeCalls) {
+		if (!call.removed && call.ms === ms) {
+			call.removed = true;
+			call.fn();
+		}
+	}
 }
 
 describe('createHud', () => {
@@ -166,12 +210,17 @@ describe('createHud', () => {
 		expect(menuIcon.scaleY).toBe(1);
 		expect(menuIcon.y).toBe(0);
 		menuHit.emit('pointerup', { id: 1 });
+		expect(menuIcon.key).toBe('hudMenuPress');
+		expect(menuIcon.scaleY).toBe(1);
+		flushMs(scene, layout.pressMs);
 		expect(menuIcon.key).toBe('hudMenuOpen');
 		expect(menuIcon.scaleY).toBe(1);
 		menuHit.emit('pointerdown', { id: 2 });
 		expect(chrome?.visible).toBe(false);
 		expect(menuIcon.key).toBe('hudMenuPress');
 		menuHit.emit('pointerup', { id: 2 });
+		expect(menuIcon.key).toBe('hudMenuPress');
+		flushMs(scene, layout.pressMs);
 		expect(menuIcon.key).toBe('hudMenu');
 		expect(menuIcon.scaleY).toBe(1);
 		expect(menuIcon.y).toBe(0);
