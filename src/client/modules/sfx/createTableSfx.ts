@@ -162,6 +162,7 @@ export function setSfxMaster(t: number): void {
 	writePrefs();
 	applyAmp();
 	unlockMusic();
+	applyMusicVol();
 }
 
 export function setSfxMuted(muted: boolean): void {
@@ -179,6 +180,7 @@ export function setSfxMuted(muted: boolean): void {
 	writePrefs();
 	applyAmp();
 	unlockMusic();
+	applyMusicVol();
 }
 
 export function preloadTableSfx(scene: Phaser.Scene, urls: HopSfxUrls): void {
