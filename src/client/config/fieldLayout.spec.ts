@@ -13,6 +13,11 @@ describe('computeFieldLayout', () => {
 		expect(field.cell).toBeGreaterThanOrEqual(layout.minCellPx);
 		expect(field.originY).toBeGreaterThanOrEqual(layout.hudBar);
 		expect(layout.boardBottomGap).toBe(64);
+		expect(layout.hudStripInset).toBe(14);
+		expect(layout.hudMoatH).toBe(0);
+		expect(
+			layout.hudAction + layout.hudStripInset + layout.hudMoatH,
+		).toBeLessThanOrEqual(layout.boardBottomGap);
 		expect(field.originY + field.fieldSize).toBe(694 - layout.boardBottomGap);
 	});
 

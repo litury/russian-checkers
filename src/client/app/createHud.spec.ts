@@ -1,7 +1,7 @@
 import type Phaser from 'phaser';
 import { describe, expect, it } from 'vitest';
 import { layout } from '@/client/config/layout';
-import { createHud } from './createHud';
+import { createHud, resignArmMs } from './createHud';
 
 type Handler = (...args: unknown[]) => void;
 
@@ -224,5 +224,87 @@ describe('createHud', () => {
 		expect(menuIcon.key).toBe('hudMenu');
 		expect(menuIcon.scaleY).toBe(1);
 		expect(menuIcon.y).toBe(0);
+	});
+
+	it('lifts the action strip by inset plus moat without clipping the field', () => {
+		const scene = stubHudScene();
+		const hud = createHud(scene);
+		hud.layout(390, 694);
+		const resign = scene.images.find((img) => img.key === 'hudResign');
+		const auto = scene.images.find((img) => img.key === 'hudAuto');
+		expect(layout.hudStripInset).toBe(14);
+		expect(layout.hudMoatH).toBe(0);
+		expect(scene.images.some((img) => img.key === 'hudAuto')).toBe(true);
+		expect(scene.images.some((img) => img.key === 'hudAi')).toBe(false);
+		const y = Math.round(
+			694 - layout.hudStripInset - layout.hudMoatH - layout.hudAction / 2,
+		);
+		expect(resign?.y).toBe(y);
+		expect(auto?.y).toBe(y);
+		expect(y + layout.hudAction / 2).toBe(694 - layout.hudStripInset);
+		expect(
+			layout.hudAction + layout.hudStripInset + layout.hudMoatH,
+		).toBeLessThanOrEqual(layout.boardBottomGap);
+	});
+
+	it('arms resign on the first tap and confirms on the second within 2s', () => {
+		const scene = stubHudScene();
+		let resigns = 0;
+		createHud(scene, {
+			onResign: () => {
+				resigns += 1;
+			},
+		});
+		const resign = scene.images.find((img) => img.key === 'hudResign');
+		const restY = resign?.y ?? 0;
+		resign?.emit('pointerdown');
+		expect(resigns).toBe(0);
+		expect((resign?.y ?? 0) > restY).toBe(true);
+		resign?.emit('pointerup');
+		expect(resigns).toBe(0);
+		expect((resign?.y ?? 0) > restY).toBe(true);
+		resign?.emit('pointerdown');
+		expect(resigns).toBe(1);
+	});
+
+	it('resets the resign arm after the timeout', () => {
+		const scene = stubHudScene();
+		let resigns = 0;
+		createHud(scene, {
+			onResign: () => {
+				resigns += 1;
+			},
+		});
+		const resign = scene.images.find((img) => img.key === 'hudResign');
+		resign?.emit('pointerdown');
+		resign?.emit('pointerup');
+		flushMs(scene, resignArmMs);
+		resign?.emit('pointerdown');
+		expect(resigns).toBe(0);
+		resign?.emit('pointerdown');
+		expect(resigns).toBe(1);
+	});
+
+	it('disarms resign when auto or elsewhere is tapped', () => {
+		const scene = stubHudScene();
+		let resigns = 0;
+		createHud(scene, {
+			onResign: () => {
+				resigns += 1;
+			},
+		});
+		const resign = scene.images.find((img) => img.key === 'hudResign');
+		const auto = scene.images.find((img) => img.key === 'hudAuto');
+		resign?.emit('pointerdown');
+		resign?.emit('pointerup');
+		auto?.emit('pointerdown');
+		resign?.emit('pointerdown');
+		expect(resigns).toBe(0);
+		flushMs(scene, 0);
+		scene.emitInput('pointerdown', {}, []);
+		resign?.emit('pointerdown');
+		expect(resigns).toBe(0);
+		resign?.emit('pointerdown');
+		expect(resigns).toBe(1);
 	});
 });

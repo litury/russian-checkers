@@ -4,6 +4,8 @@ export const layout = {
 	hudBar: 44,
 	hudMenu: 44,
 	hudAction: 44,
+	hudStripInset: 14,
+	hudMoatH: 0,
 	boardBottomGap: 64,
 	pieceRadiusRatio: 0.34,
 	kingMarkRatio: 0.15,

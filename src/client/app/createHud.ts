@@ -13,6 +13,8 @@ const hudDepth = 12;
 const menuDepth = 15;
 const pad = 12;
 
+export const resignArmMs = 2000;
+
 type HudHandlers = {
 	onResign?: () => void;
 	onAutoChange?: () => void;
@@ -99,6 +101,7 @@ export function createHud(
 	}
 
 	menuHit.on('pointerdown', (pointer: { id?: number }) => {
+		disarmResign();
 		menuHeld = true;
 		sfxPanel.toggle(pointer);
 		holdMenuPress();
@@ -145,73 +148,90 @@ export function createHud(
 		autoIcon.setTexture(getAutoMove() ? 'hudAuto' : 'hudAutoOff');
 	}
 
+	function juiceResign(down: boolean): void {
+		juiceAction(
+			resignPlate,
+			resignIcon,
+			() => resignRestX,
+			() => resignRestY,
+			down,
+		);
+	}
+
 	function fireResign(): void {
 		handlers.onResign?.();
 	}
 
+	let resignArmed = false;
+	let resignCatcherArmed = false;
+	let resignArmTimer: { remove: (dispatch?: boolean) => void } | undefined;
+	let resignCatcherTimer: { remove: (dispatch?: boolean) => void } | undefined;
+
+	function disarmResign(): void {
+		if (!resignArmed) {
+			return;
+		}
+		resignArmed = false;
+		resignCatcherArmed = false;
+		resignArmTimer?.remove(false);
+		resignArmTimer = undefined;
+		resignCatcherTimer?.remove(false);
+		resignCatcherTimer = undefined;
+		juiceResign(false);
+	}
+
+	function armResignCatcher(): void {
+		resignCatcherArmed = true;
+	}
+
+	function onResignDown(): void {
+		juiceResign(true);
+		if (resignArmed) {
+			resignArmed = false;
+			resignCatcherArmed = false;
+			resignArmTimer?.remove(false);
+			resignArmTimer = undefined;
+			resignCatcherTimer?.remove(false);
+			resignCatcherTimer = undefined;
+			fireResign();
+			juiceResign(false);
+			return;
+		}
+		resignArmed = true;
+		resignCatcherArmed = false;
+		resignArmTimer?.remove(false);
+		resignCatcherTimer?.remove(false);
+		resignArmTimer = scene.time.delayedCall(resignArmMs, () => {
+			resignArmed = false;
+			resignCatcherArmed = false;
+			resignArmTimer = undefined;
+			resignCatcherTimer = undefined;
+			juiceResign(false);
+		});
+		resignCatcherTimer = scene.time.delayedCall(0, armResignCatcher);
+	}
+
+	function onResignUp(): void {
+		if (resignArmed) {
+			return;
+		}
+		juiceResign(false);
+	}
+
 	function toggleAuto(): void {
+		disarmResign();
 		setAutoMove(!getAutoMove());
 		paintAuto();
 		handlers.onAutoChange?.();
 	}
 
 	paintAuto();
-	resignPlate.on('pointerdown', () => {
-		juiceAction(
-			resignPlate,
-			resignIcon,
-			() => resignRestX,
-			() => resignRestY,
-			true,
-		);
-		fireResign();
-	});
-	resignIcon.on('pointerdown', () => {
-		juiceAction(
-			resignPlate,
-			resignIcon,
-			() => resignRestX,
-			() => resignRestY,
-			true,
-		);
-		fireResign();
-	});
-	resignPlate.on('pointerup', () => {
-		juiceAction(
-			resignPlate,
-			resignIcon,
-			() => resignRestX,
-			() => resignRestY,
-			false,
-		);
-	});
-	resignIcon.on('pointerup', () => {
-		juiceAction(
-			resignPlate,
-			resignIcon,
-			() => resignRestX,
-			() => resignRestY,
-			false,
-		);
-	});
-	resignPlate.on('pointerout', () => {
-		juiceAction(
-			resignPlate,
-			resignIcon,
-			() => resignRestX,
-			() => resignRestY,
-			false,
-		);
-	});
-	resignIcon.on('pointerout', () => {
-		juiceAction(
-			resignPlate,
-			resignIcon,
-			() => resignRestX,
-			() => resignRestY,
-			false,
-		);
-	});
+	resignPlate.on('pointerdown', onResignDown);
+	resignIcon.on('pointerdown', onResignDown);
+	resignPlate.on('pointerup', onResignUp);
+	resignIcon.on('pointerup', onResignUp);
+	resignPlate.on('pointerout', onResignUp);
+	resignIcon.on('pointerout', onResignUp);
 	autoPlate.on('pointerdown', () => {
 		juiceAction(
 			autoPlate,
@@ -269,6 +289,20 @@ export function createHud(
 		);
 	});
 
+	scene.input.on(
+		'pointerdown',
+		(_pointer: unknown, currentlyOver?: unknown[]) => {
+			if (!resignArmed || !resignCatcherArmed) {
+				return;
+			}
+			const over = currentlyOver ?? [];
+			if (over.includes(resignPlate) || over.includes(resignIcon)) {
+				return;
+			}
+			disarmResign();
+		},
+	);
+
 	function placeMenu(x: number, y: number): void {
 		menuRestX = x;
 		menuRestY = y;
@@ -280,7 +314,9 @@ export function createHud(
 		const pairW = action * 2 + stripGap;
 		const left = Math.round((width - pairW) / 2 + action / 2);
 		const right = left + action + stripGap;
-		const y = Math.round(height - action / 2);
+		const y = Math.round(
+			height - layout.hudStripInset - layout.hudMoatH - action / 2,
+		);
 		resignRestX = left;
 		resignRestY = y;
 		autoRestX = right;
