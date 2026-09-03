@@ -1,7 +1,12 @@
 import type Phaser from 'phaser';
 import { describe, expect, it } from 'vitest';
 import { layout } from '@/client/config/layout';
-import { createHud, resignArmMs } from './createHud';
+import {
+	createHud,
+	resignArmMs,
+	resignWaveGapMs,
+	resignWaveHoldMs,
+} from './createHud';
 
 type Handler = (...args: unknown[]) => void;
 
@@ -251,9 +256,9 @@ describe('createHud', () => {
 		expect(ai?.y).toBe(moatY + layout.hudMoatAiY);
 		expect(resign?.scaleY).toBe(1);
 		expect(ai?.scaleY).toBe(1);
-		expect(
-			layout.hudStripInset + layout.hudMoatH,
-		).toBeLessThanOrEqual(layout.boardBottomGap);
+		expect(layout.hudStripInset + layout.hudMoatH).toBeLessThanOrEqual(
+			layout.boardBottomGap,
+		);
 	});
 
 	it('arms resign on the first tap and confirms on the second within 2s', () => {
@@ -319,5 +324,21 @@ describe('createHud', () => {
 		expect(resigns).toBe(0);
 		resign?.emit('pointerdown');
 		expect(resigns).toBe(1);
+	});
+
+	it('rarely waves the resign flag while idle and holds wave when armed', () => {
+		const scene = stubHudScene();
+		createHud(scene);
+		const resign = scene.images.find((img) => img.key === 'hudResign');
+		expect(resign?.key).toBe('hudResign');
+		flushMs(scene, resignWaveGapMs);
+		expect(resign?.key).toBe('hudResignWave');
+		flushMs(scene, resignWaveHoldMs);
+		expect(resign?.key).toBe('hudResign');
+		resign?.emit('pointerdown');
+		expect(resign?.key).toBe('hudResignWave');
+		flushMs(scene, resignWaveGapMs);
+		flushMs(scene, resignWaveHoldMs);
+		expect(resign?.key).toBe('hudResignWave');
 	});
 });

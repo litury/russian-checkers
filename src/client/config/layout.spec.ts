@@ -44,3 +44,19 @@ describe('hop path stamps', () => {
 		expect(layout.hopDashPxPerSec).toBe(48);
 	});
 });
+
+describe('hud action moat', () => {
+	it('sizes the empty moat and clears the field by inset plus moat', () => {
+		expect(layout.hudMoatW).toBe(160);
+		expect(layout.hudMoatH).toBe(80);
+		expect(layout.hudStripInset).toBe(14);
+		expect(layout.boardBottomGap).toBe(96);
+		expect(layout.hudMoatResignX).toBe(44);
+		expect(layout.hudMoatResignY).toBe(40);
+		expect(layout.hudMoatAiX).toBe(116);
+		expect(layout.hudMoatAiY).toBe(40);
+		expect(layout.hudStripInset + layout.hudMoatH).toBeLessThanOrEqual(
+			layout.boardBottomGap,
+		);
+	});
+});

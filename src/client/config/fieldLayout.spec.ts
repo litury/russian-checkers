@@ -16,9 +16,9 @@ describe('computeFieldLayout', () => {
 		expect(layout.hudStripInset).toBe(14);
 		expect(layout.hudMoatH).toBe(80);
 		expect(layout.hudMoatW).toBe(160);
-		expect(
-			layout.hudStripInset + layout.hudMoatH,
-		).toBeLessThanOrEqual(layout.boardBottomGap);
+		expect(layout.hudStripInset + layout.hudMoatH).toBeLessThanOrEqual(
+			layout.boardBottomGap,
+		);
 		expect(field.originY + field.fieldSize).toBe(694 - layout.boardBottomGap);
 	});
 

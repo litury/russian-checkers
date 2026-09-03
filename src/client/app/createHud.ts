@@ -14,6 +14,8 @@ const menuDepth = 15;
 const pad = 12;
 
 export const resignArmMs = 2000;
+export const resignWaveGapMs = 5600;
+export const resignWaveHoldMs = 220;
 
 type HudHandlers = {
 	onResign?: () => void;
@@ -126,8 +128,10 @@ export function createHud(
 	let aiRestY = 0;
 	let resignArmed = false;
 	let resignCatcherArmed = false;
+	let resignIdleWave = false;
 	let resignArmTimer: { remove: (dispatch?: boolean) => void } | undefined;
 	let resignCatcherTimer: { remove: (dispatch?: boolean) => void } | undefined;
+	let resignWaveTimer: { remove: (dispatch?: boolean) => void } | undefined;
 
 	function juiceIcon(
 		icon: Phaser.GameObjects.Image,
@@ -146,7 +150,9 @@ export function createHud(
 	}
 
 	function paintResign(): void {
-		resignIcon.setTexture(resignArmed ? 'hudResignWave' : 'hudResign');
+		resignIcon.setTexture(
+			resignArmed || resignIdleWave ? 'hudResignWave' : 'hudResign',
+		);
 		resignIcon.setScale(1, 1);
 	}
 
@@ -228,7 +234,21 @@ export function createHud(
 		handlers.onAutoChange?.();
 	}
 
+	function scheduleIdleWave(): void {
+		resignWaveTimer?.remove(false);
+		resignWaveTimer = scene.time.delayedCall(resignWaveGapMs, () => {
+			resignIdleWave = true;
+			paintResign();
+			resignWaveTimer = scene.time.delayedCall(resignWaveHoldMs, () => {
+				resignIdleWave = false;
+				paintResign();
+				scheduleIdleWave();
+			});
+		});
+	}
+
 	paintAi();
+	scheduleIdleWave();
 	resignIcon.on('pointerdown', onResignDown);
 	resignIcon.on('pointerup', onResignUp);
 	resignIcon.on('pointerout', onResignUp);
