@@ -38,6 +38,11 @@ describe('titleOverlay', () => {
 		expect(titleRowMinWidth).toBe(460);
 	});
 
+	it('uses Russo One for the title wordmark', async () => {
+		const { titleFont } = await import('@/client/fonts/fonts');
+		expect(titleFont).toBe('Russo One');
+	});
+
 	it('draws one Phaser plate, not title_btn.png', () => {
 		expect(titlePlateW).toBe(224);
 		expect(titlePlateH).toBe(48);

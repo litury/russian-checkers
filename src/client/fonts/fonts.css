@@ -1,0 +1,15 @@
+@font-face {
+	font-family: "Tiny5";
+	src: url("./tiny5/Tiny5-Regular.woff") format("woff");
+	font-weight: 400;
+	font-style: normal;
+	font-display: block;
+}
+
+@font-face {
+	font-family: "Russo One";
+	src: url("./russo-one/RussoOne-Regular.woff") format("woff");
+	font-weight: 400;
+	font-style: normal;
+	font-display: block;
+}

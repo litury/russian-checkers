@@ -1,10 +1,14 @@
 import Phaser from 'phaser';
+import '@/client/fonts/fonts.css';
 import { palette } from '@/client/config/palette';
 import { GameScene } from './gameScene';
 import { createYandexSdk } from './yandexSdk';
 
 async function boot(): Promise<void> {
 	const sdk = await createYandexSdk();
+	if (typeof document !== 'undefined' && document.fonts?.ready) {
+		await document.fonts.ready;
+	}
 	new Phaser.Game({
 		type: Phaser.AUTO,
 		pixelArt: true,

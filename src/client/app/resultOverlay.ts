@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { hudFont } from '@/client/fonts/fonts';
 import { palette } from '@/client/config/palette';
 import type { Side } from '@/rules';
 
@@ -98,7 +99,7 @@ export function createResultOverlay(
 
 	const title = scene.add
 		.text(0, 0, '', {
-			fontFamily: 'Arial, sans-serif',
+			fontFamily: hudFont,
 			fontSize: `${titleSize}px`,
 			color: palette.text,
 		})
@@ -112,7 +113,7 @@ export function createResultOverlay(
 	const againBtn = scene.add.image(0, 0, 'resultBtn').setOrigin(0.5);
 	const againLabel = scene.add
 		.text(0, 0, resultAgainCopy, {
-			fontFamily: 'Arial, sans-serif',
+			fontFamily: hudFont,
 			fontSize: '22px',
 			color: palette.text,
 		})
@@ -127,7 +128,7 @@ export function createResultOverlay(
 	const menuBtn = scene.add.image(0, 0, 'resultBtn').setOrigin(0.5);
 	const menuLabel = scene.add
 		.text(0, 0, resultMenuCopy, {
-			fontFamily: 'Arial, sans-serif',
+			fontFamily: hudFont,
 			fontSize: '22px',
 			color: palette.text,
 		})

@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { hudFont, titleFont } from '@/client/fonts/fonts';
 
 const btnW = 224;
 const btnH = 48;
@@ -103,7 +104,7 @@ export function createTitleOverlay(
 
 	const title = scene.add
 		.text(0, 0, titleCopy, {
-			fontFamily: 'Arial, sans-serif',
+			fontFamily: titleFont,
 			fontSize: `${titleSize}px`,
 			color: titleColor,
 		})
@@ -114,7 +115,7 @@ export function createTitleOverlay(
 	drawPlate(botBtn);
 	const botLabel = scene.add
 		.text(0, 0, titleBotCopy, {
-			fontFamily: 'Arial, sans-serif',
+			fontFamily: hudFont,
 			fontSize: '22px',
 			color: titleColor,
 		})
@@ -129,7 +130,7 @@ export function createTitleOverlay(
 	drawPlate(onlineBtn);
 	const onlineLabel = scene.add
 		.text(0, 0, titleOnlineCopy, {
-			fontFamily: 'Arial, sans-serif',
+			fontFamily: hudFont,
 			fontSize: '22px',
 			color: titleColor,
 		})
