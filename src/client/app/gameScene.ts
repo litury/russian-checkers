@@ -102,6 +102,8 @@ import { createTitleOverlay } from './titleOverlay';
 import type { IYandexSdk } from './IYandexSdk';
 import { getAutoMove } from './parts/createSfxPanel';
 import { createResultOverlay } from './resultOverlay';
+import titleBg169Url from './ui/title/title_bg_169.png';
+import titleBg916Url from './ui/title/title_bg_916.png';
 import hudActionMoatUrl from './ui/hud_action_moat.png';
 import hudAiUrl from './ui/hud_ai.png';
 import hudAiOffUrl from './ui/hud_ai_off.png';
@@ -281,6 +283,8 @@ export class GameScene extends Phaser.Scene {
 		this.load.image('resultGlassWin', resultGlassWinUrl);
 		this.load.image('resultGlassLose', resultGlassLoseUrl);
 		this.load.image('resultBtn', resultBtnUrl);
+		this.load.image('titleBg916', titleBg916Url);
+		this.load.image('titleBg169', titleBg169Url);
 		this.load.image('mascotLose0', mascotLose0Url);
 		this.load.image('mascotLose1', mascotLose1Url);
 		this.load.image('mascotLose2', mascotLose2Url);
@@ -323,6 +327,8 @@ export class GameScene extends Phaser.Scene {
 			'hudAiOff',
 			'resultMonitor',
 			'resultGlassMeadow',
+			'titleBg916',
+			'titleBg169',
 			'mascotIdle',
 			'mascotIdle0',
 			'mascotIdle1',

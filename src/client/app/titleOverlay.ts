@@ -1,24 +1,19 @@
 import Phaser from 'phaser';
-import { palette } from '@/client/config/palette';
 
-const monW = 256;
-const monH = 192;
-const glassX = 16;
-const glassY = 12;
-const glassW = 224;
-const glassH = 168;
 const btnW = 224;
 const btnH = 48;
 const hitW = 224;
 const hitH = 64;
-const heroFit = 120;
-const floorPad = 2;
-const chassisGap = 12;
 const btnGap = 8;
 const titleSize = 32;
+const titleGap = 20;
 const pressNudge = 2;
 const onlineAlpha = 0.45;
 const depth = 18;
+const bg916W = 216;
+const bg916H = 384;
+const bg169W = 384;
+const bg169H = 216;
 
 export const titleRowMinWidth = 460;
 export const titleCopy = 'Русские шашки';
@@ -26,16 +21,30 @@ export const titleBotCopy = 'Играть';
 export const titleOnlineCopy = 'Онлайн';
 export const titleColor = '#F4EFE4';
 export const titleStroke = '#1A1410';
-export const titleHeroFit = heroFit;
-export const idleKeys = [
-	'mascotIdle0',
-	'mascotIdle1',
-	'mascotIdle2',
-	'mascotIdle3',
-] as const;
-/** Y bob per idle frame: 00/02 rest, 01 −1px, 03 +1px. */
-export const idleBobY = [0, -1, 0, 1] as const;
-export const idleMs = 180;
+export const titlePlateW = btnW;
+export const titlePlateH = btnH;
+export const titleBtnFill = '#7A4A28';
+export const titleBtnStroke = '#1A1410';
+export const titleBtnHighlight = '#C4B08A';
+export const titleBtnBase = '#2A1C14';
+export const titlePressNudge = pressNudge;
+export const titleOnlineAlpha = onlineAlpha;
+export const titlePortraitMinRatio = 1.2;
+export const titleBgPortrait = 'titleBg916';
+export const titleBgLandscape = 'titleBg169';
+
+export function pickTitleBgKey(width: number, height: number): string {
+	return height / width >= titlePortraitMinRatio ? titleBgPortrait : titleBgLandscape;
+}
+
+export function coverScale(
+	viewW: number,
+	viewH: number,
+	texW: number,
+	texH: number,
+): number {
+	return Math.max(viewW / texW, viewH / texH);
+}
 
 function isRow(width: number): boolean {
 	return width >= titleRowMinWidth;
@@ -43,23 +52,27 @@ function isRow(width: number): boolean {
 
 function stackSize(row: boolean): { w: number; h: number } {
 	return {
-		w: row ? btnW * 2 + btnGap : monW,
-		h:
-			titleSize +
-			chassisGap +
-			monH +
-			chassisGap +
-			btnH +
-			(row ? 0 : btnGap + btnH),
+		w: row ? btnW * 2 + btnGap : btnW,
+		h: titleSize + titleGap + btnH + (row ? 0 : btnGap + btnH),
 	};
 }
 
-function fitContain(image: Phaser.GameObjects.Image, box: number): void {
-	const frame = image.frame as { width?: number; height?: number } | undefined;
-	const w = frame?.width || box;
-	const h = frame?.height || box;
-	const scale = box / Math.max(w, h, 1);
-	image.setDisplaySize(Math.round(w * scale), Math.round(h * scale));
+function hex(s: string): number {
+	return Number.parseInt(s.slice(1), 16);
+}
+
+function drawPlate(g: Phaser.GameObjects.Graphics): void {
+	const x = -btnW / 2;
+	const y = -btnH / 2;
+	g.clear();
+	g.fillStyle(hex(titleBtnFill), 1);
+	g.fillRect(x, y, btnW, btnH);
+	g.fillStyle(hex(titleBtnBase), 1);
+	g.fillRect(x, y + btnH - 6, btnW, 6);
+	g.fillStyle(hex(titleBtnHighlight), 1);
+	g.fillRect(x + 2, y + 2, btnW - 4, 3);
+	g.lineStyle(2, hex(titleBtnStroke), 1);
+	g.strokeRect(x + 1, y + 1, btnW - 2, btnH - 2);
 }
 
 export function createTitleOverlay(
@@ -70,17 +83,14 @@ export function createTitleOverlay(
 	show: () => void;
 	hide: () => void;
 } {
-	for (const key of [
-		'resultMonitor',
-		'resultGlassMeadow',
-		'resultBtn',
-		'mascotIdle',
-		...idleKeys,
-	]) {
-		if (!scene.textures.exists(key)) {
-			continue;
-		}
-		scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
+	const bg = scene.add.image(0, 0, titleBgPortrait).setOrigin(0.5);
+	bg.setDepth(depth - 1);
+	bg.setVisible(false);
+	if (scene.textures.exists(titleBgPortrait)) {
+		scene.textures.get(titleBgPortrait).setFilter(Phaser.Textures.FilterMode.NEAREST);
+	}
+	if (scene.textures.exists(titleBgLandscape)) {
+		scene.textures.get(titleBgLandscape).setFilter(Phaser.Textures.FilterMode.NEAREST);
 	}
 
 	const catcher = scene.add.rectangle(0, 0, 16, 16, 0x000000, 0);
@@ -100,16 +110,13 @@ export function createTitleOverlay(
 		.setOrigin(0.5, 1)
 		.setStroke(titleStroke, 2);
 
-	const glass = scene.add.image(0, 0, 'resultGlassMeadow').setOrigin(0, 0);
-	const monitor = scene.add.image(0, 0, 'resultMonitor').setOrigin(0, 0);
-	const hero = scene.add.image(0, 0, idleKeys[0]).setOrigin(0.5, 1);
-
-	const botBtn = scene.add.image(0, 0, 'resultBtn').setOrigin(0.5);
+	const botBtn = scene.add.graphics();
+	drawPlate(botBtn);
 	const botLabel = scene.add
 		.text(0, 0, titleBotCopy, {
 			fontFamily: 'Arial, sans-serif',
 			fontSize: '22px',
-			color: palette.text,
+			color: titleColor,
 		})
 		.setOrigin(0.5)
 		.setStroke(titleStroke, 2);
@@ -118,12 +125,13 @@ export function createTitleOverlay(
 	const botHit = scene.add.rectangle(0, 0, hitW, hitH, 0x000000, 0);
 	botHit.setOrigin(0, 0);
 
-	const onlineBtn = scene.add.image(0, 0, 'resultBtn').setOrigin(0.5);
+	const onlineBtn = scene.add.graphics();
+	drawPlate(onlineBtn);
 	const onlineLabel = scene.add
 		.text(0, 0, titleOnlineCopy, {
 			fontFamily: 'Arial, sans-serif',
 			fontSize: '22px',
-			color: palette.text,
+			color: titleColor,
 		})
 		.setOrigin(0.5)
 		.setStroke(titleStroke, 2);
@@ -131,39 +139,11 @@ export function createTitleOverlay(
 	onlineWrap.add([onlineBtn, onlineLabel]);
 	onlineWrap.setAlpha(onlineAlpha);
 
-	root.add([title, glass, monitor, hero, botWrap, botHit, onlineWrap]);
+	root.add([title, botWrap, botHit, onlineWrap]);
 
 	let botY = 0;
-	let heroBaseY = 0;
 	let pressed = false;
 	let shown = false;
-	let idleFrame = 0;
-	let idleTimer: Phaser.Time.TimerEvent | undefined;
-
-	function paintIdle(): void {
-		hero.setTexture(idleKeys[idleFrame]);
-		fitContain(hero, heroFit);
-		hero.setY(heroBaseY + idleBobY[idleFrame]);
-	}
-
-	function stopIdle(): void {
-		idleTimer?.remove(false);
-		idleTimer = undefined;
-	}
-
-	function startIdle(): void {
-		stopIdle();
-		idleFrame = 0;
-		paintIdle();
-		idleTimer = scene.time.addEvent({
-			delay: idleMs,
-			loop: true,
-			callback: () => {
-				idleFrame = (idleFrame + 1) % idleKeys.length;
-				paintIdle();
-			},
-		});
-	}
 
 	function restBot(): void {
 		botWrap.setY(botY + btnH / 2);
@@ -190,7 +170,20 @@ export function createTitleOverlay(
 		}
 	});
 
+	function layoutBg(width: number, height: number): void {
+		const key = pickTitleBgKey(width, height);
+		if (scene.textures.exists(key)) {
+			bg.setTexture(key);
+		}
+		const texW = key === titleBgPortrait ? bg916W : bg169W;
+		const texH = key === titleBgPortrait ? bg916H : bg169H;
+		const s = coverScale(width, height, texW, texH);
+		bg.setPosition(width / 2, height / 2);
+		bg.setDisplaySize(texW * s, texH * s);
+	}
+
 	function place(width: number, height: number): void {
+		layoutBg(width, height);
 		catcher.setPosition(width / 2, height / 2);
 		catcher.setDisplaySize(width, height);
 		const row = isRow(width);
@@ -200,14 +193,7 @@ export function createTitleOverlay(
 			Math.round((height - stack.h) / 2),
 		);
 		title.setPosition(stack.w / 2, titleSize);
-		const monX = Math.round((stack.w - monW) / 2);
-		const monY = titleSize + chassisGap;
-		monitor.setPosition(monX, monY);
-		glass.setPosition(monX + glassX, monY + glassY);
-		heroBaseY = monY + glassY + glassH - floorPad;
-		hero.setPosition(monX + glassX + glassW / 2, heroBaseY);
-		paintIdle();
-		const btnTop = monY + monH + chassisGap;
+		const btnTop = titleSize + titleGap;
 		if (row) {
 			const botX = btnW / 2;
 			const onlineX = btnW + btnGap + btnW / 2;
@@ -237,7 +223,7 @@ export function createTitleOverlay(
 		show: () => {
 			shown = true;
 			place(scene.scale.width, scene.scale.height);
-			startIdle();
+			bg.setVisible(true);
 			catcher.setVisible(true);
 			catcher.setInteractive();
 			botHit.setInteractive({ useHandCursor: true });
@@ -246,7 +232,7 @@ export function createTitleOverlay(
 		hide: () => {
 			shown = false;
 			pressed = false;
-			stopIdle();
+			bg.setVisible(false);
 			catcher.setVisible(false);
 			catcher.disableInteractive();
 			botHit.disableInteractive();
