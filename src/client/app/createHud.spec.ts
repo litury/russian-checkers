@@ -231,7 +231,7 @@ describe('createHud', () => {
 		createHud(scene);
 		const menuHit = scene.rects[0];
 		const menuIcon = scene.images[0];
-		const chrome = scene.images.find((img) => img.key === 'resultMonitor');
+		const chrome = scene.images.find((img) => img.key === 'hudMenuPlate');
 		expect(menuIcon.key).toBe('hudMenu');
 		expect(scene.images.some((img) => img.key === 'hudResign')).toBe(false);
 		expect(scene.images.some((img) => img.key === 'hudAi')).toBe(true);

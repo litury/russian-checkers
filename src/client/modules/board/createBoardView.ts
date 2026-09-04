@@ -1865,6 +1865,20 @@ export function createBoardView(
 		press,
 		deny,
 		playMove,
+		playFlagBurst: (square, onDone) => {
+			const view = pieceViews.get(squareKey(square));
+			if (!view) {
+				onDone();
+				return;
+			}
+			igniteCapture(view);
+			scene.time.delayedCall(layout.captureBurstMs * 6, () => {
+				if (pieceViews.get(squareKey(square)) === view) {
+					finishCapture(view);
+				}
+				onDone();
+			});
+		},
 		reset: () => {
 			pendingLand.clear();
 			killCaptureVfx();

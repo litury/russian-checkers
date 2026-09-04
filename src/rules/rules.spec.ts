@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { apply } from './apply';
+import {
+	afterFlagBank,
+	afterMoveBank,
+	blitzIncrementMs,
+	blitzStartMs,
+	explodeFlag,
+	ownPieceSquares,
+	remainingMs,
+} from './blitz';
 import { createInitialPosition } from './createInitialPosition';
 import { legalMoves } from './legalMoves';
 import { emptyBoard, getPiece, inBounds } from './parts/board';
@@ -323,5 +332,40 @@ describe('winner', () => {
 
 	it('returns null while both sides can still move', () => {
 		expect(winner(createInitialPosition())).toBeNull();
+	});
+});
+
+describe('blitz 2+2', () => {
+	it('starts at 2:00 and adds 2s after a move, not a shared pot', () => {
+		expect(blitzStartMs).toBe(120_000);
+		expect(blitzIncrementMs).toBe(2_000);
+		expect(afterMoveBank(3_000)).toBe(5_000);
+		expect(afterFlagBank()).toBe(2_000);
+		expect(remainingMs(120_000, 0, 1_000, false)).toBe(119_000);
+		expect(remainingMs(5_000, 10_000, 12_000, true)).toBe(5_000);
+	});
+
+	it('explodes a random own piece and keeps the same turn', () => {
+		const pos = position('white', [
+			[sq(2, 2), man('white')],
+			[sq(2, 4), man('white')],
+			[sq(5, 5), man('black')],
+		]);
+		const { next, victim } = explodeFlag(pos, () => 0);
+		expect(victim).toEqual(sq(2, 2));
+		expect(getPiece(next, sq(2, 2))).toBeNull();
+		expect(getPiece(next, sq(2, 4))?.side).toBe('white');
+		expect(next.turn).toBe('white');
+		expect(ownPieceSquares(next, 'white')).toHaveLength(1);
+	});
+
+	it('does not instantly lose while a piece remains', () => {
+		const pos = position('white', [
+			[sq(2, 2), man('white')],
+			[sq(2, 4), man('white')],
+			[sq(5, 5), man('black')],
+		]);
+		const { next } = explodeFlag(pos, () => 0);
+		expect(winner(next)).toBeNull();
 	});
 });

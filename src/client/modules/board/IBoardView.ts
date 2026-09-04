@@ -16,6 +16,7 @@ export interface IBoardView {
 		onLand?: (took: boolean) => void,
 		onTakeoff?: (took: boolean) => void,
 	) => void;
+	playFlagBurst: (square: ISquare, onDone: () => void) => void;
 	reset: () => void;
 	setPlayfieldVisible: (on: boolean) => void;
 }

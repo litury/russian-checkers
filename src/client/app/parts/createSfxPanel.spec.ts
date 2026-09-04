@@ -212,7 +212,7 @@ describe('createSfxPanel', () => {
 		const scene = stubPanelScene();
 		const panel = createSfxPanel(scene);
 		const keys = scene.images.map((img) => img.key);
-		expect(keys).toContain('resultMonitor');
+		expect(keys).toContain('hudMenuPlate');
 		expect(keys).toContain('hudGlassMeadow');
 		expect(keys).toContain('hudNote');
 		expect(keys).toContain('hudPlate');
@@ -228,7 +228,7 @@ describe('createSfxPanel', () => {
 		expect(keys).not.toContain('hudMute');
 		expect(keys).not.toContain('hudMuteOff');
 		expect(scene.graphics).toHaveLength(1);
-		const chrome = scene.images.find((img) => img.key === 'resultMonitor');
+		const chrome = scene.images.find((img) => img.key === 'hudMenuPlate');
 		panel.toggle();
 		expect(chrome?.visible).toBe(true);
 		expect(chrome?.interactive).toBe(false);
@@ -270,7 +270,7 @@ describe('createSfxPanel', () => {
 		setSfxMaster(0.8);
 		const scene = stubPanelScene();
 		const panel = createSfxPanel(scene);
-		const chrome = scene.images.find((img) => img.key === 'resultMonitor');
+		const chrome = scene.images.find((img) => img.key === 'hudMenuPlate');
 		const glass = scene.images.find((img) => img.key === 'hudGlassMeadow');
 		const note = scene.images.find((img) => img.key === 'hudNote');
 		const plates = scene.images.filter((img) => img.key === 'hudPlate');
@@ -298,7 +298,7 @@ describe('createSfxPanel', () => {
 		const scene = stubPanelScene();
 		const panel = createSfxPanel(scene);
 		panel.layout(380, 22, 400, 300);
-		const chrome = scene.images.find((img) => img.key === 'resultMonitor');
+		const chrome = scene.images.find((img) => img.key === 'hudMenuPlate');
 		const plates = scene.images.filter((img) => img.key === 'hudPlate');
 		expect(plates).toHaveLength(4);
 		panel.toggle({ worldX: 380, worldY: 22, id: 1 });
@@ -391,7 +391,7 @@ describe('createSfxPanel', () => {
 		const panel = createSfxPanel(scene);
 		panel.layout(380, 22, 400, 300);
 		const [catcher] = scene.rects;
-		const chrome = scene.images.find((img) => img.key === 'resultMonitor');
+		const chrome = scene.images.find((img) => img.key === 'hudMenuPlate');
 		if (!chrome) {
 			throw new Error('missing chrome');
 		}
@@ -423,7 +423,7 @@ describe('createSfxPanel', () => {
 			},
 		});
 		panel.layout(380, 22, 400, 300);
-		const chrome = scene.images.find((img) => img.key === 'resultMonitor');
+		const chrome = scene.images.find((img) => img.key === 'hudMenuPlate');
 		expect(chrome?.displaySizeCalls.at(-1)).toEqual([188, 148]);
 		expect(scene.texts.map((t) => t.content)).toContain(resignCopy);
 		const resign = scene.texts.find((t) => t.content === resignCopy);

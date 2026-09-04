@@ -121,7 +121,7 @@ export function createSfxPanel(
 	glass.setDepth(panelDepth);
 	glass.setVisible(false);
 
-	const chrome = scene.add.image(0, 0, 'resultMonitor').setOrigin(0, 0);
+	const chrome = scene.add.image(0, 0, 'hudMenuPlate').setOrigin(0, 0);
 	chrome.setDepth(panelDepth + 1);
 	chrome.setVisible(false);
 

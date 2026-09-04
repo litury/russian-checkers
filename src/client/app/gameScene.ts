@@ -96,7 +96,17 @@ import firstCaptureUrl from '@/client/modules/sfx/pervyy_vzryv.ogg';
 import selectUrl from '@/client/modules/sfx/select.ogg';
 import { sameSquare } from '@/client/shared/sameSquare';
 import type { IMove, IPosition, ISquare, Side } from '@/rules';
-import { apply, createInitialPosition, legalMoves, winner } from '@/rules';
+import {
+	afterFlagBank,
+	afterMoveBank,
+	apply,
+	blitzStartMs,
+	createInitialPosition,
+	explodeFlag,
+	legalMoves,
+	remainingMs,
+	winner,
+} from '@/rules';
 import { createHud } from './createHud';
 import { createTitleOverlay } from './titleOverlay';
 import type { IYandexSdk } from './IYandexSdk';
@@ -156,6 +166,9 @@ export class GameScene extends Phaser.Scene {
 	private moving = false;
 	private elapsedMs = 0;
 	private runningSince = 0;
+	private clocks = { white: blitzStartMs, black: blitzStartMs };
+	private clockStartedAt = 0;
+	private flagLock = false;
 	private botTimer?: Phaser.Time.TimerEvent;
 
 	constructor() {
@@ -380,10 +393,10 @@ export class GameScene extends Phaser.Scene {
 			this.layout(gameSize.width, gameSize.height);
 		});
 		this.time.addEvent({
-			delay: 1000,
+			delay: 100,
 			loop: true,
 			callback: () => {
-				this.hud.setTimer(this.matchSeconds());
+				this.tickClock();
 			},
 		});
 		this.board.layout(this.scale.width, this.scale.height);
@@ -424,7 +437,10 @@ export class GameScene extends Phaser.Scene {
 		this.pendingBot = false;
 		this.elapsedMs = 0;
 		this.runningSince = this.time.now;
-		this.hud.setTimer(0);
+		this.clocks = { white: blitzStartMs, black: blitzStartMs };
+		this.clockStartedAt = this.time.now;
+		this.flagLock = false;
+		this.hud.setTimer(Math.ceil(blitzStartMs / 1000));
 		this.title.hide();
 		this.overlay.hide();
 		this.sfx.stopMeadow();
@@ -443,8 +459,79 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private matchSeconds(): number {
-		const extra = this.paused ? 0 : this.time.now - this.runningSince;
-		return Math.floor((this.elapsedMs + extra) / 1000);
+		if (this.phase === 'title' || this.phase === 'over') {
+			return Math.ceil(this.clocks.white / 1000);
+		}
+		const side = this.position.turn;
+		const left = remainingMs(
+			this.clocks[side],
+			this.clockStartedAt,
+			this.time.now,
+			this.paused,
+		);
+		return Math.ceil(left / 1000);
+	}
+
+	private settleClock(mover: Side): void {
+		const left = remainingMs(
+			this.clocks[mover],
+			this.clockStartedAt,
+			this.time.now,
+			this.paused,
+		);
+		this.clocks[mover] = afterMoveBank(left);
+		this.clockStartedAt = this.time.now;
+	}
+
+	private tickClock(): void {
+		if (this.phase === 'title') {
+			return;
+		}
+		this.hud.setTimer(this.matchSeconds());
+		if (
+			this.paused ||
+			this.moving ||
+			this.flagLock ||
+			this.phase === 'over'
+		) {
+			return;
+		}
+		const side = this.position.turn;
+		const left = remainingMs(
+			this.clocks[side],
+			this.clockStartedAt,
+			this.time.now,
+			false,
+		);
+		if (left <= 0) {
+			this.onFlag();
+		}
+	}
+
+	private onFlag(): void {
+		if (this.flagLock || this.moving || this.phase === 'over') {
+			return;
+		}
+		this.flagLock = true;
+		const { next, victim } = explodeFlag(this.position);
+		const finish = (): void => {
+			this.position = next;
+			this.clocks[next.turn] = afterFlagBank();
+			this.clockStartedAt = this.time.now;
+			this.flagLock = false;
+			const side = winner(this.position);
+			if (side) {
+				this.endMatch(side);
+				return;
+			}
+			this.refresh();
+		};
+		if (!victim) {
+			finish();
+			return;
+		}
+		this.sfx.land(true);
+		this.board.playFlagBurst(victim, finish);
 	}
 
 	private refresh(): void {
@@ -469,7 +556,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private maybeAutoMove(): void {
-		if (this.paused || this.moving || this.phase !== 'human') {
+		if (this.paused || this.moving || this.flagLock || this.phase !== 'human') {
 			return;
 		}
 		if (!getAutoMove()) {
@@ -505,7 +592,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private onSquare(square: ISquare): void {
-		if (this.paused || this.moving || this.phase !== 'human') {
+		if (this.paused || this.moving || this.flagLock || this.phase !== 'human') {
 			return;
 		}
 		const moves = legalMoves(this.position);
@@ -558,10 +645,12 @@ export class GameScene extends Phaser.Scene {
 
 	private playHuman(move: IMove): void {
 		this.animateMove(move, () => {
+			const mover = this.position.turn;
 			const next = apply(this.position, move);
 			if (!next) {
 				return;
 			}
+			this.settleClock(mover);
 			this.position = next;
 			const side = winner(this.position);
 			if (side) {
@@ -592,11 +681,13 @@ export class GameScene extends Phaser.Scene {
 			return;
 		}
 		this.animateMove(move, () => {
+			const mover = this.position.turn;
 			const next = apply(this.position, move);
 			if (!next) {
 				this.endMatch(winner(this.position) ?? 'white');
 				return;
 			}
+			this.settleClock(mover);
 			this.position = next;
 			const side = winner(this.position);
 			if (side) {
@@ -609,7 +700,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private resignMatch(): void {
-		if (this.paused || this.moving || this.phase !== 'human') {
+		if (this.paused || this.moving || this.flagLock || this.phase !== 'human') {
 			return;
 		}
 		this.phase = 'over';
@@ -638,9 +729,17 @@ export class GameScene extends Phaser.Scene {
 			return;
 		}
 		if (paused) {
+			const side = this.position.turn;
+			this.clocks[side] = remainingMs(
+				this.clocks[side],
+				this.clockStartedAt,
+				this.time.now,
+				false,
+			);
 			this.elapsedMs += this.time.now - this.runningSince;
 		} else {
 			this.runningSince = this.time.now;
+			this.clockStartedAt = this.time.now;
 		}
 		this.paused = paused;
 		this.sound.mute = paused;

@@ -40,5 +40,6 @@ describe('formatClock', () => {
 	it('formats mm:ss from zero', () => {
 		expect(formatClock(0)).toBe('0:00');
 		expect(formatClock(75)).toBe('1:15');
+		expect(formatClock(120)).toBe('2:00');
 	});
 });
