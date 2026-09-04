@@ -3,8 +3,8 @@ import { apply } from './apply';
 import {
 	afterFlagBank,
 	afterMoveBank,
-	blitzIncrementMs,
 	blitzStartMs,
+	countdownBeats,
 	explodeFlag,
 	ownPieceSquares,
 	remainingMs,
@@ -335,14 +335,14 @@ describe('winner', () => {
 	});
 });
 
-describe('blitz 2+2', () => {
-	it('starts at 2:00 and adds 2s after a move, not a shared pot', () => {
-		expect(blitzStartMs).toBe(120_000);
-		expect(blitzIncrementMs).toBe(2_000);
-		expect(afterMoveBank(3_000)).toBe(5_000);
-		expect(afterFlagBank()).toBe(2_000);
-		expect(remainingMs(120_000, 0, 1_000, false)).toBe(119_000);
+describe('shot clock 5s', () => {
+	it('resets to 5s after a move or flag, no kettle', () => {
+		expect(blitzStartMs).toBe(5_000);
+		expect(afterMoveBank(1_200)).toBe(5_000);
+		expect(afterFlagBank()).toBe(5_000);
+		expect(remainingMs(5_000, 0, 1_000, false)).toBe(4_000);
 		expect(remainingMs(5_000, 10_000, 12_000, true)).toBe(5_000);
+		expect(countdownBeats).toEqual(['3', '2', '1', 'ГО']);
 	});
 
 	it('explodes a random own piece and keeps the same turn', () => {

@@ -3,8 +3,9 @@ import type { IPosition } from './types/IPosition';
 import type { ISquare } from './types/ISquare';
 import type { Side } from './types/Side';
 
-export const blitzStartMs = 120_000;
-export const blitzIncrementMs = 2_000;
+export const blitzStartMs = 5_000;
+export const countdownBeats = ['3', '2', '1', 'ГО'] as const;
+export const countdownBeatMs = 700;
 
 export function ownPieceSquares(position: IPosition, side: Side): ISquare[] {
 	const out: ISquare[] = [];
@@ -56,10 +57,10 @@ export function remainingMs(
 	return Math.max(0, bankMs - (now - startedAt));
 }
 
-export function afterMoveBank(bankMs: number): number {
-	return bankMs + blitzIncrementMs;
+export function afterMoveBank(_bankMs: number): number {
+	return blitzStartMs;
 }
 
 export function afterFlagBank(): number {
-	return blitzIncrementMs;
+	return blitzStartMs;
 }

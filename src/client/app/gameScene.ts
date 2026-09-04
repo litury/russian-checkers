@@ -101,12 +101,15 @@ import {
 	afterMoveBank,
 	apply,
 	blitzStartMs,
+	countdownBeatMs,
+	countdownBeats,
 	createInitialPosition,
 	explodeFlag,
 	legalMoves,
 	remainingMs,
 	winner,
 } from '@/rules';
+import { hudFont } from '@/client/fonts/fonts';
 import { createHud } from './createHud';
 import { createTitleOverlay } from './titleOverlay';
 import type { IYandexSdk } from './IYandexSdk';
@@ -122,6 +125,9 @@ import hudMenuUrl from './ui/hud_menu.png';
 import hudMenuFoldUrl from './ui/hud_menu_fold.png';
 import hudMenuOpenUrl from './ui/hud_menu_open.png';
 import hudMenuPressUrl from './ui/hud_menu_press.png';
+import hudMenuF0Url from './ui/hud_menu_f0.png';
+import hudMenuF1Url from './ui/hud_menu_f1.png';
+import hudMenuF2Url from './ui/hud_menu_f2.png';
 import hudNoteUrl from './ui/hud_note.png';
 import hudNoteOffUrl from './ui/hud_note_off.png';
 import hudPlateUrl from './ui/hud_plate.png';
@@ -169,6 +175,9 @@ export class GameScene extends Phaser.Scene {
 	private clocks = { white: blitzStartMs, black: blitzStartMs };
 	private clockStartedAt = 0;
 	private flagLock = false;
+	private countingIn = false;
+	private countText?: Phaser.GameObjects.Text;
+	private countEvent?: Phaser.Time.TimerEvent;
 	private botTimer?: Phaser.Time.TimerEvent;
 
 	constructor() {
@@ -211,6 +220,9 @@ export class GameScene extends Phaser.Scene {
 		this.load.image('hudMenuFold', hudMenuFoldUrl);
 		this.load.image('hudMenuOpen', hudMenuOpenUrl);
 		this.load.image('hudMenuPress', hudMenuPressUrl);
+		this.load.image('hudMenuF0', hudMenuF0Url);
+		this.load.image('hudMenuF1', hudMenuF1Url);
+		this.load.image('hudMenuF2', hudMenuF2Url);
 		this.load.image('hudGlassMeadow', hudGlassMeadowUrl);
 		this.load.image('hudPlateVol', hudPlateVolUrl);
 		this.load.image('hudPlate', hudPlateUrl);
@@ -327,6 +339,9 @@ export class GameScene extends Phaser.Scene {
 			'hudMenuOpen',
 			'hudMenuFold',
 			'hudMenuPress',
+			'hudMenuF0',
+			'hudMenuF1',
+			'hudMenuF2',
 			'hudGlassMeadow',
 			'hudPlateVol',
 			'hudPlate',
@@ -366,6 +381,16 @@ export class GameScene extends Phaser.Scene {
 			},
 		});
 		this.hud.setVisible(false);
+		this.countText = this.add
+			.text(0, 0, '', {
+				fontFamily: hudFont,
+				fontSize: '96px',
+				color: palette.text,
+			})
+			.setOrigin(0.5)
+			.setStroke('#1a1410', 8)
+			.setDepth(40)
+			.setVisible(false);
 		this.board = createBoardView(this, (square) => {
 			this.onSquare(square);
 		});
@@ -418,6 +443,7 @@ export class GameScene extends Phaser.Scene {
 		this.pendingBot = false;
 		this.overlay.hide();
 		this.hud.setVisible(false);
+		this.stopCountdown();
 		this.board.setPlayfieldVisible(false);
 		this.sfx.stopHover();
 		this.sfx.stopMeadow();
@@ -448,6 +474,37 @@ export class GameScene extends Phaser.Scene {
 		this.board.setPlayfieldVisible(true);
 		this.sfx.resetMatch();
 		this.refresh();
+		this.beginCountdown();
+	}
+
+	private stopCountdown(): void {
+		this.countEvent?.remove(false);
+		this.countEvent = undefined;
+		this.countingIn = false;
+		this.countText?.setVisible(false);
+	}
+
+	private beginCountdown(): void {
+		this.stopCountdown();
+		this.countingIn = true;
+		this.countText?.setPosition(this.scale.width / 2, this.scale.height / 2);
+		const step = (index: number): void => {
+			if (!this.countingIn) {
+				return;
+			}
+			const beat = countdownBeats[index];
+			if (!beat) {
+				this.stopCountdown();
+				this.clockStartedAt = this.time.now;
+				this.refresh();
+				return;
+			}
+			this.countText?.setText(beat).setVisible(true);
+			this.countEvent = this.time.delayedCall(countdownBeatMs, () => {
+				step(index + 1);
+			});
+		};
+		step(0);
 	}
 
 	private layout(width: number, height: number): void {
@@ -455,6 +512,7 @@ export class GameScene extends Phaser.Scene {
 		this.hud.layout(width, height);
 		this.overlay.layout(width, height);
 		this.title.layout(width, height);
+		this.countText?.setPosition(width / 2, height / 2);
 		this.refresh();
 	}
 
@@ -487,11 +545,16 @@ export class GameScene extends Phaser.Scene {
 		if (this.phase === 'title') {
 			return;
 		}
+		if (this.countingIn) {
+			this.hud.setTimer(Math.ceil(blitzStartMs / 1000));
+			return;
+		}
 		this.hud.setTimer(this.matchSeconds());
 		if (
 			this.paused ||
 			this.moving ||
 			this.flagLock ||
+			this.countingIn ||
 			this.phase === 'over'
 		) {
 			return;
@@ -509,7 +572,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private onFlag(): void {
-		if (this.flagLock || this.moving || this.phase === 'over') {
+		if (this.flagLock || this.moving || this.countingIn || this.phase === 'over') {
 			return;
 		}
 		this.flagLock = true;
@@ -556,7 +619,13 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private maybeAutoMove(): void {
-		if (this.paused || this.moving || this.flagLock || this.phase !== 'human') {
+		if (
+			this.paused ||
+			this.moving ||
+			this.flagLock ||
+			this.countingIn ||
+			this.phase !== 'human'
+		) {
 			return;
 		}
 		if (!getAutoMove()) {
@@ -569,14 +638,14 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private optionMoves(): IMove[] {
-		if (this.phase !== 'human' || this.paused) {
+		if (this.phase !== 'human' || this.paused || this.countingIn) {
 			return [];
 		}
 		return hopMovesForSelection(legalMoves(this.position), this.selected);
 	}
 
 	private humanHighlights(): ISquare[] {
-		if (this.phase !== 'human' || this.paused) {
+		if (this.phase !== 'human' || this.paused || this.countingIn) {
 			return [];
 		}
 		const moves = legalMoves(this.position);
@@ -592,7 +661,13 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private onSquare(square: ISquare): void {
-		if (this.paused || this.moving || this.flagLock || this.phase !== 'human') {
+		if (
+			this.paused ||
+			this.moving ||
+			this.flagLock ||
+			this.countingIn ||
+			this.phase !== 'human'
+		) {
 			return;
 		}
 		const moves = legalMoves(this.position);

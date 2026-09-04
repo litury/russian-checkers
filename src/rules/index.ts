@@ -2,8 +2,9 @@ export { apply } from './apply';
 export {
 	afterFlagBank,
 	afterMoveBank,
-	blitzIncrementMs,
 	blitzStartMs,
+	countdownBeatMs,
+	countdownBeats,
 	explodeFlag,
 	ownPieceSquares,
 	remainingMs,
