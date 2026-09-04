@@ -41,7 +41,8 @@ export const loseKeys = [
 	'mascotLose5',
 ] as const;
 export const loseHolds = [200, 320, 280, 240, 180] as const;
-const depth = 20;
+export const resultCatcherDepth = 20;
+const depth = resultCatcherDepth;
 
 function isRow(width: number): boolean {
 	return width >= rowMin;
@@ -332,6 +333,7 @@ export function createResultOverlay(
 			hero.setDisplaySize(heroFit, heroFit);
 			startPulse();
 			dim.setVisible(true);
+			dim.setInteractive();
 			root.setVisible(true);
 		},
 		hide: () => {
@@ -340,6 +342,7 @@ export function createResultOverlay(
 			restAgain();
 			restMenu();
 			dim.setVisible(false);
+			dim.disableInteractive();
 			root.setVisible(false);
 		},
 	};

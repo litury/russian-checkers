@@ -37,9 +37,9 @@ describe('computeFieldLayout', () => {
 });
 
 describe('formatClock', () => {
-	it('formats mm:ss from zero', () => {
-		expect(formatClock(0)).toBe('0:00');
-		expect(formatClock(75)).toBe('1:15');
-		expect(formatClock(120)).toBe('2:00');
+	it('shows a large shot-clock second', () => {
+		expect(formatClock(0)).toBe('0');
+		expect(formatClock(5)).toBe('5');
+		expect(formatClock(1.2)).toBe('1');
 	});
 });

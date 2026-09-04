@@ -20,7 +20,7 @@ type StubGo = {
 	setSize: (w: number, h: number) => StubGo;
 	setInteractive: () => StubGo;
 	disableInteractive: () => StubGo;
-	setOrigin: () => StubGo;
+	setOrigin: (x?: number, y?: number) => StubGo;
 	setScale: (x: number, y?: number) => StubGo;
 	setStroke: () => StubGo;
 	setText: () => StubGo;
@@ -78,7 +78,7 @@ function stubGo(key?: string): StubGo {
 		disableInteractive() {
 			return go;
 		},
-		setOrigin() {
+		setOrigin(x?: number, y?: number) {
 			return go;
 		},
 		setScale(_x: number, y?: number) {
@@ -134,22 +134,29 @@ type DelayCall = {
 function stubHudScene(): Phaser.Scene & {
 	rects: StubGo[];
 	images: StubGo[];
+	texts: StubGo[];
 	tileSprites: StubGo[];
 	timeCalls: DelayCall[];
 	emitInput: (event: string, ...args: unknown[]) => void;
 } {
 	const rects: StubGo[] = [];
 	const images: StubGo[] = [];
+	const texts: StubGo[] = [];
 	const tileSprites: StubGo[] = [];
 	const timeCalls: DelayCall[] = [];
 	const inputHandlers: Record<string, Handler[]> = {};
 	return {
 		rects,
 		images,
+		texts,
 		tileSprites,
 		timeCalls,
 		add: {
-			text: () => stubGo(),
+			text: () => {
+				const go = stubGo();
+				texts.push(go);
+				return go;
+			},
 			image: (_x: number, _y: number, key: string) => {
 				const go = stubGo(key);
 				images.push(go);
@@ -210,6 +217,7 @@ function stubHudScene(): Phaser.Scene & {
 	} as unknown as Phaser.Scene & {
 		rects: StubGo[];
 		images: StubGo[];
+		texts: StubGo[];
 		tileSprites: StubGo[];
 		timeCalls: DelayCall[];
 		emitInput: (event: string, ...args: unknown[]) => void;
@@ -231,7 +239,7 @@ describe('createHud', () => {
 		createHud(scene);
 		const menuHit = scene.rects[0];
 		const menuIcon = scene.images[0];
-		const chrome = scene.images.find((img) => img.key === 'hudMenuPlate');
+		const chrome = scene.images.find((img) => img.key === 'hudMenuF0');
 		expect(menuIcon.key).toBe('hudMenu');
 		expect(scene.images.some((img) => img.key === 'hudResign')).toBe(false);
 		expect(scene.images.some((img) => img.key === 'hudAi')).toBe(true);
@@ -259,6 +267,9 @@ describe('createHud', () => {
 		expect(menuIcon.key).toBe('hudMenuOpen');
 		expect(menuIcon.scaleY).toBe(1);
 		menuHit.emit('pointerdown', { id: 2 });
+		flushMs(scene, layout.menuFoldMs);
+		flushMs(scene, layout.menuFoldMs);
+		flushMs(scene, layout.menuFoldMs);
 		expect(chrome?.visible).toBe(false);
 		expect(menuIcon.key).toBe('hudMenuPress');
 		menuHit.emit('pointerup', { id: 2 });
@@ -312,7 +323,7 @@ describe('createHud', () => {
 		const moat = scene.tileSprites.find((img) => img.key === 'hudActionMoat');
 		const resign = scene.images.find((img) => img.key === 'hudResign');
 		const ai = scene.images.find((img) => img.key === 'hudAi');
-		const menuX = 390 - layout.hudMenu / 2;
+		const menuX = 390 - 24 - layout.hudMenu / 2;
 		const menuY = layout.hudBar / 2;
 		expect(moat).toBeUndefined();
 		expect(resign).toBeUndefined();
@@ -333,5 +344,15 @@ describe('createHud', () => {
 		ai?.emit('pointerup');
 		expect(ai?.displayW).toBe(44);
 		expect(ai?.displayH).toBe(44);
+	});
+
+	it('keeps the shot clock in the hamburger row with inset', () => {
+		const scene = stubHudScene();
+		const hud = createHud(scene);
+		hud.layout(390, 694);
+		const timer = scene.texts[0];
+		const menuY = layout.hudBar / 2;
+		expect(timer?.x).toBeGreaterThanOrEqual(24);
+		expect(timer?.y).toBe(menuY);
 	});
 });

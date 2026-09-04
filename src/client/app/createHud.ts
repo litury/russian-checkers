@@ -5,14 +5,14 @@ import {
 	setAutoMove,
 } from '@/client/app/parts/createSfxPanel';
 import { hudFont } from '@/client/fonts/fonts';
-import { computeFieldLayout, formatClock } from '@/client/config/fieldLayout';
+import { formatClock } from '@/client/config/fieldLayout';
 import { layout } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
 
 const textStroke = '#1a1410';
 const hudDepth = 12;
 const menuDepth = 15;
-const pad = 12;
+const pad = 24;
 
 type HudHandlers = {
 	onResign?: () => void;
@@ -59,7 +59,7 @@ export function createHud(
 	setTimer: (elapsedSec: number) => void;
 	setVisible: (on: boolean) => void;
 } {
-	const timer = hudText(scene, '0:00', '20px');
+	const timer = hudText(scene, '5', '38px');
 	const turn = hudText(scene, '', '20px');
 	const menuHit = scene.add.rectangle(
 		0,
@@ -244,23 +244,10 @@ export function createHud(
 
 	return {
 		layout: (width, height) => {
-			const field = computeFieldLayout(width, height);
-			if (field.portrait) {
-				const mid = layout.hudBar / 2;
-				timer.setOrigin(0, 0.5).setPosition(pad, mid);
-				turn.setOrigin(0.5, 0.5).setPosition(width / 2, mid);
-				const menuX = width - layout.hudMenu / 2;
-				placeMenu(menuX, mid);
-				placeActions(menuX, mid);
-				sfxPanel.layout(menuX, mid, width, height);
-				return;
-			}
-			timer.setOrigin(0, 0);
-			turn.setOrigin(0, 0);
-			turn.setPosition(pad, pad);
-			timer.setPosition(pad, pad + 28);
+			const menuY = layout.hudBar / 2;
 			const menuX = width - pad - layout.hudMenu / 2;
-			const menuY = pad + layout.hudMenu / 2;
+			timer.setOrigin(0, 0.5).setPosition(pad, menuY);
+			turn.setOrigin(0, 0).setPosition(pad, menuY + layout.hudMenu / 2 + 4);
 			placeMenu(menuX, menuY);
 			placeActions(menuX, menuY);
 			sfxPanel.layout(menuX, menuY, width, height);

@@ -13,6 +13,7 @@ import {
 	replayPulseMs,
 	replayPulseScale,
 	resultAgainCopy,
+	resultCatcherDepth,
 	resultMenuCopy,
 	winKeys,
 } from './resultOverlay';
@@ -31,5 +32,6 @@ describe('resultOverlay mascot timing', () => {
 		expect(replayPulseMs).toBe(800);
 		expect(resultAgainCopy).toBe('Ещё раз');
 		expect(resultMenuCopy).toBe('В меню');
+		expect(resultCatcherDepth).toBeGreaterThan(15);
 	});
 });
