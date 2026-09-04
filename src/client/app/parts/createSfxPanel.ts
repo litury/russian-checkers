@@ -1,6 +1,5 @@
 import type Phaser from 'phaser';
 import { hudFont } from '@/client/fonts/fonts';
-import { computeFieldLayout } from '@/client/config/fieldLayout';
 import { layout } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
 import {
@@ -17,6 +16,8 @@ export const sfxMonitor = {
 
 export const resignCopy = 'Сдаться';
 export const resignConfirmCopy = 'Точно?';
+export const menuPlateKeys = ['hudMenuF0', 'hudMenuF1', 'hudMenuF2'] as const;
+export const menuPlateFrameMs = 70;
 export const autoStorageKey = 'checkers.autoMove';
 
 const glassX = 16;
@@ -121,7 +122,7 @@ export function createSfxPanel(
 	glass.setDepth(panelDepth);
 	glass.setVisible(false);
 
-	const chrome = scene.add.image(0, 0, 'hudMenuPlate').setOrigin(0, 0);
+	const chrome = scene.add.image(0, 0, menuPlateKeys[0]).setOrigin(1, 0);
 	chrome.setDepth(panelDepth + 1);
 	chrome.setVisible(false);
 
@@ -190,6 +191,8 @@ export function createSfxPanel(
 	let px = 0;
 	let py = 0;
 	let panelW = 0;
+	let menuX = 0;
+	let menuY = 0;
 	let open = false;
 	let catcherArmed = false;
 	let ignorePointerId: number | undefined;
@@ -250,9 +253,21 @@ export function createSfxPanel(
 		paintResign();
 	}
 
+	function fromScale(): number {
+		return layout.hudMenu / sfxMonitor.width;
+	}
+
+	function sizeChrome(scale: number): void {
+		chrome.setScale(scale, scale);
+		chrome.setDisplaySize(panelW * scale, sfxMonitor.height * scale);
+	}
+
 	function placeHits(): void {
-		chrome.setPosition(px, py);
-		chrome.setDisplaySize(panelW, sfxMonitor.height);
+		const cornerX = menuX - layout.hudMenu / 2;
+		const cornerY = menuY + layout.hudMenu / 2;
+		chrome.setOrigin(1, 0);
+		chrome.setPosition(cornerX, cornerY);
+		sizeChrome(open ? 1 : fromScale());
 		glass.setPosition(px + glassX, py + glassY);
 		glass.setDisplaySize(
 			Math.max(1, panelW - glassX * 2),
@@ -312,33 +327,78 @@ export function createSfxPanel(
 	const plates = [minusPlate, plusPlate, notePlate, resignPlate];
 	const icons = [minusGlyph, plusGlyph, note, resignGlyph];
 
-	function setOpen(next: boolean, pointer?: Pointer): void {
-		open = next;
-		glass.setVisible(next);
-		chrome.setVisible(next);
-		meter.setVisible(next);
+	function prefersReducedMotion(): boolean {
+		try {
+			return Boolean(
+				globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
+			);
+		} catch {
+			return false;
+		}
+	}
+
+	let plateTimer: { remove?: (dispatch?: boolean) => void } | undefined;
+
+	function clearPlateTimer(): void {
+		plateTimer?.remove?.(false);
+		plateTimer = undefined;
+	}
+
+	function setControlsVisible(on: boolean): void {
+		glass.setVisible(on);
+		meter.setVisible(on);
 		for (const img of plates) {
-			img.setVisible(next);
+			img.setVisible(on);
 		}
 		for (const img of icons) {
-			img.setVisible(next);
+			img.setVisible(on);
 		}
+	}
+
+	function setOpen(next: boolean, pointer?: Pointer): void {
+		open = next;
+		clearPlateTimer();
 		catcher.setVisible(next);
 		if (next) {
 			ignorePointerId =
 				typeof pointer?.id === 'number' ? pointer.id : undefined;
 			catcherArmed = false;
-			minusPlate.setInteractive({ useHandCursor: true });
-			plusPlate.setInteractive({ useHandCursor: true });
-			notePlate.setInteractive({ useHandCursor: true });
-			resignPlate.setInteractive({ useHandCursor: true });
-			catcher.setInteractive();
+			chrome.setVisible(true);
+			chrome.setTexture(menuPlateKeys[0]);
+			sizeChrome(fromScale());
+			setControlsVisible(false);
 			placeHits();
-			paint();
-			if (typeof scene.time?.delayedCall === 'function') {
-				scene.time.delayedCall(0, armCatcher);
+			sizeChrome(fromScale());
+			const finishOpen = (): void => {
+				chrome.setTexture(menuPlateKeys[2]);
+				sizeChrome(1);
+				setControlsVisible(true);
+				minusPlate.setInteractive({ useHandCursor: true });
+				plusPlate.setInteractive({ useHandCursor: true });
+				notePlate.setInteractive({ useHandCursor: true });
+				resignPlate.setInteractive({ useHandCursor: true });
+				catcher.setInteractive();
+				paint();
+				if (typeof scene.time?.delayedCall === 'function') {
+					scene.time.delayedCall(0, armCatcher);
+				} else {
+					armCatcher();
+				}
+			};
+			if (
+				prefersReducedMotion() ||
+				typeof scene.time?.delayedCall !== 'function'
+			) {
+				finishOpen();
 			} else {
-				armCatcher();
+				plateTimer = scene.time.delayedCall(menuPlateFrameMs, () => {
+					chrome.setTexture(menuPlateKeys[1]);
+					const mid = (fromScale() + 1) / 2;
+					sizeChrome(mid);
+					plateTimer = scene.time.delayedCall(menuPlateFrameMs, () => {
+						finishOpen();
+					});
+				});
 			}
 		} else {
 			ignorePointerId = undefined;
@@ -351,6 +411,34 @@ export function createSfxPanel(
 			catcher.disableInteractive();
 			resignArmed = false;
 			paintResign();
+			setControlsVisible(false);
+			const finishClose = (): void => {
+				chrome.setVisible(false);
+				sizeChrome(fromScale());
+			};
+			if (
+				!chrome.visible ||
+				prefersReducedMotion() ||
+				typeof scene.time?.delayedCall !== 'function'
+			) {
+				finishClose();
+			} else {
+				chrome.setTexture(menuPlateKeys[2]);
+				chrome.setVisible(true);
+				const mid = (fromScale() + 1) / 2;
+				sizeChrome(mid);
+				plateTimer = scene.time.delayedCall(menuPlateFrameMs, () => {
+					chrome.setTexture(menuPlateKeys[1]);
+					sizeChrome(mid);
+					plateTimer = scene.time.delayedCall(menuPlateFrameMs, () => {
+						chrome.setTexture(menuPlateKeys[0]);
+						sizeChrome(fromScale());
+						plateTimer = scene.time.delayedCall(menuPlateFrameMs, () => {
+							finishClose();
+						});
+					});
+				});
+			}
 		}
 		handlers.onOpenChange?.(next);
 	}
@@ -460,26 +548,20 @@ export function createSfxPanel(
 	});
 
 	return {
-		layout: (menuX, menuY, width, height) => {
-			const field = computeFieldLayout(width, height);
+		layout: (anchorX, anchorY, width, height) => {
+			menuX = anchorX;
+			menuY = anchorY;
 			panelW = sfxMonitor.width;
-			let x = Math.round(menuX - sfxMonitor.width + layout.hudMenu / 2);
-			let y = Math.round(menuY + layout.hudMenu / 2 + pad);
-			x = Math.max(pad, Math.min(x, width - pad - sfxMonitor.width));
-			if (field.portrait && y + sfxMonitor.height > field.originY) {
-				y = Math.round(menuY - sfxMonitor.height / 2);
-				x = Math.round(menuX - layout.hudMenu / 2 - pad - sfxMonitor.width);
-				x = Math.max(pad, x);
-			} else if (y + sfxMonitor.height > height - pad) {
-				y = Math.round(menuY - layout.hudMenu / 2 - pad - sfxMonitor.height);
-			}
-			px = x;
-			py = Math.max(pad, y);
+			px = Math.round(anchorX - layout.hudMenu / 2 - sfxMonitor.width);
+			py = Math.round(anchorY + layout.hudMenu / 2);
 			catcher.setPosition(width / 2, height / 2);
 			catcher.setDisplaySize(width, height);
 			placeHits();
 			if (open) {
+				sizeChrome(1);
 				paint();
+			} else {
+				sizeChrome(fromScale());
 			}
 		},
 		toggle: (pointer) => {

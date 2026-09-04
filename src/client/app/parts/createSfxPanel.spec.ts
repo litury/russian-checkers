@@ -30,6 +30,8 @@ type StubGo = {
 	x: number;
 	y: number;
 	scaleY: number;
+	originX: number;
+	originY: number;
 	displaySizeCalls: Array<[number, number]>;
 	fills: Fill[];
 	fillColor: number;
@@ -39,7 +41,7 @@ type StubGo = {
 	setDisplaySize: (w: number, h: number) => StubGo;
 	setInteractive: () => StubGo;
 	disableInteractive: () => StubGo;
-	setOrigin: () => StubGo;
+	setOrigin: (x?: number, y?: number) => StubGo;
 	setTexture: (key: string) => StubGo;
 	setStroke: () => StubGo;
 	setText: (next: string) => StubGo;
@@ -61,6 +63,8 @@ function stubGo(key?: string): StubGo {
 		x: 0,
 		y: 0,
 		scaleY: 1,
+		originX: 0,
+		originY: 0,
 		displaySizeCalls: [],
 		fills: [],
 		fillColor: 0,
@@ -88,7 +92,13 @@ function stubGo(key?: string): StubGo {
 			go.interactive = false;
 			return go;
 		},
-		setOrigin() {
+		setOrigin(x?: number, y?: number) {
+			if (typeof x === 'number') {
+				go.originX = x;
+			}
+			if (typeof y === 'number') {
+				go.originY = y;
+			}
 			return go;
 		},
 		setTexture(next: string) {
@@ -196,6 +206,13 @@ function stubPanelScene(): Phaser.Scene & {
 	};
 }
 
+function drainTime(scene: { timeCalls: Array<() => void> }): void {
+	while (scene.timeCalls.length > 0) {
+		const fn = scene.timeCalls.shift();
+		fn?.();
+	}
+}
+
 describe('createSfxPanel', () => {
 	afterEach(() => {
 		setSfxMaster(sfxMaster);
@@ -212,7 +229,7 @@ describe('createSfxPanel', () => {
 		const scene = stubPanelScene();
 		const panel = createSfxPanel(scene);
 		const keys = scene.images.map((img) => img.key);
-		expect(keys).toContain('hudMenuPlate');
+		expect(keys).toContain('hudMenuF0');
 		expect(keys).toContain('hudGlassMeadow');
 		expect(keys).toContain('hudNote');
 		expect(keys).toContain('hudPlate');
@@ -228,12 +245,35 @@ describe('createSfxPanel', () => {
 		expect(keys).not.toContain('hudMute');
 		expect(keys).not.toContain('hudMuteOff');
 		expect(scene.graphics).toHaveLength(1);
-		const chrome = scene.images.find((img) => img.key === 'hudMenuPlate');
+		const chrome = scene.images.find((img) => img.key === 'hudMenuF0');
 		panel.toggle();
 		expect(chrome?.visible).toBe(true);
 		expect(chrome?.interactive).toBe(false);
+		expect(scene.graphics[0]?.visible).toBe(false);
+		drainTime(scene);
 		expect(scene.graphics[0]?.visible).toBe(true);
 		panel.hide();
+		drainTime(scene);
+		expect(chrome?.visible).toBe(false);
+	});
+
+	it('scales the plate from the hamburger corner', () => {
+		const scene = stubPanelScene();
+		const panel = createSfxPanel(scene);
+		panel.layout(380, 22, 400, 300);
+		const chrome = scene.images.find((img) => img.key === 'hudMenuF0');
+		expect(chrome?.originX).toBe(1);
+		expect(chrome?.originY).toBe(0);
+		panel.toggle();
+		expect(chrome?.x).toBe(380 - 22);
+		expect(chrome?.y).toBe(22 + 22);
+		expect(chrome?.scaleY).toBeLessThan(1);
+		drainTime(scene);
+		expect(chrome?.scaleY).toBe(1);
+		expect(chrome?.visible).toBe(true);
+		panel.hide();
+		expect(chrome?.scaleY).toBeLessThan(1);
+		drainTime(scene);
 		expect(chrome?.visible).toBe(false);
 	});
 
@@ -245,6 +285,7 @@ describe('createSfxPanel', () => {
 		const plates = scene.images.filter((img) => img.key === 'hudPlate');
 		panel.layout(380, 22, 400, 300);
 		panel.toggle();
+		drainTime(scene);
 		expect(note?.visible).toBe(true);
 		expect(note?.interactive).toBe(false);
 		expect(plates[2]?.interactive).toBe(true);
@@ -270,12 +311,13 @@ describe('createSfxPanel', () => {
 		setSfxMaster(0.8);
 		const scene = stubPanelScene();
 		const panel = createSfxPanel(scene);
-		const chrome = scene.images.find((img) => img.key === 'hudMenuPlate');
+		const chrome = scene.images.find((img) => img.key === 'hudMenuF0');
 		const glass = scene.images.find((img) => img.key === 'hudGlassMeadow');
 		const note = scene.images.find((img) => img.key === 'hudNote');
 		const plates = scene.images.filter((img) => img.key === 'hudPlate');
 		panel.layout(380, 22, 400, 300);
 		panel.toggle();
+		drainTime(scene);
 		expect(chrome?.interactive).toBe(false);
 		expect(glass?.interactive).toBe(false);
 		expect(note?.interactive).toBe(false);
@@ -298,10 +340,11 @@ describe('createSfxPanel', () => {
 		const scene = stubPanelScene();
 		const panel = createSfxPanel(scene);
 		panel.layout(380, 22, 400, 300);
-		const chrome = scene.images.find((img) => img.key === 'hudMenuPlate');
+		const chrome = scene.images.find((img) => img.key === 'hudMenuF0');
 		const plates = scene.images.filter((img) => img.key === 'hudPlate');
 		expect(plates).toHaveLength(4);
 		panel.toggle({ worldX: 380, worldY: 22, id: 1 });
+		drainTime(scene);
 		expect(chrome?.visible).toBe(true);
 		const gold = scene.graphics[0]?.fills.find(
 			(fill) => fill.color === palette.meterGold,
@@ -331,6 +374,7 @@ describe('createSfxPanel', () => {
 		setSfxMaster(0.4);
 		panel.layout(380, 22, 400, 300);
 		panel.toggle();
+		drainTime(scene);
 		plates[2]?.emit('pointerdown');
 		expect(getSfxMaster()).toBe(0);
 		plates[0]?.emit('pointerdown');
@@ -351,6 +395,7 @@ describe('createSfxPanel', () => {
 			(img) => img.key === 'hudNote' || img.key === 'hudNoteOff',
 		);
 		panel.toggle({ worldX: 380, worldY: 22, id: 1 });
+		drainTime(scene);
 		const goldMuted = scene.graphics[0]?.fills.find(
 			(fill) => fill.color === palette.meterGold,
 		);
@@ -377,6 +422,7 @@ describe('createSfxPanel', () => {
 		const note = scene.images.find((img) => img.key === 'hudNote');
 		const plates = scene.images.filter((img) => img.key === 'hudPlate');
 		panel.toggle({ worldX: 380, worldY: 22, id: 1 });
+		drainTime(scene);
 		const restY = note?.y ?? 0;
 		plates[2]?.emit('pointerdown');
 		expect(note?.scaleY).toBe(1);
@@ -391,7 +437,7 @@ describe('createSfxPanel', () => {
 		const panel = createSfxPanel(scene);
 		panel.layout(380, 22, 400, 300);
 		const [catcher] = scene.rects;
-		const chrome = scene.images.find((img) => img.key === 'hudMenuPlate');
+		const chrome = scene.images.find((img) => img.key === 'hudMenuF0');
 		if (!chrome) {
 			throw new Error('missing chrome');
 		}
@@ -411,6 +457,7 @@ describe('createSfxPanel', () => {
 		});
 		expect(chrome.visible).toBe(true);
 		catcher.emit('pointerdown', { worldX: 10, worldY: 10, id: 9 });
+		drainTime(scene);
 		expect(chrome.visible).toBe(false);
 	});
 
@@ -423,12 +470,13 @@ describe('createSfxPanel', () => {
 			},
 		});
 		panel.layout(380, 22, 400, 300);
-		const chrome = scene.images.find((img) => img.key === 'hudMenuPlate');
-		expect(chrome?.displaySizeCalls.at(-1)).toEqual([188, 148]);
+		const chrome = scene.images.find((img) => img.key === 'hudMenuF0');
 		expect(scene.texts.map((t) => t.content)).toContain(resignCopy);
 		const resign = scene.texts.find((t) => t.content === resignCopy);
 		const plates = scene.images.filter((img) => img.key === 'hudPlate');
 		panel.toggle();
+		drainTime(scene);
+		expect(chrome?.displaySizeCalls.at(-1)).toEqual([188, 148]);
 		expect(chrome?.visible).toBe(true);
 		expect(getSfxMuted()).toBe(false);
 		plates[2]?.emit('pointerdown');
@@ -445,9 +493,11 @@ describe('createSfxPanel', () => {
 		expect(chrome?.visible).toBe(true);
 		plates[3]?.emit('pointerdown');
 		expect(resigns).toBe(1);
+		drainTime(scene);
 		expect(chrome?.visible).toBe(false);
 		panel.toggle();
 		expect(resign?.content).toBe(resignCopy);
 		panel.hide();
+		drainTime(scene);
 	});
 });
