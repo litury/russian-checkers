@@ -962,6 +962,7 @@ export function createBoardView(
 			view.sprite.setScale(view.baseScale);
 		}
 		view.sprite.setDepth(selected ? 5 : 4);
+		view.sprite.setVisible(true);
 		placeShadow(view, selected);
 		syncOutline(view);
 	}
@@ -1845,6 +1846,10 @@ export function createBoardView(
 			}
 		}
 		if (on) {
+			for (const view of pieceViews.values()) {
+				view.sprite.setVisible(true);
+				syncOutline(view);
+			}
 			return;
 		}
 		for (const view of pieceViews.values()) {
@@ -1884,6 +1889,10 @@ export function createBoardView(
 			killCaptureVfx();
 			clearScorches();
 			clearPathStamps();
+			for (const view of pieceViews.values()) {
+				destroyView(view);
+			}
+			pieceViews.clear();
 		},
 		setPlayfieldVisible,
 	};
