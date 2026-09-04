@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
+	base: './',
 	resolve: {
 		alias: {
 			'@': new URL('./src', import.meta.url).pathname,
