@@ -12,6 +12,8 @@ import {
 	autoStorageKey,
 	createSfxPanel,
 	getAutoMove,
+	resignConfirmCopy,
+	resignCopy,
 	setAutoMove,
 	sfxMonitor,
 } from './createSfxPanel';
@@ -24,6 +26,7 @@ type StubGo = {
 	visible: boolean;
 	interactive: boolean;
 	key?: string;
+	content?: string;
 	x: number;
 	y: number;
 	scaleY: number;
@@ -39,6 +42,7 @@ type StubGo = {
 	setOrigin: () => StubGo;
 	setTexture: (key: string) => StubGo;
 	setStroke: () => StubGo;
+	setText: (next: string) => StubGo;
 	setScale: (x: number, y?: number) => StubGo;
 	on: (event: string, fn: Handler) => StubGo;
 	emit: (event: string, ...args: unknown[]) => void;
@@ -53,6 +57,7 @@ function stubGo(key?: string): StubGo {
 		visible: false,
 		interactive: false,
 		key,
+		content: undefined,
 		x: 0,
 		y: 0,
 		scaleY: 1,
@@ -93,6 +98,10 @@ function stubGo(key?: string): StubGo {
 		setStroke() {
 			return go;
 		},
+		setText(next: string) {
+			go.content = next;
+			return go;
+		},
 		setScale(_x: number, y?: number) {
 			go.scaleY = y ?? _x;
 			return go;
@@ -131,16 +140,19 @@ function stubGo(key?: string): StubGo {
 function stubPanelScene(): Phaser.Scene & {
 	rects: StubGo[];
 	images: StubGo[];
+	texts: StubGo[];
 	graphics: StubGo[];
 	timeCalls: Array<() => void>;
 } {
 	const rects: StubGo[] = [];
 	const images: StubGo[] = [];
+	const texts: StubGo[] = [];
 	const graphics: StubGo[] = [];
 	const timeCalls: Array<() => void> = [];
 	return {
 		rects,
 		images,
+		texts,
 		graphics,
 		timeCalls,
 		add: {
@@ -154,7 +166,12 @@ function stubPanelScene(): Phaser.Scene & {
 				images.push(go);
 				return go;
 			},
-			text: () => stubGo(),
+			text: (_x: number, _y: number, content?: string) => {
+				const go = stubGo();
+				go.content = content;
+				texts.push(go);
+				return go;
+			},
 			graphics: () => {
 				const go = stubGo();
 				graphics.push(go);
@@ -173,6 +190,7 @@ function stubPanelScene(): Phaser.Scene & {
 	} as unknown as Phaser.Scene & {
 		rects: StubGo[];
 		images: StubGo[];
+		texts: StubGo[];
 		graphics: StubGo[];
 		timeCalls: Array<() => void>;
 	};
@@ -188,7 +206,7 @@ describe('createSfxPanel', () => {
 	it('mounts a raised CRT with meter and no music key or resign', () => {
 		expect(typeof document).toBe('undefined');
 		expect(sfxMonitor.width).toBe(188);
-		expect(sfxMonitor.height).toBe(100);
+		expect(sfxMonitor.height).toBe(148);
 		expect(autoStorageKey).toBe('checkers.autoMove');
 		expect(getAutoMove()).toBe(true);
 		const scene = stubPanelScene();
@@ -224,18 +242,20 @@ describe('createSfxPanel', () => {
 		const scene = stubPanelScene();
 		const panel = createSfxPanel(scene);
 		const note = scene.images.find((img) => img.key === 'hudNote');
+		const plates = scene.images.filter((img) => img.key === 'hudPlate');
 		panel.layout(380, 22, 400, 300);
 		panel.toggle();
 		expect(note?.visible).toBe(true);
-		expect(note?.interactive).toBe(true);
-		note?.emit('pointerdown');
+		expect(note?.interactive).toBe(false);
+		expect(plates[2]?.interactive).toBe(true);
+		plates[2]?.emit('pointerdown');
 		expect(getSfxMaster()).toBe(0);
 		expect(getSfxMuted()).toBe(true);
 		const goldMuted = scene.graphics[0]?.fills.find(
 			(fill) => fill.color === palette.meterGold,
 		);
 		expect(goldMuted?.w).toBe(0);
-		note?.emit('pointerdown');
+		plates[2]?.emit('pointerdown');
 		expect(getSfxMaster()).toBe(0.8);
 		expect(getSfxMuted()).toBe(false);
 		const goldRestored = scene.graphics[0]?.fills.find(
@@ -243,7 +263,7 @@ describe('createSfxPanel', () => {
 		);
 		expect(goldRestored?.w).toBeCloseTo(140 * 0.8);
 		panel.hide();
-		expect(note?.interactive).toBe(false);
+		expect(plates[2]?.interactive).toBe(false);
 	});
 
 	it('keeps chrome and glass inert so the note plate gets pointerdown', () => {
@@ -258,9 +278,9 @@ describe('createSfxPanel', () => {
 		panel.toggle();
 		expect(chrome?.interactive).toBe(false);
 		expect(glass?.interactive).toBe(false);
-		expect(note?.interactive).toBe(true);
+		expect(note?.interactive).toBe(false);
 		expect(plates[0]?.interactive).toBe(true);
-		plates[0]?.emit('pointerdown');
+		plates[2]?.emit('pointerdown');
 		expect(getSfxMuted()).toBe(true);
 		expect(getSfxMaster()).toBe(0);
 		expect(note?.key).toBe('hudNoteOff');
@@ -268,7 +288,7 @@ describe('createSfxPanel', () => {
 			(fill) => fill.color === palette.meterGold,
 		);
 		expect(goldMuted?.w).toBe(0);
-		note?.emit('pointerdown');
+		plates[2]?.emit('pointerdown');
 		expect(getSfxMuted()).toBe(false);
 		expect(getSfxMaster()).toBe(0.8);
 	});
@@ -280,17 +300,17 @@ describe('createSfxPanel', () => {
 		panel.layout(380, 22, 400, 300);
 		const chrome = scene.images.find((img) => img.key === 'resultMonitor');
 		const plates = scene.images.filter((img) => img.key === 'hudPlate');
-		expect(plates).toHaveLength(3);
+		expect(plates).toHaveLength(4);
 		panel.toggle({ worldX: 380, worldY: 22, id: 1 });
 		expect(chrome?.visible).toBe(true);
 		const gold = scene.graphics[0]?.fills.find(
 			(fill) => fill.color === palette.meterGold,
 		);
 		expect(gold?.w).toBeCloseTo(140 * 0.4);
-		plates[1]?.emit('pointerdown');
+		plates[0]?.emit('pointerdown');
 		expect(getSfxMaster()).toBeCloseTo(0.3);
-		plates[2]?.emit('pointerdown');
-		plates[2]?.emit('pointerdown');
+		plates[1]?.emit('pointerdown');
+		plates[1]?.emit('pointerdown');
 		expect(getSfxMaster()).toBeCloseTo(0.5);
 		const goldAfter = scene.graphics[0]?.fills.find(
 			(fill) => fill.color === palette.meterGold,
@@ -307,14 +327,13 @@ describe('createSfxPanel', () => {
 		expect(keys).not.toContain('hudMusic');
 		expect(keys).not.toContain('hudMusicOff');
 		const plates = scene.images.filter((img) => img.key === 'hudPlate');
-		expect(plates).toHaveLength(3);
+		expect(plates).toHaveLength(4);
 		setSfxMaster(0.4);
-		const note = scene.images.find((img) => img.key === 'hudNote');
 		panel.layout(380, 22, 400, 300);
 		panel.toggle();
-		note?.emit('pointerdown');
-		expect(getSfxMaster()).toBe(0);
 		plates[2]?.emit('pointerdown');
+		expect(getSfxMaster()).toBe(0);
+		plates[0]?.emit('pointerdown');
 		plates[1]?.emit('pointerdown');
 		expect(getSfxMaster()).toBe(0);
 		expect(getSfxMuted()).toBe(true);
@@ -337,7 +356,7 @@ describe('createSfxPanel', () => {
 		);
 		expect(goldMuted?.w).toBe(0);
 		expect(note?.key).toBe('hudNoteOff');
-		plates[2]?.emit('pointerdown');
+		plates[0]?.emit('pointerdown');
 		plates[1]?.emit('pointerdown');
 		expect(getSfxMaster()).toBe(0);
 		expect(getSfxMuted()).toBe(true);
@@ -345,7 +364,7 @@ describe('createSfxPanel', () => {
 			(fill) => fill.color === palette.meterGold,
 		);
 		expect(goldPlus?.w).toBe(0);
-		note?.emit('pointerdown');
+		plates[2]?.emit('pointerdown');
 		expect(getSfxMuted()).toBe(false);
 		expect(getSfxMaster()).toBe(0.4);
 		expect(note?.key).toBe('hudNote');
@@ -356,12 +375,13 @@ describe('createSfxPanel', () => {
 		const panel = createSfxPanel(scene);
 		panel.layout(380, 22, 400, 300);
 		const note = scene.images.find((img) => img.key === 'hudNote');
+		const plates = scene.images.filter((img) => img.key === 'hudPlate');
 		panel.toggle({ worldX: 380, worldY: 22, id: 1 });
 		const restY = note?.y ?? 0;
-		note?.emit('pointerdown');
+		plates[2]?.emit('pointerdown');
 		expect(note?.scaleY).toBe(1);
 		expect(note?.y).toBeGreaterThan(restY);
-		note?.emit('pointerup');
+		plates[2]?.emit('pointerup');
 		expect(note?.scaleY).toBe(1);
 		expect(note?.y).toBe(restY);
 	});
@@ -392,5 +412,42 @@ describe('createSfxPanel', () => {
 		expect(chrome.visible).toBe(true);
 		catcher.emit('pointerdown', { worldX: 10, worldY: 10, id: 9 });
 		expect(chrome.visible).toBe(false);
+	});
+
+	it('resigns on one Сдаться tap and spans the view width', () => {
+		const scene = stubPanelScene();
+		let resigns = 0;
+		const panel = createSfxPanel(scene, {
+			onResign: () => {
+				resigns += 1;
+			},
+		});
+		panel.layout(380, 22, 400, 300);
+		const chrome = scene.images.find((img) => img.key === 'resultMonitor');
+		expect(chrome?.displaySizeCalls.at(-1)).toEqual([188, 148]);
+		expect(scene.texts.map((t) => t.content)).toContain(resignCopy);
+		const resign = scene.texts.find((t) => t.content === resignCopy);
+		const plates = scene.images.filter((img) => img.key === 'hudPlate');
+		panel.toggle();
+		expect(chrome?.visible).toBe(true);
+		expect(getSfxMuted()).toBe(false);
+		plates[2]?.emit('pointerdown');
+		expect(getSfxMuted()).toBe(true);
+		expect(scene.images.find((img) => img.key === 'hudNoteOff')?.key).toBe(
+			'hudNoteOff',
+		);
+		plates[2]?.emit('pointerup');
+		plates[2]?.emit('pointerdown');
+		expect(getSfxMuted()).toBe(false);
+		plates[3]?.emit('pointerdown');
+		expect(resigns).toBe(0);
+		expect(resign?.content).toBe(resignConfirmCopy);
+		expect(chrome?.visible).toBe(true);
+		plates[3]?.emit('pointerdown');
+		expect(resigns).toBe(1);
+		expect(chrome?.visible).toBe(false);
+		panel.toggle();
+		expect(resign?.content).toBe(resignCopy);
+		panel.hide();
 	});
 });

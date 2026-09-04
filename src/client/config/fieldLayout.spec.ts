@@ -8,28 +8,23 @@ describe('computeFieldLayout', () => {
 		expect(field.portrait).toBe(true);
 		expect(field.fieldSize).toBe(390);
 		expect(field.originX).toBe(0);
-		expect(field.originY).toBe(176);
+		expect(field.originY).toBe(224);
 		expect(field.cell).toBeCloseTo(48.75);
 		expect(field.cell).toBeGreaterThanOrEqual(layout.minCellPx);
 		expect(field.originY).toBeGreaterThanOrEqual(layout.hudBar);
-		expect(layout.boardBottomGap).toBe(128);
-		expect(layout.hudStripInset).toBe(14);
-		expect(layout.hudMoatH).toBe(104);
-		expect(layout.hudMoatW).toBe(384);
-		expect(layout.hudStripInset + layout.hudMoatH).toBeLessThanOrEqual(
-			layout.boardBottomGap,
-		);
+		expect(layout.boardBottomGap).toBe(80);
+		expect(layout.hudStripInset).toBe(8);
 		expect(field.originY + field.fieldSize).toBe(694 - layout.boardBottomGap);
 	});
 
 	it('sizes 16:9 board by height minus the action strip and keeps side gutters', () => {
 		const field = computeFieldLayout(1280, 720);
 		expect(field.portrait).toBe(false);
-		expect(field.fieldSize).toBe(592);
-		expect(field.originX).toBe(344);
+		expect(field.fieldSize).toBe(640);
+		expect(field.originX).toBe(320);
 		expect(field.originY).toBe(0);
-		expect(field.cell).toBe(74);
-		expect(1280 - field.originX - field.fieldSize).toBe(344);
+		expect(field.cell).toBe(80);
+		expect(1280 - field.originX - field.fieldSize).toBe(320);
 		expect(720 - field.fieldSize).toBe(layout.boardBottomGap);
 	});
 

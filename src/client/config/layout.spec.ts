@@ -46,33 +46,16 @@ describe('hop path stamps', () => {
 });
 
 describe('hud action moat', () => {
-	it('sizes the empty moat and clears the field by inset plus moat', () => {
-		expect(layout.hudMoatW).toBe(384);
-		expect(layout.hudMoatBtnInset).toBe(10);
-		expect(layout.hudMoatH).toBe(104);
-		expect(layout.hudStripInset).toBe(14);
-		expect(layout.boardBottomGap).toBe(128);
-		expect(layout.hudMoatResignX).toBe(42);
-		expect(layout.hudMoatResignY).toBe(52);
-		expect(layout.hudMoatAiX).toBe(342);
-		expect(layout.hudMoatAiY).toBe(52);
-		expect(layout.hudStripInset + layout.hudMoatH).toBeLessThanOrEqual(
-			layout.boardBottomGap,
-		);
-		expect(layout.hudResign).toBe(64);
-		expect(layout.hudAiW).toBe(64);
-		expect(layout.hudAiH).toBe(48);
-		expect(layout.hudAction).toBe(64);
-		expect(
-			layout.hudMoatResignX - layout.hudResign / 2,
-		).toBeGreaterThanOrEqual(layout.hudMoatBtnInset);
-		expect(
-			layout.hudMoatW - (layout.hudMoatAiX + layout.hudAiW / 2),
-		).toBeGreaterThanOrEqual(layout.hudMoatBtnInset);
-		expect(layout.hudMoatResignX).not.toBe(layout.hudMoatW / 2);
-		expect(layout.hudMoatAiX).not.toBe(layout.hudMoatW / 2);
-		expect(
-			layout.boardBottomGap - layout.hudStripInset - layout.hudMoatH,
-		).toBeGreaterThanOrEqual(layout.hudMoatBtnInset);
+	it('has no full-width shore; action stones are native size', () => {
+		expect(layout.hudResign).toBe(44);
+		expect(layout.hudAiW).toBe(44);
+		expect(layout.hudAiH).toBe(44);
+		expect(layout.hudAction).toBe(44);
+		expect(layout.hudActionGap).toBe(16);
+		expect(layout.hudStripInset).toBe(8);
+		expect(layout.boardBottomGap).toBe(80);
+		expect('hudMoatW' in layout).toBe(false);
+		expect('hudMoatTileW' in layout).toBe(false);
+		expect('hudSideInset' in layout).toBe(false);
 	});
 });
