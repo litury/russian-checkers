@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { hudFont, hudFontPx, titleFont, whenHudFontReady } from './fonts';
+import {
+	clockFontPx,
+	hudFont,
+	hudFontPx,
+	titleFont,
+	whenHudFontReady,
+} from './fonts';
 
 describe('self-hosted fonts', () => {
 	it('uses Tiny5 for HUD and Russo One for the title, not Arial', () => {
@@ -7,6 +13,8 @@ describe('self-hosted fonts', () => {
 		expect(titleFont).toBe('Russo One');
 		expect(hudFont.includes('Arial')).toBe(false);
 		expect(titleFont.includes('Arial')).toBe(false);
+		expect(clockFontPx % 5).toBe(0);
+		expect(clockFontPx).toBeGreaterThanOrEqual(10);
 	});
 
 	it('loads Tiny5 then runs the callback', async () => {

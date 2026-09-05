@@ -336,12 +336,12 @@ describe('winner', () => {
 });
 
 describe('bullet 1+0', () => {
-	it('gives each side 1:00, hold 3s, then bank, no increment', () => {
+	it('gives each side 1:00, ticks at once, no increment after a move', () => {
 		expect(blitzStartMs).toBe(60_000);
-		expect(blitzHoldMs).toBe(3_000);
+		expect(blitzHoldMs).toBe(0);
 		expect(afterMoveBank(45_000)).toBe(45_000);
-		expect(remainingMs(60_000, 0, 2_000, false)).toBe(60_000);
-		expect(remainingMs(60_000, 0, 4_000, false)).toBe(59_000);
+		expect(remainingMs(60_000, 0, 2_000, false)).toBe(58_000);
+		expect(remainingMs(60_000, 0, 4_000, false)).toBe(56_000);
 		expect(remainingMs(60_000, 10_000, 12_000, true)).toBe(60_000);
 		expect(countdownBeats).toEqual(['3', '2', '1', 'ГО']);
 	});

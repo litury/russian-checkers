@@ -9,6 +9,8 @@ type Handler = (...args: unknown[]) => void;
 type StubGo = {
 	visible: boolean;
 	key?: string;
+	text?: string;
+	fontSize?: string;
 	scaleY: number;
 	x: number;
 	y: number;
@@ -103,6 +105,9 @@ function stubGo(key?: string): StubGo {
 		setFontFamily() {
 			return go;
 		},
+		setFontSize() {
+			return go;
+		},
 		setTexture(next: string) {
 			go.key = next;
 			return go;
@@ -172,8 +177,10 @@ function stubHudScene(): Phaser.Scene & {
 		tileSprites,
 		timeCalls,
 		add: {
-			text: () => {
+			text: (_x: number, _y: number, content: string, style?: { fontSize?: string }) => {
 				const go = stubGo();
+				go.text = content;
+				go.fontSize = style?.fontSize;
 				texts.push(go);
 				return go;
 			},
@@ -388,5 +395,11 @@ describe('createHud', () => {
 		expect(face?.visible).toBe(false);
 		expect(shell?.x).toBe(field.originX);
 		hud.setClock(60, 45, 'white');
+		const clocks = scene.texts.filter((t) => t.text === '60' || t.text === '45');
+		expect(clocks.length).toBeGreaterThanOrEqual(1);
+		for (const clock of scene.texts.filter((t) => t.fontSize === '10px')) {
+			expect(clock.fontSize).toBe('10px');
+		}
+		expect(scene.texts.some((t) => t.fontSize === '10px')).toBe(true);
 	});
 });

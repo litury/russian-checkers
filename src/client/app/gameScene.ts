@@ -509,7 +509,6 @@ export class GameScene extends Phaser.Scene {
 			const beat = countdownBeats[index];
 			if (!beat) {
 				this.stopCountdown();
-				this.clockStartedAt = this.time.now;
 				this.refresh();
 				return;
 			}
@@ -531,7 +530,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private sideRemainingMs(side: Side): number {
-		if (this.phase === 'title' || this.countingIn) {
+		if (this.phase === 'title') {
 			return blitzStartMs;
 		}
 		if (this.phase === 'over' || this.paused || side !== this.position.turn) {

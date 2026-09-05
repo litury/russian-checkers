@@ -4,7 +4,7 @@ import type { ISquare } from './types/ISquare';
 import type { Side } from './types/Side';
 
 export const blitzStartMs = 60_000;
-export const blitzHoldMs = 3_000;
+export const blitzHoldMs = 0;
 export const countdownBeats = ['3', '2', '1', 'ГО'] as const;
 export const countdownBeatMs = 700;
 

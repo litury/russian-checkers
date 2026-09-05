@@ -4,7 +4,7 @@ import {
 	getAutoMove,
 	setAutoMove,
 } from '@/client/app/parts/createSfxPanel';
-import { hudFont, whenHudFontReady } from '@/client/fonts/fonts';
+import { clockFontPx, hudFont, whenHudFontReady } from '@/client/fonts/fonts';
 import { computeFieldLayout, formatClock } from '@/client/config/fieldLayout';
 import { layout } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
@@ -96,25 +96,26 @@ export function createHud(
 		.setOrigin(1, 1)
 		.setDisplaySize(hudClockEW, hudClockEH)
 		.setDepth(hudDepth);
+	const clockStyle = {
+		fontFamily: hudFont,
+		fontSize: `${clockFontPx}px`,
+		color: palette.text,
+	};
 	const foeClock = scene.add
-		.text(0, 0, '60', {
-			fontFamily: hudFont,
-			fontSize: '14px',
-			color: palette.text,
-		})
+		.text(0, 0, '60', clockStyle)
 		.setOrigin(0.5)
 		.setDepth(hudDepth + 1);
 	const youClock = scene.add
-		.text(0, 0, '60', {
-			fontFamily: hudFont,
-			fontSize: '14px',
-			color: palette.text,
-		})
+		.text(0, 0, '60', clockStyle)
 		.setOrigin(0.5)
 		.setDepth(hudDepth + 1);
 	whenHudFontReady(() => {
 		foeClock.setFontFamily(hudFont);
 		youClock.setFontFamily(hudFont);
+		foeClock.setFontSize(clockFontPx);
+		youClock.setFontSize(clockFontPx);
+		foeClock.setText(foeClock.text);
+		youClock.setText(youClock.text);
 	});
 	let hubX = 0;
 	let hubY = 0;
