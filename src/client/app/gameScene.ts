@@ -109,6 +109,7 @@ import {
 } from '@/rules';
 import { hudFont } from '@/client/fonts/fonts';
 import { createHud } from './createHud';
+import { remainingForHud } from './matchClock';
 import { createTitleOverlay } from './titleOverlay';
 import type { IYandexSdk } from './IYandexSdk';
 import { getAutoMove } from './parts/createSfxPanel';
@@ -474,7 +475,7 @@ export class GameScene extends Phaser.Scene {
 		this.elapsedMs = 0;
 		this.runningSince = this.time.now;
 		this.clocks = { white: blitzStartMs, black: blitzStartMs };
-		this.clockStartedAt = this.time.now;
+		this.clockStartedAt = 0;
 		this.flagLock = false;
 
 		this.hud.setClock(
@@ -509,6 +510,7 @@ export class GameScene extends Phaser.Scene {
 			const beat = countdownBeats[index];
 			if (!beat) {
 				this.stopCountdown();
+				this.clockStartedAt = this.time.now;
 				this.refresh();
 				return;
 			}
@@ -530,18 +532,16 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private sideRemainingMs(side: Side): number {
-		if (this.phase === 'title') {
-			return blitzStartMs;
-		}
-		if (this.phase === 'over' || this.paused || side !== this.position.turn) {
-			return this.clocks[side];
-		}
-		return remainingMs(
-			this.clocks[side],
-			this.clockStartedAt,
-			this.time.now,
-			false,
-		);
+		return remainingForHud({
+			countingIn: this.countingIn,
+			phase: this.phase,
+			bankMs: this.clocks[side],
+			startedAt: this.clockStartedAt,
+			now: this.time.now,
+			paused: this.paused,
+			side,
+			turn: this.position.turn,
+		});
 	}
 
 	private paintClock(): void {
