@@ -123,6 +123,7 @@ import hudAiOffUrl from './ui/hud_ai_off.png';
 import hudClockFaceUrl from './ui/hud_clock_face.png';
 import hudClockEIdleUrl from './ui/hud_clock_e_idle.png';
 import hudClockEHotUrl from './ui/hud_clock_e_hot.png';
+import hudClockEOkUrl from './ui/hud_clock_e_ok.png';
 import hudGlassMeadowUrl from './ui/hud_glass_meadow.png';
 import hudMenuUrl from './ui/hud_menu.png';
 import hudMenuFoldUrl from './ui/hud_menu_fold.png';
@@ -241,6 +242,8 @@ export class GameScene extends Phaser.Scene {
 		this.load.image('hudClockFace', hudClockFaceUrl);
 		this.load.image('hudClockEIdle', hudClockEIdleUrl);
 		this.load.image('hudClockEHot', hudClockEHotUrl);
+		this.load.image('hudClockEOk', hudClockEOkUrl);
+		this.load.image('hudClockEOk', hudClockEOkUrl);
 		this.load.image(captureSprites.igniteLight, captureIgniteLightUrl);
 		this.load.image(captureSprites.igniteDark, captureIgniteDarkUrl);
 		this.load.image(captureSprites.igniteKingLight, captureIgniteKingLightUrl);
@@ -364,6 +367,8 @@ export class GameScene extends Phaser.Scene {
 			'hudClockFace',
 			'hudClockEIdle',
 			'hudClockEHot',
+			'hudClockEOk',
+			'hudClockEOk',
 			'resultMonitor',
 			'resultGlassMeadow',
 			'titleBg916',

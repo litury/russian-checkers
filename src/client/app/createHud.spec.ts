@@ -5,6 +5,7 @@ import {
 	createHud,
 	hudClockEHotKey,
 	hudClockEIdleKey,
+	hudClockEOkKey,
 	hudClockFaceKey,
 } from './createHud';
 
@@ -405,7 +406,7 @@ describe('createHud', () => {
 		expect(scene.texts.some((t) => t.text === 'Ты')).toBe(true);
 		expect(scene.texts.some((t) => t.text === 'Бот')).toBe(true);
 		expect(shells[0]?.key).toBe(hudClockEHotKey);
-		expect(shells[1]?.key).toBe(hudClockEIdleKey);
+		expect(shells[1]?.key).toBe(hudClockEOkKey);
 	});
 
 	it('hides clock digits until Tiny5 load then shows them', async () => {

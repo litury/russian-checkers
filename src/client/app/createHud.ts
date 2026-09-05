@@ -18,6 +18,7 @@ import { blitzStartMs, type Side } from '@/rules';
 
 export const hudClockEIdleKey = 'hudClockEIdle';
 export const hudClockEHotKey = 'hudClockEHot';
+export const hudClockEOkKey = 'hudClockEOk';
 export { hudClockEW, hudClockEH } from '@/client/config/fieldLayout';
 export const hudClockFaceKey = 'hudClockFace';
 export const hudClockFaceSize = 96;
@@ -382,10 +383,18 @@ export function createHud(
 			youClock.setText(formatClock(whiteSec));
 			foeClock.setText(formatClock(blackSec));
 			youShell.setTexture(
-				turn && turn !== 'white' ? hudClockEHotKey : hudClockEIdleKey,
+				turn === 'white'
+					? hudClockEOkKey
+					: turn
+						? hudClockEHotKey
+						: hudClockEIdleKey,
 			);
 			foeShell.setTexture(
-				turn && turn !== 'black' ? hudClockEHotKey : hudClockEIdleKey,
+				turn === 'black'
+					? hudClockEOkKey
+					: turn
+						? hudClockEHotKey
+						: hudClockEIdleKey,
 			);
 			youShell.setDisplaySize(hudClockEW, hudClockEH);
 			foeShell.setDisplaySize(hudClockEW, hudClockEH);
