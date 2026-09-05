@@ -3,6 +3,7 @@ import { apply } from './apply';
 import {
 	afterFlagBank,
 	afterMoveBank,
+	blitzHoldMs,
 	blitzStartMs,
 	countdownBeats,
 	explodeFlag,
@@ -335,13 +336,14 @@ describe('winner', () => {
 	});
 });
 
-describe('shot clock 5s', () => {
-	it('resets to 5s after a move or flag, no kettle', () => {
-		expect(blitzStartMs).toBe(5_000);
-		expect(afterMoveBank(1_200)).toBe(5_000);
-		expect(afterFlagBank()).toBe(5_000);
-		expect(remainingMs(5_000, 0, 1_000, false)).toBe(4_000);
-		expect(remainingMs(5_000, 10_000, 12_000, true)).toBe(5_000);
+describe('bullet 1+0', () => {
+	it('gives each side 1:00, hold 3s, then bank, no increment', () => {
+		expect(blitzStartMs).toBe(60_000);
+		expect(blitzHoldMs).toBe(3_000);
+		expect(afterMoveBank(45_000)).toBe(45_000);
+		expect(remainingMs(60_000, 0, 2_000, false)).toBe(60_000);
+		expect(remainingMs(60_000, 0, 4_000, false)).toBe(59_000);
+		expect(remainingMs(60_000, 10_000, 12_000, true)).toBe(60_000);
 		expect(countdownBeats).toEqual(['3', '2', '1', 'ГО']);
 	});
 

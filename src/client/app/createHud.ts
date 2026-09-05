@@ -4,10 +4,26 @@ import {
 	getAutoMove,
 	setAutoMove,
 } from '@/client/app/parts/createSfxPanel';
-import { hudFont } from '@/client/fonts/fonts';
-import { formatClock } from '@/client/config/fieldLayout';
+import { hudFont, whenHudFontReady } from '@/client/fonts/fonts';
+import { computeFieldLayout, formatClock } from '@/client/config/fieldLayout';
 import { layout } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
+import { blitzStartMs, type Side } from '@/rules';
+
+export const hudClockEIdleKey = 'hudClockEIdle';
+export const hudClockEHotKey = 'hudClockEHot';
+export const hudClockEW = 96;
+export const hudClockEH = 60;
+export const hudClockEWellX = 48;
+export const hudClockEWellY = 33;
+export const hudClockFaceKey = 'hudClockFace';
+export const hudClockFaceSize = 96;
+export const hudClockHubDx = 4;
+export const hudClockHubDy = 2;
+export const hudClockWellR = 22;
+export const hudClockTicks = 3;
+export const hudClockMarks = 12;
+export const hudClockNeedle = 0xa68e63;
 
 const textStroke = '#1a1410';
 const hudDepth = 12;
@@ -57,10 +73,54 @@ export function createHud(
 	layout: (width: number, height: number) => void;
 	setTurn: (copy: string) => void;
 	setTimer: (elapsedSec: number) => void;
+	setClock: (whiteSec: number, blackSec: number, turn?: Side | null) => void;
+	setHand: (remainingMs: number, lap?: number) => void;
 	setVisible: (on: boolean) => void;
 } {
-	const timer = hudText(scene, '5', '38px');
-	const turn = hudText(scene, '', '20px');
+	const face = scene.add
+		.image(0, 0, hudClockFaceKey)
+		.setOrigin(0.5)
+		.setDisplaySize(hudClockFaceSize, hudClockFaceSize)
+		.setDepth(hudDepth);
+	const needle = scene.add.graphics();
+	needle.setDepth(hudDepth + 1);
+	face.setVisible(false);
+	needle.setVisible(false);
+	const foeShell = scene.add
+		.image(0, 0, hudClockEIdleKey)
+		.setOrigin(0, 1)
+		.setDisplaySize(hudClockEW, hudClockEH)
+		.setDepth(hudDepth);
+	const youShell = scene.add
+		.image(0, 0, hudClockEIdleKey)
+		.setOrigin(0, 0)
+		.setDisplaySize(hudClockEW, hudClockEH)
+		.setDepth(hudDepth);
+	const foeClock = scene.add
+		.text(0, 0, '1:00', {
+			fontFamily: hudFont,
+			fontSize: '28px',
+			color: palette.text,
+		})
+		.setOrigin(0.5)
+		.setDepth(hudDepth + 1);
+	const youClock = scene.add
+		.text(0, 0, '1:00', {
+			fontFamily: hudFont,
+			fontSize: '28px',
+			color: palette.text,
+		})
+		.setOrigin(0.5)
+		.setDepth(hudDepth + 1);
+	whenHudFontReady(() => {
+		foeClock.setFontFamily(hudFont);
+		youClock.setFontFamily(hudFont);
+	});
+	let hubX = 0;
+	let hubY = 0;
+	let handMs = blitzStartMs;
+	const turn = hudText(scene, '', '16px');
+	turn.setVisible(false);
 	const menuHit = scene.add.rectangle(
 		0,
 		0,
@@ -222,9 +282,29 @@ export function createHud(
 		paintAi();
 	}
 
+	let handLap = 0;
+
+	function paintHand(remainingMs: number, lap = handLap): void {
+		handMs = remainingMs;
+		handLap = lap;
+		const t = 1 - Math.max(0, Math.min(blitzStartMs, remainingMs)) / blitzStartMs;
+		const sweep = (hudClockTicks * Math.PI * 2) / hudClockMarks;
+		const angle = -Math.PI / 2 + (handLap + t) * sweep;
+		const tipX = hubX + Math.cos(angle) * hudClockWellR;
+		const tipY = hubY + Math.sin(angle) * hudClockWellR;
+		needle.clear();
+		needle.lineStyle(2, hudClockNeedle, 1);
+		needle.lineBetween(hubX, hubY, tipX, tipY);
+	}
+
 	function setHudVisible(on: boolean): void {
-		timer.setVisible(on);
-		turn.setVisible(on);
+		face.setVisible(false);
+		needle.setVisible(false);
+		foeClock.setVisible(on);
+		youClock.setVisible(on);
+		foeShell.setVisible(on);
+		youShell.setVisible(on);
+		turn.setVisible(false);
 		menuHit.setVisible(on);
 		menuIcon.setVisible(on);
 		aiIcon.setVisible(on);
@@ -244,19 +324,48 @@ export function createHud(
 
 	return {
 		layout: (width, height) => {
+			const field = computeFieldLayout(width, height);
 			const menuY = layout.hudBar / 2;
 			const menuX = width - pad - layout.hudMenu / 2;
-			timer.setOrigin(0, 0.5).setPosition(pad, menuY);
-			turn.setOrigin(0, 0).setPosition(pad, menuY + layout.hudMenu / 2 + 4);
+			face.setVisible(false);
+			needle.setVisible(false);
+			const gap = 24;
+			foeShell.setPosition(field.originX, field.originY - gap);
+			youShell.setPosition(
+				field.originX,
+				field.originY + field.fieldSize + gap,
+			);
+			foeClock.setPosition(
+				field.originX + hudClockEWellX,
+				field.originY - gap - hudClockEH + hudClockEWellY,
+			);
+			youClock.setPosition(
+				field.originX + hudClockEWellX,
+				field.originY + field.fieldSize + gap + hudClockEWellY,
+			);
 			placeMenu(menuX, menuY);
 			placeActions(menuX, menuY);
 			sfxPanel.layout(menuX, menuY, width, height);
 		},
 		setTurn: (copy) => {
-			turn.setText(copy);
+			turn.setText('');
+			void copy;
 		},
-		setTimer: (elapsedSec) => {
-			timer.setText(formatClock(elapsedSec));
+		setTimer: (_elapsedSec) => {},
+		setClock: (whiteSec, blackSec, turn = 'white') => {
+			youClock.setText(formatClock(whiteSec));
+			foeClock.setText(formatClock(blackSec));
+			youShell.setTexture(
+				turn === 'white' ? hudClockEHotKey : hudClockEIdleKey,
+			);
+			foeShell.setTexture(
+				turn === 'black' ? hudClockEHotKey : hudClockEIdleKey,
+			);
+			youShell.setDisplaySize(hudClockEW, hudClockEH);
+			foeShell.setDisplaySize(hudClockEW, hudClockEH);
+		},
+		setHand: (remainingMs, lap = 0) => {
+			paintHand(remainingMs, lap);
 		},
 		setVisible: (on) => {
 			setHudVisible(on);

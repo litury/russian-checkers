@@ -97,14 +97,12 @@ import selectUrl from '@/client/modules/sfx/select.ogg';
 import { sameSquare } from '@/client/shared/sameSquare';
 import type { IMove, IPosition, ISquare, Side } from '@/rules';
 import {
-	afterFlagBank,
 	afterMoveBank,
 	apply,
 	blitzStartMs,
 	countdownBeatMs,
 	countdownBeats,
 	createInitialPosition,
-	explodeFlag,
 	legalMoves,
 	remainingMs,
 	winner,
@@ -117,9 +115,13 @@ import { getAutoMove } from './parts/createSfxPanel';
 import { createResultOverlay } from './resultOverlay';
 import titleBg169Url from './ui/title/title_bg_169.png';
 import titleBg916Url from './ui/title/title_bg_916.png';
+import titleWordmarkUrl from './ui/title/title_wordmark.png';
 import hudActionMoatUrl from './ui/hud_action_moat.png';
 import hudAiUrl from './ui/hud_ai.png';
 import hudAiOffUrl from './ui/hud_ai_off.png';
+import hudClockFaceUrl from './ui/hud_clock_face.png';
+import hudClockEIdleUrl from './ui/hud_clock_e_idle.png';
+import hudClockEHotUrl from './ui/hud_clock_e_hot.png';
 import hudGlassMeadowUrl from './ui/hud_glass_meadow.png';
 import hudMenuUrl from './ui/hud_menu.png';
 import hudMenuFoldUrl from './ui/hud_menu_fold.png';
@@ -175,6 +177,7 @@ export class GameScene extends Phaser.Scene {
 	private clocks = { white: blitzStartMs, black: blitzStartMs };
 	private clockStartedAt = 0;
 	private flagLock = false;
+	private clockLap = 0;
 	private countingIn = false;
 	private countText?: Phaser.GameObjects.Text;
 	private countEvent?: Phaser.Time.TimerEvent;
@@ -234,6 +237,9 @@ export class GameScene extends Phaser.Scene {
 		this.load.image('hudResignWave', hudResignWaveUrl);
 		this.load.image('hudAi', hudAiUrl);
 		this.load.image('hudAiOff', hudAiOffUrl);
+		this.load.image('hudClockFace', hudClockFaceUrl);
+		this.load.image('hudClockEIdle', hudClockEIdleUrl);
+		this.load.image('hudClockEHot', hudClockEHotUrl);
 		this.load.image(captureSprites.igniteLight, captureIgniteLightUrl);
 		this.load.image(captureSprites.igniteDark, captureIgniteDarkUrl);
 		this.load.image(captureSprites.igniteKingLight, captureIgniteKingLightUrl);
@@ -310,6 +316,7 @@ export class GameScene extends Phaser.Scene {
 		this.load.image('resultBtn', resultBtnUrl);
 		this.load.image('titleBg916', titleBg916Url);
 		this.load.image('titleBg169', titleBg169Url);
+		this.load.image('titleWordmark', titleWordmarkUrl);
 		this.load.image('mascotLose0', mascotLose0Url);
 		this.load.image('mascotLose1', mascotLose1Url);
 		this.load.image('mascotLose2', mascotLose2Url);
@@ -353,10 +360,14 @@ export class GameScene extends Phaser.Scene {
 			'hudResignWave',
 			'hudAi',
 			'hudAiOff',
+			'hudClockFace',
+			'hudClockEIdle',
+			'hudClockEHot',
 			'resultMonitor',
 			'resultGlassMeadow',
 			'titleBg916',
 			'titleBg169',
+			'titleWordmark',
 			'mascotIdle',
 			'mascotIdle0',
 			'mascotIdle1',
@@ -384,11 +395,10 @@ export class GameScene extends Phaser.Scene {
 		this.countText = this.add
 			.text(0, 0, '', {
 				fontFamily: hudFont,
-				fontSize: '96px',
+				fontSize: '48px',
 				color: palette.text,
 			})
 			.setOrigin(0.5)
-			.setStroke('#1a1410', 8)
 			.setDepth(40)
 			.setVisible(false);
 		this.board = createBoardView(this, (square) => {
@@ -466,7 +476,11 @@ export class GameScene extends Phaser.Scene {
 		this.clocks = { white: blitzStartMs, black: blitzStartMs };
 		this.clockStartedAt = this.time.now;
 		this.flagLock = false;
-		this.hud.setTimer(Math.ceil(blitzStartMs / 1000));
+		this.clockLap = 0;
+		this.hud.setClock(
+			Math.ceil(blitzStartMs / 1000),
+			Math.ceil(blitzStartMs / 1000),
+		);
 		this.title.hide();
 		this.overlay.hide();
 		this.sfx.stopMeadow();
@@ -516,18 +530,27 @@ export class GameScene extends Phaser.Scene {
 		this.refresh();
 	}
 
-	private matchSeconds(): number {
-		if (this.phase === 'title' || this.phase === 'over') {
-			return Math.ceil(this.clocks.white / 1000);
+	private sideRemainingMs(side: Side): number {
+		if (this.phase === 'title' || this.countingIn) {
+			return blitzStartMs;
 		}
-		const side = this.position.turn;
-		const left = remainingMs(
+		if (this.phase === 'over' || this.paused || side !== this.position.turn) {
+			return this.clocks[side];
+		}
+		return remainingMs(
 			this.clocks[side],
 			this.clockStartedAt,
 			this.time.now,
-			this.paused,
+			false,
 		);
-		return Math.ceil(left / 1000);
+	}
+
+	private paintClock(): void {
+		this.hud.setClock(
+			Math.ceil(this.sideRemainingMs('white') / 1000),
+			Math.ceil(this.sideRemainingMs('black') / 1000),
+			this.countingIn || this.phase === 'over' ? null : this.position.turn,
+		);
 	}
 
 	private settleClock(mover: Side): void {
@@ -546,10 +569,10 @@ export class GameScene extends Phaser.Scene {
 			return;
 		}
 		if (this.countingIn) {
-			this.hud.setTimer(Math.ceil(blitzStartMs / 1000));
+			this.paintClock();
 			return;
 		}
-		this.hud.setTimer(this.matchSeconds());
+		this.paintClock();
 		if (
 			this.paused ||
 			this.moving ||
@@ -576,25 +599,9 @@ export class GameScene extends Phaser.Scene {
 			return;
 		}
 		this.flagLock = true;
-		const { next, victim } = explodeFlag(this.position);
-		const finish = (): void => {
-			this.position = next;
-			this.clocks[next.turn] = afterFlagBank();
-			this.clockStartedAt = this.time.now;
-			this.flagLock = false;
-			const side = winner(this.position);
-			if (side) {
-				this.endMatch(side);
-				return;
-			}
-			this.refresh();
-		};
-		if (!victim) {
-			finish();
-			return;
-		}
-		this.sfx.land(true);
-		this.board.playFlagBurst(victim, finish);
+		const loser = this.position.turn;
+		const won = loser === 'white' ? 'black' : 'white';
+		this.endMatch(won);
 	}
 
 	private refresh(): void {
@@ -608,13 +615,7 @@ export class GameScene extends Phaser.Scene {
 			this.selected,
 			this.optionMoves(),
 		);
-		if (this.phase === 'human') {
-			this.hud.setTurn('Ваш ход');
-		} else if (this.phase === 'bot') {
-			this.hud.setTurn('Ход соперника');
-		} else {
-			this.hud.setTurn('');
-		}
+		this.hud.setTurn('');
 		this.maybeAutoMove();
 	}
 

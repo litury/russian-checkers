@@ -11,35 +11,34 @@ describe('computeFieldLayout', () => {
 		expect(field.originY).toBe(224);
 		expect(field.cell).toBeCloseTo(48.75);
 		expect(field.cell).toBeGreaterThanOrEqual(layout.minCellPx);
-		expect(field.originY).toBeGreaterThanOrEqual(layout.hudBar);
+		expect(field.originY).toBeGreaterThanOrEqual(layout.hudBar + 24);
 		expect(layout.boardBottomGap).toBe(80);
 		expect(layout.hudStripInset).toBe(8);
 		expect(field.originY + field.fieldSize).toBe(694 - layout.boardBottomGap);
 	});
 
-	it('sizes 16:9 board by height minus the action strip and keeps side gutters', () => {
+	it('sizes 16:9 board with top gap for the foe clock', () => {
 		const field = computeFieldLayout(1280, 720);
+		const topGap = layout.hudBar + 24;
 		expect(field.portrait).toBe(false);
-		expect(field.fieldSize).toBe(640);
-		expect(field.originX).toBe(320);
-		expect(field.originY).toBe(0);
-		expect(field.cell).toBe(80);
-		expect(1280 - field.originX - field.fieldSize).toBe(320);
-		expect(720 - field.fieldSize).toBe(layout.boardBottomGap);
+		expect(field.originY).toBe(topGap);
+		expect(field.fieldSize).toBe(720 - topGap - layout.boardBottomGap);
+		expect(field.originX).toBe(Math.round((1280 - field.fieldSize) / 2));
+		expect(field.originY).toBeGreaterThanOrEqual(topGap);
 	});
 
 	it('shrinks portrait field so HUD does not cover cells', () => {
 		const field = computeFieldLayout(390, 400);
-		expect(field.fieldSize).toBe(400 - layout.hudBar - layout.boardBottomGap);
-		expect(field.originY).toBe(layout.hudBar);
+		expect(field.fieldSize).toBe(400 - (layout.hudBar + 24) - layout.boardBottomGap);
+		expect(field.originY).toBe(layout.hudBar + 24);
 		expect(field.originY + field.fieldSize).toBe(400 - layout.boardBottomGap);
 	});
 });
 
 describe('formatClock', () => {
-	it('shows a large shot-clock second', () => {
-		expect(formatClock(0)).toBe('0');
-		expect(formatClock(5)).toBe('5');
-		expect(formatClock(1.2)).toBe('1');
+	it('formats M:SS for bullet banks', () => {
+		expect(formatClock(0)).toBe('0:00');
+		expect(formatClock(60)).toBe('1:00');
+		expect(formatClock(75)).toBe('1:15');
 	});
 });

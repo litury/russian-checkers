@@ -3,7 +3,8 @@ import type { IPosition } from './types/IPosition';
 import type { ISquare } from './types/ISquare';
 import type { Side } from './types/Side';
 
-export const blitzStartMs = 5_000;
+export const blitzStartMs = 60_000;
+export const blitzHoldMs = 3_000;
 export const countdownBeats = ['3', '2', '1', 'ГО'] as const;
 export const countdownBeatMs = 700;
 
@@ -50,17 +51,22 @@ export function remainingMs(
 	startedAt: number,
 	now: number,
 	paused: boolean,
+	holdMs: number = blitzHoldMs,
 ): number {
 	if (paused) {
 		return Math.max(0, bankMs);
 	}
-	return Math.max(0, bankMs - (now - startedAt));
+	const elapsed = now - startedAt;
+	if (elapsed <= holdMs) {
+		return Math.max(0, bankMs);
+	}
+	return Math.max(0, bankMs - (elapsed - holdMs));
 }
 
-export function afterMoveBank(_bankMs: number): number {
-	return blitzStartMs;
+export function afterMoveBank(bankMs: number): number {
+	return Math.max(0, bankMs);
 }
 
 export function afterFlagBank(): number {
-	return blitzStartMs;
+	return 0;
 }

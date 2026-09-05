@@ -2,6 +2,7 @@ export { apply } from './apply';
 export {
 	afterFlagBank,
 	afterMoveBank,
+	blitzHoldMs,
 	blitzStartMs,
 	countdownBeatMs,
 	countdownBeats,

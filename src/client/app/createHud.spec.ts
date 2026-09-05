@@ -1,7 +1,8 @@
 import type Phaser from 'phaser';
 import { describe, expect, it } from 'vitest';
 import { layout } from '@/client/config/layout';
-import { createHud } from './createHud';
+import { computeFieldLayout } from '@/client/config/fieldLayout';
+import { createHud, hudClockEIdleKey, hudClockFaceKey } from './createHud';
 
 type Handler = (...args: unknown[]) => void;
 
@@ -13,6 +14,7 @@ type StubGo = {
 	y: number;
 	displayW: number;
 	displayH: number;
+	rotation: number;
 	setDepth: () => StubGo;
 	setVisible: (value: boolean) => StubGo;
 	setPosition: (x?: number, y?: number) => StubGo;
@@ -24,7 +26,11 @@ type StubGo = {
 	setScale: (x: number, y?: number) => StubGo;
 	setStroke: () => StubGo;
 	setText: () => StubGo;
+	setFontFamily: (family: string) => StubGo;
 	setTexture: (key: string) => StubGo;
+	setRotation: (r: number) => StubGo;
+	lineStyle: () => StubGo;
+	lineBetween: () => StubGo;
 	clear: () => StubGo;
 	fillStyle: () => StubGo;
 	fillRect: () => StubGo;
@@ -42,6 +48,7 @@ function stubGo(key?: string): StubGo {
 		y: 0,
 		displayW: 0,
 		displayH: 0,
+		rotation: 0,
 		setDepth() {
 			return go;
 		},
@@ -93,8 +100,21 @@ function stubGo(key?: string): StubGo {
 		setText() {
 			return go;
 		},
+		setFontFamily() {
+			return go;
+		},
 		setTexture(next: string) {
 			go.key = next;
+			return go;
+		},
+		setRotation(r: number) {
+			go.rotation = r;
+			return go;
+		},
+		lineStyle() {
+			return go;
+		},
+		lineBetween() {
 			return go;
 		},
 		clear() {
@@ -238,7 +258,7 @@ describe('createHud', () => {
 		const scene = stubHudScene();
 		createHud(scene);
 		const menuHit = scene.rects[0];
-		const menuIcon = scene.images[0];
+		const menuIcon = scene.images.find((img) => img.key === 'hudMenu');
 		const chrome = scene.images.find((img) => img.key === 'hudMenuF0');
 		expect(menuIcon.key).toBe('hudMenu');
 		expect(scene.images.some((img) => img.key === 'hudResign')).toBe(false);
@@ -291,7 +311,7 @@ describe('createHud', () => {
 			const scene = stubHudScene();
 			createHud(scene);
 			const menuHit = scene.rects[0];
-			const menuIcon = scene.images[0];
+			const menuIcon = scene.images.find((img) => img.key === 'hudMenu');
 			menuHit.emit('pointerdown', { id: 1 });
 			expect(menuIcon.key).toBe('hudMenuOpen');
 			expect(menuIcon.scaleY).toBe(1);
@@ -309,7 +329,7 @@ describe('createHud', () => {
 	it('hides the hamburger on title', () => {
 		const scene = stubHudScene();
 		const hud = createHud(scene);
-		const menuIcon = scene.images[0];
+		const menuIcon = scene.images.find((img) => img.key === 'hudMenu');
 		hud.setVisible(false);
 		expect(menuIcon.visible).toBe(false);
 		hud.setVisible(true);
@@ -346,13 +366,15 @@ describe('createHud', () => {
 		expect(ai?.displayH).toBe(44);
 	});
 
-	it('keeps the shot clock in the hamburger row with inset', () => {
+	it('places bullet clocks on the left of the field and hides analog', () => {
 		const scene = stubHudScene();
 		const hud = createHud(scene);
 		hud.layout(390, 694);
-		const timer = scene.texts[0];
-		const menuY = layout.hudBar / 2;
-		expect(timer?.x).toBeGreaterThanOrEqual(24);
-		expect(timer?.y).toBe(menuY);
+		const field = computeFieldLayout(390, 694);
+		const face = scene.images.find((img) => img.key === hudClockFaceKey);
+		const shell = scene.images.find((img) => img.key === hudClockEIdleKey);
+		expect(face?.visible).toBe(false);
+		expect(shell?.x).toBe(field.originX);
+		hud.setClock(60, 45, 'white');
 	});
 });

@@ -18,6 +18,9 @@ import {
 	titleBtnStroke,
 	titleColor,
 	titleCopy,
+	titleWordmarkH,
+	titleWordmarkKey,
+	titleWordmarkW,
 	titleOnlineAlpha,
 	titleOnlineCopy,
 	titlePlateH,
@@ -26,6 +29,7 @@ import {
 	titlePressNudge,
 	titleRowMinWidth,
 	titleStroke,
+	wordmarkScale,
 } from './titleOverlay';
 
 describe('titleOverlay', () => {
@@ -38,9 +42,13 @@ describe('titleOverlay', () => {
 		expect(titleRowMinWidth).toBe(460);
 	});
 
-	it('uses Russo One for the title wordmark', async () => {
-		const { titleFont } = await import('@/client/fonts/fonts');
-		expect(titleFont).toBe('Russo One');
+	it('uses a 320×128 NEAREST wordmark image, not Phaser title text', () => {
+		expect(titleWordmarkKey).toBe('titleWordmark');
+		expect(titleWordmarkW).toBe(320);
+		expect(titleWordmarkH).toBe(128);
+		expect(wordmarkScale(224)).toBeCloseTo(224 / 320);
+		expect(wordmarkScale(460)).toBe(1);
+		expect(wordmarkScale(800)).toBe(1);
 	});
 
 	it('draws one Phaser plate, not title_btn.png', () => {

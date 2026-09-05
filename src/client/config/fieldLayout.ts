@@ -10,30 +10,21 @@ export type FieldLayout = {
 
 export function computeFieldLayout(width: number, height: number): FieldLayout {
 	const portrait = height > width;
-	if (portrait) {
-		const maxField = Math.max(
-			0,
-			height - layout.hudBar - layout.boardBottomGap,
-		);
-		const fieldSize = Math.min(width, maxField);
-		return {
-			portrait: true,
-			fieldSize,
-			originX: Math.round((width - fieldSize) / 2),
-			originY: Math.round(height - layout.boardBottomGap - fieldSize),
-			cell: fieldSize / layout.rankCount,
-		};
-	}
-	const fieldSize = Math.min(width, height - layout.boardBottomGap);
+	const topGap = layout.hudBar + 24;
+	const maxField = Math.max(0, height - topGap - layout.boardBottomGap);
+	const fieldSize = Math.min(width, maxField);
 	return {
-		portrait: false,
+		portrait,
 		fieldSize,
 		originX: Math.round((width - fieldSize) / 2),
-		originY: 0,
+		originY: Math.round(height - layout.boardBottomGap - fieldSize),
 		cell: fieldSize / layout.rankCount,
 	};
 }
 
 export function formatClock(totalSec: number): string {
-	return String(Math.max(0, Math.floor(totalSec)));
+	const sec = Math.max(0, Math.floor(totalSec));
+	const minutes = Math.floor(sec / 60);
+	const seconds = sec % 60;
+	return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }

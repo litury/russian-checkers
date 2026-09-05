@@ -1,12 +1,11 @@
 import Phaser from 'phaser';
-import { hudFont, titleFont } from '@/client/fonts/fonts';
+import { hudFont } from '@/client/fonts/fonts';
 
 const btnW = 224;
 const btnH = 48;
 const hitW = 224;
 const hitH = 64;
 const btnGap = 8;
-const titleSize = 32;
 const titleGap = 20;
 const pressNudge = 2;
 const onlineAlpha = 0.45;
@@ -18,6 +17,9 @@ const bg169H = 216;
 
 export const titleRowMinWidth = 460;
 export const titleCopy = 'Русские шашки';
+export const titleWordmarkKey = 'titleWordmark';
+export const titleWordmarkW = 320;
+export const titleWordmarkH = 128;
 export const titleBotCopy = 'Играть';
 export const titleOnlineCopy = 'Онлайн';
 export const titleColor = '#F4EFE4';
@@ -51,10 +53,16 @@ function isRow(width: number): boolean {
 	return width >= titleRowMinWidth;
 }
 
+export function wordmarkScale(stackW: number): number {
+	return Math.min(1, stackW / titleWordmarkW);
+}
+
 function stackSize(row: boolean): { w: number; h: number } {
+	const w = row ? btnW * 2 + btnGap : btnW;
+	const markH = titleWordmarkH * wordmarkScale(w);
 	return {
-		w: row ? btnW * 2 + btnGap : btnW,
-		h: titleSize + titleGap + btnH + (row ? 0 : btnGap + btnH),
+		w,
+		h: markH + titleGap + btnH + (row ? 0 : btnGap + btnH),
 	};
 }
 
@@ -93,6 +101,9 @@ export function createTitleOverlay(
 	if (scene.textures.exists(titleBgLandscape)) {
 		scene.textures.get(titleBgLandscape).setFilter(Phaser.Textures.FilterMode.NEAREST);
 	}
+	if (scene.textures.exists(titleWordmarkKey)) {
+		scene.textures.get(titleWordmarkKey).setFilter(Phaser.Textures.FilterMode.NEAREST);
+	}
 
 	const catcher = scene.add.rectangle(0, 0, 16, 16, 0x000000, 0);
 	catcher.setDepth(depth);
@@ -102,14 +113,10 @@ export function createTitleOverlay(
 	root.setDepth(depth + 1);
 	root.setVisible(false);
 
-	const title = scene.add
-		.text(0, 0, titleCopy, {
-			fontFamily: titleFont,
-			fontSize: `${titleSize}px`,
-			color: titleColor,
-		})
-		.setOrigin(0.5, 1)
-		.setStroke(titleStroke, 2);
+	const title = scene.add.image(0, 0, titleWordmarkKey).setOrigin(0.5);
+	if (scene.textures.exists(titleWordmarkKey)) {
+		scene.textures.get(titleWordmarkKey).setFilter(Phaser.Textures.FilterMode.NEAREST);
+	}
 
 	const botBtn = scene.add.graphics();
 	drawPlate(botBtn);
@@ -193,8 +200,10 @@ export function createTitleOverlay(
 			Math.round((width - stack.w) / 2),
 			Math.round((height - stack.h) / 2),
 		);
-		title.setPosition(stack.w / 2, titleSize);
-		const btnTop = titleSize + titleGap;
+		const s = wordmarkScale(stack.w);
+		title.setDisplaySize(titleWordmarkW * s, titleWordmarkH * s);
+		title.setPosition(stack.w / 2, (titleWordmarkH * s) / 2);
+		const btnTop = titleWordmarkH * s + titleGap;
 		if (row) {
 			const botX = btnW / 2;
 			const onlineX = btnW + btnGap + btnW / 2;
