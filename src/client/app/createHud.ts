@@ -118,7 +118,6 @@ export function createHud(
 	});
 	let hubX = 0;
 	let hubY = 0;
-	let handMs = blitzStartMs;
 	const turn = hudText(scene, '', '16px');
 	turn.setVisible(false);
 	const menuHit = scene.add.rectangle(
@@ -285,7 +284,6 @@ export function createHud(
 	let handLap = 0;
 
 	function paintHand(remainingMs: number, lap = handLap): void {
-		handMs = remainingMs;
 		handLap = lap;
 		const t = 1 - Math.max(0, Math.min(blitzStartMs, remainingMs)) / blitzStartMs;
 		const sweep = (hudClockTicks * Math.PI * 2) / hudClockMarks;

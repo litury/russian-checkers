@@ -29,7 +29,6 @@ const volStep = 0.1;
 const meterH = 12;
 const catcherDepth = 13;
 const panelDepth = 14;
-const pad = 8;
 const resignW = 140;
 
 const rowY = inset;

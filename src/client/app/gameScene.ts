@@ -177,7 +177,7 @@ export class GameScene extends Phaser.Scene {
 	private clocks = { white: blitzStartMs, black: blitzStartMs };
 	private clockStartedAt = 0;
 	private flagLock = false;
-	private clockLap = 0;
+
 	private countingIn = false;
 	private countText?: Phaser.GameObjects.Text;
 	private countEvent?: Phaser.Time.TimerEvent;
@@ -476,7 +476,7 @@ export class GameScene extends Phaser.Scene {
 		this.clocks = { white: blitzStartMs, black: blitzStartMs };
 		this.clockStartedAt = this.time.now;
 		this.flagLock = false;
-		this.clockLap = 0;
+
 		this.hud.setClock(
 			Math.ceil(blitzStartMs / 1000),
 			Math.ceil(blitzStartMs / 1000),

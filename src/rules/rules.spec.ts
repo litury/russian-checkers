@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { apply } from './apply';
 import {
-	afterFlagBank,
 	afterMoveBank,
 	blitzHoldMs,
 	blitzStartMs,

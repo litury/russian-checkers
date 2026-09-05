@@ -85,7 +85,7 @@ function stubGo(key?: string): StubGo {
 		disableInteractive() {
 			return go;
 		},
-		setOrigin(x?: number, y?: number) {
+		setOrigin(_x?: number, _y?: number) {
 			return go;
 		},
 		setScale(_x: number, y?: number) {
@@ -260,6 +260,10 @@ describe('createHud', () => {
 		const menuHit = scene.rects[0];
 		const menuIcon = scene.images.find((img) => img.key === 'hudMenu');
 		const chrome = scene.images.find((img) => img.key === 'hudMenuF0');
+		expect(menuIcon).toBeDefined();
+		if (!menuIcon) {
+			return;
+		}
 		expect(menuIcon.key).toBe('hudMenu');
 		expect(scene.images.some((img) => img.key === 'hudResign')).toBe(false);
 		expect(scene.images.some((img) => img.key === 'hudAi')).toBe(true);
@@ -312,6 +316,10 @@ describe('createHud', () => {
 			createHud(scene);
 			const menuHit = scene.rects[0];
 			const menuIcon = scene.images.find((img) => img.key === 'hudMenu');
+			expect(menuIcon).toBeDefined();
+			if (!menuIcon) {
+				return;
+			}
 			menuHit.emit('pointerdown', { id: 1 });
 			expect(menuIcon.key).toBe('hudMenuOpen');
 			expect(menuIcon.scaleY).toBe(1);
@@ -330,6 +338,10 @@ describe('createHud', () => {
 		const scene = stubHudScene();
 		const hud = createHud(scene);
 		const menuIcon = scene.images.find((img) => img.key === 'hudMenu');
+		expect(menuIcon).toBeDefined();
+		if (!menuIcon) {
+			return;
+		}
 		hud.setVisible(false);
 		expect(menuIcon.visible).toBe(false);
 		hud.setVisible(true);
