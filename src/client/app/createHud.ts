@@ -12,10 +12,10 @@ import { blitzStartMs, type Side } from '@/rules';
 
 export const hudClockEIdleKey = 'hudClockEIdle';
 export const hudClockEHotKey = 'hudClockEHot';
-export const hudClockEW = 96;
-export const hudClockEH = 60;
-export const hudClockEWellX = 48;
-export const hudClockEWellY = 33;
+export const hudClockEW = 64;
+export const hudClockEH = 40;
+export const hudClockEWellX = 32;
+export const hudClockEWellY = 26;
 export const hudClockFaceKey = 'hudClockFace';
 export const hudClockFaceSize = 96;
 export const hudClockHubDx = 4;
@@ -99,7 +99,7 @@ export function createHud(
 	const foeClock = scene.add
 		.text(0, 0, '60', {
 			fontFamily: hudFont,
-			fontSize: '22px',
+			fontSize: '14px',
 			color: palette.text,
 		})
 		.setOrigin(0.5)
@@ -107,7 +107,7 @@ export function createHud(
 	const youClock = scene.add
 		.text(0, 0, '60', {
 			fontFamily: hudFont,
-			fontSize: '22px',
+			fontSize: '14px',
 			color: palette.text,
 		})
 		.setOrigin(0.5)
