@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { computeFieldLayout, formatClock } from '@/client/config/fieldLayout';
+import {
+	clockHudLayout,
+	computeFieldLayout,
+	formatClock,
+	hudClockEH,
+	hudClockEWellNativeX,
+	hudClockEWellNativeY,
+	hudClockEW,
+	hudClockSafeInset,
+} from '@/client/config/fieldLayout';
 import { layout } from '@/client/config/layout';
 
 describe('computeFieldLayout', () => {
@@ -32,6 +41,38 @@ describe('computeFieldLayout', () => {
 		expect(field.fieldSize).toBe(400 - (layout.hudBar + 24) - layout.boardBottomGap);
 		expect(field.originY).toBe(layout.hudBar + 24);
 		expect(field.originY + field.fieldSize).toBe(400 - layout.boardBottomGap);
+	});
+});
+
+describe('clockHudLayout', () => {
+	it('keeps portrait clocks at the top with screen inset and 44pt hit', () => {
+		const field = computeFieldLayout(390, 694);
+		const clocks = clockHudLayout(390, 694, field);
+		expect(hudClockEW).toBe(112);
+		expect(hudClockEH).toBe(70);
+		expect(hudClockSafeInset).toBeGreaterThanOrEqual(16);
+		expect(clocks.foe.x).toBe(hudClockSafeInset);
+		expect(clocks.you.x).toBe(390 - hudClockSafeInset);
+		expect(clocks.foe.y).toBe(field.originY);
+		expect(clocks.you.y).toBe(field.originY);
+		expect(clocks.foe.originX).toBe(0);
+		expect(clocks.foe.originY).toBe(1);
+		expect(clocks.you.originX).toBe(1);
+		expect(clocks.you.originY).toBe(1);
+		expect(hudClockEWellNativeX).toBe(40);
+		expect(hudClockEWellNativeY).toBe(26);
+	});
+
+	it('puts landscape clocks on the sides of the board', () => {
+		const field = computeFieldLayout(1280, 720);
+		const clocks = clockHudLayout(1280, 720, field);
+		const midY = field.originY + field.fieldSize / 2;
+		expect(clocks.foe.x).toBeLessThan(field.originX);
+		expect(clocks.you.x).toBeGreaterThan(field.originX + field.fieldSize);
+		expect(clocks.foe.y).toBe(midY);
+		expect(clocks.you.y).toBe(midY);
+		expect(clocks.foe.originX).toBe(1);
+		expect(clocks.you.originX).toBe(0);
 	});
 });
 

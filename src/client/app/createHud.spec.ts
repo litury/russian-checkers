@@ -1,8 +1,12 @@
 import type Phaser from 'phaser';
 import { describe, expect, it } from 'vitest';
 import { layout } from '@/client/config/layout';
-import { computeFieldLayout } from '@/client/config/fieldLayout';
-import { createHud, hudClockEIdleKey, hudClockFaceKey } from './createHud';
+import {
+	createHud,
+	hudClockEHotKey,
+	hudClockEIdleKey,
+	hudClockFaceKey,
+} from './createHud';
 
 type Handler = (...args: unknown[]) => void;
 
@@ -29,6 +33,7 @@ type StubGo = {
 	setStroke: () => StubGo;
 	setText: () => StubGo;
 	setFontFamily: (family: string) => StubGo;
+	setFontSize: (size?: number) => StubGo;
 	setTexture: (key: string) => StubGo;
 	setRotation: (r: number) => StubGo;
 	lineStyle: () => StubGo;
@@ -385,21 +390,56 @@ describe('createHud', () => {
 		expect(ai?.displayH).toBe(44);
 	});
 
-	it('places bullet clocks on the left of the field and hides analog', () => {
+	it('places portrait clocks inset with 112 shell', () => {
 		const scene = stubHudScene();
 		const hud = createHud(scene);
 		hud.layout(390, 694);
-		const field = computeFieldLayout(390, 694);
 		const face = scene.images.find((img) => img.key === hudClockFaceKey);
-		const shell = scene.images.find((img) => img.key === hudClockEIdleKey);
+		const shells = scene.images.filter((img) => img.key === hudClockEIdleKey);
 		expect(face?.visible).toBe(false);
-		expect(shell?.x).toBe(field.originX);
+		expect(shells[0]?.x).toBeGreaterThanOrEqual(16);
+		expect(shells[0]?.displayW).toBe(112);
+		expect(shells[0]?.displayH).toBe(70);
 		hud.setClock(60, 45, 'white');
-		const clocks = scene.texts.filter((t) => t.text === '60' || t.text === '45');
-		expect(clocks.length).toBeGreaterThanOrEqual(1);
-		for (const clock of scene.texts.filter((t) => t.fontSize === '10px')) {
-			expect(clock.fontSize).toBe('10px');
+		expect(scene.texts.some((t) => t.fontSize === '15px')).toBe(true);
+		expect(scene.texts.some((t) => t.text === 'Ты')).toBe(true);
+		expect(scene.texts.some((t) => t.text === 'Бот')).toBe(true);
+		expect(shells[0]?.key).toBe(hudClockEHotKey);
+		expect(shells[1]?.key).toBe(hudClockEIdleKey);
+	});
+
+	it('hides clock digits until Tiny5 load then shows them', async () => {
+		let resolveLoad: (() => void) | undefined;
+		const previous = (globalThis as { document?: unknown }).document;
+		(
+			globalThis as {
+				document: { fonts: { load: (q: string) => Promise<unknown> } };
+			}
+		).document = {
+			fonts: {
+				load: () =>
+					new Promise((resolve) => {
+						resolveLoad = () => {
+							resolve([]);
+						};
+					}),
+			},
+		};
+		try {
+			const scene = stubHudScene();
+			createHud(scene);
+			const clocks = scene.texts.filter((t) => t.fontSize === '15px');
+			expect(clocks.length).toBe(2);
+			expect(clocks.every((t) => t.visible === false)).toBe(true);
+			resolveLoad?.();
+			await Promise.resolve();
+			expect(clocks.every((t) => t.visible === true)).toBe(true);
+		} finally {
+			if (previous === undefined) {
+				Reflect.deleteProperty(globalThis, 'document');
+			} else {
+				(globalThis as { document?: unknown }).document = previous;
+			}
 		}
-		expect(scene.texts.some((t) => t.fontSize === '10px')).toBe(true);
 	});
 });

@@ -5,17 +5,20 @@ import {
 	setAutoMove,
 } from '@/client/app/parts/createSfxPanel';
 import { clockFontPx, hudFont, whenHudFontReady } from '@/client/fonts/fonts';
-import { computeFieldLayout, formatClock } from '@/client/config/fieldLayout';
+import {
+	clockHudLayout,
+	computeFieldLayout,
+	formatClock,
+	hudClockEH,
+	hudClockEW,
+} from '@/client/config/fieldLayout';
 import { layout } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
 import { blitzStartMs, type Side } from '@/rules';
 
 export const hudClockEIdleKey = 'hudClockEIdle';
 export const hudClockEHotKey = 'hudClockEHot';
-export const hudClockEW = 64;
-export const hudClockEH = 40;
-export const hudClockEWellX = 32;
-export const hudClockEWellY = 26;
+export { hudClockEW, hudClockEH } from '@/client/config/fieldLayout';
 export const hudClockFaceKey = 'hudClockFace';
 export const hudClockFaceSize = 96;
 export const hudClockHubDx = 4;
@@ -102,20 +105,45 @@ export function createHud(
 		color: palette.text,
 	};
 	const foeClock = scene.add
-		.text(0, 0, '60', clockStyle)
+		.text(0, 0, '', clockStyle)
 		.setOrigin(0.5)
-		.setDepth(hudDepth + 1);
+		.setDepth(hudDepth + 1)
+		.setVisible(false);
 	const youClock = scene.add
-		.text(0, 0, '60', clockStyle)
+		.text(0, 0, '', clockStyle)
 		.setOrigin(0.5)
-		.setDepth(hudDepth + 1);
+		.setDepth(hudDepth + 1)
+		.setVisible(false);
+	const labelStyle = {
+		fontFamily: hudFont,
+		fontSize: '10px',
+		color: palette.text,
+	};
+	const foeLabel = scene.add
+		.text(0, 0, 'Бот', labelStyle)
+		.setOrigin(0.5, 1)
+		.setDepth(hudDepth + 1)
+		.setVisible(false);
+	const youLabel = scene.add
+		.text(0, 0, 'Ты', labelStyle)
+		.setOrigin(0.5, 1)
+		.setDepth(hudDepth + 1)
+		.setVisible(false);
+	let clockFontReady = false;
 	whenHudFontReady(() => {
+		clockFontReady = true;
 		foeClock.setFontFamily(hudFont);
 		youClock.setFontFamily(hudFont);
+		foeLabel.setFontFamily(hudFont);
+		youLabel.setFontFamily(hudFont);
 		foeClock.setFontSize(clockFontPx);
 		youClock.setFontSize(clockFontPx);
-		foeClock.setText(foeClock.text);
-		youClock.setText(youClock.text);
+		foeClock.setText(foeClock.text || '60');
+		youClock.setText(youClock.text || '60');
+		foeClock.setVisible(true);
+		youClock.setVisible(true);
+		foeLabel.setVisible(true);
+		youLabel.setVisible(true);
 	});
 	let hubX = 0;
 	let hubY = 0;
@@ -299,8 +327,10 @@ export function createHud(
 	function setHudVisible(on: boolean): void {
 		face.setVisible(false);
 		needle.setVisible(false);
-		foeClock.setVisible(on);
-		youClock.setVisible(on);
+		foeClock.setVisible(on && clockFontReady);
+		youClock.setVisible(on && clockFontReady);
+		foeLabel.setVisible(on && clockFontReady);
+		youLabel.setVisible(on && clockFontReady);
 		foeShell.setVisible(on);
 		youShell.setVisible(on);
 		turn.setVisible(false);
@@ -328,19 +358,17 @@ export function createHud(
 			const menuX = width - pad - layout.hudMenu / 2;
 			face.setVisible(false);
 			needle.setVisible(false);
-			const top = field.originY;
-			const left = field.originX;
-			const right = field.originX + field.fieldSize;
-			foeShell.setPosition(left, top);
-			youShell.setPosition(right, top);
-			foeClock.setPosition(
-				left + hudClockEWellX,
-				top - hudClockEH + hudClockEWellY,
-			);
-			youClock.setPosition(
-				right - hudClockEW + hudClockEWellX,
-				top - hudClockEH + hudClockEWellY,
-			);
+			const clocks = clockHudLayout(width, height, field);
+			foeShell.setOrigin(clocks.foe.originX, clocks.foe.originY);
+			youShell.setOrigin(clocks.you.originX, clocks.you.originY);
+			foeShell.setPosition(clocks.foe.x, clocks.foe.y);
+			youShell.setPosition(clocks.you.x, clocks.you.y);
+			foeShell.setDisplaySize(hudClockEW, hudClockEH);
+			youShell.setDisplaySize(hudClockEW, hudClockEH);
+			foeClock.setPosition(clocks.foeDigit.x, clocks.foeDigit.y);
+			youClock.setPosition(clocks.youDigit.x, clocks.youDigit.y);
+			foeLabel.setPosition(clocks.foeLabel.x, clocks.foeLabel.y);
+			youLabel.setPosition(clocks.youLabel.x, clocks.youLabel.y);
 			placeMenu(menuX, menuY);
 			placeActions(menuX, menuY);
 			sfxPanel.layout(menuX, menuY, width, height);
@@ -354,10 +382,10 @@ export function createHud(
 			youClock.setText(formatClock(whiteSec));
 			foeClock.setText(formatClock(blackSec));
 			youShell.setTexture(
-				turn === 'white' ? hudClockEHotKey : hudClockEIdleKey,
+				turn && turn !== 'white' ? hudClockEHotKey : hudClockEIdleKey,
 			);
 			foeShell.setTexture(
-				turn === 'black' ? hudClockEHotKey : hudClockEIdleKey,
+				turn && turn !== 'black' ? hudClockEHotKey : hudClockEIdleKey,
 			);
 			youShell.setDisplaySize(hudClockEW, hudClockEH);
 			foeShell.setDisplaySize(hudClockEW, hudClockEH);

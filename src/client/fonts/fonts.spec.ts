@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import {
 	clockFontPx,
 	hudFont,
-	hudFontPx,
 	titleFont,
 	whenHudFontReady,
 } from './fonts';
@@ -14,7 +13,7 @@ describe('self-hosted fonts', () => {
 		expect(hudFont.includes('Arial')).toBe(false);
 		expect(titleFont.includes('Arial')).toBe(false);
 		expect(clockFontPx % 5).toBe(0);
-		expect(clockFontPx).toBeGreaterThanOrEqual(10);
+		expect(clockFontPx).toBe(15);
 	});
 
 	it('loads Tiny5 then runs the callback', async () => {
@@ -38,7 +37,7 @@ describe('self-hosted fonts', () => {
 				ran = true;
 			});
 			await Promise.resolve();
-			expect(query).toBe(`${hudFontPx}px ${hudFont}`);
+			expect(query).toBe(`${clockFontPx}px ${hudFont}`);
 			expect(ran).toBe(true);
 		} finally {
 			if (previous === undefined) {
