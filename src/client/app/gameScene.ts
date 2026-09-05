@@ -243,7 +243,6 @@ export class GameScene extends Phaser.Scene {
 		this.load.image('hudClockEIdle', hudClockEIdleUrl);
 		this.load.image('hudClockEHot', hudClockEHotUrl);
 		this.load.image('hudClockEOk', hudClockEOkUrl);
-		this.load.image('hudClockEOk', hudClockEOkUrl);
 		this.load.image(captureSprites.igniteLight, captureIgniteLightUrl);
 		this.load.image(captureSprites.igniteDark, captureIgniteDarkUrl);
 		this.load.image(captureSprites.igniteKingLight, captureIgniteKingLightUrl);
@@ -367,7 +366,6 @@ export class GameScene extends Phaser.Scene {
 			'hudClockFace',
 			'hudClockEIdle',
 			'hudClockEHot',
-			'hudClockEOk',
 			'hudClockEOk',
 			'resultMonitor',
 			'resultGlassMeadow',
