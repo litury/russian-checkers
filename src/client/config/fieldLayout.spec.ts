@@ -36,9 +36,9 @@ describe('computeFieldLayout', () => {
 });
 
 describe('formatClock', () => {
-	it('formats M:SS for bullet banks', () => {
-		expect(formatClock(0)).toBe('0:00');
-		expect(formatClock(60)).toBe('1:00');
-		expect(formatClock(75)).toBe('1:15');
+	it('formats whole seconds for a 60s bank', () => {
+		expect(formatClock(0)).toBe('0');
+		expect(formatClock(60)).toBe('60');
+		expect(formatClock(7)).toBe('7');
 	});
 });

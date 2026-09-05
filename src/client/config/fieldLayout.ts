@@ -23,8 +23,5 @@ export function computeFieldLayout(width: number, height: number): FieldLayout {
 }
 
 export function formatClock(totalSec: number): string {
-	const sec = Math.max(0, Math.floor(totalSec));
-	const minutes = Math.floor(sec / 60);
-	const seconds = sec % 60;
-	return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+	return `${Math.max(0, Math.floor(totalSec))}`;
 }

@@ -93,21 +93,21 @@ export function createHud(
 		.setDepth(hudDepth);
 	const youShell = scene.add
 		.image(0, 0, hudClockEIdleKey)
-		.setOrigin(0, 0)
+		.setOrigin(1, 1)
 		.setDisplaySize(hudClockEW, hudClockEH)
 		.setDepth(hudDepth);
 	const foeClock = scene.add
-		.text(0, 0, '1:00', {
+		.text(0, 0, '60', {
 			fontFamily: hudFont,
-			fontSize: '28px',
+			fontSize: '22px',
 			color: palette.text,
 		})
 		.setOrigin(0.5)
 		.setDepth(hudDepth + 1);
 	const youClock = scene.add
-		.text(0, 0, '1:00', {
+		.text(0, 0, '60', {
 			fontFamily: hudFont,
-			fontSize: '28px',
+			fontSize: '22px',
 			color: palette.text,
 		})
 		.setOrigin(0.5)
@@ -327,19 +327,18 @@ export function createHud(
 			const menuX = width - pad - layout.hudMenu / 2;
 			face.setVisible(false);
 			needle.setVisible(false);
-			const gap = 24;
-			foeShell.setPosition(field.originX, field.originY - gap);
-			youShell.setPosition(
-				field.originX,
-				field.originY + field.fieldSize + gap,
-			);
+			const top = field.originY;
+			const left = field.originX;
+			const right = field.originX + field.fieldSize;
+			foeShell.setPosition(left, top);
+			youShell.setPosition(right, top);
 			foeClock.setPosition(
-				field.originX + hudClockEWellX,
-				field.originY - gap - hudClockEH + hudClockEWellY,
+				left + hudClockEWellX,
+				top - hudClockEH + hudClockEWellY,
 			);
 			youClock.setPosition(
-				field.originX + hudClockEWellX,
-				field.originY + field.fieldSize + gap + hudClockEWellY,
+				right - hudClockEW + hudClockEWellX,
+				top - hudClockEH + hudClockEWellY,
 			);
 			placeMenu(menuX, menuY);
 			placeActions(menuX, menuY);
