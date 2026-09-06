@@ -72,7 +72,7 @@ export function attachHamster(
 			.setVisible(true);
 		sprite.disableInteractive();
 		holes.set(id, { square: at, sprite });
-		fit(sprite, at, 0.85);
+		fit(sprite, at, 0.7);
 		return sprite;
 	}
 
@@ -82,7 +82,7 @@ export function attachHamster(
 		}
 		fit(body, square, 1.2);
 		for (const hole of holes.values()) {
-			fit(hole.sprite, hole.square, 0.85);
+			fit(hole.sprite, hole.square, 0.7);
 		}
 	}
 
@@ -127,7 +127,7 @@ export function attachHamster(
 			wait(hamsterSprites.lookMs, () => {
 				body.setFlipX(false).setTexture(hamsterSprites.scare);
 				wait(hamsterSprites.scareMs, () => {
-					const down = [...hamsterSprites.emerge].reverse();
+					const down = [...hamsterSprites.emerge].slice(1).reverse();
 					showKeys(down, hamsterSprites.holdMs, 0, () => {
 						body.setVisible(false);
 						const gap =
