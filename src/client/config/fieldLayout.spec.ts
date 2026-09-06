@@ -7,6 +7,7 @@ import {
 	hudClockEWellNativeX,
 	hudClockEWellNativeY,
 	hudClockEW,
+	hudClockLiftPx,
 	hudClockSafeInset,
 } from '@/client/config/fieldLayout';
 import { layout } from '@/client/config/layout';
@@ -53,8 +54,8 @@ describe('clockHudLayout', () => {
 		expect(hudClockSafeInset).toBeGreaterThanOrEqual(16);
 		expect(clocks.foe.x).toBe(hudClockSafeInset);
 		expect(clocks.you.x).toBe(390 - hudClockSafeInset);
-		expect(clocks.foe.y).toBe(field.originY);
-		expect(clocks.you.y).toBe(field.originY);
+		expect(clocks.foe.y).toBe(field.originY - hudClockLiftPx);
+		expect(clocks.you.y).toBe(field.originY - hudClockLiftPx);
 		expect(clocks.foe.originX).toBe(0);
 		expect(clocks.foe.originY).toBe(1);
 		expect(clocks.you.originX).toBe(1);
@@ -66,7 +67,7 @@ describe('clockHudLayout', () => {
 	it('puts landscape clocks on the sides of the board', () => {
 		const field = computeFieldLayout(1280, 720);
 		const clocks = clockHudLayout(1280, 720, field);
-		const midY = field.originY + field.fieldSize / 2;
+		const midY = field.originY + field.fieldSize / 2 - hudClockLiftPx;
 		expect(clocks.foe.x).toBeLessThan(field.originX);
 		expect(clocks.you.x).toBeGreaterThan(field.originX + field.fieldSize);
 		expect(clocks.foe.y).toBe(midY);

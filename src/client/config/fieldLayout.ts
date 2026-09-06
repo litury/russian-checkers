@@ -28,6 +28,7 @@ export const hudClockEW = 112;
 export const hudClockEH = 70;
 export const hudClockSafeInset = 16;
 export const hudClockSideGap = 8;
+export const hudClockLiftPx = 10;
 export const hudClockEWellNativeX = 40;
 export const hudClockEWellNativeY = 24;
 export const hudClockEWellX = Math.round((hudClockEW * hudClockEWellNativeX) / hudClockNativeW);
@@ -67,15 +68,16 @@ export function clockHudLayout(
 	field: FieldLayout,
 ): ClockHudLayout {
 	if (field.portrait) {
+		const y = field.originY - hudClockLiftPx;
 		const foe: ClockAnchor = {
 			x: hudClockSafeInset,
-			y: field.originY,
+			y,
 			originX: 0,
 			originY: 1,
 		};
 		const you: ClockAnchor = {
 			x: width - hudClockSafeInset,
-			y: field.originY,
+			y,
 			originX: 1,
 			originY: 1,
 		};
@@ -88,7 +90,7 @@ export function clockHudLayout(
 			youLabel: labelAt(you),
 		};
 	}
-	const midY = field.originY + field.fieldSize / 2;
+	const midY = field.originY + field.fieldSize / 2 - hudClockLiftPx;
 	const foe: ClockAnchor = {
 		x: field.originX - hudClockSideGap,
 		y: midY,
