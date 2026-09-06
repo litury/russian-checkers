@@ -4,7 +4,12 @@ import {
 	getAutoMove,
 	setAutoMove,
 } from '@/client/app/parts/createSfxPanel';
-import { clockFontPx, hudFont, whenHudFontReady } from '@/client/fonts/fonts';
+import {
+	clockFontPx,
+	hudFont,
+	nameFontPx,
+	whenHudFontReady,
+} from '@/client/fonts/fonts';
 import {
 	clockHudLayout,
 	computeFieldLayout,
@@ -19,6 +24,19 @@ import { blitzStartMs, type Side } from '@/rules';
 export const hudClockEIdleKey = 'hudClockEIdle';
 export const hudClockEHotKey = 'hudClockEHot';
 export const hudClockEOkKey = 'hudClockEOk';
+export const hudNamePlankKey = 'hudNamePlank';
+export const hudNamePlankSize = 128;
+export const hudNamePlankNative = 128;
+export const hudNamePlankTextNativeY = 38;
+export const hudNameMaxChars = 12;
+
+export function clipPlayerName(raw: string): string {
+	const chars = Array.from(raw.trim());
+	if (chars.length <= hudNameMaxChars) {
+		return chars.join('');
+	}
+	return `${chars.slice(0, hudNameMaxChars - 1).join('')}…`;
+}
 export { hudClockEW, hudClockEH } from '@/client/config/fieldLayout';
 export const hudClockFaceKey = 'hudClockFace';
 export const hudClockFaceSize = 96;
@@ -31,6 +49,7 @@ export const hudClockNeedle = 0xa68e63;
 
 const textStroke = '#1a1410';
 const hudDepth = 12;
+const plankDepth = 10;
 const menuDepth = 15;
 const pad = 24;
 
@@ -80,6 +99,7 @@ export function createHud(
 	setClock: (whiteSec: number, blackSec: number, turn?: Side | null) => void;
 	setHand: (remainingMs: number, lap?: number) => void;
 	setVisible: (on: boolean) => void;
+	setNames: (you: string, foe: string) => void;
 } {
 	const face = scene.add
 		.image(0, 0, hudClockFaceKey)
@@ -100,6 +120,17 @@ export function createHud(
 		.setOrigin(1, 1)
 		.setDisplaySize(hudClockEW, hudClockEH)
 		.setDepth(hudDepth);
+	const foePlank = scene.add
+		.image(0, 0, hudNamePlankKey)
+		.setOrigin(0.5, 1)
+		.setDisplaySize(hudNamePlankSize, hudNamePlankSize)
+		.setDepth(plankDepth);
+	const youPlank = scene.add
+		.image(0, 0, hudNamePlankKey)
+		.setOrigin(0.5, 1)
+		.setFlipX(true)
+		.setDisplaySize(hudNamePlankSize, hudNamePlankSize)
+		.setDepth(plankDepth);
 	const clockStyle = {
 		fontFamily: hudFont,
 		fontSize: `${clockFontPx}px`,
@@ -117,18 +148,18 @@ export function createHud(
 		.setVisible(false);
 	const labelStyle = {
 		fontFamily: hudFont,
-		fontSize: '10px',
+		fontSize: `${nameFontPx}px`,
 		color: palette.text,
 	};
 	const foeLabel = scene.add
 		.text(0, 0, 'Бот', labelStyle)
-		.setOrigin(0.5, 1)
-		.setDepth(hudDepth + 1)
+		.setOrigin(0.5, 0.5)
+		.setDepth(plankDepth + 1)
 		.setVisible(false);
 	const youLabel = scene.add
 		.text(0, 0, 'Ты', labelStyle)
-		.setOrigin(0.5, 1)
-		.setDepth(hudDepth + 1)
+		.setOrigin(0.5, 0.5)
+		.setDepth(plankDepth + 1)
 		.setVisible(false);
 	let clockFontReady = false;
 	whenHudFontReady(() => {
@@ -332,6 +363,8 @@ export function createHud(
 		youClock.setVisible(on && clockFontReady);
 		foeLabel.setVisible(on && clockFontReady);
 		youLabel.setVisible(on && clockFontReady);
+		foePlank.setVisible(on);
+		youPlank.setVisible(on);
 		foeShell.setVisible(on);
 		youShell.setVisible(on);
 		turn.setVisible(false);
@@ -368,8 +401,22 @@ export function createHud(
 			youShell.setDisplaySize(hudClockEW, hudClockEH);
 			foeClock.setPosition(clocks.foeDigit.x, clocks.foeDigit.y);
 			youClock.setPosition(clocks.youDigit.x, clocks.youDigit.y);
-			foeLabel.setPosition(clocks.foeLabel.x, clocks.foeLabel.y);
-			youLabel.setPosition(clocks.youLabel.x, clocks.youLabel.y);
+			const foeLeft = clocks.foe.x - clocks.foe.originX * hudClockEW;
+			const foeTop = clocks.foe.y - clocks.foe.originY * hudClockEH;
+			const youLeft = clocks.you.x - clocks.you.originX * hudClockEW;
+			const youTop = clocks.you.y - clocks.you.originY * hudClockEH;
+			const foeCx = foeLeft + hudClockEW / 2;
+			const youCx = youLeft + hudClockEW / 2;
+			const foeBottom = foeTop + hudClockEH;
+			const youBottom = youTop + hudClockEH;
+			const nameY = (size: number, bottom: number): number =>
+				bottom - size + (size * hudNamePlankTextNativeY) / hudNamePlankNative;
+			foePlank.setPosition(foeCx, foeBottom);
+			youPlank.setPosition(youCx, youBottom);
+			foePlank.setDisplaySize(hudNamePlankSize, hudNamePlankSize);
+			youPlank.setDisplaySize(hudNamePlankSize, hudNamePlankSize);
+			foeLabel.setPosition(foeCx, nameY(hudNamePlankSize, foeBottom));
+			youLabel.setPosition(youCx, nameY(hudNamePlankSize, youBottom));
 			placeMenu(menuX, menuY);
 			placeActions(menuX, menuY);
 			sfxPanel.layout(menuX, menuY, width, height);
@@ -404,6 +451,10 @@ export function createHud(
 		},
 		setVisible: (on) => {
 			setHudVisible(on);
+		},
+		setNames: (you, foe) => {
+			youLabel.setText(clipPlayerName(you) || 'Ты');
+			foeLabel.setText(clipPlayerName(foe) || 'Бот');
 		},
 	};
 }

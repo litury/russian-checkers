@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
 	clockFontPx,
 	hudFont,
+	nameFontPx,
 	titleFont,
 	whenHudFontReady,
 } from './fonts';
@@ -14,6 +15,8 @@ describe('self-hosted fonts', () => {
 		expect(titleFont.includes('Arial')).toBe(false);
 		expect(clockFontPx % 5).toBe(0);
 		expect(clockFontPx).toBe(15);
+		expect(nameFontPx % 5).toBe(0);
+		expect(nameFontPx).toBe(15);
 	});
 
 	it('loads Tiny5 then runs the callback', async () => {

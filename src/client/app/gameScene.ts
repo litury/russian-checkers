@@ -124,6 +124,7 @@ import hudClockFaceUrl from './ui/hud_clock_face.png';
 import hudClockEIdleUrl from './ui/hud_clock_e_idle.png';
 import hudClockEHotUrl from './ui/hud_clock_e_hot.png';
 import hudClockEOkUrl from './ui/hud_clock_e_ok.png';
+import hudNamePlankUrl from './ui/hud/hud_name_plank.png';
 import hudGlassMeadowUrl from './ui/hud_glass_meadow.png';
 import hudMenuUrl from './ui/hud_menu.png';
 import hudMenuFoldUrl from './ui/hud_menu_fold.png';
@@ -243,6 +244,7 @@ export class GameScene extends Phaser.Scene {
 		this.load.image('hudClockEIdle', hudClockEIdleUrl);
 		this.load.image('hudClockEHot', hudClockEHotUrl);
 		this.load.image('hudClockEOk', hudClockEOkUrl);
+		this.load.image('hudNamePlank', hudNamePlankUrl);
 		this.load.image(captureSprites.igniteLight, captureIgniteLightUrl);
 		this.load.image(captureSprites.igniteDark, captureIgniteDarkUrl);
 		this.load.image(captureSprites.igniteKingLight, captureIgniteKingLightUrl);
@@ -367,6 +369,7 @@ export class GameScene extends Phaser.Scene {
 			'hudClockEIdle',
 			'hudClockEHot',
 			'hudClockEOk',
+			'hudNamePlank',
 			'resultMonitor',
 			'resultGlassMeadow',
 			'titleBg916',
@@ -489,6 +492,7 @@ export class GameScene extends Phaser.Scene {
 		this.overlay.hide();
 		this.sfx.stopMeadow();
 		this.hud.setVisible(true);
+		this.hud.setNames('Ты', 'Бот');
 		this.board.setPlayfieldVisible(true);
 		this.sfx.resetMatch();
 		this.refresh();

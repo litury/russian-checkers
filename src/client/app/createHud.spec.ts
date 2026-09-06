@@ -2,11 +2,13 @@ import type Phaser from 'phaser';
 import { describe, expect, it } from 'vitest';
 import { layout } from '@/client/config/layout';
 import {
+	clipPlayerName,
 	createHud,
 	hudClockEHotKey,
 	hudClockEIdleKey,
 	hudClockEOkKey,
 	hudClockFaceKey,
+	hudNamePlankKey,
 } from './createHud';
 
 type Handler = (...args: unknown[]) => void;
@@ -36,6 +38,7 @@ type StubGo = {
 	setFontFamily: (family: string) => StubGo;
 	setFontSize: (size?: number) => StubGo;
 	setTexture: (key: string) => StubGo;
+	setFlipX: () => StubGo;
 	setRotation: (r: number) => StubGo;
 	lineStyle: () => StubGo;
 	lineBetween: () => StubGo;
@@ -105,7 +108,10 @@ function stubGo(key?: string): StubGo {
 		setStroke() {
 			return go;
 		},
-		setText() {
+		setText(next?: string) {
+			if (typeof next === 'string') {
+				go.text = next;
+			}
 			return go;
 		},
 		setFontFamily() {
@@ -116,6 +122,9 @@ function stubGo(key?: string): StubGo {
 		},
 		setTexture(next: string) {
 			go.key = next;
+			return go;
+		},
+		setFlipX() {
 			return go;
 		},
 		setRotation(r: number) {
@@ -407,6 +416,16 @@ describe('createHud', () => {
 		expect(scene.texts.some((t) => t.text === 'Бот')).toBe(true);
 		expect(shells[0]?.key).toBe(hudClockEHotKey);
 		expect(shells[1]?.key).toBe(hudClockEOkKey);
+		const planks = scene.images.filter((img) => img.key === hudNamePlankKey);
+		expect(planks).toHaveLength(2);
+		expect(planks[0]?.displayW).toBe(128);
+		expect(planks[0]?.y).toBe(shells[0]?.y);
+	});
+
+	it('clips names to 12 glyphs', () => {
+		expect(clipPlayerName('Ты')).toBe('Ты');
+		expect(clipPlayerName('двенадцатьсим')).toHaveLength(12);
+		expect(clipPlayerName('двенадцатьсимволов')).toMatch(/…$/);
 	});
 
 	it('hides clock digits until Tiny5 load then shows them', async () => {
@@ -429,7 +448,9 @@ describe('createHud', () => {
 		try {
 			const scene = stubHudScene();
 			createHud(scene);
-			const clocks = scene.texts.filter((t) => t.fontSize === '15px');
+			const clocks = scene.texts.filter(
+				(t) => t.fontSize === '15px' && t.text !== 'Ты' && t.text !== 'Бот',
+			);
 			expect(clocks.length).toBe(2);
 			expect(clocks.every((t) => t.visible === false)).toBe(true);
 			resolveLoad?.();
