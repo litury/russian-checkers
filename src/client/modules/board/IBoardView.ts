@@ -20,4 +20,5 @@ export interface IBoardView {
 	reset: () => void;
 	setPlayfieldVisible: (on: boolean) => void;
 	setWaitingIdle: (on: boolean) => void;
+	notePly: () => void;
 }

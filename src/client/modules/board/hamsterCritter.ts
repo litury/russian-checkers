@@ -1,14 +1,23 @@
 import Phaser from 'phaser';
-import { hamsterSprites, layout } from '@/client/config/layout';
+import { debrisSprites, hamsterSprites, layout } from '@/client/config/layout';
 import type { ISquare } from '@/rules';
 
 type Box = { x: number; y: number; w: number; h: number };
+
+function stoneKeys(): Set<string> {
+	const out = new Set<string>();
+	for (const stone of debrisSprites.center) {
+		const row = layout.rankCount - 1 - stone.visRow;
+		out.add(`${row},${stone.col}`);
+	}
+	return out;
+}
 
 export function attachHamster(
 	scene: Phaser.Scene,
 	cellBox: (square: ISquare) => Box,
 	playfieldOn: () => boolean,
-): { layout: () => void; setVisible: (on: boolean) => void } {
+): { layout: () => void; setVisible: (on: boolean) => void; arm: () => void } {
 	const mound = scene.add
 		.image(0, 0, hamsterSprites.emerge[0])
 		.setOrigin(0.5)
@@ -16,23 +25,26 @@ export function attachHamster(
 		.setVisible(false);
 	mound.disableInteractive();
 	const body = scene.add
-		.image(0, 0, hamsterSprites.emerge[0])
+		.image(0, 0, hamsterSprites.look)
 		.setOrigin(0.5)
 		.setDepth(6.1)
 		.setVisible(false);
 	body.disableInteractive();
 	let square: ISquare | null = null;
 	let cancelled = false;
+	let armed = false;
+	const blocked = stoneKeys();
 	const waits: Phaser.Time.TimerEvent[] = [];
 
-	function lightSquares(): ISquare[] {
+	function spawnSquares(): ISquare[] {
 		const out: ISquare[] = [];
 		for (let visRow = 0; visRow < layout.rankCount; visRow += 1) {
 			for (let col = 0; col < layout.rankCount; col += 1) {
-				if ((visRow + col) % 2 === 1) {
+				const row = layout.rankCount - 1 - visRow;
+				if (blocked.has(`${row},${col}`)) {
 					continue;
 				}
-				out.push({ row: layout.rankCount - 1 - visRow, col });
+				out.push({ row, col });
 			}
 		}
 		return out;
@@ -75,72 +87,59 @@ export function attachHamster(
 	}
 
 	function cycle(): void {
-		if (cancelled || prefersOff() || !playfieldOn()) {
+		if (cancelled || !armed || !playfieldOn()) {
 			return;
 		}
-		const lights = lightSquares();
-		const mid = lights.filter(
-			(s) => s.row >= 2 && s.row <= 5 && s.col >= 2 && s.col <= 5,
-		);
-		square =
-			(mid.length > 0 ? mid : lights)[
-				Math.floor(Math.random() * (mid.length > 0 ? mid.length : lights.length))
-			] ?? null;
+		const spots = spawnSquares();
+		square = spots[Math.floor(Math.random() * spots.length)] ?? null;
 		if (!square) {
 			return;
 		}
 		place();
 		mound.setTexture(hamsterSprites.emerge[0]).setVisible(true);
-		const up = [...hamsterSprites.emerge].slice(1);
-		showKeys(up, hamsterSprites.holdMs, 0, () => {
-			body.setTexture(hamsterSprites.look).setFlipX(false);
+		body.setTexture(hamsterSprites.look).setFlipX(false).setVisible(true);
+		wait(hamsterSprites.lookMs, () => {
+			body.setFlipX(true);
 			wait(hamsterSprites.lookMs, () => {
-				body.setFlipX(true);
-				wait(hamsterSprites.lookMs, () => {
-					body.setFlipX(false).setTexture(hamsterSprites.scare);
-					wait(hamsterSprites.scareMs, () => {
-						const down = [...hamsterSprites.emerge].reverse();
-						showKeys(down, hamsterSprites.holdMs, 0, () => {
-							body.setVisible(false);
-							const gap =
-								hamsterSprites.gapMinMs +
-								Math.floor(
-									Math.random() *
-										(hamsterSprites.gapMaxMs - hamsterSprites.gapMinMs),
-								);
-							wait(gap, cycle);
-						});
+				body.setFlipX(false).setTexture(hamsterSprites.scare);
+				wait(hamsterSprites.scareMs, () => {
+					const down = [...hamsterSprites.emerge].reverse();
+					showKeys(down, hamsterSprites.holdMs, 0, () => {
+						body.setVisible(false);
+						const gap =
+							hamsterSprites.gapMinMs +
+							Math.floor(
+								Math.random() *
+									(hamsterSprites.gapMaxMs - hamsterSprites.gapMinMs),
+							);
+						wait(gap, cycle);
 					});
 				});
 			});
 		});
 	}
 
-	function prefersOff(): boolean {
-		try {
-			return Boolean(
-				globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
-			);
-		} catch {
-			return false;
-		}
-	}
-
 	return {
 		layout: place,
+		arm: () => {
+			if (armed) {
+				return;
+			}
+			armed = true;
+			cancelled = false;
+			stopWaits();
+			wait(300, cycle);
+		},
 		setVisible: (on: boolean) => {
 			if (!on) {
 				cancelled = true;
+				armed = false;
 				stopWaits();
 				body.setVisible(false);
 				mound.setVisible(false);
 				return;
 			}
 			cancelled = false;
-			if (!prefersOff()) {
-				stopWaits();
-				wait(400, cycle);
-			}
 		},
 	};
 }

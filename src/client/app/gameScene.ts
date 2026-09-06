@@ -760,6 +760,7 @@ export class GameScene extends Phaser.Scene {
 			move,
 			() => {
 				this.moving = false;
+				this.board.notePly();
 				after();
 			},
 			(took) => {

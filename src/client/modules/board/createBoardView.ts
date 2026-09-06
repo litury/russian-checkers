@@ -1543,7 +1543,7 @@ export function createBoardView(
 		const fieldSize = field.fieldSize;
 		const cell = fieldSize / layout.rankCount;
 		ground.setTileScale(cell / tableLayers.tile, cell / tableLayers.tile);
-		if (!prefersReducedMotion() && typeof scene.time?.addEvent === 'function') {
+		if (typeof scene.time?.addEvent === 'function') {
 			if (!ground.getData('windLoop')) {
 				let gStep = 0;
 				scene.time.addEvent({
@@ -1558,7 +1558,7 @@ export function createBoardView(
 			}
 		}
 		clearWindPatches();
-		if (!prefersReducedMotion() && typeof scene.time?.addEvent === 'function') {
+		if (typeof scene.time?.addEvent === 'function') {
 			const keys = tableLayers.earthWind;
 			const tilePx = cell * 4;
 			let gy = 0;
@@ -1624,7 +1624,11 @@ export function createBoardView(
 		for (const square of squares) {
 			const box = cellBox(square);
 			square.rect.setPosition(box.x, box.y);
-			square.rect.setDisplaySize(box.w, box.h);
+			square.rect.setSize(box.w, box.h);
+			square.rect.setInteractive(
+				new Phaser.Geom.Rectangle(-box.w / 2, -box.h / 2, box.w, box.h),
+				Phaser.Geom.Rectangle.Contains,
+			);
 		}
 		for (const view of pieceViews.values()) {
 			placePiece(view, pulsing === view);
@@ -2030,5 +2034,8 @@ export function createBoardView(
 		},
 		setPlayfieldVisible,
 		setWaitingIdle,
+		notePly: () => {
+			hamster.arm();
+		},
 	};
 }
