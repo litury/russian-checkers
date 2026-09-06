@@ -760,7 +760,6 @@ export class GameScene extends Phaser.Scene {
 			move,
 			() => {
 				this.moving = false;
-				this.board.notePly();
 				after();
 			},
 			(took) => {
@@ -781,6 +780,7 @@ export class GameScene extends Phaser.Scene {
 			}
 			this.settleClock(mover);
 			this.position = next;
+			this.board.notePly();
 			const side = winner(this.position);
 			if (side) {
 				this.endMatch(side);
