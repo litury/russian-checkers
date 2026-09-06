@@ -25,12 +25,13 @@ void main() {
 		gl_FragColor = base;
 		return;
 	}
-	float t = floor(uTime * 3.5) * 0.28;
-	vec2 cell = floor(px / 18.0);
-	float n = hash(cell + floor(t));
-	float gust = sin(px.x * 0.011 - px.y * 0.007 - t * 0.9);
-	float live = step(0.55, n + gust * 0.18);
-	float dir = step(0.5, hash(cell + 9.1)) * 2.0 - 1.0;
+	float epoch = floor(uTime * 0.55);
+	vec2 jitter = vec2(hash(floor(px * 0.08)), hash(floor(px * 0.08) + 4.2));
+	vec2 cell = floor(px / (16.0 + jitter.x * 10.0) + jitter * 0.7);
+	float n = hash(cell + epoch * 17.0);
+	float gust = sin(px.x * 0.009 - px.y * 0.006 - uTime * 0.35);
+	float live = step(0.62, n + gust * 0.12);
+	float dir = step(0.5, hash(cell + epoch * 3.0)) * 2.0 - 1.0;
 	vec2 off = live * dir * vec2(2.0, 1.0) / resolution;
 	gl_FragColor = texture2D(uMainSampler, outTexCoord + off);
 }
