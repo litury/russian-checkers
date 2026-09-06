@@ -123,7 +123,11 @@ import hudAiOffUrl from './ui/hud_ai_off.png';
 import hudClockFaceUrl from './ui/hud_clock_face.png';
 import hudClockEIdleUrl from './ui/hud_clock_e_idle.png';
 import hudClockEHotUrl from './ui/hud_clock_e_hot.png';
+import hudClockEHot1Url from './ui/hud_clock_e_hot_1.png';
+import hudClockEHot2Url from './ui/hud_clock_e_hot_2.png';
 import hudClockEOkUrl from './ui/hud_clock_e_ok.png';
+import hudClockEOk1Url from './ui/hud_clock_e_ok_1.png';
+import hudClockEOk2Url from './ui/hud_clock_e_ok_2.png';
 import hudNamePlankUrl from './ui/hud/hud_name_plank.png';
 import hudGlassMeadowUrl from './ui/hud_glass_meadow.png';
 import hudMenuUrl from './ui/hud_menu.png';
@@ -243,7 +247,11 @@ export class GameScene extends Phaser.Scene {
 		this.load.image('hudClockFace', hudClockFaceUrl);
 		this.load.image('hudClockEIdle', hudClockEIdleUrl);
 		this.load.image('hudClockEHot', hudClockEHotUrl);
+		this.load.image('hudClockEHot1', hudClockEHot1Url);
+		this.load.image('hudClockEHot2', hudClockEHot2Url);
 		this.load.image('hudClockEOk', hudClockEOkUrl);
+		this.load.image('hudClockEOk1', hudClockEOk1Url);
+		this.load.image('hudClockEOk2', hudClockEOk2Url);
 		this.load.image('hudNamePlank', hudNamePlankUrl);
 		this.load.image(captureSprites.igniteLight, captureIgniteLightUrl);
 		this.load.image(captureSprites.igniteDark, captureIgniteDarkUrl);
@@ -368,7 +376,11 @@ export class GameScene extends Phaser.Scene {
 			'hudClockFace',
 			'hudClockEIdle',
 			'hudClockEHot',
+			'hudClockEHot1',
+			'hudClockEHot2',
 			'hudClockEOk',
+			'hudClockEOk1',
+			'hudClockEOk2',
 			'hudNamePlank',
 			'resultMonitor',
 			'resultGlassMeadow',

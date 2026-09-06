@@ -23,7 +23,13 @@ import { blitzStartMs, type Side } from '@/rules';
 
 export const hudClockEIdleKey = 'hudClockEIdle';
 export const hudClockEHotKey = 'hudClockEHot';
+export const hudClockEHot1Key = 'hudClockEHot1';
+export const hudClockEHot2Key = 'hudClockEHot2';
 export const hudClockEOkKey = 'hudClockEOk';
+export const hudClockEOk1Key = 'hudClockEOk1';
+export const hudClockEOk2Key = 'hudClockEOk2';
+export const hudClockLampMs = 140;
+export const hudClockLampLoop = [0, 1, 2, 1] as const;
 export const hudNamePlankKey = 'hudNamePlank';
 export const hudNamePlankSize = 128;
 export const hudNamePlankNative = 128;
@@ -120,6 +126,61 @@ export function createHud(
 		.setOrigin(1, 1)
 		.setDisplaySize(hudClockEW, hudClockEH)
 		.setDepth(hudDepth);
+	type LampKind = 'idle' | 'ok' | 'hot';
+	let youLamp: LampKind = 'idle';
+	let foeLamp: LampKind = 'idle';
+	let lampStep = 0;
+	let lampTimer: { remove: (dispatch?: boolean) => void } | undefined;
+	const okLampKeys = [hudClockEOkKey, hudClockEOk1Key, hudClockEOk2Key] as const;
+	const hotLampKeys = [hudClockEHotKey, hudClockEHot1Key, hudClockEHot2Key] as const;
+
+	function lampTexture(kind: LampKind): string {
+		if (kind === 'idle') {
+			return hudClockEIdleKey;
+		}
+		const frame = hudClockLampLoop[lampStep % hudClockLampLoop.length] ?? 0;
+		const keys = kind === 'ok' ? okLampKeys : hotLampKeys;
+		return keys[frame] ?? keys[0];
+	}
+
+	function paintLampShells(): void {
+		youShell.setTexture(lampTexture(youLamp));
+		foeShell.setTexture(lampTexture(foeLamp));
+		youShell.setDisplaySize(hudClockEW, hudClockEH);
+		foeShell.setDisplaySize(hudClockEW, hudClockEH);
+	}
+
+	function stopLamps(): void {
+		lampTimer?.remove(false);
+		lampTimer = undefined;
+		lampStep = 0;
+	}
+
+	function tickLamps(): void {
+		if (youLamp === 'idle' && foeLamp === 'idle') {
+			stopLamps();
+			paintLampShells();
+			return;
+		}
+		lampStep = (lampStep + 1) % hudClockLampLoop.length;
+		paintLampShells();
+		lampTimer = scene.time.delayedCall(hudClockLampMs, tickLamps);
+	}
+
+	function startLamps(): void {
+		if (youLamp === 'idle' && foeLamp === 'idle') {
+			stopLamps();
+			paintLampShells();
+			return;
+		}
+		if (lampTimer) {
+			paintLampShells();
+			return;
+		}
+		lampStep = 0;
+		paintLampShells();
+		lampTimer = scene.time.delayedCall(hudClockLampMs, tickLamps);
+	}
 	const foePlank = scene.add
 		.image(0, 0, hudNamePlankKey)
 		.setOrigin(0.5, 1)
@@ -372,6 +433,7 @@ export function createHud(
 		menuIcon.setVisible(on);
 		aiIcon.setVisible(on);
 		if (!on) {
+			stopLamps();
 			sfxPanel.hide();
 			clearMenuTimer();
 			menuHeld = false;
@@ -429,22 +491,11 @@ export function createHud(
 		setClock: (whiteSec, blackSec, turn = 'white') => {
 			youClock.setText(formatClock(whiteSec));
 			foeClock.setText(formatClock(blackSec));
-			youShell.setTexture(
-				turn === 'white'
-					? hudClockEOkKey
-					: turn
-						? hudClockEHotKey
-						: hudClockEIdleKey,
-			);
-			foeShell.setTexture(
-				turn === 'black'
-					? hudClockEOkKey
-					: turn
-						? hudClockEHotKey
-						: hudClockEIdleKey,
-			);
-			youShell.setDisplaySize(hudClockEW, hudClockEH);
-			foeShell.setDisplaySize(hudClockEW, hudClockEH);
+			youLamp =
+				turn === 'white' ? 'ok' : turn ? 'hot' : 'idle';
+			foeLamp =
+				turn === 'black' ? 'ok' : turn ? 'hot' : 'idle';
+			startLamps();
 		},
 		setHand: (remainingMs, lap = 0) => {
 			paintHand(remainingMs, lap);

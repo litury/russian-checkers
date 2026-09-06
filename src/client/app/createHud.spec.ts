@@ -6,6 +6,7 @@ import {
 	createHud,
 	hudClockEHotKey,
 	hudClockEIdleKey,
+	hudClockEOk1Key,
 	hudClockEOkKey,
 	hudClockFaceKey,
 	hudNamePlankKey,
@@ -420,6 +421,23 @@ describe('createHud', () => {
 		expect(planks).toHaveLength(2);
 		expect(planks[0]?.displayW).toBe(128);
 		expect(planks[0]?.y).toBe(shells[0]?.y);
+	});
+
+	it('loops ok/hot lamp frames and leaves idle still', () => {
+		const scene = stubHudScene();
+		const hud = createHud(scene);
+		hud.setClock(60, 45, 'white');
+		const you = scene.images.filter((img) => img.key?.startsWith('hudClockE')).at(-1);
+		const foe = scene.images.find((img) => img.key === hudClockEHotKey);
+		expect(you?.key).toBe(hudClockEOkKey);
+		expect(foe?.key).toBe(hudClockEHotKey);
+		const lamp = scene.timeCalls.at(-1);
+		expect(lamp?.ms).toBe(140);
+		lamp?.fn();
+		expect(you?.key).toBe(hudClockEOk1Key);
+		hud.setClock(60, 45, null);
+		expect(you?.key).toBe(hudClockEIdleKey);
+		expect(foe?.key).toBe(hudClockEIdleKey);
 	});
 
 	it('clips names to 12 glyphs', () => {
