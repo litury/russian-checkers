@@ -117,6 +117,22 @@ export const tableLayers = {
 	tile: 64,
 } as const;
 
+export const hamsterSprites = {
+	emerge: [
+		'hamsterEmerge0',
+		'hamsterEmerge1',
+		'hamsterEmerge2',
+		'hamsterEmerge3',
+	] as const,
+	look: 'hamsterLook',
+	scare: 'hamsterScare',
+	holdMs: 220,
+	lookMs: 520,
+	scareMs: 640,
+	gapMinMs: 7000,
+	gapMaxMs: 14000,
+} as const;
+
 export const wreathSprites = {
 	mask: 'selectMask',
 	spinMs: 10000,

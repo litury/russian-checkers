@@ -8,6 +8,7 @@ import {
 	pitSprites,
 	tableLayers,
 	wreathSprites,
+	hamsterSprites,
 } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
 import type { IBoardView } from '@/client/modules/board';
@@ -38,6 +39,12 @@ import earthGrassUrl from '@/client/modules/board/table_layers/earth_grass.png';
 import earthGrass01Url from '@/client/modules/board/table_layers/earth_grass_01.png';
 import earthGrass02Url from '@/client/modules/board/table_layers/earth_grass_02.png';
 import earthGrass03Url from '@/client/modules/board/table_layers/earth_grass_03.png';
+import hamsterEmerge00Url from '@/client/modules/board/table_layers/hamster/emerge_00.png';
+import hamsterEmerge01Url from '@/client/modules/board/table_layers/hamster/emerge_01.png';
+import hamsterEmerge02Url from '@/client/modules/board/table_layers/hamster/emerge_02.png';
+import hamsterEmerge03Url from '@/client/modules/board/table_layers/hamster/emerge_03.png';
+import hamsterLookUrl from '@/client/modules/board/table_layers/hamster/look.png';
+import hamsterScareUrl from '@/client/modules/board/table_layers/hamster/scare.png';
 import pitGrass00Url from '@/client/modules/board/table_layers/pit_grass_00.png';
 import pitGrass01Url from '@/client/modules/board/table_layers/pit_grass_01.png';
 import pitGrass02Url from '@/client/modules/board/table_layers/pit_grass_02.png';
@@ -206,6 +213,12 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(tableLayers.earthWind[1], earthGrass01Url);
 		this.load.image(tableLayers.earthWind[2], earthGrass02Url);
 		this.load.image(tableLayers.earthWind[3], earthGrass03Url);
+		this.load.image(hamsterSprites.emerge[0], hamsterEmerge00Url);
+		this.load.image(hamsterSprites.emerge[1], hamsterEmerge01Url);
+		this.load.image(hamsterSprites.emerge[2], hamsterEmerge02Url);
+		this.load.image(hamsterSprites.emerge[3], hamsterEmerge03Url);
+		this.load.image(hamsterSprites.look, hamsterLookUrl);
+		this.load.image(hamsterSprites.scare, hamsterScareUrl);
 		this.load.image(pitSprites.keys[0], pitGrass00Url);
 		this.load.image(pitSprites.keys[1], pitGrass01Url);
 		this.load.image(pitSprites.keys[2], pitGrass02Url);
