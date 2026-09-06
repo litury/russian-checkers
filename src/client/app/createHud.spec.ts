@@ -419,7 +419,8 @@ describe('createHud', () => {
 		expect(shells[1]?.key).toBe(hudClockEOk2Key);
 		const planks = scene.images.filter((img) => img.key === hudNamePlankKey);
 		expect(planks).toHaveLength(2);
-		expect(planks[0]?.displayW).toBe(128);
+		expect(planks[0]?.displayW).toBe(160);
+		expect(planks[0]?.displayH).toBe(80);
 		expect(planks[0]?.y).toBe(shells[0]?.y);
 	});
 

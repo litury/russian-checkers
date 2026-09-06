@@ -32,9 +32,11 @@ export const hudClockLampMs = 140;
 export const hudNamePlankKey = 'hudNamePlank';
 export const hudClockGrassKey = 'hudClockGrass';
 export const hudClockGrassSize = 128;
-export const hudNamePlankSize = 128;
-export const hudNamePlankNative = 128;
-export const hudNamePlankTextNativeY = 38;
+export const hudNamePlankW = 160;
+export const hudNamePlankH = 80;
+export const hudNamePlankNativeW = 160;
+export const hudNamePlankNativeH = 80;
+export const hudNamePlankTextNativeY = 22;
 export const hudNameMaxChars = 12;
 
 export function clipPlayerName(raw: string): string {
@@ -254,13 +256,13 @@ export function createHud(
 	const foePlank = scene.add
 		.image(0, 0, hudNamePlankKey)
 		.setOrigin(0.5, 1)
-		.setDisplaySize(hudNamePlankSize, hudNamePlankSize)
+		.setDisplaySize(hudNamePlankW, hudNamePlankH)
 		.setDepth(plankDepth);
 	const youPlank = scene.add
 		.image(0, 0, hudNamePlankKey)
 		.setOrigin(0.5, 1)
 		.setFlipX(true)
-		.setDisplaySize(hudNamePlankSize, hudNamePlankSize)
+		.setDisplaySize(hudNamePlankW, hudNamePlankH)
 		.setDepth(plankDepth);
 	const clockStyle = {
 		fontFamily: hudFont,
@@ -554,18 +556,18 @@ export function createHud(
 			const youCx = youLeft + hudClockEW / 2;
 			const foeBottom = foeTop + hudClockEH;
 			const youBottom = youTop + hudClockEH;
-			const nameY = (size: number, bottom: number): number =>
-				bottom - size + (size * hudNamePlankTextNativeY) / hudNamePlankNative;
+			const nameY = (h: number, bottom: number): number =>
+				bottom - h + (h * hudNamePlankTextNativeY) / hudNamePlankNativeH;
 			foePlank.setPosition(foeCx, foeBottom);
 			youPlank.setPosition(youCx, youBottom);
-			foePlank.setDisplaySize(hudNamePlankSize, hudNamePlankSize);
-			youPlank.setDisplaySize(hudNamePlankSize, hudNamePlankSize);
+			foePlank.setDisplaySize(hudNamePlankW, hudNamePlankH);
+			youPlank.setDisplaySize(hudNamePlankW, hudNamePlankH);
 			foeGrass.setPosition(foeCx, foeBottom);
 			youGrass.setPosition(youCx, youBottom);
 			foeGrass.setDisplaySize(hudClockGrassSize, hudClockGrassSize);
 			youGrass.setDisplaySize(hudClockGrassSize, hudClockGrassSize);
-			foeLabel.setPosition(foeCx, nameY(hudNamePlankSize, foeBottom));
-			youLabel.setPosition(youCx, nameY(hudNamePlankSize, youBottom));
+			foeLabel.setPosition(foeCx, nameY(hudNamePlankH, foeBottom));
+			youLabel.setPosition(youCx, nameY(hudNamePlankH, youBottom));
 			placeMenu(menuX, menuY);
 			placeActions(menuX, menuY);
 			sfxPanel.layout(menuX, menuY, width, height);
