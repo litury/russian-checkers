@@ -1538,24 +1538,31 @@ export function createBoardView(
 		ground.setTileScale(cell / tableLayers.tile, cell / tableLayers.tile);
 		clearWindPatches();
 		if (!prefersReducedMotion() && typeof scene.time?.addEvent === 'function') {
-			const tilePx = cell * 4;
 			const keys = tableLayers.earthWind;
+			const crop = tableLayers.tile;
 			let gy = 0;
-			for (let y = 0; y < height + tilePx; y += tilePx, gy += 1) {
+			for (let y = 0; y < height + cell; y += cell, gy += 1) {
 				let gx = 0;
-				for (let x = 0; x < width + tilePx; x += tilePx, gx += 1) {
+				for (let x = 0; x < width + cell; x += cell, gx += 1) {
 					const seed = cellHash(gy, gx);
-					if (seed % 5 === 0) {
+					if (seed % 5 !== 0) {
 						continue;
 					}
 					const reverse = (seed & 2) !== 0;
 					let step = seed % windPing.length;
-					const hold = tableLayers.windHoldMs + (seed % 5) * 70;
+					const hold = tableLayers.windHoldMs + (seed % 4) * 90;
+					const sx = (gx % 4) * crop;
+					const sy = (gy % 4) * crop;
+					const applyCrop = (img: Phaser.GameObjects.Image, key: string): void => {
+						img.setTexture(key);
+						img.setCrop(sx, sy, crop, crop);
+						img.setDisplaySize(cell, cell);
+					};
 					const patch = scene.add
 						.image(x, y, keys[windPing[step]])
 						.setOrigin(0, 0)
-						.setDepth(0.05)
-						.setDisplaySize(tilePx, tilePx);
+						.setDepth(0.05);
+					applyCrop(patch, keys[windPing[step]]);
 					patch.disableInteractive();
 					windPatches.push(patch);
 					windPatchTimers.push(
@@ -1566,7 +1573,7 @@ export function createBoardView(
 								step = reverse
 									? (step + windPing.length - 1) % windPing.length
 									: (step + 1) % windPing.length;
-								patch.setTexture(keys[windPing[step]]);
+								applyCrop(patch, keys[windPing[step]]);
 							},
 						}),
 					);
