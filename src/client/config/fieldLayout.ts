@@ -29,7 +29,7 @@ export const hudClockEH = 70;
 export const hudClockSafeInset = 16;
 export const hudClockSideGap = 8;
 export const hudClockEWellNativeX = 40;
-export const hudClockEWellNativeY = 23;
+export const hudClockEWellNativeY = 24;
 export const hudClockEWellX = Math.round((hudClockEW * hudClockEWellNativeX) / hudClockNativeW);
 export const hudClockEWellY = Math.round((hudClockEH * hudClockEWellNativeY) / hudClockNativeH);
 

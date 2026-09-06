@@ -60,7 +60,7 @@ describe('clockHudLayout', () => {
 		expect(clocks.you.originX).toBe(1);
 		expect(clocks.you.originY).toBe(1);
 		expect(hudClockEWellNativeX).toBe(40);
-		expect(hudClockEWellNativeY).toBe(23);
+		expect(hudClockEWellNativeY).toBe(24);
 	});
 
 	it('puts landscape clocks on the sides of the board', () => {
