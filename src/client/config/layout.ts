@@ -112,14 +112,9 @@ export const fireRing = {
 
 export const tableLayers = {
 	earth: 'earthGrass',
+	earthWind: ['earthGrass', 'earthGrass1', 'earthGrass2', 'earthGrass3'] as const,
+	windHoldMs: 360,
 	tile: 64,
-} as const;
-
-export const grassSway = {
-	keys: ['grassSway0', 'grassSway1', 'grassSway2'] as const,
-	cycle: [0, 1, 2, 1] as const,
-	size: 32,
-	depth: 1.15,
 } as const;
 
 export const wreathSprites = {

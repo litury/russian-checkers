@@ -3,7 +3,6 @@ import {
 	captureSprites,
 	debrisSprites,
 	fireSprites,
-	grassSway,
 	pathSprites,
 	pieceSprites,
 	pitSprites,
@@ -36,9 +35,9 @@ import manLightUrl from '@/client/modules/board/pieces/man_light.png';
 import debrisStoneGmUrl from '@/client/modules/board/table_layers/debris_grass_stone_gm.png';
 import debrisStonePlUrl from '@/client/modules/board/table_layers/debris_grass_stone_pl.png';
 import earthGrassUrl from '@/client/modules/board/table_layers/earth_grass.png';
-import grassSway00Url from '@/client/modules/board/table_layers/grass_sway_00.png';
-import grassSway01Url from '@/client/modules/board/table_layers/grass_sway_01.png';
-import grassSway02Url from '@/client/modules/board/table_layers/grass_sway_02.png';
+import earthGrass01Url from '@/client/modules/board/table_layers/earth_grass_01.png';
+import earthGrass02Url from '@/client/modules/board/table_layers/earth_grass_02.png';
+import earthGrass03Url from '@/client/modules/board/table_layers/earth_grass_03.png';
 import pitGrass00Url from '@/client/modules/board/table_layers/pit_grass_00.png';
 import pitGrass01Url from '@/client/modules/board/table_layers/pit_grass_01.png';
 import pitGrass02Url from '@/client/modules/board/table_layers/pit_grass_02.png';
@@ -134,6 +133,9 @@ import hudClockEOk1Url from './ui/hud_clock_e_ok_1.png';
 import hudClockEOk2Url from './ui/hud_clock_e_ok_2.png';
 import hudNamePlankUrl from './ui/hud/hud_name_plank.png';
 import hudClockGrassUrl from './ui/hud/hud_clock_grass.png';
+import hudClockGrass01Url from './ui/hud/hud_clock_grass_01.png';
+import hudClockGrass02Url from './ui/hud/hud_clock_grass_02.png';
+import hudClockGrass03Url from './ui/hud/hud_clock_grass_03.png';
 import hudGlassMeadowUrl from './ui/hud_glass_meadow.png';
 import hudMenuUrl from './ui/hud_menu.png';
 import hudMenuFoldUrl from './ui/hud_menu_fold.png';
@@ -201,9 +203,9 @@ export class GameScene extends Phaser.Scene {
 
 	preload(): void {
 		this.load.image(tableLayers.earth, earthGrassUrl);
-		this.load.image(grassSway.keys[0], grassSway00Url);
-		this.load.image(grassSway.keys[1], grassSway01Url);
-		this.load.image(grassSway.keys[2], grassSway02Url);
+		this.load.image(tableLayers.earthWind[1], earthGrass01Url);
+		this.load.image(tableLayers.earthWind[2], earthGrass02Url);
+		this.load.image(tableLayers.earthWind[3], earthGrass03Url);
 		this.load.image(pitSprites.keys[0], pitGrass00Url);
 		this.load.image(pitSprites.keys[1], pitGrass01Url);
 		this.load.image(pitSprites.keys[2], pitGrass02Url);
@@ -262,6 +264,9 @@ export class GameScene extends Phaser.Scene {
 		this.load.image('hudClockEOk2', hudClockEOk2Url);
 		this.load.image('hudNamePlank', hudNamePlankUrl);
 		this.load.image('hudClockGrass', hudClockGrassUrl);
+		this.load.image('hudClockGrass1', hudClockGrass01Url);
+		this.load.image('hudClockGrass2', hudClockGrass02Url);
+		this.load.image('hudClockGrass3', hudClockGrass03Url);
 		this.load.image(captureSprites.igniteLight, captureIgniteLightUrl);
 		this.load.image(captureSprites.igniteDark, captureIgniteDarkUrl);
 		this.load.image(captureSprites.igniteKingLight, captureIgniteKingLightUrl);
@@ -392,6 +397,9 @@ export class GameScene extends Phaser.Scene {
 			'hudClockEOk2',
 			'hudNamePlank',
 			'hudClockGrass',
+			'hudClockGrass1',
+			'hudClockGrass2',
+			'hudClockGrass3',
 			'resultMonitor',
 			'resultGlassMeadow',
 			'titleBg916',

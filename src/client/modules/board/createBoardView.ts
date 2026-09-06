@@ -5,7 +5,6 @@ import {
 	debrisSprites,
 	fireRing,
 	fireSprites,
-	grassSway,
 	hopPathReady,
 	layout,
 	pathSprites,
@@ -127,8 +126,7 @@ export function createBoardView(
 ): IBoardView {
 	scene.input.topOnly = false;
 	for (const key of [
-		tableLayers.earth,
-		...grassSway.keys,
+		...tableLayers.earthWind,
 		...pitSprites.keys,
 		debrisSprites.stonePl,
 		debrisSprites.stoneGm,
@@ -168,6 +166,17 @@ export function createBoardView(
 	ground.setOrigin(0, 0);
 	ground.setDepth(0);
 	ground.disableInteractive();
+	if (!prefersReducedMotion()) {
+		let windFrame = 0;
+		scene.time.addEvent({
+			delay: tableLayers.windHoldMs,
+			loop: true,
+			callback: () => {
+				windFrame = (windFrame + 1) % tableLayers.earthWind.length;
+				ground.setTexture(tableLayers.earthWind[windFrame]);
+			},
+		});
+	}
 	const selectRim = scene.add.image(0, 0, wreathSprites.mask);
 	selectRim.setOrigin(0.5);
 	selectRim.setDepth(3);
@@ -344,71 +353,7 @@ export function createBoardView(
 		});
 	}
 
-	const tuftSpots = [
-		{ visRow: 0, col: 0, ox: -0.28, oy: -0.28 },
-		{ visRow: 0, col: 2, ox: 0.22, oy: -0.3 },
-		{ visRow: 0, col: 5, ox: -0.2, oy: -0.26 },
-		{ visRow: 0, col: 7, ox: 0.28, oy: -0.28 },
-		{ visRow: 2, col: 0, ox: -0.3, oy: 0.18 },
-		{ visRow: 5, col: 0, ox: -0.26, oy: -0.16 },
-		{ visRow: 7, col: 0, ox: -0.28, oy: 0.28 },
-		{ visRow: 7, col: 3, ox: 0.18, oy: 0.3 },
-		{ visRow: 7, col: 6, ox: -0.14, oy: 0.28 },
-		{ visRow: 1, col: 7, ox: 0.3, oy: 0.12 },
-		{ visRow: 3, col: 7, ox: 0.26, oy: -0.2 },
-		{ visRow: 6, col: 7, ox: 0.28, oy: 0.22 },
-	] as const;
-	type Tuft = {
-		visRow: number;
-		col: number;
-		ox: number;
-		oy: number;
-		sprite: Phaser.GameObjects.Image;
-		frame: number;
-		timer?: Phaser.Time.TimerEvent;
-		delay: number;
-	};
-	const tufts: Tuft[] = tuftSpots.map((spot, index) => {
-		const sprite = scene.add.image(0, 0, grassSway.keys[0]);
-		sprite.setOrigin(0.5);
-		sprite.setDepth(grassSway.depth);
-		sprite.disableInteractive();
-		const delay = 200 + (cellHash(spot.visRow, spot.col) % 201);
-		const tuft: Tuft = {
-			...spot,
-			sprite,
-			frame: index % grassSway.cycle.length,
-			delay,
-		};
-		return tuft;
-	});
 	let waitIdle = false;
-
-	function stopTuft(tuft: Tuft): void {
-		tuft.timer?.remove(false);
-		tuft.timer = undefined;
-		tuft.sprite.setTexture(grassSway.keys[grassSway.cycle[0]]);
-	}
-
-	function startTuft(tuft: Tuft): void {
-		stopTuft(tuft);
-		if (prefersReducedMotion()) {
-			return;
-		}
-		tuft.sprite.setTexture(grassSway.keys[grassSway.cycle[tuft.frame]]);
-		tuft.timer = scene.time.addEvent({
-			delay: tuft.delay,
-			loop: true,
-			callback: () => {
-				tuft.frame = (tuft.frame + 1) % grassSway.cycle.length;
-				tuft.sprite.setTexture(grassSway.keys[grassSway.cycle[tuft.frame]]);
-			},
-		});
-	}
-
-	for (const tuft of tufts) {
-		startTuft(tuft);
-	}
 
 	function cellBox(square: ISquare): {
 		x: number;
@@ -1610,15 +1555,6 @@ export function createBoardView(
 			speck.sprite.setPosition(box.x, box.y);
 			speck.sprite.setDisplaySize(cellPx * speck.fitW, cellPx * speck.fitH);
 		}
-		for (const tuft of tufts) {
-			const row = layout.rankCount - 1 - tuft.visRow;
-			const box = cellBox({ row, col: tuft.col });
-			const cell = Math.min(box.w, box.h);
-			const size = cell * (grassSway.size / tableLayers.tile);
-			tuft.sprite.setPosition(box.x + tuft.ox * box.w, box.y + tuft.oy * box.h);
-			tuft.sprite.setDisplaySize(size, size);
-			tuft.sprite.setVisible(playfieldOn);
-		}
 		for (const square of squares) {
 			const box = cellBox(square);
 			square.rect.setPosition(box.x, box.y);
@@ -1968,14 +1904,6 @@ export function createBoardView(
 		}
 		for (const speck of debris) {
 			speck.sprite.setVisible(on);
-		}
-		for (const tuft of tufts) {
-			tuft.sprite.setVisible(on);
-			if (on) {
-				startTuft(tuft);
-			} else {
-				stopTuft(tuft);
-			}
 		}
 		for (const sq of squares) {
 			if (on) {

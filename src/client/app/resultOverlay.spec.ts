@@ -19,7 +19,6 @@ import {
 	resultMenuCopy,
 	winKeys,
 } from './resultOverlay';
-import { grassSway } from '@/client/config/layout';
 import { musicGain } from '@/client/modules/sfx/createTableSfx';
 
 describe('resultOverlay mascot timing', () => {
@@ -47,8 +46,6 @@ describe('resultOverlay mascot timing', () => {
 			'mascotIdle3',
 		]);
 		expect(idleMs).toBeGreaterThanOrEqual(200);
-		expect(grassSway.keys).toHaveLength(3);
-		expect(grassSway.cycle).toEqual([0, 1, 2, 1]);
 		expect(musicGain.meadow).toBeGreaterThanOrEqual(0.02);
 		expect(musicGain.meadow).toBeLessThanOrEqual(0.05);
 	});

@@ -31,6 +31,13 @@ export const hudClockEOk2Key = 'hudClockEOk2';
 export const hudClockLampMs = 140;
 export const hudNamePlankKey = 'hudNamePlank';
 export const hudClockGrassKey = 'hudClockGrass';
+export const hudClockGrassKeys = [
+	'hudClockGrass',
+	'hudClockGrass1',
+	'hudClockGrass2',
+	'hudClockGrass3',
+] as const;
+export const hudClockGrassWindMs = 360;
 export const hudClockGrassSize = 150;
 export const hudNamePlankW = 160;
 export const hudNamePlankH = 128;
@@ -170,13 +177,13 @@ export function createHud(
 	function holdFor(turn: Side): { you: LampPose; foe: LampPose } {
 		if (turn === 'white') {
 			return {
-				you: { kind: 'hot', frame: 0 },
-				foe: { kind: 'ok', frame: 2 },
+				you: { kind: 'ok', frame: 2 },
+				foe: { kind: 'hot', frame: 0 },
 			};
 		}
 		return {
-			you: { kind: 'ok', frame: 2 },
-			foe: { kind: 'hot', frame: 0 },
+			you: { kind: 'hot', frame: 0 },
+			foe: { kind: 'ok', frame: 2 },
 		};
 	}
 
@@ -242,17 +249,17 @@ export function createHud(
 		}
 		const leavingYou = prev === 'white';
 		youQueue = leavingYou
-			? [
+			? [...dimOut('ok', youLamp.frame), { kind: 'hot', frame: 0 }]
+			: [
 					...dimOut('hot', youLamp.frame === 0 ? 1 : youLamp.frame),
 					...lightUp(),
-				]
-			: [...dimOut('ok', youLamp.frame), { kind: 'hot', frame: 0 }];
+				];
 		foeQueue = leavingYou
-			? [...dimOut('ok', foeLamp.frame), { kind: 'hot', frame: 0 }]
-			: [
+			? [
 					...dimOut('hot', foeLamp.frame === 0 ? 1 : foeLamp.frame),
 					...lightUp(),
-				];
+				]
+			: [...dimOut('ok', foeLamp.frame), { kind: 'hot', frame: 0 }];
 		playQueues();
 	}
 	const foePlank = scene.add
@@ -277,11 +284,29 @@ export function createHud(
 		.setDisplaySize(hudClockGrassSize, hudClockGrassSize)
 		.setDepth(grassDepth);
 	const youGrass = scene.add
-		.image(0, 0, hudClockGrassKey)
+		.image(0, 0, hudClockGrassKeys[2])
 		.setOrigin(0.5, 1)
 		.setFlipX(true)
 		.setDisplaySize(hudClockGrassSize, hudClockGrassSize)
 		.setDepth(grassDepth);
+	if (!prefersReducedMotion() && typeof scene.time?.addEvent === 'function') {
+		const loopGrass = (
+			sprite: Phaser.GameObjects.Image,
+			start: number,
+		): void => {
+			let frame = start;
+			scene.time.addEvent({
+				delay: hudClockGrassWindMs,
+				loop: true,
+				callback: () => {
+					frame = (frame + 1) % hudClockGrassKeys.length;
+					sprite.setTexture(hudClockGrassKeys[frame]);
+				},
+			});
+		};
+		loopGrass(foeGrass, 0);
+		loopGrass(youGrass, 2);
+	}
 	const foeClock = scene.add
 		.text(0, 0, '', clockStyle)
 		.setOrigin(0.5)
