@@ -113,7 +113,7 @@ export const fireRing = {
 export const tableLayers = {
 	earth: 'earthGrass',
 	earthWind: ['earthGrass', 'earthGrass1', 'earthGrass2', 'earthGrass3'] as const,
-	windHoldMs: 720,
+	windHoldMs: 1000,
 	tile: 64,
 } as const;
 

@@ -1546,7 +1546,7 @@ export function createBoardView(
 				let gx = 0;
 				for (let x = 0; x < width + cell; x += cell, gx += 1) {
 					const seed = cellHash(gy, gx);
-					if (seed % 5 !== 0) {
+					if (seed % 9 !== 0) {
 						continue;
 					}
 					const reverse = (seed & 2) !== 0;
