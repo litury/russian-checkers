@@ -19,4 +19,5 @@ export interface IBoardView {
 	playFlagBurst: (square: ISquare, onDone: () => void) => void;
 	reset: () => void;
 	setPlayfieldVisible: (on: boolean) => void;
+	setWaitingIdle: (on: boolean) => void;
 }

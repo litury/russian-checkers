@@ -32,6 +32,13 @@ export const winKeys = [
 	'mascotWin4',
 ] as const;
 export const cheerMs = 120;
+export const idleKeys = [
+	'mascotIdle0',
+	'mascotIdle1',
+	'mascotIdle2',
+	'mascotIdle3',
+] as const;
+export const idleMs = 280;
 export const loseKeys = [
 	'mascotLose0',
 	'mascotLose1',
@@ -43,6 +50,16 @@ export const loseKeys = [
 export const loseHolds = [200, 320, 280, 240, 180] as const;
 export const resultCatcherDepth = 20;
 const depth = resultCatcherDepth;
+
+function prefersReducedMotion(): boolean {
+	try {
+		return Boolean(
+			globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
+		);
+	} catch {
+		return false;
+	}
+}
 
 function isRow(width: number): boolean {
 	return width >= rowMin;
@@ -83,6 +100,7 @@ export function createResultOverlay(
 		'resultBtn',
 		...loseKeys,
 		...winKeys,
+		...idleKeys,
 	]) {
 		if (!scene.textures.exists(key)) {
 			continue;
@@ -154,9 +172,11 @@ export function createResultOverlay(
 
 	let cheer: Phaser.Time.TimerEvent | undefined;
 	let loseAnim: Phaser.Time.TimerEvent | undefined;
+	let idleAnim: Phaser.Time.TimerEvent | undefined;
 	let pulse: Phaser.Tweens.Tween | undefined;
 	let cheerFrame = 0;
 	let loseFrame = 0;
+	let idleFrame = 0;
 	let againY = 0;
 	let menuY = 0;
 	let againPressed = false;
@@ -180,6 +200,9 @@ export function createResultOverlay(
 
 	function startPulse(): void {
 		stopPulse();
+		if (prefersReducedMotion()) {
+			return;
+		}
 		pulse = scene.tweens.add({
 			targets: againWrap,
 			scaleX: replayPulseScale,
@@ -274,6 +297,30 @@ export function createResultOverlay(
 		menuHit.setSize(hitW, hitH);
 	}
 
+	function stopIdle(): void {
+		idleAnim?.remove(false);
+		idleAnim = undefined;
+	}
+
+	function startIdle(): void {
+		stopIdle();
+		idleFrame = 0;
+		hero.setTexture(idleKeys[0]);
+		hero.setDisplaySize(heroFit, heroFit);
+		if (prefersReducedMotion()) {
+			return;
+		}
+		idleAnim = scene.time.addEvent({
+			delay: idleMs,
+			loop: true,
+			callback: () => {
+				idleFrame = (idleFrame + 1) % idleKeys.length;
+				hero.setTexture(idleKeys[idleFrame]);
+				hero.setDisplaySize(heroFit, heroFit);
+			},
+		});
+	}
+
 	function stopLose(): void {
 		loseAnim?.remove(false);
 		loseAnim = undefined;
@@ -283,18 +330,30 @@ export function createResultOverlay(
 		cheer?.remove(false);
 		cheer = undefined;
 		stopLose();
+		stopIdle();
 	}
 
 	function startCheer(): void {
 		stopCheer();
 		cheerFrame = 0;
 		hero.setTexture(winKeys[0]);
+		if (prefersReducedMotion()) {
+			startIdle();
+			return;
+		}
 		cheer = scene.time.addEvent({
 			delay: cheerMs,
 			loop: true,
 			callback: () => {
-				cheerFrame = (cheerFrame + 1) % winKeys.length;
+				if (cheerFrame >= winKeys.length - 1) {
+					cheer?.remove(false);
+					cheer = undefined;
+					startIdle();
+					return;
+				}
+				cheerFrame += 1;
 				hero.setTexture(winKeys[cheerFrame]);
+				hero.setDisplaySize(heroFit, heroFit);
 			},
 		});
 	}
@@ -303,13 +362,19 @@ export function createResultOverlay(
 		stopCheer();
 		loseFrame = 0;
 		hero.setTexture(loseKeys[0]);
+		if (prefersReducedMotion()) {
+			startIdle();
+			return;
+		}
 		const step = (): void => {
 			if (loseFrame >= loseKeys.length - 1) {
+				startIdle();
 				return;
 			}
 			loseAnim = scene.time.delayedCall(loseHolds[loseFrame], () => {
 				loseFrame += 1;
 				hero.setTexture(loseKeys[loseFrame]);
+				hero.setDisplaySize(heroFit, heroFit);
 				step();
 			});
 		};

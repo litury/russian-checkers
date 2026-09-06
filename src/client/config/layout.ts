@@ -115,6 +115,13 @@ export const tableLayers = {
 	tile: 64,
 } as const;
 
+export const grassSway = {
+	keys: ['grassSway0', 'grassSway1', 'grassSway2'] as const,
+	cycle: [0, 1, 2, 1] as const,
+	size: 32,
+	depth: 1.15,
+} as const;
+
 export const wreathSprites = {
 	mask: 'selectMask',
 	spinMs: 10000,

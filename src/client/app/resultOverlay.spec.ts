@@ -8,6 +8,8 @@ vi.mock('phaser', () => ({
 
 import {
 	cheerMs,
+	idleKeys,
+	idleMs,
 	loseHolds,
 	loseKeys,
 	replayPulseMs,
@@ -17,6 +19,8 @@ import {
 	resultMenuCopy,
 	winKeys,
 } from './resultOverlay';
+import { grassSway } from '@/client/config/layout';
+import { musicGain } from '@/client/modules/sfx/createTableSfx';
 
 describe('resultOverlay mascot timing', () => {
 	it('plays six CRT lose frames with per-frame holds then freezes on 05', () => {
@@ -33,5 +37,19 @@ describe('resultOverlay mascot timing', () => {
 		expect(resultAgainCopy).toBe('Ещё раз');
 		expect(resultMenuCopy).toBe('В меню');
 		expect(resultCatcherDepth).toBeGreaterThan(15);
+	});
+
+	it('idles mascot after cheer/lose and sways grass tufts quietly', () => {
+		expect(idleKeys).toEqual([
+			'mascotIdle0',
+			'mascotIdle1',
+			'mascotIdle2',
+			'mascotIdle3',
+		]);
+		expect(idleMs).toBeGreaterThanOrEqual(200);
+		expect(grassSway.keys).toHaveLength(3);
+		expect(grassSway.cycle).toEqual([0, 1, 2, 1]);
+		expect(musicGain.meadow).toBeGreaterThanOrEqual(0.02);
+		expect(musicGain.meadow).toBeLessThanOrEqual(0.05);
 	});
 });

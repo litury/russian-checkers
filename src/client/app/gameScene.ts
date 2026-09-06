@@ -3,6 +3,7 @@ import {
 	captureSprites,
 	debrisSprites,
 	fireSprites,
+	grassSway,
 	pathSprites,
 	pieceSprites,
 	pitSprites,
@@ -35,6 +36,9 @@ import manLightUrl from '@/client/modules/board/pieces/man_light.png';
 import debrisStoneGmUrl from '@/client/modules/board/table_layers/debris_grass_stone_gm.png';
 import debrisStonePlUrl from '@/client/modules/board/table_layers/debris_grass_stone_pl.png';
 import earthGrassUrl from '@/client/modules/board/table_layers/earth_grass.png';
+import grassSway00Url from '@/client/modules/board/table_layers/grass_sway_00.png';
+import grassSway01Url from '@/client/modules/board/table_layers/grass_sway_01.png';
+import grassSway02Url from '@/client/modules/board/table_layers/grass_sway_02.png';
 import pitGrass00Url from '@/client/modules/board/table_layers/pit_grass_00.png';
 import pitGrass01Url from '@/client/modules/board/table_layers/pit_grass_01.png';
 import pitGrass02Url from '@/client/modules/board/table_layers/pit_grass_02.png';
@@ -197,6 +201,9 @@ export class GameScene extends Phaser.Scene {
 
 	preload(): void {
 		this.load.image(tableLayers.earth, earthGrassUrl);
+		this.load.image(grassSway.keys[0], grassSway00Url);
+		this.load.image(grassSway.keys[1], grassSway01Url);
+		this.load.image(grassSway.keys[2], grassSway02Url);
 		this.load.image(pitSprites.keys[0], pitGrass00Url);
 		this.load.image(pitSprites.keys[1], pitGrass01Url);
 		this.load.image(pitSprites.keys[2], pitGrass02Url);
@@ -635,6 +642,9 @@ export class GameScene extends Phaser.Scene {
 			this.humanHighlights(),
 			this.selected,
 			this.optionMoves(),
+		);
+		this.board.setWaitingIdle(
+			this.phase === 'bot' || this.countingIn || this.paused,
 		);
 		this.hud.setTurn('');
 		this.maybeAutoMove();

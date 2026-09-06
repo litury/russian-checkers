@@ -31,7 +31,7 @@ export const sfxStorageKeys = {
 } as const;
 
 export const musicGain = {
-	meadow: 0.32,
+	meadow: 0.04,
 	duck: 0.1,
 	firstCapture: 0.8,
 } as const;
