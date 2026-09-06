@@ -166,16 +166,18 @@ export function createBoardView(
 	ground.setOrigin(0, 0);
 	ground.setDepth(0);
 	ground.disableInteractive();
-	if (!prefersReducedMotion()) {
-		let windFrame = 0;
-		scene.time.addEvent({
-			delay: tableLayers.windHoldMs,
-			loop: true,
-			callback: () => {
-				windFrame = (windFrame + 1) % tableLayers.earthWind.length;
-				ground.setTexture(tableLayers.earthWind[windFrame]);
-			},
-		});
+	const windPatches: Phaser.GameObjects.Image[] = [];
+	const windPatchTimers: Phaser.Time.TimerEvent[] = [];
+	const windPing = [0, 1, 2, 1] as const;
+	function clearWindPatches(): void {
+		for (const timer of windPatchTimers) {
+			timer.remove(false);
+		}
+		windPatchTimers.length = 0;
+		for (const patch of windPatches) {
+			patch.destroy();
+		}
+		windPatches.length = 0;
 	}
 	const selectRim = scene.add.image(0, 0, wreathSprites.mask);
 	selectRim.setOrigin(0.5);
@@ -1534,6 +1536,43 @@ export function createBoardView(
 		const fieldSize = field.fieldSize;
 		const cell = fieldSize / layout.rankCount;
 		ground.setTileScale(cell / tableLayers.tile, cell / tableLayers.tile);
+		clearWindPatches();
+		if (!prefersReducedMotion() && typeof scene.time?.addEvent === 'function') {
+			const tilePx = cell * 4;
+			const keys = tableLayers.earthWind;
+			let gy = 0;
+			for (let y = 0; y < height + tilePx; y += tilePx, gy += 1) {
+				let gx = 0;
+				for (let x = 0; x < width + tilePx; x += tilePx, gx += 1) {
+					const seed = cellHash(gy, gx);
+					if (seed % 5 === 0) {
+						continue;
+					}
+					const reverse = (seed & 2) !== 0;
+					let step = seed % windPing.length;
+					const hold = tableLayers.windHoldMs + (seed % 5) * 70;
+					const patch = scene.add
+						.image(x, y, keys[windPing[step]])
+						.setOrigin(0, 0)
+						.setDepth(0.05)
+						.setDisplaySize(tilePx, tilePx);
+					patch.disableInteractive();
+					windPatches.push(patch);
+					windPatchTimers.push(
+						scene.time.addEvent({
+							delay: hold,
+							loop: true,
+							callback: () => {
+								step = reverse
+									? (step + windPing.length - 1) % windPing.length
+									: (step + 1) % windPing.length;
+								patch.setTexture(keys[windPing[step]]);
+							},
+						}),
+					);
+				}
+			}
+		}
 		originX = field.originX;
 		originY = field.originY;
 		cellW = fieldSize / layout.rankCount;

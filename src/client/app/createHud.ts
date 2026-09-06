@@ -37,7 +37,8 @@ export const hudClockGrassKeys = [
 	'hudClockGrass2',
 	'hudClockGrass3',
 ] as const;
-export const hudClockGrassWindMs = 360;
+export const hudClockGrassWindMs = 780;
+export const hudClockGrassYouWindMs = 1100;
 export const hudClockGrassSize = 150;
 export const hudNamePlankW = 160;
 export const hudNamePlankH = 128;
@@ -290,22 +291,27 @@ export function createHud(
 		.setDisplaySize(hudClockGrassSize, hudClockGrassSize)
 		.setDepth(grassDepth);
 	if (!prefersReducedMotion() && typeof scene.time?.addEvent === 'function') {
+		const ping = [0, 1, 2, 1] as const;
 		const loopGrass = (
 			sprite: Phaser.GameObjects.Image,
 			start: number,
+			delay: number,
+			reverse: boolean,
 		): void => {
-			let frame = start;
+			let step = start % ping.length;
 			scene.time.addEvent({
-				delay: hudClockGrassWindMs,
+				delay,
 				loop: true,
 				callback: () => {
-					frame = (frame + 1) % hudClockGrassKeys.length;
-					sprite.setTexture(hudClockGrassKeys[frame]);
+					step = reverse
+						? (step + ping.length - 1) % ping.length
+						: (step + 1) % ping.length;
+					sprite.setTexture(hudClockGrassKeys[ping[step]]);
 				},
 			});
 		};
-		loopGrass(foeGrass, 0);
-		loopGrass(youGrass, 2);
+		loopGrass(foeGrass, 0, hudClockGrassWindMs, false);
+		loopGrass(youGrass, 2, hudClockGrassYouWindMs, true);
 	}
 	const foeClock = scene.add
 		.text(0, 0, '', clockStyle)
