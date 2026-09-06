@@ -27,11 +27,13 @@ void main() {
 		return;
 	}
 	vec2 px = outTexCoord * resolution;
-	float tuft = hash(floor(px * 0.35));
-	float gust = sin(px.x * 0.012 - px.y * 0.008 - uTime * 1.15 + tuft * 6.28318);
-	float blade = sin(uTime * 2.6 + tuft * 4.0 + px.y * 0.05);
-	vec2 off = vec2(gust * 2.4 + blade * 1.1, blade * 0.9) / resolution;
-	gl_FragColor = boundedSampler(uMainSampler, outTexCoord + off);
+	vec2 cell = floor(px / 18.0);
+	float n = hash(cell);
+	float live = step(0.5, n);
+	float dir = step(0.5, hash(cell + 9.1)) * 2.0 - 1.0;
+	float wave = sin(uTime * 2.2 + n * 6.28318);
+	vec2 off = live * dir * wave * vec2(3.0, 2.0) / resolution;
+	gl_FragColor = texture2D(uMainSampler, outTexCoord + off);
 }
 `;
 
