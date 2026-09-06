@@ -1543,17 +1543,30 @@ export function createBoardView(
 		const fieldSize = field.fieldSize;
 		const cell = fieldSize / layout.rankCount;
 		ground.setTileScale(cell / tableLayers.tile, cell / tableLayers.tile);
+		if (!prefersReducedMotion() && typeof scene.time?.addEvent === 'function') {
+			if (!ground.getData('windLoop')) {
+				let gStep = 0;
+				scene.time.addEvent({
+					delay: tableLayers.windHoldMs,
+					loop: true,
+					callback: () => {
+						gStep = (gStep + 1) % windPing.length;
+						ground.setTexture(tableLayers.earthWind[windPing[gStep]]);
+					},
+				});
+				ground.setData('windLoop', true);
+			}
+		}
 		clearWindPatches();
 		if (!prefersReducedMotion() && typeof scene.time?.addEvent === 'function') {
 			const keys = tableLayers.earthWind;
-			const crop = tableLayers.tile;
-			const tileScale = cell / crop;
+			const tilePx = cell * 4;
 			let gy = 0;
-			for (let y = 0; y < height + cell; y += cell, gy += 1) {
+			for (let y = 0; y < height + tilePx; y += tilePx, gy += 1) {
 				let gx = 0;
-				for (let x = 0; x < width + cell; x += cell, gx += 1) {
+				for (let x = 0; x < width + tilePx; x += tilePx, gx += 1) {
 					const seed = cellHash(gy, gx);
-					if (seed % 9 !== 0) {
+					if (seed % 5 === 0) {
 						continue;
 					}
 					const reverse = (seed & 2) !== 0;
@@ -1562,15 +1575,13 @@ export function createBoardView(
 					const patch = scene.add.tileSprite(
 						x,
 						y,
-						cell,
-						cell,
+						tilePx,
+						tilePx,
 						keys[windPing[step]],
 					);
 					patch.setOrigin(0, 0);
 					patch.setDepth(0.05);
-					patch.setTileScale(tileScale, tileScale);
-					patch.tilePositionX = (gx % 4) * crop;
-					patch.tilePositionY = (gy % 4) * crop;
+					patch.setDisplaySize(tilePx, tilePx);
 					patch.disableInteractive();
 					windPatches.push(patch);
 					windPatchTimers.push(
@@ -1582,9 +1593,6 @@ export function createBoardView(
 									? (step + windPing.length - 1) % windPing.length
 									: (step + 1) % windPing.length;
 								patch.setTexture(keys[windPing[step]]);
-								patch.setTileScale(tileScale, tileScale);
-								patch.tilePositionX = (gx % 4) * crop;
-								patch.tilePositionY = (gy % 4) * crop;
 							},
 						}),
 					);

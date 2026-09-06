@@ -11,14 +11,14 @@ export function attachHamster(
 ): { layout: () => void; setVisible: (on: boolean) => void } {
 	const mound = scene.add
 		.image(0, 0, hamsterSprites.emerge[0])
-		.setOrigin(0.5, 1)
-		.setDepth(1.4)
+		.setOrigin(0.5)
+		.setDepth(6)
 		.setVisible(false);
 	mound.disableInteractive();
 	const body = scene.add
 		.image(0, 0, hamsterSprites.emerge[0])
-		.setOrigin(0.5, 1)
-		.setDepth(1.5)
+		.setOrigin(0.5)
+		.setDepth(6.1)
 		.setVisible(false);
 	body.disableInteractive();
 	let square: ISquare | null = null;
@@ -43,11 +43,11 @@ export function attachHamster(
 			return;
 		}
 		const box = cellBox(square);
-		const y = box.y + box.h / 2;
-		mound.setPosition(box.x, y);
-		body.setPosition(box.x, y);
-		mound.setDisplaySize(box.w, box.h);
-		body.setDisplaySize(box.w, box.h);
+		mound.setPosition(box.x, box.y);
+		body.setPosition(box.x, box.y);
+		const size = Math.max(box.w, box.h) * 1.2;
+		mound.setDisplaySize(size, size);
+		body.setDisplaySize(size, size);
 	}
 
 	function wait(ms: number, fn: () => void): void {
@@ -79,13 +79,19 @@ export function attachHamster(
 			return;
 		}
 		const lights = lightSquares();
-		square = lights[Math.floor(Math.random() * lights.length)] ?? null;
+		const mid = lights.filter(
+			(s) => s.row >= 2 && s.row <= 5 && s.col >= 2 && s.col <= 5,
+		);
+		square =
+			(mid.length > 0 ? mid : lights)[
+				Math.floor(Math.random() * (mid.length > 0 ? mid.length : lights.length))
+			] ?? null;
 		if (!square) {
 			return;
 		}
 		place();
 		mound.setTexture(hamsterSprites.emerge[0]).setVisible(true);
-		const up = [...hamsterSprites.emerge];
+		const up = [...hamsterSprites.emerge].slice(1);
 		showKeys(up, hamsterSprites.holdMs, 0, () => {
 			body.setTexture(hamsterSprites.look).setFlipX(false);
 			wait(hamsterSprites.lookMs, () => {
@@ -120,10 +126,6 @@ export function attachHamster(
 		}
 	}
 
-	if (!prefersOff() && typeof scene.time?.delayedCall === 'function') {
-		wait(2500, cycle);
-	}
-
 	return {
 		layout: place,
 		setVisible: (on: boolean) => {
@@ -136,7 +138,8 @@ export function attachHamster(
 			}
 			cancelled = false;
 			if (!prefersOff()) {
-				wait(1800, cycle);
+				stopWaits();
+				wait(400, cycle);
 			}
 		},
 	};
