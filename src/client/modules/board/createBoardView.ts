@@ -18,6 +18,7 @@ import { sameSquare } from '@/client/shared/sameSquare';
 import type { IMove, IPosition, ISquare } from '@/rules';
 import type { IBoardView } from './IBoardView';
 import { uniqueHopLands, uniqueHopRays } from './parts/hopRays';
+import { attachGrassWind } from './grassWindFilter';
 
 function squareKey(square: ISquare): string {
 	return `${square.row},${square.col}`;
@@ -166,18 +167,11 @@ export function createBoardView(
 	ground.setOrigin(0, 0);
 	ground.setDepth(0);
 	ground.disableInteractive();
-	const windPatches: Phaser.GameObjects.TileSprite[] = [];
-	const windPatchTimers: Phaser.Time.TimerEvent[] = [];
-	const windPing = [0, 1, 2, 1] as const;
-	function clearWindPatches(): void {
-		for (const timer of windPatchTimers) {
-			timer.remove(false);
+	if (!prefersReducedMotion()) {
+		const wind = attachGrassWind(scene, ground);
+		if (wind) {
+			wind.active = true;
 		}
-		windPatchTimers.length = 0;
-		for (const patch of windPatches) {
-			patch.destroy();
-		}
-		windPatches.length = 0;
 	}
 	const selectRim = scene.add.image(0, 0, wreathSprites.mask);
 	selectRim.setOrigin(0.5);
@@ -1536,54 +1530,6 @@ export function createBoardView(
 		const fieldSize = field.fieldSize;
 		const cell = fieldSize / layout.rankCount;
 		ground.setTileScale(cell / tableLayers.tile, cell / tableLayers.tile);
-		clearWindPatches();
-		if (!prefersReducedMotion() && typeof scene.time?.addEvent === 'function') {
-			const keys = tableLayers.earthWind;
-			const crop = tableLayers.tile;
-			const tileScale = cell / crop;
-			let gy = 0;
-			for (let y = 0; y < height + cell; y += cell, gy += 1) {
-				let gx = 0;
-				for (let x = 0; x < width + cell; x += cell, gx += 1) {
-					const seed = cellHash(gy, gx);
-					if (seed % 5 !== 0) {
-						continue;
-					}
-					const reverse = (seed & 2) !== 0;
-					let step = seed % windPing.length;
-					const hold = tableLayers.windHoldMs + (seed % 4) * 90;
-					const patch = scene.add.tileSprite(
-						x,
-						y,
-						cell,
-						cell,
-						keys[windPing[step]],
-					);
-					patch.setOrigin(0, 0);
-					patch.setDepth(0.05);
-					patch.setTileScale(tileScale, tileScale);
-					patch.tilePositionX = (gx % 4) * crop;
-					patch.tilePositionY = (gy % 4) * crop;
-					patch.disableInteractive();
-					windPatches.push(patch);
-					windPatchTimers.push(
-						scene.time.addEvent({
-							delay: hold,
-							loop: true,
-							callback: () => {
-								step = reverse
-									? (step + windPing.length - 1) % windPing.length
-									: (step + 1) % windPing.length;
-								patch.setTexture(keys[windPing[step]]);
-								patch.setTileScale(tileScale, tileScale);
-								patch.tilePositionX = (gx % 4) * crop;
-								patch.tilePositionY = (gy % 4) * crop;
-							},
-						}),
-					);
-				}
-			}
-		}
 		originX = field.originX;
 		originY = field.originY;
 		cellW = fieldSize / layout.rankCount;
