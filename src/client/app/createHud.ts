@@ -220,8 +220,8 @@ export function createHud(
 		lastTurn = turn;
 		stopLamps();
 		if (!turn) {
-			youLamp = { kind: 'idle', frame: 0 };
-			foeLamp = { kind: 'idle', frame: 0 };
+			youLamp = { kind: 'hot', frame: 0 };
+			foeLamp = { kind: 'hot', frame: 0 };
 			paintLampShells();
 			return;
 		}

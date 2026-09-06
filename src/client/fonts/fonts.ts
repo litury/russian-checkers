@@ -1,7 +1,7 @@
 export const hudFont = "Tiny5";
 export const titleFont = "Russo One";
 export const hudFontPx = 32;
-export const clockFontPx = 15;
+export const clockFontPx = 20;
 export const nameFontPx = 15;
 
 export function whenHudFontReady(then: () => void): void {

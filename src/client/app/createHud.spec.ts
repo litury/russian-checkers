@@ -412,7 +412,7 @@ describe('createHud', () => {
 		expect(shells[0]?.displayW).toBe(112);
 		expect(shells[0]?.displayH).toBe(70);
 		hud.setClock(60, 45, 'white');
-		expect(scene.texts.some((t) => t.fontSize === '15px')).toBe(true);
+		expect(scene.texts.some((t) => t.fontSize === '20px')).toBe(true);
 		expect(scene.texts.some((t) => t.text === 'Ты')).toBe(true);
 		expect(scene.texts.some((t) => t.text === 'Бот')).toBe(true);
 		expect(shells[0]?.key).toBe(hudClockEHotKey);
@@ -440,8 +440,8 @@ describe('createHud', () => {
 		scene.timeCalls.at(-1)?.fn();
 		expect(you?.key).toBe(hudClockEOk1Key);
 		hud.setClock(59, 45, null);
-		expect(you?.key).toBe(hudClockEIdleKey);
-		expect(foe?.key).toBe(hudClockEIdleKey);
+		expect(you?.key).toBe(hudClockEHotKey);
+		expect(foe?.key).toBe(hudClockEHotKey);
 	});
 
 	it('clips names to 12 glyphs', () => {
@@ -471,7 +471,7 @@ describe('createHud', () => {
 			const scene = stubHudScene();
 			createHud(scene);
 			const clocks = scene.texts.filter(
-				(t) => t.fontSize === '15px' && t.text !== 'Ты' && t.text !== 'Бот',
+				(t) => t.fontSize === '20px' && t.text !== 'Ты' && t.text !== 'Бот',
 			);
 			expect(clocks.length).toBe(2);
 			expect(clocks.every((t) => t.visible === false)).toBe(true);

@@ -14,7 +14,7 @@ describe('self-hosted fonts', () => {
 		expect(hudFont.includes('Arial')).toBe(false);
 		expect(titleFont.includes('Arial')).toBe(false);
 		expect(clockFontPx % 5).toBe(0);
-		expect(clockFontPx).toBe(15);
+		expect(clockFontPx).toBe(20);
 		expect(nameFontPx % 5).toBe(0);
 		expect(nameFontPx).toBe(15);
 	});
