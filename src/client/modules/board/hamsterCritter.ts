@@ -54,7 +54,7 @@ export function attachHamster(
 
 	function fit(sprite: Phaser.GameObjects.Image, at: ISquare, scale: number): void {
 		const box = cellBox(at);
-		const size = Math.min(box.w, box.h) * scale;
+		const size = Math.max(box.w, box.h) * scale;
 		sprite.setPosition(box.x, box.y);
 		sprite.setDisplaySize(size, size);
 	}
@@ -72,7 +72,7 @@ export function attachHamster(
 			.setVisible(true);
 		sprite.disableInteractive();
 		holes.set(id, { square: at, sprite });
-		fit(sprite, at, 0.55);
+		fit(sprite, at, 0.85);
 		return sprite;
 	}
 
@@ -80,9 +80,9 @@ export function attachHamster(
 		if (!square) {
 			return;
 		}
-		fit(body, square, layout.pieceFit);
+		fit(body, square, 1.2);
 		for (const hole of holes.values()) {
-			fit(hole.sprite, hole.square, 0.55);
+			fit(hole.sprite, hole.square, 0.85);
 		}
 	}
 
