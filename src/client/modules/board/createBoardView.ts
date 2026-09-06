@@ -166,7 +166,7 @@ export function createBoardView(
 	ground.setOrigin(0, 0);
 	ground.setDepth(0);
 	ground.disableInteractive();
-	const windPatches: Phaser.GameObjects.Image[] = [];
+	const windPatches: Phaser.GameObjects.TileSprite[] = [];
 	const windPatchTimers: Phaser.Time.TimerEvent[] = [];
 	const windPing = [0, 1, 2, 1] as const;
 	function clearWindPatches(): void {
@@ -1540,6 +1540,7 @@ export function createBoardView(
 		if (!prefersReducedMotion() && typeof scene.time?.addEvent === 'function') {
 			const keys = tableLayers.earthWind;
 			const crop = tableLayers.tile;
+			const tileScale = cell / crop;
 			let gy = 0;
 			for (let y = 0; y < height + cell; y += cell, gy += 1) {
 				let gx = 0;
@@ -1551,18 +1552,18 @@ export function createBoardView(
 					const reverse = (seed & 2) !== 0;
 					let step = seed % windPing.length;
 					const hold = tableLayers.windHoldMs + (seed % 4) * 90;
-					const sx = (gx % 4) * crop;
-					const sy = (gy % 4) * crop;
-					const applyCrop = (img: Phaser.GameObjects.Image, key: string): void => {
-						img.setTexture(key);
-						img.setCrop(sx, sy, crop, crop);
-						img.setDisplaySize(cell, cell);
-					};
-					const patch = scene.add
-						.image(x, y, keys[windPing[step]])
-						.setOrigin(0, 0)
-						.setDepth(0.05);
-					applyCrop(patch, keys[windPing[step]]);
+					const patch = scene.add.tileSprite(
+						x,
+						y,
+						cell,
+						cell,
+						keys[windPing[step]],
+					);
+					patch.setOrigin(0, 0);
+					patch.setDepth(0.05);
+					patch.setTileScale(tileScale, tileScale);
+					patch.tilePositionX = (gx % 4) * crop;
+					patch.tilePositionY = (gy % 4) * crop;
 					patch.disableInteractive();
 					windPatches.push(patch);
 					windPatchTimers.push(
@@ -1573,7 +1574,10 @@ export function createBoardView(
 								step = reverse
 									? (step + windPing.length - 1) % windPing.length
 									: (step + 1) % windPing.length;
-								applyCrop(patch, keys[windPing[step]]);
+								patch.setTexture(keys[windPing[step]]);
+								patch.setTileScale(tileScale, tileScale);
+								patch.tilePositionX = (gx % 4) * crop;
+								patch.tilePositionY = (gy % 4) * crop;
 							},
 						}),
 					);
