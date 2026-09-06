@@ -66,7 +66,7 @@ export function attachHamster(
 			return seen.sprite;
 		}
 		const sprite = scene.add
-			.image(0, 0, hamsterSprites.emerge[0])
+			.image(0, 0, hamsterSprites.hole)
 			.setOrigin(0.5)
 			.setDepth(6)
 			.setVisible(true);

@@ -126,6 +126,7 @@ export const hamsterSprites = {
 	] as const,
 	look: 'hamsterLook',
 	scare: 'hamsterScare',
+	hole: 'hamsterHole',
 	holdMs: 220,
 	lookMs: 520,
 	scareMs: 640,

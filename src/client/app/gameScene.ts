@@ -45,6 +45,7 @@ import hamsterEmerge02Url from '@/client/modules/board/table_layers/hamster/emer
 import hamsterEmerge03Url from '@/client/modules/board/table_layers/hamster/emerge_03.png';
 import hamsterLookUrl from '@/client/modules/board/table_layers/hamster/look.png';
 import hamsterScareUrl from '@/client/modules/board/table_layers/hamster/scare.png';
+import hamsterHoleUrl from '@/client/modules/board/table_layers/hamster/hole_ring.png';
 import pitGrass00Url from '@/client/modules/board/table_layers/pit_grass_00.png';
 import pitGrass01Url from '@/client/modules/board/table_layers/pit_grass_01.png';
 import pitGrass02Url from '@/client/modules/board/table_layers/pit_grass_02.png';
@@ -219,6 +220,7 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(hamsterSprites.emerge[3], hamsterEmerge03Url);
 		this.load.image(hamsterSprites.look, hamsterLookUrl);
 		this.load.image(hamsterSprites.scare, hamsterScareUrl);
+		this.load.image(hamsterSprites.hole, hamsterHoleUrl);
 		this.load.image(pitSprites.keys[0], pitGrass00Url);
 		this.load.image(pitSprites.keys[1], pitGrass01Url);
 		this.load.image(pitSprites.keys[2], pitGrass02Url);

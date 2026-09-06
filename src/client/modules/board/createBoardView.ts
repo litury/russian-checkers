@@ -132,6 +132,7 @@ export function createBoardView(
 		...hamsterSprites.emerge,
 		hamsterSprites.look,
 		hamsterSprites.scare,
+		hamsterSprites.hole,
 		...pitSprites.keys,
 		debrisSprites.stonePl,
 		debrisSprites.stoneGm,
