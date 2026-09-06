@@ -4,11 +4,12 @@ import { layout } from '@/client/config/layout';
 import {
 	clipPlayerName,
 	createHud,
+	hudClockEHot1Key,
 	hudClockEHotKey,
 	hudClockEIdleKey,
-	hudClockEOk1Key,
 	hudClockEOk2Key,
 	hudClockFaceKey,
+	hudClockGrassKey,
 	hudNamePlankKey,
 } from './createHud';
 
@@ -415,13 +416,15 @@ describe('createHud', () => {
 		expect(scene.texts.some((t) => t.fontSize === '20px')).toBe(true);
 		expect(scene.texts.some((t) => t.text === 'Ты')).toBe(true);
 		expect(scene.texts.some((t) => t.text === 'Бот')).toBe(true);
-		expect(shells[0]?.key).toBe(hudClockEHotKey);
-		expect(shells[1]?.key).toBe(hudClockEOk2Key);
+		expect(shells[0]?.key).toBe(hudClockEOk2Key);
+		expect(shells[1]?.key).toBe(hudClockEHotKey);
 		const planks = scene.images.filter((img) => img.key === hudNamePlankKey);
 		expect(planks).toHaveLength(2);
 		expect(planks[0]?.displayW).toBe(160);
-		expect(planks[0]?.displayH).toBe(80);
+		expect(planks[0]?.displayH).toBe(128);
 		expect(planks[0]?.y).toBe(shells[0]?.y);
+		const grass = scene.images.filter((img) => img.key === hudClockGrassKey);
+		expect(grass[0]?.y).toBe((shells[0]?.y ?? 0) + 4);
 	});
 
 	it('holds lamp frame 2 on your turn and plays 2-1-0 only on turn change', () => {
@@ -429,17 +432,17 @@ describe('createHud', () => {
 		const hud = createHud(scene);
 		hud.setClock(60, 45, 'white');
 		const you = scene.images.filter((img) => img.key?.startsWith('hudClockE')).at(-1);
-		const foe = scene.images.find((img) => img.key === hudClockEHotKey);
-		expect(you?.key).toBe(hudClockEOk2Key);
-		expect(foe?.key).toBe(hudClockEHotKey);
+		const foe = scene.images.find((img) => img.key === hudClockEOk2Key);
+		expect(you?.key).toBe(hudClockEHotKey);
+		expect(foe?.key).toBe(hudClockEOk2Key);
 		const before = scene.timeCalls.length;
 		hud.setClock(59, 45, 'white');
 		expect(scene.timeCalls.length).toBe(before);
-		expect(you?.key).toBe(hudClockEOk2Key);
+		expect(you?.key).toBe(hudClockEHotKey);
 		hud.setClock(59, 45, 'black');
-		expect(you?.key).toBe(hudClockEOk2Key);
+		expect(you?.key).toBe(hudClockEHot1Key);
 		scene.timeCalls.at(-1)?.fn();
-		expect(you?.key).toBe(hudClockEOk1Key);
+		expect(you?.key).toBe(hudClockEHotKey);
 		hud.setClock(59, 45, null);
 		expect(you?.key).toBe(hudClockEHotKey);
 		expect(foe?.key).toBe(hudClockEHotKey);

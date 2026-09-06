@@ -51,9 +51,13 @@ describe('clockHudLayout', () => {
 		const clocks = clockHudLayout(390, 694, field);
 		expect(hudClockEW).toBe(112);
 		expect(hudClockEH).toBe(70);
-		expect(hudClockSafeInset).toBeGreaterThanOrEqual(16);
+		expect(hudClockSafeInset).toBe(36);
 		expect(clocks.foe.x).toBe(hudClockSafeInset);
 		expect(clocks.you.x).toBe(390 - hudClockSafeInset);
+		const foeCx = clocks.foe.x + hudClockEW / 2;
+		const plankHalf = 80;
+		expect(foeCx - plankHalf).toBeGreaterThanOrEqual(12);
+		expect(foeCx - plankHalf).toBeLessThanOrEqual(20);
 		expect(clocks.foe.y).toBe(field.originY - hudClockLiftPx);
 		expect(clocks.you.y).toBe(field.originY - hudClockLiftPx);
 		expect(clocks.foe.originX).toBe(0);
@@ -74,6 +78,10 @@ describe('clockHudLayout', () => {
 		expect(clocks.you.y).toBe(midY);
 		expect(clocks.foe.originX).toBe(1);
 		expect(clocks.you.originX).toBe(0);
+		const foeLeft = clocks.foe.x - clocks.foe.originX * hudClockEW;
+		const foeCx = foeLeft + hudClockEW / 2;
+		expect(foeCx - 80).toBeGreaterThanOrEqual(16);
+		expect(clocks.you.x).toBeLessThan(1280);
 	});
 });
 

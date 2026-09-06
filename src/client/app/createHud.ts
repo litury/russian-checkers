@@ -31,12 +31,13 @@ export const hudClockEOk2Key = 'hudClockEOk2';
 export const hudClockLampMs = 140;
 export const hudNamePlankKey = 'hudNamePlank';
 export const hudClockGrassKey = 'hudClockGrass';
-export const hudClockGrassSize = 128;
+export const hudClockGrassSize = 150;
 export const hudNamePlankW = 160;
-export const hudNamePlankH = 80;
+export const hudNamePlankH = 128;
 export const hudNamePlankNativeW = 160;
 export const hudNamePlankNativeH = 80;
 export const hudNamePlankTextNativeY = 22;
+export const hudClockGrassDropPx = 4;
 export const hudNameMaxChars = 12;
 
 export function clipPlayerName(raw: string): string {
@@ -62,6 +63,7 @@ const plankDepth = 10;
 const grassDepth = 13;
 const clockDigitDepth = 14;
 const menuDepth = 15;
+const nameDepth = 15;
 const pad = 24;
 
 type HudHandlers = {
@@ -168,13 +170,13 @@ export function createHud(
 	function holdFor(turn: Side): { you: LampPose; foe: LampPose } {
 		if (turn === 'white') {
 			return {
-				you: { kind: 'ok', frame: 2 },
-				foe: { kind: 'hot', frame: 0 },
+				you: { kind: 'hot', frame: 0 },
+				foe: { kind: 'ok', frame: 2 },
 			};
 		}
 		return {
-			you: { kind: 'hot', frame: 0 },
-			foe: { kind: 'ok', frame: 2 },
+			you: { kind: 'ok', frame: 2 },
+			foe: { kind: 'hot', frame: 0 },
 		};
 	}
 
@@ -240,17 +242,17 @@ export function createHud(
 		}
 		const leavingYou = prev === 'white';
 		youQueue = leavingYou
-			? [...dimOut('ok', youLamp.frame), { kind: 'hot', frame: 0 }]
-			: [
+			? [
 					...dimOut('hot', youLamp.frame === 0 ? 1 : youLamp.frame),
 					...lightUp(),
-				];
+				]
+			: [...dimOut('ok', youLamp.frame), { kind: 'hot', frame: 0 }];
 		foeQueue = leavingYou
-			? [
+			? [...dimOut('ok', foeLamp.frame), { kind: 'hot', frame: 0 }]
+			: [
 					...dimOut('hot', foeLamp.frame === 0 ? 1 : foeLamp.frame),
 					...lightUp(),
-				]
-			: [...dimOut('ok', foeLamp.frame), { kind: 'hot', frame: 0 }];
+				];
 		playQueues();
 	}
 	const foePlank = scene.add
@@ -298,12 +300,12 @@ export function createHud(
 	const foeLabel = scene.add
 		.text(0, 0, 'Бот', labelStyle)
 		.setOrigin(0.5, 0.5)
-		.setDepth(plankDepth + 1)
+		.setDepth(nameDepth)
 		.setVisible(false);
 	const youLabel = scene.add
 		.text(0, 0, 'Ты', labelStyle)
 		.setOrigin(0.5, 0.5)
-		.setDepth(plankDepth + 1)
+		.setDepth(nameDepth)
 		.setVisible(false);
 	let clockFontReady = false;
 	whenHudFontReady(() => {
@@ -556,18 +558,20 @@ export function createHud(
 			const youCx = youLeft + hudClockEW / 2;
 			const foeBottom = foeTop + hudClockEH;
 			const youBottom = youTop + hudClockEH;
+			const foePlankBottom = foeBottom;
+			const youPlankBottom = youBottom;
 			const nameY = (h: number, bottom: number): number =>
 				bottom - h + (h * hudNamePlankTextNativeY) / hudNamePlankNativeH;
-			foePlank.setPosition(foeCx, foeBottom);
-			youPlank.setPosition(youCx, youBottom);
+			foePlank.setPosition(foeCx, foePlankBottom);
+			youPlank.setPosition(youCx, youPlankBottom);
 			foePlank.setDisplaySize(hudNamePlankW, hudNamePlankH);
 			youPlank.setDisplaySize(hudNamePlankW, hudNamePlankH);
-			foeGrass.setPosition(foeCx, foeBottom);
-			youGrass.setPosition(youCx, youBottom);
+			foeGrass.setPosition(foeCx, foeBottom + hudClockGrassDropPx);
+			youGrass.setPosition(youCx, youBottom + hudClockGrassDropPx);
 			foeGrass.setDisplaySize(hudClockGrassSize, hudClockGrassSize);
 			youGrass.setDisplaySize(hudClockGrassSize, hudClockGrassSize);
-			foeLabel.setPosition(foeCx, nameY(hudNamePlankH, foeBottom));
-			youLabel.setPosition(youCx, nameY(hudNamePlankH, youBottom));
+			foeLabel.setPosition(foeCx, nameY(hudNamePlankH, foePlankBottom));
+			youLabel.setPosition(youCx, nameY(hudNamePlankH, youPlankBottom));
 			placeMenu(menuX, menuY);
 			placeActions(menuX, menuY);
 			sfxPanel.layout(menuX, menuY, width, height);
