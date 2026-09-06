@@ -7,7 +7,7 @@ import {
 	hudClockEHotKey,
 	hudClockEIdleKey,
 	hudClockEOk1Key,
-	hudClockEOkKey,
+	hudClockEOk2Key,
 	hudClockFaceKey,
 	hudNamePlankKey,
 } from './createHud';
@@ -416,26 +416,30 @@ describe('createHud', () => {
 		expect(scene.texts.some((t) => t.text === 'Ты')).toBe(true);
 		expect(scene.texts.some((t) => t.text === 'Бот')).toBe(true);
 		expect(shells[0]?.key).toBe(hudClockEHotKey);
-		expect(shells[1]?.key).toBe(hudClockEOkKey);
+		expect(shells[1]?.key).toBe(hudClockEOk2Key);
 		const planks = scene.images.filter((img) => img.key === hudNamePlankKey);
 		expect(planks).toHaveLength(2);
 		expect(planks[0]?.displayW).toBe(128);
 		expect(planks[0]?.y).toBe(shells[0]?.y);
 	});
 
-	it('loops ok/hot lamp frames and leaves idle still', () => {
+	it('holds lamp frame 2 on your turn and plays 2-1-0 only on turn change', () => {
 		const scene = stubHudScene();
 		const hud = createHud(scene);
 		hud.setClock(60, 45, 'white');
 		const you = scene.images.filter((img) => img.key?.startsWith('hudClockE')).at(-1);
 		const foe = scene.images.find((img) => img.key === hudClockEHotKey);
-		expect(you?.key).toBe(hudClockEOkKey);
+		expect(you?.key).toBe(hudClockEOk2Key);
 		expect(foe?.key).toBe(hudClockEHotKey);
-		const lamp = scene.timeCalls.at(-1);
-		expect(lamp?.ms).toBe(140);
-		lamp?.fn();
+		const before = scene.timeCalls.length;
+		hud.setClock(59, 45, 'white');
+		expect(scene.timeCalls.length).toBe(before);
+		expect(you?.key).toBe(hudClockEOk2Key);
+		hud.setClock(59, 45, 'black');
+		expect(you?.key).toBe(hudClockEOk2Key);
+		scene.timeCalls.at(-1)?.fn();
 		expect(you?.key).toBe(hudClockEOk1Key);
-		hud.setClock(60, 45, null);
+		hud.setClock(59, 45, null);
 		expect(you?.key).toBe(hudClockEIdleKey);
 		expect(foe?.key).toBe(hudClockEIdleKey);
 	});

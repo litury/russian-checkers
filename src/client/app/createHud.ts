@@ -29,7 +29,6 @@ export const hudClockEOkKey = 'hudClockEOk';
 export const hudClockEOk1Key = 'hudClockEOk1';
 export const hudClockEOk2Key = 'hudClockEOk2';
 export const hudClockLampMs = 140;
-export const hudClockLampLoop = [0, 1, 2, 1] as const;
 export const hudNamePlankKey = 'hudNamePlank';
 export const hudNamePlankSize = 128;
 export const hudNamePlankNative = 128;
@@ -127,20 +126,23 @@ export function createHud(
 		.setDisplaySize(hudClockEW, hudClockEH)
 		.setDepth(hudDepth);
 	type LampKind = 'idle' | 'ok' | 'hot';
-	let youLamp: LampKind = 'idle';
-	let foeLamp: LampKind = 'idle';
-	let lampStep = 0;
+	type LampFrame = 0 | 1 | 2;
+	type LampPose = { kind: LampKind; frame: LampFrame };
+	let youLamp: LampPose = { kind: 'idle', frame: 0 };
+	let foeLamp: LampPose = { kind: 'idle', frame: 0 };
+	let lastTurn: Side | null | undefined;
+	let youQueue: LampPose[] = [];
+	let foeQueue: LampPose[] = [];
 	let lampTimer: { remove: (dispatch?: boolean) => void } | undefined;
 	const okLampKeys = [hudClockEOkKey, hudClockEOk1Key, hudClockEOk2Key] as const;
 	const hotLampKeys = [hudClockEHotKey, hudClockEHot1Key, hudClockEHot2Key] as const;
 
-	function lampTexture(kind: LampKind): string {
-		if (kind === 'idle') {
+	function lampTexture(pose: LampPose): string {
+		if (pose.kind === 'idle') {
 			return hudClockEIdleKey;
 		}
-		const frame = hudClockLampLoop[lampStep % hudClockLampLoop.length] ?? 0;
-		const keys = kind === 'ok' ? okLampKeys : hotLampKeys;
-		return keys[frame] ?? keys[0];
+		const keys = pose.kind === 'ok' ? okLampKeys : hotLampKeys;
+		return keys[pose.frame] ?? keys[0];
 	}
 
 	function paintLampShells(): void {
@@ -153,33 +155,97 @@ export function createHud(
 	function stopLamps(): void {
 		lampTimer?.remove(false);
 		lampTimer = undefined;
-		lampStep = 0;
+		youQueue = [];
+		foeQueue = [];
+	}
+
+	function holdFor(turn: Side): { you: LampPose; foe: LampPose } {
+		if (turn === 'white') {
+			return {
+				you: { kind: 'ok', frame: 2 },
+				foe: { kind: 'hot', frame: 0 },
+			};
+		}
+		return {
+			you: { kind: 'hot', frame: 0 },
+			foe: { kind: 'ok', frame: 2 },
+		};
+	}
+
+	function dimOut(kind: 'ok' | 'hot', from: LampFrame): LampPose[] {
+		const out: LampPose[] = [];
+		for (let frame = from; frame >= 0; frame -= 1) {
+			out.push({ kind, frame: frame as LampFrame });
+		}
+		return out;
+	}
+
+	function lightUp(): LampPose[] {
+		return [
+			{ kind: 'ok', frame: 0 },
+			{ kind: 'ok', frame: 1 },
+			{ kind: 'ok', frame: 2 },
+		];
 	}
 
 	function tickLamps(): void {
-		if (youLamp === 'idle' && foeLamp === 'idle') {
-			stopLamps();
-			paintLampShells();
+		if (youQueue.length > 0) {
+			youLamp = youQueue.shift() ?? youLamp;
+		}
+		if (foeQueue.length > 0) {
+			foeLamp = foeQueue.shift() ?? foeLamp;
+		}
+		paintLampShells();
+		if (youQueue.length === 0 && foeQueue.length === 0) {
+			lampTimer = undefined;
 			return;
 		}
-		lampStep = (lampStep + 1) % hudClockLampLoop.length;
-		paintLampShells();
 		lampTimer = scene.time.delayedCall(hudClockLampMs, tickLamps);
 	}
 
-	function startLamps(): void {
-		if (youLamp === 'idle' && foeLamp === 'idle') {
-			stopLamps();
+	function playQueues(): void {
+		if (youQueue.length === 0 && foeQueue.length === 0) {
 			paintLampShells();
 			return;
 		}
-		if (lampTimer) {
+		lampTimer?.remove(false);
+		tickLamps();
+	}
+
+	function applyTurn(turn: Side | null): void {
+		if (turn === lastTurn) {
+			return;
+		}
+		const prev = lastTurn;
+		lastTurn = turn;
+		stopLamps();
+		if (!turn) {
+			youLamp = { kind: 'idle', frame: 0 };
+			foeLamp = { kind: 'idle', frame: 0 };
 			paintLampShells();
 			return;
 		}
-		lampStep = 0;
-		paintLampShells();
-		lampTimer = scene.time.delayedCall(hudClockLampMs, tickLamps);
+		const hold = holdFor(turn);
+		if (prev === undefined || prev === null || prefersReducedMotion()) {
+			youLamp = hold.you;
+			foeLamp = hold.foe;
+			paintLampShells();
+			return;
+		}
+		const leavingYou = prev === 'white';
+		youQueue = leavingYou
+			? [...dimOut('ok', youLamp.frame), { kind: 'hot', frame: 0 }]
+			: [
+					...dimOut('hot', youLamp.frame === 0 ? 1 : youLamp.frame),
+					...lightUp(),
+				];
+		foeQueue = leavingYou
+			? [
+					...dimOut('hot', foeLamp.frame === 0 ? 1 : foeLamp.frame),
+					...lightUp(),
+				]
+			: [...dimOut('ok', foeLamp.frame), { kind: 'hot', frame: 0 }];
+		playQueues();
 	}
 	const foePlank = scene.add
 		.image(0, 0, hudNamePlankKey)
@@ -491,11 +557,7 @@ export function createHud(
 		setClock: (whiteSec, blackSec, turn = 'white') => {
 			youClock.setText(formatClock(whiteSec));
 			foeClock.setText(formatClock(blackSec));
-			youLamp =
-				turn === 'white' ? 'ok' : turn ? 'hot' : 'idle';
-			foeLamp =
-				turn === 'black' ? 'ok' : turn ? 'hot' : 'idle';
-			startLamps();
+			applyTurn(turn ?? null);
 		},
 		setHand: (remainingMs, lap = 0) => {
 			paintHand(remainingMs, lap);
