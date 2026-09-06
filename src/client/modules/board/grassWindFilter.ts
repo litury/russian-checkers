@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { tableLayers } from '@/client/config/layout';
 
 const NODE = 'FilterGrassWind';
 
@@ -20,19 +21,13 @@ float hash(vec2 p) {
 }
 
 void main() {
-	vec4 base = texture2D(uMainSampler, outTexCoord);
-	float sage = base.g - max(base.r, base.b);
-	if (sage < 0.008) {
-		gl_FragColor = base;
-		return;
-	}
 	vec2 px = outTexCoord * resolution;
 	vec2 cell = floor(px / 18.0);
 	float n = hash(cell);
-	float live = step(0.5, n);
+	float live = step(0.42, n);
 	float dir = step(0.5, hash(cell + 9.1)) * 2.0 - 1.0;
-	float wave = sin(uTime * 2.2 + n * 6.28318);
-	vec2 off = live * dir * wave * vec2(3.0, 2.0) / resolution;
+	float wave = sin(uTime * 2.4 + n * 6.28318);
+	vec2 off = live * dir * wave * vec2(8.0, 5.0) / resolution;
 	gl_FragColor = texture2D(uMainSampler, outTexCoord + off);
 }
 `;
@@ -54,7 +49,9 @@ class FilterGrassWind extends Phaser.Renderer.WebGL.RenderNodes.BaseFilterShader
 		controller: GrassWindController,
 		drawingContext: { width: number; height: number },
 	): void {
-		this.programManager.setUniform('uTime', controller.time);
+		const loop = this.manager.renderer.game?.loop;
+		const t = loop ? loop.time * 0.001 : controller.time;
+		this.programManager.setUniform('uTime', t);
 		this.programManager.setUniform('resolution', [
 			drawingContext.width,
 			drawingContext.height,
@@ -66,6 +63,18 @@ export function attachGrassWind(
 	scene: Phaser.Scene,
 	ground: Phaser.GameObjects.TileSprite,
 ): GrassWindController | null {
+	if (typeof scene.time?.addEvent === 'function') {
+		const ping = [0, 1, 2, 1] as const;
+		let step = 0;
+		scene.time.addEvent({
+			delay: 480,
+			loop: true,
+			callback: () => {
+				step = (step + 1) % ping.length;
+				ground.setTexture(tableLayers.earthWind[ping[step]]);
+			},
+		});
+	}
 	const renderer = scene.renderer;
 	if (!(renderer instanceof Phaser.Renderer.WebGL.WebGLRenderer)) {
 		return null;
@@ -82,7 +91,6 @@ export function attachGrassWind(
 		return null;
 	}
 	const controller = new GrassWindController(camera);
-	controller.setPaddingOverride(null);
 	controller.active = true;
 	ground.filters.internal.add(controller);
 	ground.renderFilters = true;
