@@ -20,7 +20,7 @@ export function attachRabbit(
 	const body = scene.add
 		.image(0, 0, rabbitSprites.run[0])
 		.setOrigin(0.5)
-		.setDepth(6.05)
+		.setDepth(2.4)
 		.setVisible(false);
 	body.disableInteractive();
 	let cancelled = false;
@@ -38,6 +38,7 @@ export function attachRabbit(
 		waits.length = 0;
 		tween?.stop();
 		tween = null;
+		body.setAlpha(1);
 	}
 
 	function wait(ms: number, fn: () => void): void {
@@ -84,7 +85,6 @@ export function attachRabbit(
 			return;
 		}
 		if (i >= path.length) {
-			body.setVisible(false);
 			goingRight = !goingRight;
 			const gap =
 				rabbitSprites.gapMinMs +
@@ -93,15 +93,23 @@ export function attachRabbit(
 			return;
 		}
 		const next = path[i];
+		const last = i === path.length - 1;
 		const dist = Phaser.Math.Distance.Between(body.x, body.y, next.x, next.y);
 		const ms = Math.max(180, dist * rabbitSprites.msPerPx);
 		tween = scene.tweens.add({
 			targets: body,
 			x: next.x,
 			y: next.y,
-			duration: ms,
+			alpha: last ? 0 : 1,
+			duration: last ? Math.max(ms, 280) : ms,
 			ease: 'Linear',
-			onComplete: () => hop(path, i + 1),
+			onComplete: () => {
+				if (last) {
+					body.setVisible(false);
+					body.setAlpha(1);
+				}
+				hop(path, i + 1);
+			},
 		});
 	}
 
@@ -117,9 +125,16 @@ export function attachRabbit(
 		}
 		body.setPosition(path[0].x, path[0].y);
 		body.setFlipX(!goingRight);
+		body.setAlpha(0);
 		body.setVisible(true);
 		frame = 0;
 		body.setTexture(rabbitSprites.run[0]);
+		scene.tweens.add({
+			targets: body,
+			alpha: 1,
+			duration: 220,
+			ease: 'Linear',
+		});
 		hop(path, 1);
 		stepFrame();
 	}
