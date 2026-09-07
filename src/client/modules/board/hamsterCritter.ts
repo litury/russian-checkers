@@ -13,16 +13,11 @@ function stoneKeys(): Set<string> {
 	return out;
 }
 
-function keyOf(square: ISquare): string {
-	return `${square.row},${square.col}`;
-}
-
 export function attachHamster(
 	scene: Phaser.Scene,
 	cellBox: (square: ISquare) => Box,
 	playfieldOn: () => boolean,
 ): { layout: () => void; setVisible: (on: boolean) => void; arm: () => void } {
-	const holes = new Map<string, { square: ISquare; sprite: Phaser.GameObjects.Image }>();
 	const body = scene.add
 		.image(0, 0, hamsterSprites.look)
 		.setOrigin(0.5)
@@ -52,38 +47,14 @@ export function attachHamster(
 		return out;
 	}
 
-	function fit(sprite: Phaser.GameObjects.Image, at: ISquare, scale: number): void {
-		const box = cellBox(at);
-		const size = Math.max(box.w, box.h) * scale;
-		sprite.setPosition(box.x, box.y);
-		sprite.setDisplaySize(size, size);
-	}
-
-	function holeAt(at: ISquare): Phaser.GameObjects.Image {
-		const id = keyOf(at);
-		const seen = holes.get(id);
-		if (seen) {
-			return seen.sprite;
-		}
-		const sprite = scene.add
-			.image(0, 0, hamsterSprites.hole)
-			.setOrigin(0.5)
-			.setDepth(6)
-			.setVisible(true);
-		sprite.disableInteractive();
-		holes.set(id, { square: at, sprite });
-		fit(sprite, at, hamsterSprites.holeScale);
-		return sprite;
-	}
-
 	function place(): void {
 		if (!square) {
 			return;
 		}
-		fit(body, square, hamsterSprites.bodyScale);
-		for (const hole of holes.values()) {
-			fit(hole.sprite, hole.square, hamsterSprites.holeScale);
-		}
+		const box = cellBox(square);
+		const size = Math.max(box.w, box.h) * hamsterSprites.bodyScale;
+		body.setPosition(box.x, box.y);
+		body.setDisplaySize(size, size);
 	}
 
 	function wait(ms: number, fn: () => void): void {
@@ -119,7 +90,6 @@ export function attachHamster(
 		if (!square) {
 			return;
 		}
-		holeAt(square).setVisible(true);
 		place();
 		body.setTexture(hamsterSprites.look).setFlipX(false).setVisible(true);
 		wait(hamsterSprites.lookMs, () => {
@@ -133,8 +103,7 @@ export function attachHamster(
 						const gap =
 							hamsterSprites.gapMinMs +
 							Math.floor(
-								Math.random() *
-									(hamsterSprites.gapMaxMs - hamsterSprites.gapMinMs),
+								Math.random() * (hamsterSprites.gapMaxMs - hamsterSprites.gapMinMs),
 							);
 						wait(gap, cycle);
 					});
@@ -160,15 +129,9 @@ export function attachHamster(
 				armed = false;
 				stopWaits();
 				body.setVisible(false);
-				for (const hole of holes.values()) {
-					hole.sprite.setVisible(false);
-				}
 				return;
 			}
 			cancelled = false;
-			for (const hole of holes.values()) {
-				hole.sprite.setVisible(true);
-			}
 		},
 	};
 }
