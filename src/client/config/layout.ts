@@ -118,15 +118,12 @@ export const tableLayers = {
 } as const;
 
 export const hamsterSprites = {
-	emerge: [
-		'hamsterEmerge0',
-		'hamsterEmerge1',
-		'hamsterEmerge2',
-		'hamsterEmerge3',
-	] as const,
+	emerge: ['hamsterEmerge1', 'hamsterEmerge2', 'hamsterEmerge3'] as const,
 	look: 'hamsterLook',
 	scare: 'hamsterScare',
 	hole: 'hamsterHole',
+	holeScale: 1,
+	bodyScale: 1.2,
 	holdMs: 220,
 	lookMs: 520,
 	scareMs: 640,

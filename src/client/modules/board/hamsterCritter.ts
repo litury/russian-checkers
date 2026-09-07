@@ -72,7 +72,7 @@ export function attachHamster(
 			.setVisible(true);
 		sprite.disableInteractive();
 		holes.set(id, { square: at, sprite });
-		fit(sprite, at, 0.7);
+		fit(sprite, at, hamsterSprites.holeScale);
 		return sprite;
 	}
 
@@ -80,9 +80,9 @@ export function attachHamster(
 		if (!square) {
 			return;
 		}
-		fit(body, square, 1.2);
+		fit(body, square, hamsterSprites.bodyScale);
 		for (const hole of holes.values()) {
-			fit(hole.sprite, hole.square, 0.7);
+			fit(hole.sprite, hole.square, hamsterSprites.holeScale);
 		}
 	}
 
