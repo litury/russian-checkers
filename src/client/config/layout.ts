@@ -133,7 +133,7 @@ export const hamsterSprites = {
 
 export const rabbitSprites = {
 	run: ['rabbitRun0', 'rabbitRun1', 'rabbitRun2', 'rabbitRun3'] as const,
-	bodyScale: 0.8,
+	bodyScale: 1.2,
 	holdMs: 140,
 	msPerPx: 10,
 	gapMinMs: 8000,

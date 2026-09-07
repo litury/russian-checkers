@@ -1,7 +1,16 @@
 import Phaser from 'phaser';
-import { rabbitSprites, layout } from '@/client/config/layout';
+import { debrisSprites, rabbitSprites, layout } from '@/client/config/layout';
 
 type Bounds = { originX: number; originY: number; cellW: number; cellH: number };
+
+function stoneKeys(): Set<string> {
+	const out = new Set<string>();
+	for (const stone of debrisSprites.center) {
+		const row = layout.rankCount - 1 - stone.visRow;
+		out.add(`${row},${stone.col}`);
+	}
+	return out;
+}
 
 export function attachRabbit(
 	scene: Phaser.Scene,
@@ -18,6 +27,7 @@ export function attachRabbit(
 	let armed = false;
 	let goingRight = true;
 	let frame = 0;
+	const blocked = stoneKeys();
 	const waits: Phaser.Time.TimerEvent[] = [];
 	let tween: Phaser.Tweens.Tween | null = null;
 
@@ -40,11 +50,24 @@ export function attachRabbit(
 		body.setDisplaySize(size, size * (32 / 48));
 	}
 
-	function laneY(): number {
+	function grassPath(): { x: number; y: number }[] {
 		const b = boundsOf();
-		const visRows = [0, 2, 4, 6];
-		const visRow = visRows[Math.floor(Math.random() * visRows.length)] ?? 0;
-		return b.originY + visRow * b.cellH + b.cellH / 2;
+		const n = layout.rankCount;
+		const bands = [0, 2, 4, 6];
+		const band = bands[Math.floor(Math.random() * bands.length)] ?? 0;
+		const out: { x: number; y: number }[] = [];
+		for (let col = 0; col < n; col += 1) {
+			const visRow = col % 2 === 0 ? band : band + 1;
+			const row = n - 1 - visRow;
+			if (blocked.has(`${row},${col}`)) {
+				continue;
+			}
+			out.push({
+				x: b.originX + col * b.cellW + b.cellW / 2,
+				y: b.originY + visRow * b.cellH + b.cellH / 2,
+			});
+		}
+		return goingRight ? out : [...out].reverse();
 	}
 
 	function stepFrame(): void {
@@ -56,42 +79,48 @@ export function attachRabbit(
 		wait(rabbitSprites.holdMs, stepFrame);
 	}
 
+	function hop(path: { x: number; y: number }[], i: number): void {
+		if (cancelled || !armed || !playfieldOn()) {
+			return;
+		}
+		if (i >= path.length) {
+			body.setVisible(false);
+			goingRight = !goingRight;
+			const gap =
+				rabbitSprites.gapMinMs +
+				Math.floor(Math.random() * (rabbitSprites.gapMaxMs - rabbitSprites.gapMinMs));
+			wait(gap, runAcross);
+			return;
+		}
+		const next = path[i];
+		const dist = Phaser.Math.Distance.Between(body.x, body.y, next.x, next.y);
+		const ms = Math.max(180, dist * rabbitSprites.msPerPx);
+		tween = scene.tweens.add({
+			targets: body,
+			x: next.x,
+			y: next.y,
+			duration: ms,
+			ease: 'Linear',
+			onComplete: () => hop(path, i + 1),
+		});
+	}
+
 	function runAcross(): void {
 		if (cancelled || !armed || !playfieldOn()) {
 			return;
 		}
-		const b = boundsOf();
 		place();
-		const pad = b.cellW * 0.4;
-		const left = b.originX + pad;
-		const right = b.originX + layout.rankCount * b.cellW - pad;
-		const y = laneY();
-		const from = goingRight ? left : right;
-		const to = goingRight ? right : left;
-		body.setPosition(from, y);
+		const path = grassPath();
+		if (path.length < 2) {
+			wait(1000, runAcross);
+			return;
+		}
+		body.setPosition(path[0].x, path[0].y);
 		body.setFlipX(!goingRight);
 		body.setVisible(true);
 		frame = 0;
 		body.setTexture(rabbitSprites.run[0]);
-		const dist = Math.abs(to - from);
-		const ms = Math.max(2200, dist * rabbitSprites.msPerPx);
-		tween = scene.tweens.add({
-			targets: body,
-			x: to,
-			duration: ms,
-			ease: 'Linear',
-			onComplete: () => {
-				if (cancelled || !playfieldOn()) {
-					return;
-				}
-				body.setVisible(false);
-				goingRight = !goingRight;
-				const gap =
-					rabbitSprites.gapMinMs +
-					Math.floor(Math.random() * (rabbitSprites.gapMaxMs - rabbitSprites.gapMinMs));
-				wait(gap, runAcross);
-			},
-		});
+		hop(path, 1);
 		stepFrame();
 	}
 
