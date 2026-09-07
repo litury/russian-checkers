@@ -7,6 +7,7 @@ import {
 	fireSprites,
 	hopPathReady,
 	hamsterSprites,
+	rabbitSprites,
 	layout,
 	pathSprites,
 	pieceSprites,
@@ -20,6 +21,7 @@ import type { IMove, IPosition, ISquare } from '@/rules';
 import type { IBoardView } from './IBoardView';
 import { uniqueHopLands, uniqueHopRays } from './parts/hopRays';
 import { attachHamster } from './hamsterCritter';
+import { attachRabbit } from './rabbitCritter';
 
 function squareKey(square: ISquare): string {
 	return `${square.row},${square.col}`;
@@ -133,6 +135,7 @@ export function createBoardView(
 		hamsterSprites.look,
 		hamsterSprites.scare,
 		hamsterSprites.hole,
+		...rabbitSprites.run,
 		...pitSprites.keys,
 		debrisSprites.stonePl,
 		debrisSprites.stoneGm,
@@ -383,6 +386,11 @@ export function createBoardView(
 	}
 
 	const hamster = attachHamster(scene, cellBox, () => playfieldOn);
+	const rabbit = attachRabbit(
+		scene,
+		() => ({ originX, originY, cellW, cellH }),
+		() => playfieldOn,
+	);
 
 	function liftPx(): number {
 		return 6;
@@ -1605,6 +1613,7 @@ export function createBoardView(
 		cellW = fieldSize / layout.rankCount;
 		cellH = fieldSize / layout.rankCount;
 		hamster.layout();
+		rabbit.layout();
 		for (const pit of pits) {
 			const box = cellBox(pit.square);
 			pit.sprite.setPosition(box.x, box.y);
@@ -1971,6 +1980,7 @@ export function createBoardView(
 	function setPlayfieldVisible(on: boolean): void {
 		playfieldOn = on;
 		hamster.setVisible(on);
+		rabbit.setVisible(on);
 		for (const pit of pits) {
 			pit.sprite.setVisible(on);
 		}
@@ -2037,6 +2047,7 @@ export function createBoardView(
 		setWaitingIdle,
 		notePly: () => {
 			hamster.arm();
+			rabbit.arm();
 		},
 	};
 }

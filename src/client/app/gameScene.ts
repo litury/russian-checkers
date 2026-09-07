@@ -9,6 +9,7 @@ import {
 	tableLayers,
 	wreathSprites,
 	hamsterSprites,
+	rabbitSprites,
 } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
 import type { IBoardView } from '@/client/modules/board';
@@ -45,6 +46,10 @@ import hamsterEmerge03Url from '@/client/modules/board/table_layers/hamster/emer
 import hamsterLookUrl from '@/client/modules/board/table_layers/hamster/look.png';
 import hamsterScareUrl from '@/client/modules/board/table_layers/hamster/scare.png';
 import hamsterHoleUrl from '@/client/modules/board/table_layers/hamster/hole_ring.png';
+import rabbitRun00Url from '@/client/modules/board/table_layers/rabbit/run_00.png';
+import rabbitRun01Url from '@/client/modules/board/table_layers/rabbit/run_01.png';
+import rabbitRun02Url from '@/client/modules/board/table_layers/rabbit/run_02.png';
+import rabbitRun03Url from '@/client/modules/board/table_layers/rabbit/run_03.png';
 import pitGrass00Url from '@/client/modules/board/table_layers/pit_grass_00.png';
 import pitGrass01Url from '@/client/modules/board/table_layers/pit_grass_01.png';
 import pitGrass02Url from '@/client/modules/board/table_layers/pit_grass_02.png';
@@ -219,6 +224,10 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(hamsterSprites.look, hamsterLookUrl);
 		this.load.image(hamsterSprites.scare, hamsterScareUrl);
 		this.load.image(hamsterSprites.hole, hamsterHoleUrl);
+		this.load.image(rabbitSprites.run[0], rabbitRun00Url);
+		this.load.image(rabbitSprites.run[1], rabbitRun01Url);
+		this.load.image(rabbitSprites.run[2], rabbitRun02Url);
+		this.load.image(rabbitSprites.run[3], rabbitRun03Url);
 		this.load.image(pitSprites.keys[0], pitGrass00Url);
 		this.load.image(pitSprites.keys[1], pitGrass01Url);
 		this.load.image(pitSprites.keys[2], pitGrass02Url);

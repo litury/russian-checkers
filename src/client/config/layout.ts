@@ -131,6 +131,15 @@ export const hamsterSprites = {
 	gapMaxMs: 14000,
 } as const;
 
+export const rabbitSprites = {
+	run: ['rabbitRun0', 'rabbitRun1', 'rabbitRun2', 'rabbitRun3'] as const,
+	bodyScale: 0.8,
+	holdMs: 140,
+	msPerPx: 10,
+	gapMinMs: 8000,
+	gapMaxMs: 16000,
+} as const;
+
 export const wreathSprites = {
 	mask: 'selectMask',
 	spinMs: 10000,

@@ -18,12 +18,6 @@ export function attachHamster(
 	cellBox: (square: ISquare) => Box,
 	playfieldOn: () => boolean,
 ): { layout: () => void; setVisible: (on: boolean) => void; arm: () => void } {
-	const hole = scene.add
-		.image(0, 0, hamsterSprites.hole)
-		.setOrigin(0.5)
-		.setDepth(6)
-		.setVisible(false);
-	hole.disableInteractive();
 	const body = scene.add
 		.image(0, 0, hamsterSprites.look)
 		.setOrigin(0.5)
@@ -53,19 +47,14 @@ export function attachHamster(
 		return out;
 	}
 
-	function fit(sprite: Phaser.GameObjects.Image, at: ISquare, scale: number): void {
-		const box = cellBox(at);
-		const size = Math.max(box.w, box.h) * scale;
-		sprite.setPosition(box.x, box.y);
-		sprite.setDisplaySize(size, size);
-	}
-
 	function place(): void {
 		if (!square) {
 			return;
 		}
-		fit(hole, square, hamsterSprites.holeScale);
-		fit(body, square, hamsterSprites.bodyScale);
+		const box = cellBox(square);
+		const size = Math.max(box.w, box.h) * hamsterSprites.bodyScale;
+		body.setPosition(box.x, box.y);
+		body.setDisplaySize(size, size);
 	}
 
 	function wait(ms: number, fn: () => void): void {
@@ -102,7 +91,6 @@ export function attachHamster(
 			return;
 		}
 		place();
-		hole.setVisible(false);
 		body.setVisible(false);
 		const up = [...hamsterSprites.emerge];
 		const down = [...up].reverse();
@@ -115,7 +103,6 @@ export function attachHamster(
 					wait(hamsterSprites.scareMs, () => {
 						showKeys(down, hamsterSprites.holdMs, 0, () => {
 							body.setVisible(false);
-							hole.setVisible(false);
 							const gap =
 								hamsterSprites.gapMinMs +
 								Math.floor(
@@ -147,7 +134,6 @@ export function attachHamster(
 				armed = false;
 				stopWaits();
 				body.setVisible(false);
-				hole.setVisible(false);
 				return;
 			}
 			cancelled = false;
