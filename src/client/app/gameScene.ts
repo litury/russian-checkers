@@ -10,6 +10,7 @@ import {
 	wreathSprites,
 	hamsterSprites,
 	rabbitSprites,
+	beeSprites,
 } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
 import type { IBoardView } from '@/client/modules/board';
@@ -50,6 +51,10 @@ import rabbitRun00Url from '@/client/modules/board/table_layers/rabbit/run_00.pn
 import rabbitRun01Url from '@/client/modules/board/table_layers/rabbit/run_01.png';
 import rabbitRun02Url from '@/client/modules/board/table_layers/rabbit/run_02.png';
 import rabbitRun03Url from '@/client/modules/board/table_layers/rabbit/run_03.png';
+import beeFlowerUrl from '@/client/modules/board/table_layers/bee/flower.png';
+import beeFly00Url from '@/client/modules/board/table_layers/bee/fly_00.png';
+import beeFly01Url from '@/client/modules/board/table_layers/bee/fly_01.png';
+import beeSitUrl from '@/client/modules/board/table_layers/bee/sit.png';
 import pitGrass00Url from '@/client/modules/board/table_layers/pit_grass_00.png';
 import pitGrass01Url from '@/client/modules/board/table_layers/pit_grass_01.png';
 import pitGrass02Url from '@/client/modules/board/table_layers/pit_grass_02.png';
@@ -228,6 +233,10 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(rabbitSprites.run[1], rabbitRun01Url);
 		this.load.image(rabbitSprites.run[2], rabbitRun02Url);
 		this.load.image(rabbitSprites.run[3], rabbitRun03Url);
+		this.load.image(beeSprites.flower, beeFlowerUrl);
+		this.load.image(beeSprites.fly[0], beeFly00Url);
+		this.load.image(beeSprites.fly[1], beeFly01Url);
+		this.load.image(beeSprites.sit, beeSitUrl);
 		this.load.image(pitSprites.keys[0], pitGrass00Url);
 		this.load.image(pitSprites.keys[1], pitGrass01Url);
 		this.load.image(pitSprites.keys[2], pitGrass02Url);

@@ -8,6 +8,7 @@ import {
 	hopPathReady,
 	hamsterSprites,
 	rabbitSprites,
+	beeSprites,
 	layout,
 	pathSprites,
 	pieceSprites,
@@ -22,6 +23,7 @@ import type { IBoardView } from './IBoardView';
 import { uniqueHopLands, uniqueHopRays } from './parts/hopRays';
 import { attachHamster } from './hamsterCritter';
 import { attachRabbit } from './rabbitCritter';
+import { attachBeeFlower } from './beeFlower';
 
 function squareKey(square: ISquare): string {
 	return `${square.row},${square.col}`;
@@ -136,6 +138,9 @@ export function createBoardView(
 		hamsterSprites.scare,
 		hamsterSprites.hole,
 		...rabbitSprites.run,
+		beeSprites.flower,
+		...beeSprites.fly,
+		beeSprites.sit,
 		...pitSprites.keys,
 		debrisSprites.stonePl,
 		debrisSprites.stoneGm,
@@ -388,6 +393,12 @@ export function createBoardView(
 	const hamster = attachHamster(scene, cellBox, () => playfieldOn);
 	const rabbit = attachRabbit(
 		scene,
+		() => ({ originX, originY, cellW, cellH }),
+		() => playfieldOn,
+	);
+	const beeFlower = attachBeeFlower(
+		scene,
+		cellBox,
 		() => ({ originX, originY, cellW, cellH }),
 		() => playfieldOn,
 	);
@@ -1614,6 +1625,7 @@ export function createBoardView(
 		cellH = fieldSize / layout.rankCount;
 		hamster.layout();
 		rabbit.layout();
+		beeFlower.layout();
 		for (const pit of pits) {
 			const box = cellBox(pit.square);
 			pit.sprite.setPosition(box.x, box.y);
@@ -1981,6 +1993,7 @@ export function createBoardView(
 		playfieldOn = on;
 		hamster.setVisible(on);
 		rabbit.setVisible(on);
+		beeFlower.setVisible(on);
 		for (const pit of pits) {
 			pit.sprite.setVisible(on);
 		}
@@ -2048,6 +2061,7 @@ export function createBoardView(
 		notePly: () => {
 			hamster.arm();
 			rabbit.arm();
+			beeFlower.arm();
 		},
 	};
 }

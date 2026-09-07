@@ -140,6 +140,19 @@ export const rabbitSprites = {
 	gapMaxMs: 16000,
 } as const;
 
+export const beeSprites = {
+	flower: 'beeFlower',
+	fly: ['beeFly0', 'beeFly1'] as const,
+	sit: 'beeSit',
+	flowerScale: 0.85,
+	beeScale: 0.45,
+	flapMs: 90,
+	sitMs: 2200,
+	msPerPx: 8,
+	gapMinMs: 9000,
+	gapMaxMs: 16000,
+} as const;
+
 export const wreathSprites = {
 	mask: 'selectMask',
 	spinMs: 10000,
