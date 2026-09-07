@@ -102,7 +102,7 @@ export function attachHamster(
 			return;
 		}
 		place();
-		hole.setVisible(true);
+		hole.setVisible(false);
 		body.setVisible(false);
 		const up = [...hamsterSprites.emerge];
 		const down = [...up].reverse();
