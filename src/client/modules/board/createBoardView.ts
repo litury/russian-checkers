@@ -396,12 +396,7 @@ export function createBoardView(
 		() => ({ originX, originY, cellW, cellH }),
 		() => playfieldOn,
 	);
-	const beeFlower = attachBeeFlower(
-		scene,
-		cellBox,
-		() => ({ originX, originY, cellW, cellH }),
-		() => playfieldOn,
-	);
+	const beeFlower = attachBeeFlower(scene, () => playfieldOn);
 
 	function liftPx(): number {
 		return 6;

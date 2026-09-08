@@ -1,56 +1,73 @@
 import Phaser from 'phaser';
-import { beeSprites, layout } from '@/client/config/layout';
-import type { ISquare } from '@/rules';
+import {
+	clockHudLayout,
+	computeFieldLayout,
+	hudClockEH,
+	hudClockEW,
+} from '@/client/config/fieldLayout';
+import { beeSprites } from '@/client/config/layout';
 
-type Box = { x: number; y: number; w: number; h: number };
-type Bounds = { originX: number; originY: number; cellW: number; cellH: number };
+type Spot = { x: number; y: number; size: number };
 
 export function attachBeeFlower(
 	scene: Phaser.Scene,
-	cellBox: (square: ISquare) => Box,
-	boundsOf: () => Bounds,
 	playfieldOn: () => boolean,
 ): { layout: () => void; setVisible: (on: boolean) => void; arm: () => void } {
 	const flower = scene.add
 		.image(0, 0, beeSprites.flower)
 		.setOrigin(0.5)
-		.setDepth(1.15)
+		.setDepth(11)
 		.setVisible(false);
 	flower.disableInteractive();
 	const bee = scene.add
 		.image(0, 0, beeSprites.fly[0])
 		.setOrigin(0.5)
-		.setDepth(2.5)
+		.setDepth(12.5)
 		.setVisible(false);
 	bee.disableInteractive();
-	let square: ISquare | null = null;
 	let cancelled = false;
 	let armed = false;
 	let flap = 0;
+	let deskSide: 'foe' | 'you' | null = null;
 	const waits: Phaser.Time.TimerEvent[] = [];
 	let tween: Phaser.Tweens.Tween | null = null;
 
-	function pickFlower(): void {
-		square = { row: layout.rankCount - 1 - 2, col: 4 };
-	}
-
-	function fit(sprite: Phaser.GameObjects.Image, at: ISquare, scale: number): void {
-		const box = cellBox(at);
-		const size = Math.min(box.w, box.h) * scale;
-		sprite.setPosition(box.x, box.y);
-		sprite.setDisplaySize(size, size);
+	function spot(): Spot {
+		const width = scene.scale.width;
+		const height = scene.scale.height;
+		const field = computeFieldLayout(width, height);
+		const clocks = clockHudLayout(width, height, field);
+		const size = Math.max(28, field.cell * beeSprites.flowerScale);
+		if (field.portrait) {
+			const foeCx = clocks.foe.x + hudClockEW / 2;
+			const youCx = clocks.you.x - hudClockEW / 2;
+			return {
+				x: (foeCx + youCx) / 2,
+				y: clocks.foe.y - hudClockEH * 0.42,
+				size,
+			};
+		}
+		if (deskSide !== 'foe' && deskSide !== 'you') {
+			deskSide = Math.random() < 0.5 ? 'foe' : 'you';
+		}
+		const pick = deskSide === 'foe' ? clocks.foe : clocks.you;
+		const left = pick.x - pick.originX * hudClockEW;
+		const top = pick.y - pick.originY * hudClockEH;
+		return {
+			x: left + hudClockEW / 2,
+			y: top - size * 0.55,
+			size,
+		};
 	}
 
 	function place(): void {
-		if (!square) {
-			pickFlower();
-		}
-		if (!square) {
-			return;
-		}
-		fit(flower, square, beeSprites.flowerScale);
+		const at = spot();
+		flower.setPosition(at.x, at.y);
+		flower.setDisplaySize(at.size, at.size);
 		if (bee.visible && bee.texture.key === beeSprites.sit) {
-			fit(bee, square, beeSprites.beeScale);
+			const beeSize = at.size * (beeSprites.beeScale / beeSprites.flowerScale);
+			bee.setPosition(at.x, at.y);
+			bee.setDisplaySize(beeSize, beeSize);
 		}
 	}
 
@@ -80,46 +97,42 @@ export function attachBeeFlower(
 	}
 
 	function cycle(): void {
-		if (cancelled || !armed || !playfieldOn() || !square) {
+		if (cancelled || !armed || !playfieldOn()) {
 			return;
 		}
-		const box = cellBox(square);
-		const b = boundsOf();
+		const at = spot();
+		const field = computeFieldLayout(scene.scale.width, scene.scale.height);
 		const fromLeft = Math.random() < 0.5;
-		const startX = fromLeft
-			? b.originX - b.cellW
-			: b.originX + layout.rankCount * b.cellW + b.cellW;
-		const endX = fromLeft
-			? b.originX + layout.rankCount * b.cellW + b.cellW
-			: b.originX - b.cellW;
+		const startX = fromLeft ? -field.cell : scene.scale.width + field.cell;
+		const endX = fromLeft ? scene.scale.width + field.cell : -field.cell;
+		const beeSize = at.size * (beeSprites.beeScale / beeSprites.flowerScale);
 		bee.setFlipX(!fromLeft);
 		bee.setTexture(beeSprites.fly[0]);
 		bee.setAlpha(1);
-		bee.setPosition(startX, box.y);
-		const size = Math.min(box.w, box.h) * beeSprites.beeScale;
-		bee.setDisplaySize(size, size);
+		bee.setPosition(startX, at.y);
+		bee.setDisplaySize(beeSize, beeSize);
 		bee.setVisible(true);
 		flapWings();
-		const inMs = Math.max(900, Math.abs(box.x - startX) * beeSprites.msPerPx);
+		const inMs = Math.max(900, Math.abs(at.x - startX) * beeSprites.msPerPx);
 		tween = scene.tweens.add({
 			targets: bee,
-			x: box.x,
-			y: box.y,
+			x: at.x,
+			y: at.y,
 			duration: inMs,
 			ease: 'Sine.easeInOut',
 			onComplete: () => {
-				if (cancelled || !playfieldOn() || !square) {
+				if (cancelled || !playfieldOn()) {
 					return;
 				}
 				bee.setTexture(beeSprites.sit);
-				fit(bee, square, beeSprites.beeScale);
+				bee.setPosition(at.x, at.y);
 				wait(beeSprites.sitMs, () => {
 					if (cancelled || !playfieldOn()) {
 						return;
 					}
 					bee.setTexture(beeSprites.fly[0]);
 					flapWings();
-					const outMs = Math.max(900, Math.abs(endX - box.x) * beeSprites.msPerPx);
+					const outMs = Math.max(900, Math.abs(endX - at.x) * beeSprites.msPerPx);
 					tween = scene.tweens.add({
 						targets: bee,
 						x: endX,
@@ -150,6 +163,7 @@ export function attachBeeFlower(
 			}
 			armed = true;
 			cancelled = false;
+			deskSide = null;
 			stopMotion();
 			place();
 			flower.setVisible(playfieldOn());
@@ -165,9 +179,7 @@ export function attachBeeFlower(
 				return;
 			}
 			cancelled = false;
-			if (square) {
-				flower.setVisible(true);
-			}
+			flower.setVisible(true);
 		},
 	};
 }
