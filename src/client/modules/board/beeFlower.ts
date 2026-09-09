@@ -31,6 +31,27 @@ export function attachBeeFlower(
 	let deskSide: 'foe' | 'you' | null = null;
 	const waits: Phaser.Time.TimerEvent[] = [];
 	let tween: Phaser.Tweens.Tween | null = null;
+	let sway: Phaser.Tweens.Tween | null = null;
+
+	function startSway(): void {
+		if (sway) {
+			return;
+		}
+		sway = scene.tweens.add({
+			targets: flower,
+			angle: { from: -6, to: 6 },
+			duration: 1200,
+			yoyo: true,
+			repeat: -1,
+			ease: 'Sine.easeInOut',
+		});
+	}
+
+	function stopSway(): void {
+		sway?.stop();
+		sway = null;
+		flower.setAngle(0);
+	}
 
 	function spot(): Spot {
 		const width = scene.scale.width;
@@ -167,6 +188,7 @@ export function attachBeeFlower(
 			stopMotion();
 			place();
 			flower.setVisible(playfieldOn());
+			startSway();
 			wait(600, cycle);
 		},
 		setVisible: (on: boolean) => {
@@ -174,12 +196,14 @@ export function attachBeeFlower(
 				cancelled = true;
 				armed = false;
 				stopMotion();
+				stopSway();
 				bee.setVisible(false);
 				flower.setVisible(false);
 				return;
 			}
 			cancelled = false;
 			flower.setVisible(true);
+			startSway();
 		},
 	};
 }

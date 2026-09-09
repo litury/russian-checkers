@@ -138,6 +138,8 @@ export const rabbitSprites = {
 	msPerPx: 10,
 	gapMinMs: 8000,
 	gapMaxMs: 16000,
+	pauseMinMs: 800,
+	pauseMaxMs: 1500,
 } as const;
 
 export const beeSprites = {
@@ -145,7 +147,7 @@ export const beeSprites = {
 	fly: ['beeFly0', 'beeFly1'] as const,
 	sit: 'beeSit',
 	flowerScale: 0.85,
-	beeScale: 0.45,
+	beeScale: 0.7,
 	flapMs: 90,
 	sitMs: 2200,
 	msPerPx: 8,
