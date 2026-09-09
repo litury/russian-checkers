@@ -52,6 +52,10 @@ import rabbitRun01Url from '@/client/modules/board/table_layers/rabbit/run_01.pn
 import rabbitRun02Url from '@/client/modules/board/table_layers/rabbit/run_02.png';
 import rabbitRun03Url from '@/client/modules/board/table_layers/rabbit/run_03.png';
 import beeFlowerUrl from '@/client/modules/board/table_layers/bee/flower.png';
+import beeFlower00Url from '@/client/modules/board/table_layers/bee/flower_00.png';
+import beeFlower01Url from '@/client/modules/board/table_layers/bee/flower_01.png';
+import beeFlower02Url from '@/client/modules/board/table_layers/bee/flower_02.png';
+import beeFlower03Url from '@/client/modules/board/table_layers/bee/flower_03.png';
 import beeFly00Url from '@/client/modules/board/table_layers/bee/fly_00.png';
 import beeFly01Url from '@/client/modules/board/table_layers/bee/fly_01.png';
 import beeSitUrl from '@/client/modules/board/table_layers/bee/sit.png';
@@ -234,6 +238,10 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(rabbitSprites.run[2], rabbitRun02Url);
 		this.load.image(rabbitSprites.run[3], rabbitRun03Url);
 		this.load.image(beeSprites.flower, beeFlowerUrl);
+		this.load.image(beeSprites.flowerWind[0], beeFlower00Url);
+		this.load.image(beeSprites.flowerWind[1], beeFlower01Url);
+		this.load.image(beeSprites.flowerWind[2], beeFlower02Url);
+		this.load.image(beeSprites.flowerWind[3], beeFlower03Url);
 		this.load.image(beeSprites.fly[0], beeFly00Url);
 		this.load.image(beeSprites.fly[1], beeFly01Url);
 		this.load.image(beeSprites.sit, beeSitUrl);

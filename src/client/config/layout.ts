@@ -144,11 +144,13 @@ export const rabbitSprites = {
 
 export const beeSprites = {
 	flower: 'beeFlower',
+	flowerWind: ['beeFlower0', 'beeFlower1', 'beeFlower2', 'beeFlower3'] as const,
 	fly: ['beeFly0', 'beeFly1'] as const,
 	sit: 'beeSit',
-	flowerScale: 0.85,
-	beeScale: 0.7,
+	flowerScale: 1.6,
+	beeScale: 1.4,
 	flapMs: 90,
+	flowerHoldMs: 520,
 	sitMs: 2200,
 	msPerPx: 8,
 	gapMinMs: 9000,

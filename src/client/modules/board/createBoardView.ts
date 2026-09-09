@@ -139,6 +139,7 @@ export function createBoardView(
 		hamsterSprites.hole,
 		...rabbitSprites.run,
 		beeSprites.flower,
+		...beeSprites.flowerWind,
 		...beeSprites.fly,
 		beeSprites.sit,
 		...pitSprites.keys,

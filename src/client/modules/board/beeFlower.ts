@@ -31,25 +31,30 @@ export function attachBeeFlower(
 	let deskSide: 'foe' | 'you' | null = null;
 	const waits: Phaser.Time.TimerEvent[] = [];
 	let tween: Phaser.Tweens.Tween | null = null;
-	let sway: Phaser.Tweens.Tween | null = null;
+	let sway: Phaser.Time.TimerEvent | null = null;
 
 	function startSway(): void {
 		if (sway) {
 			return;
 		}
-		sway = scene.tweens.add({
-			targets: flower,
-			angle: { from: -6, to: 6 },
-			duration: 1200,
-			yoyo: true,
-			repeat: -1,
-			ease: 'Sine.easeInOut',
+		const ping = [0, 1, 2, 1];
+		let step = 0;
+		const keys = beeSprites.flowerWind;
+		flower.setTexture(keys[0]);
+		sway = scene.time.addEvent({
+			delay: beeSprites.flowerHoldMs,
+			loop: true,
+			callback: () => {
+				step = (step + 1) % ping.length;
+				flower.setTexture(keys[ping[step]]);
+			},
 		});
 	}
 
 	function stopSway(): void {
-		sway?.stop();
+		sway?.remove();
 		sway = null;
+		flower.setTexture(beeSprites.flowerWind[0]);
 		flower.setAngle(0);
 	}
 
