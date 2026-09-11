@@ -1,7 +1,10 @@
 import Phaser from 'phaser';
-import { hudFont } from '@/client/fonts/fonts';
+import { hudFont, whenHudFontReady } from '@/client/fonts/fonts';
 import { palette } from '@/client/config/palette';
 import type { Side } from '@/rules';
+import { defeatTerminalLayout } from './defeatTerminalLayout';
+import { createDefeatControls } from './defeatControls';
+import { defeatButtonState } from './defeatButtonState';
 
 const monW = 256;
 const monH = 192;
@@ -39,15 +42,11 @@ export const idleKeys = [
 	'mascotIdle3',
 ] as const;
 export const idleMs = 280;
-export const loseKeys = [
-	'mascotLose0',
-	'mascotLose1',
-	'mascotLose2',
-	'mascotLose3',
-	'mascotLose4',
-	'mascotLose5',
-] as const;
-export const loseHolds = [200, 320, 280, 240, 180] as const;
+export const loseKeys: Record<Side, string[]> = {
+ white: Array.from({ length: 9 }, (_, i) => `checkerDefeat_white_0${i}`),
+ black: Array.from({ length: 9 }, (_, i) => `checkerDefeat_black_0${i}`),
+};
+export const loseHolds = [350, 160, 140, 120, 120, 150, 180, 250, 1200] as const;
 export const resultCatcherDepth = 20;
 const depth = resultCatcherDepth;
 
@@ -90,15 +89,18 @@ export function createResultOverlay(
 	},
 ): {
 	layout: (width: number, height: number) => void;
-	show: (side: Side) => void;
+	show: (winner: Side, humanSide: Side) => void;
 	hide: () => void;
 } {
 	for (const key of [
 		'resultMonitor',
+		'defeatTerminal',
+		'defeat_primary_rest', 'defeat_primary_pressed', 'defeat_secondary_rest', 'defeat_secondary_pressed',
 		'resultGlassWin',
 		'resultGlassLose',
 		'resultBtn',
-		...loseKeys,
+		...loseKeys.white,
+		...loseKeys.black,
 		...winKeys,
 		...idleKeys,
 	]) {
@@ -128,6 +130,9 @@ export function createResultOverlay(
 	const glass = scene.add.image(0, 0, 'resultGlassWin').setOrigin(0, 0);
 	const monitor = scene.add.image(0, 0, 'resultMonitor').setOrigin(0, 0);
 	const hero = scene.add.image(0, 0, winKeys[0]).setOrigin(0.5, 1);
+	const terminal = scene.add.image(0, 0, 'defeatTerminal').setOrigin(0, 0).setVisible(false);
+	const faces = [0,1].map(i => scene.add.image(0,0,defeatButtonState(i,false).key).setOrigin(0,0).setVisible(false));
+	const eyebrow = scene.add.text(162,59,'РЕЗУЛЬТАТ ПАРТИИ',{fontFamily:hudFont,fontSize:'10px',color:'#A1B5A6'}).setOrigin(0.5,0).setVisible(false);
 
 	const againBtn = scene.add.image(0, 0, 'resultBtn').setOrigin(0.5);
 	const againLabel = scene.add
@@ -160,6 +165,9 @@ export function createResultOverlay(
 	menuHit.setInteractive({ useHandCursor: true });
 
 	root.add([
+		terminal,
+		...faces,
+		eyebrow,
 		title,
 		glass,
 		monitor,
@@ -181,6 +189,17 @@ export function createResultOverlay(
 	let menuY = 0;
 	let againPressed = false;
 	let menuPressed = false;
+	let defeat = false;
+	let shown = false;
+	let transition: Phaser.Tweens.Tween | undefined;
+	whenHudFontReady(() => { eyebrow.setFontFamily(hudFont); eyebrow.updateText(); });
+	const controls = createDefeatControls(scene, [handlers.onPlayAgain, handlers.onMenu], (index, down) => {
+		if (!defeat) return;
+		const state = defeatButtonState(index,down);
+		faces[index].setTexture(state.key);
+		(index === 0 ? againLabel : menuLabel).setY(state.textY);
+	});
+	const heroSize = () => defeat ? 128 : heroFit;
 
 	function restAgain(): void {
 		againWrap.setY(againY + btnH / 2);
@@ -252,6 +271,22 @@ export function createResultOverlay(
 	function place(width: number, height: number): void {
 		dim.setPosition(width / 2, height / 2);
 		dim.setDisplaySize(width, height);
+		if (defeat) {
+			const l = defeatTerminalLayout(width,height);
+			root.setScale(l.scale).setPosition(l.x,l.y);
+			title.setOrigin(0.5,0).setPosition(162,85).setFontSize(22).setColor('#F4EFE4').setStroke('#F4EFE4',0);
+			hero.setOrigin(0,0).setPosition(98,168).setDisplaySize(128,128);
+			againWrap.setPosition(162,333).setScale(1);
+			menuWrap.setPosition(148,373);
+			againLabel.setOrigin(0.5,0).setPosition(0,0).setFontSize(20).setColor('#F4EFE4').setStroke('#F4EFE4',0).setText('ЕЩЁ РАЗ');
+			menuLabel.setOrigin(0.5,0).setPosition(0,0).setFontSize(16).setColor('#C9D3C4').setStroke('#C9D3C4',0).setText('В МЕНЮ');
+			controls.layout();
+			return;
+		}
+		title.setOrigin(0.5,1).setFontSize(titleSize).setColor(palette.text).setStroke('#1a1410',2);
+		hero.setOrigin(0.5,1);
+		againLabel.setOrigin(0.5).setFontSize(22).setColor(palette.text).setStroke('#1a1410',2).setText(resultAgainCopy);
+		menuLabel.setOrigin(0.5).setFontSize(22).setColor(palette.text).setStroke('#1a1410',2).setText(resultMenuCopy);
 		const row = isRow(width);
 		const zoom = zoomFor(width, height, row);
 		const stack = stackSize(row);
@@ -269,7 +304,7 @@ export function createResultOverlay(
 			monX + glassX + glassW / 2,
 			monY + glassY + glassH - floorPad,
 		);
-		hero.setDisplaySize(heroFit, heroFit);
+		hero.setDisplaySize(heroSize(), heroSize());
 		const btnTop = monY + monH + gap;
 		if (row) {
 			const againX = btnW / 2;
@@ -306,7 +341,7 @@ export function createResultOverlay(
 		stopIdle();
 		idleFrame = 0;
 		hero.setTexture(idleKeys[0]);
-		hero.setDisplaySize(heroFit, heroFit);
+		hero.setDisplaySize(heroSize(), heroSize());
 		if (prefersReducedMotion()) {
 			return;
 		}
@@ -316,7 +351,7 @@ export function createResultOverlay(
 			callback: () => {
 				idleFrame = (idleFrame + 1) % idleKeys.length;
 				hero.setTexture(idleKeys[idleFrame]);
-				hero.setDisplaySize(heroFit, heroFit);
+				hero.setDisplaySize(heroSize(), heroSize());
 			},
 		});
 	}
@@ -353,28 +388,29 @@ export function createResultOverlay(
 				}
 				cheerFrame += 1;
 				hero.setTexture(winKeys[cheerFrame]);
-				hero.setDisplaySize(heroFit, heroFit);
+				hero.setDisplaySize(heroSize(), heroSize());
 			},
 		});
 	}
 
-	function startLose(): void {
+	function startLose(humanSide: Side): void {
 		stopCheer();
+		const keys = loseKeys[humanSide];
 		loseFrame = 0;
-		hero.setTexture(loseKeys[0]);
+		hero.setTexture(keys[0]);
 		if (prefersReducedMotion()) {
-			startIdle();
+			hero.setTexture(keys[8]);
 			return;
 		}
 		const step = (): void => {
-			if (loseFrame >= loseKeys.length - 1) {
-				startIdle();
+			if (loseFrame >= keys.length - 1) {
+				loseAnim = undefined;
 				return;
 			}
 			loseAnim = scene.time.delayedCall(loseHolds[loseFrame], () => {
 				loseFrame += 1;
-				hero.setTexture(loseKeys[loseFrame]);
-				hero.setDisplaySize(heroFit, heroFit);
+				hero.setTexture(keys[loseFrame]);
+				hero.setDisplaySize(heroSize(), heroSize());
 				step();
 			});
 		};
@@ -385,30 +421,55 @@ export function createResultOverlay(
 		layout: (width, height) => {
 			place(width, height);
 		},
-		show: (side) => {
-			const won = side === 'white';
-			title.setText(won ? 'Вы выиграли' : 'Вы проиграли');
+		show: (side, humanSide) => {
+			transition?.stop(); transition = undefined;
+			shown = true;
+			root.setAlpha(1);
+			const won = side === humanSide;
+			controls.hide();
+			defeat = !won;
+			// Countdown text is depth 40; defeat is a modal above the entire game.
+			dim.setDepth(defeat ? 50 : depth);
+			root.setDepth(defeat ? 51 : depth + 1);
+			terminal.setVisible(defeat); eyebrow.setVisible(defeat);
+			faces.forEach((face,i) => face.setVisible(defeat).setTexture(defeatButtonState(i,false).key));
+			monitor.setVisible(won); glass.setVisible(won);
+			againBtn.setVisible(won); menuBtn.setVisible(won);
+			againHit.setVisible(won); menuHit.setVisible(won);
+			if (won) { againHit.setInteractive({useHandCursor:true}); menuHit.setInteractive({useHandCursor:true}); }
+			else { againHit.disableInteractive(); menuHit.disableInteractive(); }
+			title.setText(won ? 'Вы выиграли' : 'ВЫ ПРОИГРАЛИ');
 			glass.setTexture(won ? 'resultGlassWin' : 'resultGlassLose');
 			place(scene.scale.width, scene.scale.height);
 			if (won) {
 				startCheer();
 			} else {
-				startLose();
+				startLose(humanSide);
 			}
-			hero.setDisplaySize(heroFit, heroFit);
-			startPulse();
+			hero.setDisplaySize(heroSize(), heroSize());
+			if (won) startPulse(); else { stopPulse(); controls.show(); }
 			dim.setVisible(true);
 			dim.setInteractive();
 			root.setVisible(true);
+			if (defeat && !prefersReducedMotion()) {
+				root.setAlpha(0);
+				transition = scene.tweens.add({targets:root,alpha:1,duration:180,ease:'Sine.easeOut'});
+			}
 		},
 		hide: () => {
+			const animateExit = shown && defeat && !prefersReducedMotion();
+			shown = false;
+			transition?.stop(); transition = undefined;
+			controls.hide();
 			stopCheer();
 			stopPulse();
-			restAgain();
-			restMenu();
+			if (!defeat) { restAgain(); restMenu(); }
 			dim.setVisible(false);
 			dim.disableInteractive();
-			root.setVisible(false);
+			if (animateExit) {
+				// Input and actions are released immediately, not after the fade.
+				transition = scene.tweens.add({targets:root,alpha:0,duration:120,ease:'Sine.easeIn',onComplete:()=>{root.setVisible(false);}});
+			} else { root.setVisible(false); root.setAlpha(1); }
 		},
 	};
 }

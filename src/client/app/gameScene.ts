@@ -193,8 +193,15 @@ import resultGlassMeadowUrl from './ui/result/result_glass_meadow.png';
 import resultGlassLoseUrl from './ui/result/result_glass_lose.png';
 import resultGlassWinUrl from './ui/result/result_glass_win.png';
 import resultMonitorUrl from './ui/result/result_monitor.png';
+import defeatTerminalUrl from './ui/result/terminal_sockets.png';
+import primaryRestUrl from './ui/result/primary_rest.png';
+import primaryPressedUrl from './ui/result/primary_pressed.png';
+import secondaryRestUrl from './ui/result/secondary_rest.png';
+import secondaryPressedUrl from './ui/result/secondary_pressed.png';
 
 export class GameScene extends Phaser.Scene {
+	// The current bot mode always assigns the human white.
+	private readonly humanSide: Side = 'white';
 	private board!: IBoardView;
 	private hud!: ReturnType<typeof createHud>;
 	private overlay!: ReturnType<typeof createResultOverlay>;
@@ -223,6 +230,18 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	preload(): void {
+		this.load.image('defeatTerminal', defeatTerminalUrl);
+		this.load.image('defeat_primary_rest', primaryRestUrl);
+		this.load.image('defeat_primary_pressed', primaryPressedUrl);
+		this.load.image('defeat_secondary_rest', secondaryRestUrl);
+		this.load.image('defeat_secondary_pressed', secondaryPressedUrl);
+		const defeatFrames = import.meta.glob('./ui/result/checker-defeat/*.png', {
+			eager: true, query: '?url', import: 'default',
+		});
+		for (const [path, url] of Object.entries(defeatFrames)) {
+			const frame = path.split('/').pop()!.replace('.png', '');
+			this.load.image(`checkerDefeat_${frame}`, url as string);
+		}
 		this.load.image(tableLayers.earth, earthGrassUrl);
 		this.load.image(tableLayers.earthWind[1], earthGrass01Url);
 		this.load.image(tableLayers.earthWind[2], earthGrass02Url);
@@ -862,7 +881,7 @@ export class GameScene extends Phaser.Scene {
 		this.selected = null;
 		this.sfx.stopHover();
 		this.refresh();
-		this.overlay.show('black');
+		this.overlay.show('black', this.humanSide);
 	}
 
 	private endMatch(side: Side): void {
@@ -871,10 +890,10 @@ export class GameScene extends Phaser.Scene {
 		this.refresh();
 		this.sdk.showFullscreenAdv({
 			onClose: () => {
-				this.overlay.show(side);
+				this.overlay.show(side, this.humanSide);
 			},
 			onError: () => {
-				this.overlay.show(side);
+				this.overlay.show(side, this.humanSide);
 			},
 		});
 	}

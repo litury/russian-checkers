@@ -22,11 +22,13 @@ import {
 import { musicGain } from '@/client/modules/sfx/createTableSfx';
 
 describe('resultOverlay mascot timing', () => {
-	it('plays six CRT lose frames with per-frame holds then freezes on 05', () => {
-		expect(loseKeys).toHaveLength(6);
+	it('provides nine approved frames for each human side and final hold', () => {
+		expect(loseKeys.white).toHaveLength(9);
+		expect(loseKeys.black).toHaveLength(9);
+		expect(loseKeys.white[0]).toBe('checkerDefeat_white_00');
+		expect(loseKeys.black[8]).toBe('checkerDefeat_black_08');
 		expect(winKeys).toHaveLength(5);
-		expect(loseHolds).toEqual([200, 320, 280, 240, 180]);
-		expect(loseHolds).toHaveLength(loseKeys.length - 1);
+		expect(loseHolds).toEqual([350,160,140,120,120,150,180,250,1200]);
 		expect(cheerMs).toBe(120);
 	});
 
