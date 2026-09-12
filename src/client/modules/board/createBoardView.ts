@@ -1,14 +1,12 @@
 import Phaser from 'phaser';
-import { computeFieldLayout } from '@/client/config/fieldLayout';
+import { reliquaryLayout as computeFieldLayout } from '@/client/config/reliquaryLayout';
 import {
 	captureSprites,
 	debrisSprites,
 	fireRing,
 	fireSprites,
 	hopPathReady,
-	hamsterSprites,
-	rabbitSprites,
-	beeSprites,
+
 	layout,
 	pathSprites,
 	pieceSprites,
@@ -21,9 +19,7 @@ import { sameSquare } from '@/client/shared/sameSquare';
 import type { IMove, IPosition, ISquare } from '@/rules';
 import type { IBoardView } from './IBoardView';
 import { uniqueHopLands, uniqueHopRays } from './parts/hopRays';
-import { attachHamster } from './hamsterCritter';
-import { attachRabbit } from './rabbitCritter';
-import { attachBeeFlower } from './beeFlower';
+
 
 function squareKey(square: ISquare): string {
 	return `${square.row},${square.col}`;
@@ -133,15 +129,7 @@ export function createBoardView(
 	scene.input.topOnly = false;
 	for (const key of [
 		...tableLayers.earthWind,
-		...hamsterSprites.emerge,
-		hamsterSprites.look,
-		hamsterSprites.scare,
-		hamsterSprites.hole,
-		...rabbitSprites.run,
-		beeSprites.flower,
-		...beeSprites.flowerWind,
-		...beeSprites.fly,
-		beeSprites.sit,
+
 		...pitSprites.keys,
 		debrisSprites.stonePl,
 		debrisSprites.stoneGm,
@@ -177,23 +165,12 @@ export function createBoardView(
 		}
 		scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
 	}
-	const ground = scene.add.tileSprite(0, 0, 64, 64, tableLayers.earth);
+	const ground = scene.add.tileSprite(0, 0, 64, 64, 'reliquary_slate_tile');
 	ground.setOrigin(0, 0);
 	ground.setDepth(0);
 	ground.disableInteractive();
-	const windPatches: Phaser.GameObjects.TileSprite[] = [];
-	const windPatchTimers: Phaser.Time.TimerEvent[] = [];
-	const windPing = [0, 1, 2, 1] as const;
-	function clearWindPatches(): void {
-		for (const timer of windPatchTimers) {
-			timer.remove(false);
-		}
-		windPatchTimers.length = 0;
-		for (const patch of windPatches) {
-			patch.destroy();
-		}
-		windPatches.length = 0;
-	}
+	const reliquaryShadow=scene.add.image(0,0,'reliquary_board_shadow').setOrigin(0).setDepth(0.1);
+	const reliquaryBoard=scene.add.image(0,0,'reliquary_board').setOrigin(0).setDepth(1.1);
 	const selectRim = scene.add.image(0, 0, wreathSprites.mask);
 	selectRim.setOrigin(0.5);
 	selectRim.setDepth(3);
@@ -391,13 +368,7 @@ export function createBoardView(
 		};
 	}
 
-	const hamster = attachHamster(scene, cellBox, () => playfieldOn);
-	const rabbit = attachRabbit(
-		scene,
-		() => ({ originX, originY, cellW, cellH }),
-		() => playfieldOn,
-	);
-	const beeFlower = attachBeeFlower(scene, () => playfieldOn);
+
 
 	function liftPx(): number {
 		return 6;
@@ -991,7 +962,7 @@ export function createBoardView(
 	function placePiece(view: PieceView, selected: boolean): void {
 		const box = cellBox(view.square);
 		const size = Math.min(box.w, box.h);
-		view.baseScale = (size * layout.pieceFit) / pieceSprites.size;
+		view.baseScale = size / view.sprite.texture.getSourceImage().width;
 		const busy = pressView === view || pulsing === view;
 		if (!busy) {
 			view.sprite.setPosition(box.x, box.y);
@@ -1557,71 +1528,15 @@ export function createBoardView(
 		ground.setSize(width, height);
 		const field = computeFieldLayout(width, height);
 		const fieldSize = field.fieldSize;
-		const cell = fieldSize / layout.rankCount;
-		ground.setTileScale(cell / tableLayers.tile, cell / tableLayers.tile);
-		if (typeof scene.time?.addEvent === 'function') {
-			if (!ground.getData('windLoop')) {
-				let gStep = 0;
-				scene.time.addEvent({
-					delay: tableLayers.windHoldMs,
-					loop: true,
-					callback: () => {
-						gStep = (gStep + 1) % windPing.length;
-						ground.setTexture(tableLayers.earthWind[windPing[gStep]]);
-					},
-				});
-				ground.setData('windLoop', true);
-			}
-		}
-		clearWindPatches();
-		if (typeof scene.time?.addEvent === 'function') {
-			const keys = tableLayers.earthWind;
-			const tilePx = cell * 4;
-			let gy = 0;
-			for (let y = 0; y < height + tilePx; y += tilePx, gy += 1) {
-				let gx = 0;
-				for (let x = 0; x < width + tilePx; x += tilePx, gx += 1) {
-					const seed = cellHash(gy, gx);
-					if (seed % 5 === 0) {
-						continue;
-					}
-					const reverse = (seed & 2) !== 0;
-					let step = seed % windPing.length;
-					const hold = tableLayers.windHoldMs + (seed % 4) * 90;
-					const patch = scene.add.tileSprite(
-						x,
-						y,
-						tilePx,
-						tilePx,
-						keys[windPing[step]],
-					);
-					patch.setOrigin(0, 0);
-					patch.setDepth(0.05);
-					patch.setDisplaySize(tilePx, tilePx);
-					patch.disableInteractive();
-					windPatches.push(patch);
-					windPatchTimers.push(
-						scene.time.addEvent({
-							delay: hold,
-							loop: true,
-							callback: () => {
-								step = reverse
-									? (step + windPing.length - 1) % windPing.length
-									: (step + 1) % windPing.length;
-								patch.setTexture(keys[windPing[step]]);
-							},
-						}),
-					);
-				}
-			}
-		}
+
+		ground.setTileScale(0.5, 0.5);
+		reliquaryBoard.setPosition(field.originX-14*field.scale,field.originY-33*field.scale).setDisplaySize(380*field.scale,418*field.scale);
+		reliquaryShadow.setPosition(field.originX-46*field.scale,field.originY-65*field.scale).setDisplaySize(444*field.scale,482*field.scale);
 		originX = field.originX;
 		originY = field.originY;
 		cellW = fieldSize / layout.rankCount;
 		cellH = fieldSize / layout.rankCount;
-		hamster.layout();
-		rabbit.layout();
-		beeFlower.layout();
+
 		for (const pit of pits) {
 			const box = cellBox(pit.square);
 			pit.sprite.setPosition(box.x, box.y);
@@ -1987,9 +1902,9 @@ export function createBoardView(
 
 	function setPlayfieldVisible(on: boolean): void {
 		playfieldOn = on;
-		hamster.setVisible(on);
-		rabbit.setVisible(on);
-		beeFlower.setVisible(on);
+		reliquaryBoard.setVisible(on);
+		reliquaryShadow.setVisible(on);
+
 		for (const pit of pits) {
 			pit.sprite.setVisible(on);
 		}
@@ -2054,10 +1969,7 @@ export function createBoardView(
 		},
 		setPlayfieldVisible,
 		setWaitingIdle,
-		notePly: () => {
-			hamster.arm();
-			rabbit.arm();
-			beeFlower.arm();
-		},
+		notePly: () => {},
+
 	};
 }

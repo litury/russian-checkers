@@ -31,10 +31,6 @@ import puff2Url from '@/client/modules/board/kit_v2/fx/puff_2.png';
 import { hopMovesForSelection } from '@/client/modules/board/parts/hopRays';
 import pathCrossUrl from '@/client/modules/board/path_cross.png';
 import pathDashUrl from '@/client/modules/board/path_dash.png';
-import kingDarkUrl from '@/client/modules/board/pieces/king_dark.png';
-import kingLightUrl from '@/client/modules/board/pieces/king_light.png';
-import manDarkUrl from '@/client/modules/board/pieces/man_dark.png';
-import manLightUrl from '@/client/modules/board/pieces/man_light.png';
 import debrisStoneGmUrl from '@/client/modules/board/table_layers/debris_grass_stone_gm.png';
 import debrisStonePlUrl from '@/client/modules/board/table_layers/debris_grass_stone_pl.png';
 import earthGrassUrl from '@/client/modules/board/table_layers/earth_grass.png';
@@ -230,6 +226,11 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	preload(): void {
+		const reliquaryAssets=import.meta.glob('../modules/board/reliquary/*.png',{eager:true,query:'?url',import:'default'});
+		for(const [path,url] of Object.entries(reliquaryAssets)) {
+			const name=path.split('/').pop()!.replace('.png','');
+			this.load.image(`reliquary_${name}`,url as string);
+		}
 		this.load.image('defeatTerminal', defeatTerminalUrl);
 		this.load.image('defeat_primary_rest', primaryRestUrl);
 		this.load.image('defeat_primary_pressed', primaryPressedUrl);
@@ -274,10 +275,10 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(pitSprites.keys[7], pitGrass07Url);
 		this.load.image(debrisSprites.stonePl, debrisStonePlUrl);
 		this.load.image(debrisSprites.stoneGm, debrisStoneGmUrl);
-		this.load.image(pieceSprites.manLight, manLightUrl);
-		this.load.image(pieceSprites.manDark, manDarkUrl);
-		this.load.image(pieceSprites.kingLight, kingLightUrl);
-		this.load.image(pieceSprites.kingDark, kingDarkUrl);
+		this.load.image(pieceSprites.manLight, reliquaryAssets['../modules/board/reliquary/ivory_disk.png'] as string);
+		this.load.image(pieceSprites.manDark, reliquaryAssets['../modules/board/reliquary/black_disk.png'] as string);
+		this.load.image(pieceSprites.kingLight, reliquaryAssets['../modules/board/reliquary/ivory_king.png'] as string);
+		this.load.image(pieceSprites.kingDark, reliquaryAssets['../modules/board/reliquary/black_king.png'] as string);
 		this.load.image(wreathSprites.mask, selectMaskUrl);
 		this.load.image(pathSprites.dash, pathDashUrl);
 		this.load.image(pathSprites.cross, pathCrossUrl);
