@@ -1,4 +1,6 @@
 import fixtures from './illustratedRules.fixtures.json';
+
+import { capturedOnSegment } from '../../rules/parts/capturedOnPath';
 import { describe, expect, it } from 'vitest';
 
 import html from '../../../index.html?raw';
@@ -16,9 +18,10 @@ describe('static illustrated rules', () => {
    expect(figure).toContain('<template><img');
    expect(figure).toContain(`/rules/${f.id}.webp`);
 
+
   }
  });
- it('shows legal complete routes, all selected-piece endpoints and a real blocked win', () => {
+ it('shows legal complete routes, all selected-piece next landings and a real blocked win', () => {
   for (const f of fixtures) {
    const p: IPosition = {turn: f.turn === 'black' ? 'black' : 'white', squares: Array.from({length:8},()=>Array(8).fill(null))};
    for (const [s,kind] of Object.entries(f.pieces)) {
@@ -30,8 +33,13 @@ describe('static illustrated rules', () => {
     const m={from:sq(f.move[0]),path:f.move.slice(1).map(sq)};
     const moves=legalMoves(p);expect(moves,f.id).toContainEqual(m);
     const result=apply(p,m); expect(result).not.toBeNull();
-    const destinations=[...new Set(moves.filter(x=>JSON.stringify(x.from)===JSON.stringify(sq(f.selected!))).map(x=>{const s=x.path.at(-1)!;return String.fromCharCode(97+s.col)+(s.row+1)}))].sort();
+    const destinations=[...new Set(moves.filter(x=>JSON.stringify(x.from)===JSON.stringify(sq(f.selected!))).map(x=>{const s=x.path[0];return String.fromCharCode(97+s.col)+(s.row+1)}))].sort();
     expect(f.lands?.slice().sort(),f.id).toEqual(destinations);
+    if (f.id === 'chain') {
+     expect(html).toContain(f.text);
+     const targets = moves.filter(x=>JSON.stringify(x.from)===JSON.stringify(sq(f.selected!))).map(x=>capturedOnSegment(p,x.from,x.path[0]));
+     expect(targets).toEqual(f.targets!.map(sq));
+    }
     if(f.capture) {
      expect(moves.every(x=>Math.abs(x.path[0].row-x.from.row)>1)).toBe(true);
      for(const s of f.victims!) {const at=sq(s);expect(result!.squares[at.row][at.col]).toBeNull();}

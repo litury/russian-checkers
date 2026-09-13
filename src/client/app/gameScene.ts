@@ -6,7 +6,7 @@ import { palette } from '@/client/config/palette';
 import type { IBoardView } from '@/client/modules/board';
 import { createBoardView } from '@/client/modules/board';
 import { installDisplayDensity, logicalSize } from './displayDensity';
-import { hopMovesForSelection } from '@/client/modules/board/parts/hopRays';
+import { StepwiseMove } from './stepwiseMove';
 import { pickBotMove } from '@/client/modules/bot';
 import captureUrl from '@/client/modules/sfx/capture.ogg';
 import {
@@ -95,6 +95,7 @@ export class GameScene extends Phaser.Scene {
 	private sfx!: ReturnType<typeof createTableSfx>;
 	private position: IPosition = createInitialPosition();
 	private selected: ISquare | null = null;
+	private humanChain: StepwiseMove | null = null;
 	private phase: 'title' | 'human' | 'bot' | 'over' = 'title';
 	private paused = false;
 	private pendingBot = false;
@@ -264,12 +265,7 @@ export class GameScene extends Phaser.Scene {
 			.setVisible(false);
 		this.board = createBoardView(this, (square) => {
 			this.onSquare(square);
-		}, () => {
-			if (this.phase !== 'human' || this.paused || this.moving || this.countingIn) return;
-			this.selected = null;
-			this.sfx.stopHover();
-			this.refresh();
-		}, () => this.hud.isMenuOpen());
+		}, () => this.cancelSelection(), () => this.hud.isMenuOpen());
 		this.board.setPlayfieldVisible(false);
 		this.title = createOpeningOverlay(this, {
 			onPlayBot: () => {
@@ -307,6 +303,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private showTitle(): void {
+		this.humanChain = null;
 		this.botTimer?.remove(false);
 		this.tweens.killAll();
 		this.board.reset();
@@ -327,6 +324,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private startMatch(): void {
+		this.humanChain = null;
 		this.botTimer?.remove(false);
 		this.tweens.killAll();
 		this.board.reset();
@@ -473,7 +471,7 @@ export class GameScene extends Phaser.Scene {
 			return;
 		}
 		this.board.sync(
-			this.position,
+			this.humanChain?.visualPosition ?? this.position,
 			this.humanHighlights(),
 			this.selected,
 			this.optionMoves(),
@@ -498,6 +496,8 @@ export class GameScene extends Phaser.Scene {
 		if (!getAutoMove()) {
 			return;
 		}
+		// A shared next square does not make multiple complete routes forced.
+		if (this.humanChain) return;
 		const moves = legalMoves(this.position);
 		if (moves.length === 1) {
 			this.playHuman(moves[0]);
@@ -508,7 +508,8 @@ export class GameScene extends Phaser.Scene {
 		if (this.phase !== 'human' || this.paused || this.countingIn) {
 			return [];
 		}
-		return hopMovesForSelection(legalMoves(this.position), this.selected);
+		if (this.humanChain) return this.humanChain.options;
+		return this.selected ? new StepwiseMove(this.position, this.selected).options : [];
 	}
 
 	private humanHighlights(): ISquare[] {
@@ -518,11 +519,7 @@ export class GameScene extends Phaser.Scene {
 		const moves = legalMoves(this.position);
 		const selected = this.selected;
 		if (selected) {
-			return uniqueSquares(
-				moves
-					.filter((move) => sameSquare(move.from, selected))
-					.map((move) => move.path[move.path.length - 1]),
-			);
+			return uniqueSquares(this.optionMoves().map(move => move.path[0]));
 		}
 		return uniqueSquares(moves.map((move) => move.from));
 	}
@@ -540,16 +537,12 @@ export class GameScene extends Phaser.Scene {
 		const moves = legalMoves(this.position);
 		const selected = this.selected;
 		if (selected) {
-			const chosen = moves.find(
-				(move) =>
-					sameSquare(move.from, selected) &&
-					sameSquare(move.path[move.path.length - 1], square),
-			);
-			if (chosen) {
-				this.playHuman(chosen);
+			if (this.playHumanHop(square)) {
 				return;
 			}
 		}
+		// A started capture is irrevocable, including clicks on other own pieces.
+		if (this.humanChain) return;
 		if (moves.some((move) => sameSquare(move.from, square))) {
 			this.selected = square;
 			this.sfx.selectThenHover();
@@ -564,6 +557,36 @@ export class GameScene extends Phaser.Scene {
 		if (denied) {
 			this.board.deny(square);
 		}
+	}
+
+	private cancelSelection(): void {
+		if (this.phase !== 'human' || this.paused || this.moving || this.countingIn || this.humanChain) return;
+		this.selected = null;
+		this.sfx.stopHover();
+		this.refresh();
+	}
+
+	private playHumanHop(square: ISquare): boolean {
+		if (!this.selected) return false;
+		const chain = this.humanChain ?? new StepwiseMove(this.position, this.selected);
+		const visual = chain.visualPosition;
+		const chosen = chain.choose(square);
+		if (!chosen) return false;
+		this.humanChain = chain;
+		this.moving = true;
+		this.board.sync(visual, [], null);
+		this.board.playMove(chosen.hop, () => {
+			this.moving = false;
+			this.selected = chain.selected;
+			// Time runs through hops and branch decisions; a final tap cannot rescue a flag.
+			if (this.sideRemainingMs(this.position.turn) <= 0) {
+				this.onFlag();
+				return;
+			}
+			if (chosen.complete) this.completeHumanMove(chosen.complete);
+			else this.refresh();
+		}, took => this.sfx.land(took), took => this.sfx.takeoff(took), true);
+		return true;
 	}
 
 	private animateMove(move: IMove, after: () => void): void {
@@ -586,27 +609,27 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private playHuman(move: IMove): void {
-		this.animateMove(move, () => {
-			const mover = this.position.turn;
-			const next = apply(this.position, move);
-			if (!next) {
-				return;
-			}
-			this.settleClock(mover);
-			this.position = next;
-			this.board.notePly();
-			const side = winner(this.position);
-			if (side) {
-				this.endMatch(side);
-				return;
-			}
-			this.phase = 'bot';
-			this.refresh();
-			this.botTimer?.remove(false);
-			this.botTimer = this.time.delayedCall(400, () => {
-				this.playBot();
-			});
-		});
+		this.animateMove(move, () => this.completeHumanMove(move));
+	}
+
+	private completeHumanMove(move: IMove): void {
+		const mover = this.position.turn;
+		const next = apply(this.position, move);
+		if (!next) return;
+		this.settleClock(mover);
+		this.position = next;
+		this.humanChain = null;
+		this.selected = null;
+		this.board.notePly();
+		const side = winner(this.position);
+		if (side) {
+			this.endMatch(side);
+			return;
+		}
+		this.phase = 'bot';
+		this.refresh();
+		this.botTimer?.remove(false);
+		this.botTimer = this.time.delayedCall(400, () => this.playBot());
 	}
 
 	private playBot(): void {

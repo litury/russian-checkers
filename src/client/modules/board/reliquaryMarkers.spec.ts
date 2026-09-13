@@ -39,10 +39,15 @@ describe('approved coloured B v2', () => {
 		expect(strokes('landing').some((s) => s.color === 0x86a6b8)).toBe(true);
 		expect(strokes('target').some((s) => s.color === 0x86a6b8)).toBe(false);
 	});
-	it('draws immediate semantic marks, one travelling copper glint and a static hold', () => {
+	it('draws immediate marks then pulses material only, leaving own bracket stable', () => {
 		expect(strokes('target', 0)).not.toEqual(strokes('target', 720));
 		expect(strokes('target', 300).length).toBeGreaterThan(12);
-		expect(strokes('target', 720)).toEqual(strokes('target', 7000));
+		expect(strokes('target', 720)).not.toEqual(strokes('target', 1920));
+		expect(strokes('landing', 720)).not.toEqual(strokes('landing', 1920));
+		expect(strokes('selected', 720)).toEqual(strokes('selected', 1920));
+		expect(strokes('target', 720).map((s) => s.points)).toEqual(
+			strokes('target', 1920).map((s) => s.points),
+		);
 		expect(strokes('landing', 0)).not.toEqual(strokes('landing', 720));
 	});
 	it('uses identical whole-piece brackets in amber and copper, without victim arcs', () => {

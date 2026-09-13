@@ -5,7 +5,7 @@ import { reliquaryLayout } from '@/client/config/reliquaryLayout';
 import { sameSquare } from '@/client/shared/sameSquare';
 import { type IMove, type IPosition, type ISquare, legalMoves } from '@/rules';
 import type { IBoardView } from './IBoardView';
-import { markerDestinations } from './reliquaryHints';
+import { markerDestinations, markerMoves } from './reliquaryHints';
 import { drawReliquaryMarker, type Marker } from './reliquaryMarkers';
 import { MarkerMotion } from './reliquaryMotion';
 
@@ -18,7 +18,7 @@ const key = (s: ISquare): string => `${s.row},${s.col}`;
 const reduced = (): boolean =>
 	globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 
-/** Reliquary renderer: no legacy wreaths, flames, arcs or breathing markers. */
+/** Reliquary renderer: no legacy wreaths, flames or arcs. */
 export function createBoardView(
 	scene: Phaser.Scene,
 	onSquare: (square: ISquare) => void,
@@ -78,7 +78,6 @@ export function createBoardView(
 	let position: IPosition | null = null;
 	let selected: ISquare | null = null;
 	let choices: IMove[] = [];
-	let history: IMove | null = null;
 	let hover: ISquare | null = null;
 	let focus: ISquare = { row: 2, col: 0 };
 	let keyboard = false;
@@ -93,7 +92,7 @@ export function createBoardView(
 	const label = (): void => {
 		canvas.setAttribute(
 			'aria-label',
-			`Шашечная доска. Клетка ${String.fromCharCode(97 + focus.col)}${focus.row + 1}. Стрелки — перемещение, Enter или пробел — выбор и ход, Escape — отмена выбора.`,
+			`Шашечная доска. Клетка ${String.fromCharCode(97 + focus.col)}${focus.row + 1}. Стрелки — перемещение, Enter или пробел — выбор и ход, Escape — отмена выбора до начала взятия.`,
 		);
 	};
 	const drawInteraction = (): void => {
@@ -128,21 +127,22 @@ export function createBoardView(
 		);
 		status.setText('Нужно бить');
 		if (!visible) return;
-		if (history) {
-			paint(history.from, 'start');
-			paint(history.path[history.path.length - 1], 'end');
-		}
 		if (selected) paint(selected, 'selected');
 		const seen = new Set<string>();
-		for (const move of choices) {
+		if (!selected) {
+			for (const move of choices) {
+				if (!targets(move).length || seen.has(key(move.from))) continue;
+				paint(move.from, 'selected');
+				seen.add(key(move.from));
+			}
+		}
+		for (const move of markerMoves(choices, selected)) {
 			const victims = targets(move);
 			for (const sq of victims) {
 				const id = `target:${key(sq)}`;
 				if (!seen.has(id)) paint(sq, 'target');
 				seen.add(id);
 			}
-			// Before selection expose compulsory capture, not quiet destinations of every piece.
-			if (!selected && victims.length === 0) continue;
 			for (const land of markerDestinations([move])) {
 				const state = victims.length ? 'landing' : 'move';
 				const id = `${state}:${key(land)}`;
@@ -175,8 +175,11 @@ export function createBoardView(
 		enabled = visible && highlights.length > 0;
 		choices = enabled ? (selected ? options : legalMoves(next)) : [];
 		hintMotion.sync(
-			choices.length ? JSON.stringify([next, selected, choices]) : '',
+			selected && choices.length
+				? JSON.stringify([next, selected, choices])
+				: '',
 			reduced(),
+			choices.some((move) => targets(move).length > 0),
 		);
 		canvas.tabIndex = enabled ? 0 : -1;
 		const seen = new Set<string>();
@@ -330,7 +333,6 @@ export function createBoardView(
 		enabled = false;
 		selected = null;
 		choices = [];
-		history = null;
 		hover = null;
 		keyboard = false;
 		focus = { row: 2, col: 0 };
@@ -349,6 +351,7 @@ export function createBoardView(
 		onDone,
 		onLand,
 		onTakeoff,
+		retainCaptured = false,
 	) => {
 		if (moving) return;
 		const view = pieces.get(key(move.from));
@@ -374,7 +377,6 @@ export function createBoardView(
 			if (!land) {
 				moving = false;
 				movingView = null;
-				history = move;
 				choices = [];
 				selected = null;
 				pieces.set(key(view.square), view);
@@ -399,7 +401,7 @@ export function createBoardView(
 			onTakeoff?.(Boolean(victim));
 			const finish = (): void => {
 				if (generation !== run) return;
-				if (victim) {
+				if (victim && !retainCaptured) {
 					const taken = pieces.get(key(victim));
 					if (taken) remove(taken);
 					pieces.delete(key(victim));

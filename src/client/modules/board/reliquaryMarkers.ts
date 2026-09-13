@@ -6,8 +6,6 @@ export type Marker =
 	| 'move'
 	| 'landing'
 	| 'target'
-	| 'start'
-	| 'end'
 	| 'focus'
 	| 'hover';
 
@@ -65,7 +63,9 @@ export function drawReliquaryMarker(
 			];
 			stroke(
 				pts,
-				state === 'selected' ? mix(0xc9974f, 0xe4ba75, phase.amber) : 0xc86643,
+				state === 'selected'
+					? mix(0xc9974f, 0xe4ba75, phase.amber)
+					: mix(0xc86643, 0xf6c99b, phase.pulse * 0.28),
 				2,
 				true,
 			);
@@ -107,28 +107,11 @@ export function drawReliquaryMarker(
 					[22 + vx * (11.5 + phase.opening), 22 + vy * (11.5 + phase.opening)],
 					[22 + vx * (16.5 + phase.opening), 22 + vy * (16.5 + phase.opening)],
 				],
-				mix(0x779db8, 0xaac1cf, phase.blue),
-			);
-	} else if (state === 'start' || state === 'end') {
-		// Preserve the existing small history glyphs; dim them, not the pieces.
-		stroke(
-			[
-				[7, 35],
-				[7, 39],
-				[18, 39],
-			],
-			0x8a8577,
-			1.4,
-		);
-		if (state === 'end')
-			stroke(
-				[
-					[24, 35],
-					[28, 39],
-					[24, 43],
-				],
-				0x8a8577,
-				1.4,
+				mix(
+					0x779db8,
+					0xaac1cf,
+					phase.blue + (state === 'landing' ? phase.pulse * 0.14 : 0),
+				),
 			);
 	} else if (state === 'focus') {
 		for (let a = 3; a < 40; a += 7) {

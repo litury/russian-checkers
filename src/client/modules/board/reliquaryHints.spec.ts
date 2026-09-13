@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest';
 import { markerDestinations } from './reliquaryHints';
 
-it('marks only the final endpoint of every legal chain, deduplicating shared endpoints', () => {
+it('marks the next landing of every legal chain, deduplicating shared first hops', () => {
 	const from = { row: 2, col: 2 },
 		mid = { row: 4, col: 4 },
 		a = { row: 6, col: 6 },
@@ -12,5 +12,5 @@ it('marks only the final endpoint of every legal chain, deduplicating shared end
 			{ from, path: [mid, b] },
 			{ from, path: [{ row: 4, col: 0 }, a] },
 		]),
-	).toEqual([a, b]);
+	).toEqual([mid, { row: 4, col: 0 }]);
 });

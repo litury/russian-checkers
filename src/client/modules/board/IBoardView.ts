@@ -15,6 +15,8 @@ export interface IBoardView {
 		onDone: () => void,
 		onLand?: (took: boolean) => void,
 		onTakeoff?: (took: boolean) => void,
+		/** Human hops keep all victims until the full rules move commits. */
+		retainCaptured?: boolean,
 	) => void;
 	playFlagBurst: (square: ISquare, onDone: () => void) => void;
 	reset: () => void;
