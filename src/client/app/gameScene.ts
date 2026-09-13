@@ -124,7 +124,12 @@ export class GameScene extends Phaser.Scene {
 			clearTimeout(window.checkersStartup?.watchdog);
 			window.checkersStartup?.fail('Не удалось загрузить игровые ресурсы. Проверьте соединение и повторите загрузку.');
 		});
-		const reliquaryAssets=import.meta.glob('../modules/board/reliquary/*.png',{eager:true,query:'?url',import:'default'});
+		// Share exact lossless delivery copies with the HTML opening; keep PNG masters untouched.
+		const reliquaryAssets: Record<string, unknown> = {
+			...import.meta.glob(['../modules/board/reliquary/*.png', '!../modules/board/reliquary/black_disk.png', '!../modules/board/reliquary/ivory_disk.png'], { eager: true, query: '?url', import: 'default' }),
+			'../modules/board/reliquary/black_disk.png': new URL('./ui/opening/black_disk.webp', import.meta.url).href,
+			'../modules/board/reliquary/ivory_disk.png': new URL('./ui/opening/ivory_disk.webp', import.meta.url).href,
+		};
 		for(const [path,url] of Object.entries(reliquaryAssets)) {
 			const name=path.split('/').pop()!.replace('.png','');
 			this.load.image(`reliquary_${name}`,url as string);

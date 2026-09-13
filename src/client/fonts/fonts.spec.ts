@@ -3,16 +3,16 @@ import {
 	clockFontPx,
 	hudFont,
 	nameFontPx,
-	titleFont,
+
 	whenHudFontReady,
 } from './fonts';
 
 describe('self-hosted fonts', () => {
-	it('uses Tiny5 for HUD and Russo One for the title, not Arial', () => {
+	it('uses Tiny5 for HUD, not Arial', () => {
 		expect(hudFont).toBe('Tiny5');
-		expect(titleFont).toBe('Russo One');
+
 		expect(hudFont.includes('Arial')).toBe(false);
-		expect(titleFont.includes('Arial')).toBe(false);
+
 		expect(clockFontPx % 5).toBe(0);
 		expect(clockFontPx).toBe(20);
 		expect(nameFontPx % 5).toBe(0);

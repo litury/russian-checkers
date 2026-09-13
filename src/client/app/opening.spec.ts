@@ -13,6 +13,11 @@ describe('HTML-first opening', () => {
   expect(main).not.toContain('await document.fonts.ready');
   expect(main).not.toContain('await createYandexSdk()');
  });
+ it('uses a loading-only action label and pulse, without a duplicate kicker', () => {
+  expect(html).toMatch(/id="opening-play"[^>]*disabled>Загрузка…<\/button>/);
+  expect(html).toContain('#opening-play:disabled:not([hidden])');
+  expect(html).not.toContain('opening-kicker');
+ });
  it('provides live title, honest status and disabled Play before modules load', () => {
   expect(html).toContain('id="opening"');
   expect(html).toContain('Великие планы. Неизбежные жертвы.');

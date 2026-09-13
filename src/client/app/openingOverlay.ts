@@ -22,6 +22,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: { onPlayBot:
  play.onclick = () => { if (!play.disabled && !root.hidden) handlers.onPlayBot(); };
  clearTimeout(window.checkersStartup.watchdog);
  play.disabled = false;
+ play.textContent = 'Играть';
  play.hidden = false;
  retry.hidden = true;
  window.checkersStartup.status('Всё готово. Ваш ход — первый.');
