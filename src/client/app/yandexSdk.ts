@@ -26,7 +26,13 @@ export async function createYandexSdk(): Promise<IYandexSdk> {
 		return createStub();
 	}
 	try {
-		const raw = await api.init();
+		let timer: ReturnType<typeof setTimeout> | undefined;
+		const raw = await Promise.race([
+			api.init(),
+			new Promise<never>((_, reject) => {
+				timer = setTimeout(() => reject(new Error('SDK init timeout')), 2500);
+			}),
+		]).finally(() => clearTimeout(timer));
 		const pauseListeners: Array<() => void> = [];
 		const resumeListeners: Array<() => void> = [];
 		let paused = false;
@@ -67,6 +73,48 @@ export async function createYandexSdk(): Promise<IYandexSdk> {
 	} catch {
 		return createStub();
 	}
+}
+
+/** Let the local game start while the optional platform script initializes. */
+export function deferYandexSdk(pending: Promise<IYandexSdk>): IYandexSdk {
+	let current = createStub();
+	let readyRequested = false;
+	const pauses: Array<() => void> = [];
+	const resumes: Array<() => void> = [];
+	void pending.then(sdk => {
+		current = sdk;
+		for (const listener of pauses) sdk.onPause(listener);
+		for (const listener of resumes) sdk.onResume(listener);
+		pauses.length = resumes.length = 0;
+		if (readyRequested) sdk.ready();
+	}).catch(() => undefined);
+	return {
+		get isStub() { return current.isStub; },
+		ready: () => { readyRequested = true; current.ready(); },
+		showFullscreenAdv: handlers => current.showFullscreenAdv(handlers),
+		onPause: callback => { if (current.isStub) pauses.push(callback); else current.onPause(callback); },
+		onResume: callback => { if (current.isStub) resumes.push(callback); else current.onResume(callback); },
+	};
+}
+
+export function loadPlatformScript(): Promise<void> {
+	if (window.YaGames?.init) return Promise.resolve();
+	return new Promise(resolve => {
+		const script = document.createElement('script');
+		let done = false;
+		const finish = () => {
+			if (done) return;
+			done = true;
+			clearTimeout(timer);
+			script.onload = script.onerror = null;
+			resolve();
+		};
+		const timer = setTimeout(finish, 2500);
+		script.async = true;
+		script.src = '/sdk.js';
+		script.onload = script.onerror = finish;
+		document.head.append(script);
+	});
 }
 
 function createStub(): IYandexSdk {

@@ -98,7 +98,6 @@ export function createResultOverlay(
 		'defeatTerminal',
 		'defeat_primary_rest', 'defeat_primary_pressed', 'defeat_secondary_rest', 'defeat_secondary_pressed',
 		'resultGlassWin',
-		'resultGlassLose',
 		'resultBtn',
 		...loseKeys.white,
 		...loseKeys.black,
@@ -440,7 +439,7 @@ export function createResultOverlay(
 			if (won) { againHit.setInteractive({useHandCursor:true}); menuHit.setInteractive({useHandCursor:true}); }
 			else { againHit.disableInteractive(); menuHit.disableInteractive(); }
 			title.setText(won ? 'Вы выиграли' : 'ВЫ ПРОИГРАЛИ');
-			glass.setTexture(won ? 'resultGlassWin' : 'resultGlassLose');
+			if (won) glass.setTexture('resultGlassWin');
 			place(logicalSize(scene).width, logicalSize(scene).height);
 			if (won) {
 				startCheer();

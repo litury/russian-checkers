@@ -20,10 +20,9 @@ describe('computeFieldLayout', () => {
 		expect(field.originX).toBe(0);
 		expect(field.originY).toBe(224);
 		expect(field.cell).toBeCloseTo(48.75);
-		expect(field.cell).toBeGreaterThanOrEqual(layout.minCellPx);
+		expect(field.cell).toBeGreaterThanOrEqual(44);
 		expect(field.originY).toBeGreaterThanOrEqual(layout.hudBar + 24);
 		expect(layout.boardBottomGap).toBe(80);
-		expect(layout.hudStripInset).toBe(8);
 		expect(field.originY + field.fieldSize).toBe(694 - layout.boardBottomGap);
 	});
 

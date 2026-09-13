@@ -1,0 +1,89 @@
+{
+  "revision": "809e4d8b8d7e9364a914909bb777679606c178b8",
+  "files": [
+    {
+      "family": "literata",
+      "file": "fonts/literata/Literata[opsz,wght].ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/809e4d8b8d7e9364a914909bb777679606c178b8/ofl/literata/Literata%5Bopsz%2Cwght%5D.ttf",
+      "sha256": "b41138c9373112f32abb589cc22e8674b06ed4048b0c513be922bdd26f274440",
+      "names": {
+        "1": "Literata",
+        "2": "Regular",
+        "6": "Literata-Regular"
+      },
+      "russian_alphabet_and_digits_verified": true
+    },
+    {
+      "family": "literata",
+      "file": "fonts/literata/OFL.txt",
+      "url": "https://raw.githubusercontent.com/google/fonts/809e4d8b8d7e9364a914909bb777679606c178b8/ofl/literata/OFL.txt",
+      "sha256": "8742963604cd89dc81437811a850018fc03b2bfad686d7422c8235967c87614e"
+    },
+    {
+      "family": "literata",
+      "file": "fonts/literata/METADATA.pb",
+      "url": "https://raw.githubusercontent.com/google/fonts/809e4d8b8d7e9364a914909bb777679606c178b8/ofl/literata/METADATA.pb",
+      "sha256": "8dbc5c48f254be32c879f006391cb5f6781941beb1a643c13acf66fa989b6a83"
+    },
+    {
+      "family": "golostext",
+      "file": "fonts/golostext/GolosText[wght].ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/809e4d8b8d7e9364a914909bb777679606c178b8/ofl/golostext/GolosText%5Bwght%5D.ttf",
+      "sha256": "17bb58fb69aec2dfb047a2ebf52534023e9b688c97a6b7ac795b0a72912c2063",
+      "names": {
+        "1": "Golos Text",
+        "2": "Regular",
+        "6": "GolosText-Regular"
+      },
+      "russian_alphabet_and_digits_verified": true
+    },
+    {
+      "family": "golostext",
+      "file": "fonts/golostext/OFL.txt",
+      "url": "https://raw.githubusercontent.com/google/fonts/809e4d8b8d7e9364a914909bb777679606c178b8/ofl/golostext/OFL.txt",
+      "sha256": "ff532f9e8789f09a9fdffc3c0954eedfb0a48be77b2e2eb90f5f82e4f347f50c"
+    },
+    {
+      "family": "golostext",
+      "file": "fonts/golostext/METADATA.pb",
+      "url": "https://raw.githubusercontent.com/google/fonts/809e4d8b8d7e9364a914909bb777679606c178b8/ofl/golostext/METADATA.pb",
+      "sha256": "88dae99bfbd394ebdd96a9d7db049a6f2343a3ce27f68eeaa5ca5bbc6c831bc3"
+    },
+    {
+      "family": "ptserif",
+      "file": "fonts/ptserif/PT_Serif-Web-Regular.ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/809e4d8b8d7e9364a914909bb777679606c178b8/ofl/ptserif/PT_Serif-Web-Regular.ttf",
+      "sha256": "a4951fade06ff8f09b7673aa81ffb65a8cd409e24d3289a6dc670bc4dda2557a",
+      "names": {
+        "1": "PT Serif",
+        "2": "Regular",
+        "6": "PTSerif-Regular"
+      },
+      "russian_alphabet_and_digits_verified": true
+    },
+    {
+      "family": "ptserif",
+      "file": "fonts/ptserif/PT_Serif-Web-Bold.ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/809e4d8b8d7e9364a914909bb777679606c178b8/ofl/ptserif/PT_Serif-Web-Bold.ttf",
+      "sha256": "038ba7336bd7ea14f12ad155bed51a4345cac5153275d521dec3ba04021c526e",
+      "names": {
+        "1": "PT Serif",
+        "2": "Bold",
+        "6": "PTSerif-Bold"
+      },
+      "russian_alphabet_and_digits_verified": true
+    },
+    {
+      "family": "ptserif",
+      "file": "fonts/ptserif/OFL.txt",
+      "url": "https://raw.githubusercontent.com/google/fonts/809e4d8b8d7e9364a914909bb777679606c178b8/ofl/ptserif/OFL.txt",
+      "sha256": "ddf311c28ddf5a5ad9747649837346b67bed9d356789c3072bb27dbce49e514d"
+    },
+    {
+      "family": "ptserif",
+      "file": "fonts/ptserif/METADATA.pb",
+      "url": "https://raw.githubusercontent.com/google/fonts/809e4d8b8d7e9364a914909bb777679606c178b8/ofl/ptserif/METADATA.pb",
+      "sha256": "a943b85eed1c2d368aaaa3e3999fbe8b15365153aa62889f76271bc10d1094ca"
+    }
+  ]
+}

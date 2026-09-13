@@ -6,6 +6,17 @@ describe('createYandexSdk', () => {
 		vi.unstubAllGlobals();
 	});
 
+	it('bounds an SDK init that never settles', async () => {
+		vi.useFakeTimers();
+		vi.stubGlobal('window', { YaGames: { init: () => new Promise(() => {}) } });
+		let settled = false;
+		const pending = createYandexSdk().then(sdk => { settled = sdk.isStub; });
+		await vi.advanceTimersByTimeAsync(2500);
+		expect(settled).toBe(true);
+		await pending;
+		vi.useRealTimers();
+	});
+
 	it('stubs when YaGames is missing and skips ads', async () => {
 		vi.stubGlobal('window', {});
 		const sdk = await createYandexSdk();

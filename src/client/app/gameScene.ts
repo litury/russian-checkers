@@ -1,107 +1,12 @@
 import Phaser from 'phaser';
 import {
-	captureSprites,
-	debrisSprites,
-	fireSprites,
-	pathSprites,
 	pieceSprites,
-	pitSprites,
-	tableLayers,
-	wreathSprites,
-	hamsterSprites,
-	rabbitSprites,
-	beeSprites,
 } from '@/client/config/layout';
 import { palette } from '@/client/config/palette';
 import type { IBoardView } from '@/client/modules/board';
 import { createBoardView } from '@/client/modules/board';
 import { installDisplayDensity, logicalSize } from './displayDensity';
-import tongue0IdleUrl from '@/client/modules/board/fire_rocket/tongue_0_idle.png';
-import tongue0LandUrl from '@/client/modules/board/fire_rocket/tongue_0_land.png';
-import tongue0UpUrl from '@/client/modules/board/fire_rocket/tongue_0_up.png';
-import tongue1IdleUrl from '@/client/modules/board/fire_rocket/tongue_1_idle.png';
-import tongue1LandUrl from '@/client/modules/board/fire_rocket/tongue_1_land.png';
-import tongue1UpUrl from '@/client/modules/board/fire_rocket/tongue_1_up.png';
-import tongue2IdleUrl from '@/client/modules/board/fire_rocket/tongue_2_idle.png';
-import tongue2LandUrl from '@/client/modules/board/fire_rocket/tongue_2_land.png';
-import tongue2UpUrl from '@/client/modules/board/fire_rocket/tongue_2_up.png';
-import emberUrl from '@/client/modules/board/kit_v2/fx/ember.png';
-import puff0Url from '@/client/modules/board/kit_v2/fx/puff_0.png';
-import puff1Url from '@/client/modules/board/kit_v2/fx/puff_1.png';
-import puff2Url from '@/client/modules/board/kit_v2/fx/puff_2.png';
 import { hopMovesForSelection } from '@/client/modules/board/parts/hopRays';
-import pathCrossUrl from '@/client/modules/board/path_cross.png';
-import pathDashUrl from '@/client/modules/board/path_dash.png';
-import debrisStoneGmUrl from '@/client/modules/board/table_layers/debris_grass_stone_gm.png';
-import debrisStonePlUrl from '@/client/modules/board/table_layers/debris_grass_stone_pl.png';
-import earthGrassUrl from '@/client/modules/board/table_layers/earth_grass.png';
-import earthGrass01Url from '@/client/modules/board/table_layers/earth_grass_01.png';
-import earthGrass02Url from '@/client/modules/board/table_layers/earth_grass_02.png';
-import earthGrass03Url from '@/client/modules/board/table_layers/earth_grass_03.png';
-import hamsterEmerge01Url from '@/client/modules/board/table_layers/hamster/emerge_01.png';
-import hamsterEmerge02Url from '@/client/modules/board/table_layers/hamster/emerge_02.png';
-import hamsterEmerge03Url from '@/client/modules/board/table_layers/hamster/emerge_03.png';
-import hamsterLookUrl from '@/client/modules/board/table_layers/hamster/look.png';
-import hamsterScareUrl from '@/client/modules/board/table_layers/hamster/scare.png';
-import hamsterHoleUrl from '@/client/modules/board/table_layers/hamster/hole_ring.png';
-import rabbitRun00Url from '@/client/modules/board/table_layers/rabbit/run_00.png';
-import rabbitRun01Url from '@/client/modules/board/table_layers/rabbit/run_01.png';
-import rabbitRun02Url from '@/client/modules/board/table_layers/rabbit/run_02.png';
-import rabbitRun03Url from '@/client/modules/board/table_layers/rabbit/run_03.png';
-import beeFlowerUrl from '@/client/modules/board/table_layers/bee/flower.png';
-import beeFlower00Url from '@/client/modules/board/table_layers/bee/flower_00.png';
-import beeFlower01Url from '@/client/modules/board/table_layers/bee/flower_01.png';
-import beeFlower02Url from '@/client/modules/board/table_layers/bee/flower_02.png';
-import beeFlower03Url from '@/client/modules/board/table_layers/bee/flower_03.png';
-import beeFly00Url from '@/client/modules/board/table_layers/bee/fly_00.png';
-import beeFly01Url from '@/client/modules/board/table_layers/bee/fly_01.png';
-import beeSitUrl from '@/client/modules/board/table_layers/bee/sit.png';
-import pitGrass00Url from '@/client/modules/board/table_layers/pit_grass_00.png';
-import pitGrass01Url from '@/client/modules/board/table_layers/pit_grass_01.png';
-import pitGrass02Url from '@/client/modules/board/table_layers/pit_grass_02.png';
-import pitGrass03Url from '@/client/modules/board/table_layers/pit_grass_03.png';
-import pitGrass04Url from '@/client/modules/board/table_layers/pit_grass_04.png';
-import pitGrass05Url from '@/client/modules/board/table_layers/pit_grass_05.png';
-import pitGrass06Url from '@/client/modules/board/table_layers/pit_grass_06.png';
-import pitGrass07Url from '@/client/modules/board/table_layers/pit_grass_07.png';
-import selectMaskUrl from '@/client/modules/board/table_layers/select_mask.png';
-import captureBurstDark00Url from '@/client/modules/board/vfx_capture/capture_burst_dark_00.png';
-import captureBurstDark01Url from '@/client/modules/board/vfx_capture/capture_burst_dark_01.png';
-import captureBurstKingDark00Url from '@/client/modules/board/vfx_capture/capture_burst_king_dark_00.png';
-import captureBurstKingDark01Url from '@/client/modules/board/vfx_capture/capture_burst_king_dark_01.png';
-import captureBurstKingLight00Url from '@/client/modules/board/vfx_capture/capture_burst_king_light_00.png';
-import captureBurstKingLight01Url from '@/client/modules/board/vfx_capture/capture_burst_king_light_01.png';
-import captureBurstLight00Url from '@/client/modules/board/vfx_capture/capture_burst_light_00.png';
-import captureBurstLight01Url from '@/client/modules/board/vfx_capture/capture_burst_light_01.png';
-import captureFlash00Url from '@/client/modules/board/vfx_capture/capture_flash_00.png';
-import captureFlash01Url from '@/client/modules/board/vfx_capture/capture_flash_01.png';
-import captureFlash02Url from '@/client/modules/board/vfx_capture/capture_flash_02.png';
-import captureFlash03Url from '@/client/modules/board/vfx_capture/capture_flash_03.png';
-import captureIgniteDarkUrl from '@/client/modules/board/vfx_capture/capture_ignite_dark.png';
-import captureIgniteKingDarkUrl from '@/client/modules/board/vfx_capture/capture_ignite_king_dark.png';
-import captureIgniteKingLightUrl from '@/client/modules/board/vfx_capture/capture_ignite_king_light.png';
-import captureIgniteLightUrl from '@/client/modules/board/vfx_capture/capture_ignite_light.png';
-import captureScorchUrl from '@/client/modules/board/vfx_capture/capture_scorch_96.png';
-import captureSmolderDark00Url from '@/client/modules/board/vfx_capture/capture_smolder_dark_00.png';
-import captureSmolderDark01Url from '@/client/modules/board/vfx_capture/capture_smolder_dark_01.png';
-import captureSmolderKingDark00Url from '@/client/modules/board/vfx_capture/capture_smolder_king_dark_00.png';
-import captureSmolderKingDark01Url from '@/client/modules/board/vfx_capture/capture_smolder_king_dark_01.png';
-import captureSmolderKingLight00Url from '@/client/modules/board/vfx_capture/capture_smolder_king_light_00.png';
-import captureSmolderKingLight01Url from '@/client/modules/board/vfx_capture/capture_smolder_king_light_01.png';
-import captureSmolderLight00Url from '@/client/modules/board/vfx_capture/capture_smolder_light_00.png';
-import captureSmolderLight01Url from '@/client/modules/board/vfx_capture/capture_smolder_light_01.png';
-import captureSwellDark00Url from '@/client/modules/board/vfx_capture/capture_swell_dark_00.png';
-import captureSwellDark01Url from '@/client/modules/board/vfx_capture/capture_swell_dark_01.png';
-import captureSwellDark02Url from '@/client/modules/board/vfx_capture/capture_swell_dark_02.png';
-import captureSwellKingDark00Url from '@/client/modules/board/vfx_capture/capture_swell_king_dark_00.png';
-import captureSwellKingDark01Url from '@/client/modules/board/vfx_capture/capture_swell_king_dark_01.png';
-import captureSwellKingDark02Url from '@/client/modules/board/vfx_capture/capture_swell_king_dark_02.png';
-import captureSwellKingLight00Url from '@/client/modules/board/vfx_capture/capture_swell_king_light_00.png';
-import captureSwellKingLight01Url from '@/client/modules/board/vfx_capture/capture_swell_king_light_01.png';
-import captureSwellKingLight02Url from '@/client/modules/board/vfx_capture/capture_swell_king_light_02.png';
-import captureSwellLight00Url from '@/client/modules/board/vfx_capture/capture_swell_light_00.png';
-import captureSwellLight01Url from '@/client/modules/board/vfx_capture/capture_swell_light_01.png';
-import captureSwellLight02Url from '@/client/modules/board/vfx_capture/capture_swell_light_02.png';
 import { pickBotMove } from '@/client/modules/bot';
 import captureUrl from '@/client/modules/sfx/capture.ogg';
 import {
@@ -131,14 +36,10 @@ import {
 import { hudFont } from '@/client/fonts/fonts';
 import { createHud } from './createHud';
 import { remainingForHud } from './matchClock';
-import { createTitleOverlay } from './titleOverlay';
+import { createOpeningOverlay } from './openingOverlay';
 import type { IYandexSdk } from './IYandexSdk';
 import { getAutoMove } from './parts/createSfxPanel';
 import { createResultOverlay } from './resultOverlay';
-import titleBg169Url from './ui/title/title_bg_169.png';
-import titleBg916Url from './ui/title/title_bg_916.png';
-import titleWordmarkUrl from './ui/title/title_wordmark.png';
-import hudActionMoatUrl from './ui/hud_action_moat.png';
 import hudAiUrl from './ui/hud_ai.png';
 import hudAiOffUrl from './ui/hud_ai_off.png';
 import hudClockFaceUrl from './ui/hud_clock_face.png';
@@ -165,29 +66,16 @@ import hudMenuF2Url from './ui/hud_menu_f2.png';
 import hudNoteUrl from './ui/hud_note.png';
 import hudNoteOffUrl from './ui/hud_note_off.png';
 import hudPlateUrl from './ui/hud_plate.png';
-import hudPlateVolUrl from './ui/hud_plate_vol.png';
-import hudResignUrl from './ui/hud_resign.png';
-import hudResignWaveUrl from './ui/hud_resign_wave.png';
-import hudSliderKnobUrl from './ui/hud_slider_knob.png';
-import mascotIdleUrl from './ui/result/mascot_idle.png';
 import mascotIdle0Url from './ui/result/mascot_idle_00.png';
 import mascotIdle1Url from './ui/result/mascot_idle_01.png';
 import mascotIdle2Url from './ui/result/mascot_idle_02.png';
 import mascotIdle3Url from './ui/result/mascot_idle_03.png';
-import mascotLose0Url from './ui/result/mascot_lose_00.png';
-import mascotLose1Url from './ui/result/mascot_lose_01.png';
-import mascotLose2Url from './ui/result/mascot_lose_02.png';
-import mascotLose3Url from './ui/result/mascot_lose_03.png';
-import mascotLose4Url from './ui/result/mascot_lose_04.png';
-import mascotLose5Url from './ui/result/mascot_lose_05.png';
 import mascotWin0Url from './ui/result/mascot_win_00.png';
 import mascotWin1Url from './ui/result/mascot_win_01.png';
 import mascotWin2Url from './ui/result/mascot_win_02.png';
 import mascotWin3Url from './ui/result/mascot_win_03.png';
 import mascotWin4Url from './ui/result/mascot_win_04.png';
 import resultBtnUrl from './ui/result/result_btn.png';
-import resultGlassMeadowUrl from './ui/result/result_glass_meadow.png';
-import resultGlassLoseUrl from './ui/result/result_glass_lose.png';
 import resultGlassWinUrl from './ui/result/result_glass_win.png';
 import resultMonitorUrl from './ui/result/result_monitor.png';
 import defeatTerminalUrl from './ui/result/terminal_sockets.png';
@@ -202,7 +90,7 @@ export class GameScene extends Phaser.Scene {
 	private board!: IBoardView;
 	private hud!: ReturnType<typeof createHud>;
 	private overlay!: ReturnType<typeof createResultOverlay>;
-	private title!: ReturnType<typeof createTitleOverlay>;
+	private title!: ReturnType<typeof createOpeningOverlay>;
 	private sdk!: IYandexSdk;
 	private sfx!: ReturnType<typeof createTableSfx>;
 	private position: IPosition = createInitialPosition();
@@ -226,7 +114,16 @@ export class GameScene extends Phaser.Scene {
 		super({ key: 'GameScene' });
 	}
 
+	private startupFailed = false;
+
 	preload(): void {
+		this.startupFailed = false;
+		window.checkersStartup?.status('Загружаем доску, шашки и звук…');
+		this.load.on('loaderror', () => {
+			this.startupFailed = true;
+			clearTimeout(window.checkersStartup?.watchdog);
+			window.checkersStartup?.fail('Не удалось загрузить игровые ресурсы. Проверьте соединение и повторите загрузку.');
+		});
 		const reliquaryAssets=import.meta.glob('../modules/board/reliquary/*.png',{eager:true,query:'?url',import:'default'});
 		for(const [path,url] of Object.entries(reliquaryAssets)) {
 			const name=path.split('/').pop()!.replace('.png','');
@@ -244,58 +141,10 @@ export class GameScene extends Phaser.Scene {
 			const frame = path.split('/').pop()!.replace('.png', '');
 			this.load.image(`checkerDefeat_${frame}`, url as string);
 		}
-		this.load.image(tableLayers.earth, earthGrassUrl);
-		this.load.image(tableLayers.earthWind[1], earthGrass01Url);
-		this.load.image(tableLayers.earthWind[2], earthGrass02Url);
-		this.load.image(tableLayers.earthWind[3], earthGrass03Url);
-		this.load.image(hamsterSprites.emerge[0], hamsterEmerge01Url);
-		this.load.image(hamsterSprites.emerge[1], hamsterEmerge02Url);
-		this.load.image(hamsterSprites.emerge[2], hamsterEmerge03Url);
-		this.load.image(hamsterSprites.look, hamsterLookUrl);
-		this.load.image(hamsterSprites.scare, hamsterScareUrl);
-		this.load.image(hamsterSprites.hole, hamsterHoleUrl);
-		this.load.image(rabbitSprites.run[0], rabbitRun00Url);
-		this.load.image(rabbitSprites.run[1], rabbitRun01Url);
-		this.load.image(rabbitSprites.run[2], rabbitRun02Url);
-		this.load.image(rabbitSprites.run[3], rabbitRun03Url);
-		this.load.image(beeSprites.flower, beeFlowerUrl);
-		this.load.image(beeSprites.flowerWind[0], beeFlower00Url);
-		this.load.image(beeSprites.flowerWind[1], beeFlower01Url);
-		this.load.image(beeSprites.flowerWind[2], beeFlower02Url);
-		this.load.image(beeSprites.flowerWind[3], beeFlower03Url);
-		this.load.image(beeSprites.fly[0], beeFly00Url);
-		this.load.image(beeSprites.fly[1], beeFly01Url);
-		this.load.image(beeSprites.sit, beeSitUrl);
-		this.load.image(pitSprites.keys[0], pitGrass00Url);
-		this.load.image(pitSprites.keys[1], pitGrass01Url);
-		this.load.image(pitSprites.keys[2], pitGrass02Url);
-		this.load.image(pitSprites.keys[3], pitGrass03Url);
-		this.load.image(pitSprites.keys[4], pitGrass04Url);
-		this.load.image(pitSprites.keys[5], pitGrass05Url);
-		this.load.image(pitSprites.keys[6], pitGrass06Url);
-		this.load.image(pitSprites.keys[7], pitGrass07Url);
-		this.load.image(debrisSprites.stonePl, debrisStonePlUrl);
-		this.load.image(debrisSprites.stoneGm, debrisStoneGmUrl);
 		this.load.image(pieceSprites.manLight, reliquaryAssets['../modules/board/reliquary/ivory_disk.png'] as string);
 		this.load.image(pieceSprites.manDark, reliquaryAssets['../modules/board/reliquary/black_disk.png'] as string);
 		this.load.image(pieceSprites.kingLight, reliquaryAssets['../modules/board/reliquary/ivory_king.png'] as string);
 		this.load.image(pieceSprites.kingDark, reliquaryAssets['../modules/board/reliquary/black_king.png'] as string);
-		this.load.image(wreathSprites.mask, selectMaskUrl);
-		this.load.image(pathSprites.dash, pathDashUrl);
-		this.load.image(pathSprites.cross, pathCrossUrl);
-		this.load.image(fireSprites.ember, emberUrl);
-		this.load.image(fireSprites.idle[0], tongue0IdleUrl);
-		this.load.image(fireSprites.idle[1], tongue1IdleUrl);
-		this.load.image(fireSprites.idle[2], tongue2IdleUrl);
-		this.load.image(fireSprites.up[0], tongue0UpUrl);
-		this.load.image(fireSprites.up[1], tongue1UpUrl);
-		this.load.image(fireSprites.up[2], tongue2UpUrl);
-		this.load.image(fireSprites.land[0], tongue0LandUrl);
-		this.load.image(fireSprites.land[1], tongue1LandUrl);
-		this.load.image(fireSprites.land[2], tongue2LandUrl);
-		this.load.image(fireSprites.puffs[0], puff0Url);
-		this.load.image(fireSprites.puffs[1], puff1Url);
-		this.load.image(fireSprites.puffs[2], puff2Url);
 		this.load.image('hudMenu', hudMenuUrl);
 		this.load.image('hudMenuFold', hudMenuFoldUrl);
 		this.load.image('hudMenuOpen', hudMenuOpenUrl);
@@ -304,14 +153,9 @@ export class GameScene extends Phaser.Scene {
 		this.load.image('hudMenuF1', hudMenuF1Url);
 		this.load.image('hudMenuF2', hudMenuF2Url);
 		this.load.image('hudGlassMeadow', hudGlassMeadowUrl);
-		this.load.image('hudPlateVol', hudPlateVolUrl);
 		this.load.image('hudPlate', hudPlateUrl);
 		this.load.image('hudNote', hudNoteUrl);
 		this.load.image('hudNoteOff', hudNoteOffUrl);
-		this.load.image('hudSliderKnob', hudSliderKnobUrl);
-		this.load.image('hudActionMoat', hudActionMoatUrl);
-		this.load.image('hudResign', hudResignUrl);
-		this.load.image('hudResignWave', hudResignWaveUrl);
 		this.load.image('hudAi', hudAiUrl);
 		this.load.image('hudAiOff', hudAiOffUrl);
 		this.load.image('hudClockFace', hudClockFaceUrl);
@@ -327,89 +171,13 @@ export class GameScene extends Phaser.Scene {
 		this.load.image('hudClockGrass1', hudClockGrass01Url);
 		this.load.image('hudClockGrass2', hudClockGrass02Url);
 		this.load.image('hudClockGrass3', hudClockGrass03Url);
-		this.load.image(captureSprites.igniteLight, captureIgniteLightUrl);
-		this.load.image(captureSprites.igniteDark, captureIgniteDarkUrl);
-		this.load.image(captureSprites.igniteKingLight, captureIgniteKingLightUrl);
-		this.load.image(captureSprites.igniteKingDark, captureIgniteKingDarkUrl);
-		this.load.image(captureSprites.swellLight[0], captureSwellLight00Url);
-		this.load.image(captureSprites.swellLight[1], captureSwellLight01Url);
-		this.load.image(captureSprites.swellLight[2], captureSwellLight02Url);
-		this.load.image(captureSprites.swellDark[0], captureSwellDark00Url);
-		this.load.image(captureSprites.swellDark[1], captureSwellDark01Url);
-		this.load.image(captureSprites.swellDark[2], captureSwellDark02Url);
-		this.load.image(
-			captureSprites.swellKingLight[0],
-			captureSwellKingLight00Url,
-		);
-		this.load.image(
-			captureSprites.swellKingLight[1],
-			captureSwellKingLight01Url,
-		);
-		this.load.image(
-			captureSprites.swellKingLight[2],
-			captureSwellKingLight02Url,
-		);
-		this.load.image(captureSprites.swellKingDark[0], captureSwellKingDark00Url);
-		this.load.image(captureSprites.swellKingDark[1], captureSwellKingDark01Url);
-		this.load.image(captureSprites.swellKingDark[2], captureSwellKingDark02Url);
-		this.load.image(captureSprites.burstLight[0], captureBurstLight00Url);
-		this.load.image(captureSprites.burstLight[1], captureBurstLight01Url);
-		this.load.image(captureSprites.burstDark[0], captureBurstDark00Url);
-		this.load.image(captureSprites.burstDark[1], captureBurstDark01Url);
-		this.load.image(
-			captureSprites.burstKingLight[0],
-			captureBurstKingLight00Url,
-		);
-		this.load.image(
-			captureSprites.burstKingLight[1],
-			captureBurstKingLight01Url,
-		);
-		this.load.image(captureSprites.burstKingDark[0], captureBurstKingDark00Url);
-		this.load.image(captureSprites.burstKingDark[1], captureBurstKingDark01Url);
-		this.load.image(captureSprites.smolderLight[0], captureSmolderLight00Url);
-		this.load.image(captureSprites.smolderLight[1], captureSmolderLight01Url);
-		this.load.image(captureSprites.smolderDark[0], captureSmolderDark00Url);
-		this.load.image(captureSprites.smolderDark[1], captureSmolderDark01Url);
-		this.load.image(
-			captureSprites.smolderKingLight[0],
-			captureSmolderKingLight00Url,
-		);
-		this.load.image(
-			captureSprites.smolderKingLight[1],
-			captureSmolderKingLight01Url,
-		);
-		this.load.image(
-			captureSprites.smolderKingDark[0],
-			captureSmolderKingDark00Url,
-		);
-		this.load.image(
-			captureSprites.smolderKingDark[1],
-			captureSmolderKingDark01Url,
-		);
-		this.load.image(captureSprites.flash[0], captureFlash00Url);
-		this.load.image(captureSprites.flash[1], captureFlash01Url);
-		this.load.image(captureSprites.flash[2], captureFlash02Url);
-		this.load.image(captureSprites.flash[3], captureFlash03Url);
-		this.load.image(captureSprites.scorch, captureScorchUrl);
 		this.load.image('resultMonitor', resultMonitorUrl);
-		this.load.image('resultGlassMeadow', resultGlassMeadowUrl);
-		this.load.image('mascotIdle', mascotIdleUrl);
 		this.load.image('mascotIdle0', mascotIdle0Url);
 		this.load.image('mascotIdle1', mascotIdle1Url);
 		this.load.image('mascotIdle2', mascotIdle2Url);
 		this.load.image('mascotIdle3', mascotIdle3Url);
 		this.load.image('resultGlassWin', resultGlassWinUrl);
-		this.load.image('resultGlassLose', resultGlassLoseUrl);
 		this.load.image('resultBtn', resultBtnUrl);
-		this.load.image('titleBg916', titleBg916Url);
-		this.load.image('titleBg169', titleBg169Url);
-		this.load.image('titleWordmark', titleWordmarkUrl);
-		this.load.image('mascotLose0', mascotLose0Url);
-		this.load.image('mascotLose1', mascotLose1Url);
-		this.load.image('mascotLose2', mascotLose2Url);
-		this.load.image('mascotLose3', mascotLose3Url);
-		this.load.image('mascotLose4', mascotLose4Url);
-		this.load.image('mascotLose5', mascotLose5Url);
 		this.load.image('mascotWin0', mascotWin0Url);
 		this.load.image('mascotWin1', mascotWin1Url);
 		this.load.image('mascotWin2', mascotWin2Url);
@@ -426,6 +194,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	create(): void {
+		if (this.startupFailed) return;
 		this.sdk = this.registry.get('sdk') as IYandexSdk;
 		this.cameras.main.setBackgroundColor(palette.background);
 		for (const key of [
@@ -437,14 +206,9 @@ export class GameScene extends Phaser.Scene {
 			'hudMenuF1',
 			'hudMenuF2',
 			'hudGlassMeadow',
-			'hudPlateVol',
 			'hudPlate',
 			'hudNote',
 			'hudNoteOff',
-			'hudSliderKnob',
-			'hudActionMoat',
-			'hudResign',
-			'hudResignWave',
 			'hudAi',
 			'hudAiOff',
 			'hudClockFace',
@@ -461,11 +225,6 @@ export class GameScene extends Phaser.Scene {
 			'hudClockGrass2',
 			'hudClockGrass3',
 			'resultMonitor',
-			'resultGlassMeadow',
-			'titleBg916',
-			'titleBg169',
-			'titleWordmark',
-			'mascotIdle',
 			'mascotIdle0',
 			'mascotIdle1',
 			'mascotIdle2',
@@ -507,7 +266,7 @@ export class GameScene extends Phaser.Scene {
 			this.refresh();
 		}, () => this.hud.isMenuOpen());
 		this.board.setPlayfieldVisible(false);
-		this.title = createTitleOverlay(this, {
+		this.title = createOpeningOverlay(this, {
 			onPlayBot: () => {
 				this.startMatch();
 			},
