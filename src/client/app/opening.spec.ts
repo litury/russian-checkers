@@ -13,9 +13,11 @@ describe('HTML-first opening', () => {
   expect(main).not.toContain('await document.fonts.ready');
   expect(main).not.toContain('await createYandexSdk()');
  });
- it('uses a loading-only action label and pulse, without a duplicate kicker', () => {
-  expect(html).toMatch(/id="opening-play"[^>]*disabled>Загрузка…<\/button>/);
-  expect(html).toContain('#opening-play:disabled:not([hidden])');
+ it('uses an accessible indeterminate loading indicator, without a duplicate kicker', () => {
+  expect(html).toMatch(/id="opening-play"[^>]*aria-label="Загрузка игры"[^>]*aria-busy="true"[^>]*disabled>/);
+  expect(html).toContain('class="opening-activity" aria-hidden="true"');
+  expect(html).toContain('@keyframes opening-segment');
+  expect(html).not.toContain('disabled>Загрузка…');
   expect(html).not.toContain('opening-kicker');
  });
  it('provides live title, honest status and disabled Play before modules load', () => {

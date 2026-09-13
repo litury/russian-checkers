@@ -1,6 +1,5 @@
 import type Phaser from 'phaser';
-import { describe, expect, it } from 'vitest';
-import { layout } from '@/client/config/layout';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
 	clipPlayerName,
 	createHud,
@@ -193,7 +192,12 @@ function stubHudScene(): Phaser.Scene & {
 		tileSprites,
 		timeCalls,
 		add: {
-			text: (_x: number, _y: number, content: string, style?: { fontSize?: string }) => {
+			text: (
+				_x: number,
+				_y: number,
+				content: string,
+				style?: { fontSize?: string },
+			) => {
 				const go = stubGo();
 				go.text = content;
 				go.fontSize = style?.fontSize;
@@ -225,6 +229,7 @@ function stubHudScene(): Phaser.Scene & {
 			},
 			graphics: () => stubGo(),
 		},
+		events: { once() {} },
 		input: {
 			on(event: string, fn: Handler) {
 				let list = inputHandlers[event];
@@ -267,138 +272,43 @@ function stubHudScene(): Phaser.Scene & {
 	};
 }
 
-function flushMs(scene: { timeCalls: DelayCall[] }, ms: number): void {
-	for (const call of scene.timeCalls) {
-		if (!call.removed && call.ms === ms) {
-			call.removed = true;
-			call.fn();
-		}
-	}
-}
-
 describe('createHud', () => {
-	it('swaps hamburger to press then open frames without scaleY', () => {
-		const scene = stubHudScene();
-		createHud(scene);
-		const menuHit = scene.rects[0];
-		const menuIcon = scene.images.find((img) => img.key === 'hudMenu');
-		const chrome = scene.images.find((img) => img.key === 'hudMenuF0');
-		expect(menuIcon).toBeDefined();
-		if (!menuIcon) {
-			return;
-		}
-		expect(menuIcon.key).toBe('hudMenu');
-		expect(scene.images.some((img) => img.key === 'hudResign')).toBe(false);
-		expect(scene.images.some((img) => img.key === 'hudAi')).toBe(true);
-		expect(scene.tileSprites.some((img) => img.key === 'hudActionMoat')).toBe(
-			false,
-		);
-		expect(scene.images.some((img) => img.key === 'hudActionMoat')).toBe(false);
-		expect(scene.images.some((img) => img.key === 'hudAuto')).toBe(false);
-		expect(scene.images.some((img) => img.key === 'hudMusic')).toBe(false);
-		expect(chrome?.visible).toBe(false);
-		expect(scene.images.some((img) => img.key === 'hudEvmPanel')).toBe(false);
-		expect(menuIcon.scaleY).toBe(1);
-		menuHit.emit('pointerdown', { id: 1 });
-		expect(chrome?.visible).toBe(true);
-		expect(menuIcon.key).toBe('hudMenuPress');
-		expect(menuIcon.scaleY).toBe(1);
-		expect(menuIcon.y).toBe(0);
-		menuHit.emit('pointerup', { id: 1 });
-		expect(menuIcon.key).toBe('hudMenuPress');
-		expect(menuIcon.scaleY).toBe(1);
-		flushMs(scene, layout.pressMs);
-		expect(menuIcon.key).toBe('hudMenuFold');
-		expect(menuIcon.scaleY).toBe(1);
-		flushMs(scene, layout.menuFoldMs);
-		expect(menuIcon.key).toBe('hudMenuOpen');
-		expect(menuIcon.scaleY).toBe(1);
-		menuHit.emit('pointerdown', { id: 2 });
-		flushMs(scene, layout.menuFoldMs);
-		flushMs(scene, layout.menuFoldMs);
-		flushMs(scene, layout.menuFoldMs);
-		expect(chrome?.visible).toBe(false);
-		expect(menuIcon.key).toBe('hudMenuPress');
-		menuHit.emit('pointerup', { id: 2 });
-		expect(menuIcon.key).toBe('hudMenuPress');
-		flushMs(scene, layout.pressMs);
-		expect(menuIcon.key).toBe('hudMenuFold');
-		flushMs(scene, layout.menuFoldMs);
-		expect(menuIcon.key).toBe('hudMenu');
-		expect(menuIcon.scaleY).toBe(1);
-		expect(menuIcon.y).toBe(0);
+	beforeEach(() => {
+		const dialog = {
+			open: false,
+			close() {
+				this.open = false;
+			},
+			addEventListener() {},
+			removeEventListener() {},
+		};
+		vi.stubGlobal('document', {
+			createElement: () => null,
+			getElementById: () => dialog,
+			activeElement: { tagName: 'BUTTON' },
+		});
+		vi.stubGlobal('window', {
+			addEventListener() {},
+			removeEventListener() {},
+			checkersSettings: {
+				open: () => {
+					dialog.open = true;
+				},
+			},
+		});
 	});
-
-	it('jumps hamburger to X or idle when reduced-motion is set', () => {
-		const previous = globalThis.matchMedia;
-		(
-			globalThis as { matchMedia?: (query: string) => { matches: boolean } }
-		).matchMedia = () => ({ matches: true });
-		try {
-			const scene = stubHudScene();
-			createHud(scene);
-			const menuHit = scene.rects[0];
-			const menuIcon = scene.images.find((img) => img.key === 'hudMenu');
-			expect(menuIcon).toBeDefined();
-			if (!menuIcon) {
-				return;
-			}
-			menuHit.emit('pointerdown', { id: 1 });
-			expect(menuIcon.key).toBe('hudMenuOpen');
-			expect(menuIcon.scaleY).toBe(1);
-			menuHit.emit('pointerdown', { id: 2 });
-			expect(menuIcon.key).toBe('hudMenu');
-		} finally {
-			if (previous) {
-				globalThis.matchMedia = previous;
-			} else {
-				Reflect.deleteProperty(globalThis, 'matchMedia');
-			}
-		}
-	});
-
-	it('hides the hamburger on title', () => {
+	afterEach(() => vi.unstubAllGlobals());
+	it('creates no in-match menu, settings, AI or resign entry', () => {
 		const scene = stubHudScene();
+		const createElement = vi.fn();
+		vi.stubGlobal('document', { createElement });
 		const hud = createHud(scene);
-		const menuIcon = scene.images.find((img) => img.key === 'hudMenu');
-		expect(menuIcon).toBeDefined();
-		if (!menuIcon) {
-			return;
-		}
-		hud.setVisible(false);
-		expect(menuIcon.visible).toBe(false);
+		hud.layout(390, 844);
 		hud.setVisible(true);
-		expect(menuIcon.visible).toBe(true);
-	});
-
-	it('places 44px AI under the menu on the right without a resign stone', () => {
-		const scene = stubHudScene();
-		const hud = createHud(scene);
-		hud.layout(390, 694);
-		const moat = scene.tileSprites.find((img) => img.key === 'hudActionMoat');
-		const resign = scene.images.find((img) => img.key === 'hudResign');
-		const ai = scene.images.find((img) => img.key === 'hudAi');
-		const menuX = 390 - 24 - layout.hudMenu / 2;
-		const menuY = layout.hudBar / 2;
-		expect(moat).toBeUndefined();
-		expect(resign).toBeUndefined();
-		expect(layout.hudAiW).toBe(44);
-		expect(ai?.x).toBe(menuX);
-		expect(ai?.y).toBe(
-			menuY + layout.hudMenu / 2 + layout.hudActionGap + layout.hudAiH / 2,
-		);
-		expect(ai?.scaleY).toBe(1);
-	});
-
-	it('keeps AI display at 44 after click juice', () => {
-		const scene = stubHudScene();
-		createHud(scene);
-		const ai = scene.images.find((img) => img.key === 'hudAi');
-		expect(ai?.displayW).toBe(44);
-		ai?.emit('pointerdown');
-		ai?.emit('pointerup');
-		expect(ai?.displayW).toBe(44);
-		expect(ai?.displayH).toBe(44);
+		expect(scene.images.some(img => /hud(Menu|Ai|Resign)/.test(img.key ?? ''))).toBe(false);
+		expect(scene.rects).toHaveLength(0);
+		expect(createElement).not.toHaveBeenCalled();
+		expect(hud.isMenuOpen()).toBe(false);
 	});
 
 	it('places portrait clocks inset with 112 shell', () => {
@@ -435,7 +345,9 @@ describe('createHud', () => {
 		const scene = stubHudScene();
 		const hud = createHud(scene);
 		hud.setClock(60, 45, 'white');
-		const you = scene.images.filter((img) => img.key?.startsWith('hudClockE')).at(-1);
+		const you = scene.images
+			.filter((img) => img.key?.startsWith('hudClockE'))
+			.at(-1);
 		const foe = scene.images.find((img) => img.key === hudClockEHotKey);
 		expect(you?.key).toBe(hudClockEOk2Key);
 		expect(foe?.key).toBe(hudClockEHotKey);
@@ -466,6 +378,7 @@ describe('createHud', () => {
 				document: { fonts: { load: (q: string) => Promise<unknown> } };
 			}
 		).document = {
+			...(previous as object),
 			fonts: {
 				load: () =>
 					new Promise((resolve) => {

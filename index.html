@@ -17,8 +17,16 @@
 #opening{position:fixed;inset:0;z-index:100;color:#e9e0ce;font:400 16px/1.45 'Golos Text',Arial,sans-serif;overflow:auto;background:#161a1b}
 #opening::before{content:'';position:fixed;inset:0;background:linear-gradient(#15191a70,#15191a70),url('/src/client/modules/board/reliquary/slate_tile.png') center/cover;filter:brightness(.65);pointer-events:none}
 .opening-sheet{position:relative;max-width:390px;min-height:844px;margin:auto;padding:34px 28px 18px;isolation:isolate}
-#opening-play:disabled:not([hidden]){animation:opening-loading 1.8s ease-in-out infinite}
-@keyframes opening-loading{50%{filter:brightness(.9)}}
+#opening-play{height:56px;display:grid;place-items:center}
+#opening-play:disabled{background:linear-gradient(#272b2b,#171a1b);border-color:#776c56;box-shadow:inset 0 1px #474940,inset 0 -2px #0e1112,0 3px #0006}
+.opening-activity{display:flex;gap:6px;align-items:center;height:24px}
+.opening-activity i{display:block;width:18px;height:8px;background:#9b8865;border:1px solid #bdab86;box-shadow:inset 0 1px #d1bf9a55;animation:opening-segment 1.6s ease-in-out infinite;animation-delay:calc(var(--segment) * .16s)}
+@keyframes opening-segment{0%,70%,100%{opacity:.45}35%{opacity:1}}
+.opening-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.opening-utilities{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;width:100%}
+.opening-utility{display:inline-flex;align-items:center;justify-content:center;min-width:48px;min-height:48px;padding:8px 12px;border:1px solid #62635b;background:linear-gradient(#242828,#171a1b);box-shadow:inset 0 1px #484c49,inset 0 -2px #0e1112,0 3px #0006;color:#d0c9bb;font-size:16px}
+.opening-utility:hover{color:#eadbbc;border-color:#776c56;background:#242828}
+.opening-utility svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 h1{font:600 42px/1.16 Georgia,serif;letter-spacing:-.035em;text-align:center;margin:36px -12px 0;height:116px}h1 span{display:block;font-size:57px}
 #opening-title{opacity:1;transition:opacity .24s ease-out}
 html[data-title-font=pending] #opening-title{opacity:0}
@@ -26,9 +34,29 @@ html[data-title-font=ready] #opening-title{font-family:Literata,Georgia,serif}
 .opening-slogan{position:relative;margin:15px -10px 0;text-align:center;font-size:14px;color:#ddd4c3;line-height:1.6;background:#191d1ec9}
 .opening-art{position:relative;height:314px;margin:0 -28px;pointer-events:none;opacity:0;transition:opacity .45s ease-out}.opening-art.is-prepared{opacity:1}
 .opening-art img{position:absolute;object-fit:contain;opacity:0;filter:drop-shadow(0 12px 10px #0009)}.opening-art img.is-decoded{opacity:1}.opening-iron{width:217px;height:217px;left:153px;top:31px}.opening-bone{width:229px;height:229px;left:9px;top:90px}
-.opening-actions{display:grid;gap:12px;margin-top:8px} .opening-button{min-height:52px;width:100%;border:1px solid #62635b;color:#e9e0ce;background:linear-gradient(#242828,#171a1b);box-shadow:inset 0 1px #484c49,inset 0 -2px #0e1112,0 3px #0006;padding:10px 16px;line-height:1.4}.opening-primary{min-height:56px;font-size:19px;font-weight:600;color:#151719;border-color:#c5b28e;background:linear-gradient(#bca881,#998563);box-shadow:inset 0 1px #d1bf9a,inset 0 -2px #6f6049,0 3px #0006}.opening-primary:disabled{color:#35332d;background:linear-gradient(#b1a185,#a08f72)}.opening-button:active:not(:disabled){transform:translateY(1px)}.opening-settings{min-height:48px;border:0;background:transparent;color:#c6c2b8;font-size:14px}.opening-status{font-size:12px;line-height:1.5;text-align:center;color:#d0c9bb;min-height:36px;margin:12px 0 0;background:#191d1ec9}.opening-retry{margin-top:8px}
+.opening-actions{display:grid;gap:12px;margin-top:8px} .opening-button{min-height:52px;width:100%;border:1px solid #62635b;color:#e9e0ce;background:linear-gradient(#242828,#171a1b);box-shadow:inset 0 1px #484c49,inset 0 -2px #0e1112,0 3px #0006;padding:10px 16px;line-height:1.4}.opening-primary{min-height:56px;font-size:19px;font-weight:600;color:#151719;border-color:#c5b28e;background:linear-gradient(#bca881,#998563);box-shadow:inset 0 1px #d1bf9a,inset 0 -2px #6f6049,0 3px #0006}.opening-button:active:not(:disabled){transform:translateY(1px)}.opening-status{font-size:12px;line-height:1.5;text-align:center;color:#d0c9bb;min-height:50px;margin:12px 0 0;background:#191d1ec9}.opening-retry{margin-top:8px}
 dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dvh - 40px);overflow:auto;border:1px solid #8e8065;background:#1b2021;color:#e9e0ce;padding:24px;font:400 16px/1.55 'Golos Text',Arial,sans-serif;box-shadow:0 20px 80px #000a}dialog::backdrop{background:#050707d9}dialog h2{font:600 28px/1.2 Literata,Georgia,serif;margin:0 0 20px}dialog li{margin-bottom:12px}dialog ul{padding-left:22px}dialog label{display:flex;gap:12px;align-items:center;min-height:48px}dialog input[type=range]{width:100%;min-height:48px;accent-color:#c5b28e}dialog input[type=checkbox]{width:24px;height:24px;accent-color:#c5b28e}dialog .opening-button{margin-top:20px}
 
+#opening-settings-dialog{width:420px;padding:22px 24px}
+#opening-settings-dialog h2{margin-bottom:18px}
+.settings-section + .settings-section{border-top:1px solid #8e806540;margin-top:12px;padding-top:14px}
+.settings-section h3{margin:0 0 8px;color:#e0cba5;font-size:17px;font-weight:600}
+.settings-volume{display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:12px}
+.settings-volume label{min-height:26px}.settings-volume output{font-size:14px;color:#d0c9bb;font-variant-numeric:tabular-nums}
+.settings-volume input{grid-column:1/-1;margin:0;touch-action:pan-y}
+.settings-check{cursor:pointer}.settings-check input{flex-shrink:0;margin:0}
+#settings-auto-description{margin:0 0 4px;font-size:14px;color:#d0c9bb;line-height:1.5}
+#opening-settings-dialog .opening-button{margin-top:18px}
+
+#opening-help-dialog{width:620px;max-width:calc(100vw - 16px);padding:20px 16px;scroll-padding:20px;max-height:calc(100dvh - 16px)}
+#opening-help-dialog h2{margin:0 0 8px}
+.rules-row{display:grid;grid-template-columns:112px minmax(0,1fr);gap:14px;align-items:center;padding:18px 0;border-bottom:1px solid #8e806540}
+.rules-row figure{width:112px;margin:0;background:#262a2b;overflow:hidden;border:1px solid #62635b}
+.rules-row figure img{display:block;width:100%;height:auto}
+.rules-row h3{margin:0 0 6px;color:#e0cba5;font:600 17px/1.35 'Golos Text',Arial,sans-serif}
+#opening-help-dialog .rules-row p{margin:0;font-size:16px;line-height:1.5}
+.rules-footer{margin-top:18px}
+@media(max-width:359px){#opening-help-dialog{padding:16px 12px}.rules-row{grid-template-columns:100px minmax(0,1fr);gap:12px}.rules-row figure{width:100px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 @media(min-width:700px) and (min-aspect-ratio:1/1){.opening-sheet{max-width:960px;min-height:720px;padding:38px 48px}h1{width:390px;margin:0 0 0 auto}.opening-slogan{width:390px;margin:20px 0 0 auto}.opening-art{position:absolute;left:20px;top:175px;width:calc(420px * 1.12);height:calc(314px * 1.12);margin:0}.opening-iron{width:calc(217px * 1.12);height:calc(217px * 1.12);left:calc(153px * 1.12);top:calc(31px * 1.12)}.opening-bone{width:calc(229px * 1.12);height:calc(229px * 1.12);left:calc(9px * 1.12);top:calc(90px * 1.12)}.opening-actions{width:334px;margin:58px 28px 0 auto}.opening-status{width:334px;margin:12px 28px 0 auto}.opening-retry{display:block;width:334px;margin:8px 28px 0 auto}}
 /* Mobile feedback stays centred in its reserved row; decode only fades art. */
@@ -46,20 +74,53 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   <p class="opening-slogan">Великие планы. Неизбежные жертвы.</p>
   <div class="opening-art" aria-hidden="true"><img class="opening-iron" src="/src/client/app/ui/opening/black_disk.webp" width="217" height="217" alt="" decoding="async" /><img class="opening-bone" src="/src/client/app/ui/opening/ivory_disk.webp" width="229" height="229" alt="" decoding="async" /></div>
   <nav class="opening-actions" aria-label="Главное меню">
-   <button id="opening-play" class="opening-button opening-primary" disabled>Загрузка…</button>
+   <button id="opening-play" class="opening-button opening-primary" aria-label="Загрузка игры" aria-busy="true" disabled><span class="opening-activity" aria-hidden="true"><i style="--segment:0"></i><i style="--segment:1"></i><i style="--segment:2"></i><i style="--segment:3"></i><i style="--segment:4"></i></span></button>
    <button id="opening-retry" class="opening-button opening-primary" hidden>Повторить загрузку</button>
-   <button id="opening-help" class="opening-button">Как играть</button>
-   <button id="opening-settings" class="opening-settings">Настройки</button>
+   <div class="opening-utilities">
+    <button id="opening-help" class="opening-utility" aria-haspopup="dialog" aria-controls="opening-help-dialog">Правила</button>
+    <button id="opening-settings" class="opening-utility" aria-label="Настройки" title="Настройки" aria-haspopup="dialog" aria-controls="opening-settings-dialog">Настройки</button>
+   </div>
   </nav>
-  <p id="opening-status" class="opening-status" role="status" aria-live="polite" aria-atomic="true">Подготавливаем игру…</p>
+  <p id="opening-loading-status" class="opening-sr-only" role="status" aria-live="polite" aria-atomic="true">Загрузка игры</p>
+  <p id="opening-status" class="opening-status" aria-live="off" aria-atomic="true">Подготавливаем игру…</p>
   <noscript><p>Для игры нужен JavaScript. Включите его в настройках браузера и обновите страницу.</p></noscript>
  </div>
 </main>
-<dialog id="opening-help-dialog" aria-labelledby="opening-help-title"><h2 id="opening-help-title">Как играть</h2><ul><li>Вы играете белыми против компьютера. Первый ход — ваш.</li><li>Обычная шашка ходит по диагонали вперёд на одну свободную клетку. Бить можно и назад.</li><li>Если есть взятие, бить обязательно. Продолжайте цепочку, пока возможны взятия. Выберите шашку, затем отмеченную конечную клетку.</li><li>На последней горизонтали шашка становится дамкой. Дамка ходит и бьёт по всей свободной диагонали.</li><li>Победа — у соперника нет шашек или доступных ходов. На партию каждому отведена 1 минута.</li><li>Клавиатура: стрелки — выбор клетки, Enter или пробел — выбрать/сходить, Escape — отменить выбор.</li></ul><form method="dialog"><button class="opening-button" autofocus>Понятно</button></form></dialog>
-<dialog id="opening-settings-dialog" aria-labelledby="opening-settings-title"><h2 id="opening-settings-title">Настройки</h2><label for="opening-volume">Громкость</label><input id="opening-volume" type="range" min="0" max="100" step="5" value="40" /><label><input id="opening-muted" type="checkbox" />Выключить звук</label><p>Эти настройки действуют и во время партии. Движение учитывает системную настройку уменьшения анимации.</p><form method="dialog"><button class="opening-button" autofocus>Готово</button></form></dialog>
+<dialog id="opening-help-dialog" aria-labelledby="opening-help-title">
+<h2 id="opening-help-title" tabindex="-1" autofocus>Как играть</h2>
+<section class="rules-row" aria-labelledby="rules-goal"><figure data-rules-figure="goal" style="aspect-ratio:3/3"><template><img src="/src/client/app/ui/rules/goal.webp" width="528" height="528" alt="Чёрная шашка заперта у края двумя белыми: ходов нет, белые победили." decoding="async" /></template></figure><div><h3 id="rules-goal">Цель игры</h3><p>Заберите все шашки соперника или лишите его ходов. Первыми ходят белые, затем по очереди.</p></div></section>
+<section class="rules-row" aria-labelledby="rules-move"><figure data-rules-figure="move" style="aspect-ratio:3/3"><template><img src="/src/client/app/ui/rules/move.webp" width="528" height="528" alt="Белая шашка внизу, обе свободные диагональные клетки впереди отмечены для хода." decoding="async" /></template></figure><div><h3 id="rules-move">Обычный ход</h3><p>Выберите свою шашку, затем отмеченное поле. Простая шашка ходит вперёд по диагонали на соседнее свободное поле.</p></div></section>
+<section class="rules-row" aria-labelledby="rules-capture"><figure data-rules-figure="capture" style="aspect-ratio:3/3"><template><img src="/src/client/app/ui/rules/capture.webp" width="528" height="528" alt="Белая шашка берёт назад: через соседнюю чёрную на отмеченную клетку у нижнего края." decoding="async" /></template></figure><div><h3 id="rules-capture">Взятие обязательно</h3><p>Если можно побить шашку соперника, нужно бить. Простая шашка перепрыгивает её на свободное поле сразу за ней. Бить можно вперёд и назад.</p></div></section>
+<section class="rules-row" aria-labelledby="rules-chain"><figure data-rules-figure="chain" style="aspect-ratio:3/5"><template><img src="/src/client/app/ui/rules/chain.webp" width="528" height="880" alt="Белая шашка снизу берёт две чёрные зигзагом и заканчивает на отмеченной верхней клетке." decoding="async" /></template></figure><div><h3 id="rules-chain">Несколько взятий</h3><p>Продолжайте бить той же шашкой, пока есть возможность. Выберите любой полный путь, не обязательно самый длинный, и нажмите конечное поле. Побитые шашки снимаются в конце хода. Бить одну шашку дважды нельзя.</p></div></section>
+<section class="rules-row" aria-labelledby="rules-king"><figure data-rules-figure="king" style="aspect-ratio:4/4"><template><img src="/src/client/app/ui/rules/king.webp" width="704" height="704" alt="Дамка берёт чёрную шашку на расстоянии и приземляется за ней у верхнего края." decoding="async" /></template></figure><div><h3 id="rules-king">Дамка</h3><p>На последнем ряду простая шашка становится дамкой. Дамка ходит вперёд и назад по свободной диагонали на любое расстояние. При взятии встаёт на любое свободное поле за шашкой соперника. Если превращение произошло при взятии, продолжайте бить как дамка, пока есть возможность.</p></div></section>
+<form method="dialog" class="rules-footer"><button class="opening-button">Понятно</button></form>
+</dialog>
+<dialog id="opening-settings-dialog" aria-labelledby="opening-settings-title">
+<h2 id="opening-settings-title" tabindex="-1" autofocus>Настройки</h2>
+<section class="settings-section" aria-labelledby="settings-sound"><h3 id="settings-sound">Звук</h3>
+<div class="settings-volume"><label for="opening-volume">Общая громкость</label><output id="opening-volume-value" for="opening-volume">40%</output><input id="opening-volume" type="range" min="0" max="100" step="1" value="40" /></div>
+<div class="settings-volume"><label for="settings-effects">Звуки игры</label><output id="settings-effects-value" for="settings-effects">100%</output><input id="settings-effects" type="range" min="0" max="100" step="1" value="100" /></div>
+<div class="settings-volume"><label for="settings-music">Музыка</label><output id="settings-music-value" for="settings-music">100%</output><input id="settings-music" type="range" min="0" max="100" step="1" value="100" /></div>
+<label class="settings-check"><input id="opening-muted" type="checkbox" />Выключить звук</label>
+</section>
+<section class="settings-section" aria-labelledby="settings-game"><h3 id="settings-game">Игра</h3>
+<label class="settings-check"><input id="settings-auto" type="checkbox" checked aria-describedby="settings-auto-description" />Автоход</label>
+<p id="settings-auto-description">Выполнять ход автоматически, если доступен только один вариант.</p>
+</section>
+<form method="dialog"><button class="opening-button opening-primary">Готово</button></form>
+</dialog>
 <script>
 (() => {
  const byId = id => document.getElementById(id);
+ // Pick once per document, never rotate or delay actual readiness.
+ const loadingPhrases = [
+  'Пленных не будет...',
+  'Жертвы неизбежны...',
+  'Пощады не предусмотрено...',
+  'Ваш план переживут не все...',
+  'Слабый ход стоит головы...',
+ ];
+ byId('opening-status').textContent = loadingPhrases[Math.floor(Math.random() * loadingPhrases.length)];
  // Commit the title once: a late font must never replace a visible fallback.
  // Opacity leaves the live heading and its accessible name in the tree.
  const titleDeadline = setTimeout(() => finishTitle(false), 1800);
@@ -93,13 +154,58 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   images.forEach(image => image?.classList.add('is-decoded'));
   art.classList.add('is-prepared');
  });
- for (const name of ['help', 'settings']) byId('opening-' + name).onclick = () => byId('opening-' + name + '-dialog').showModal();
+ for (const name of ['help', 'settings']) byId('opening-' + name).onclick = () => {
+  const dialog = byId('opening-' + name + '-dialog');
+  dialog.querySelectorAll('template').forEach(template => template.replaceWith(template.content.cloneNode(true)));
+  dialog.showModal();
+ };
  byId('opening-retry').onclick = () => location.reload();
- const volume = byId('opening-volume'), muted = byId('opening-muted');
- try { const raw = localStorage.getItem('checkers.sfxMaster'); const n = raw === null ? .4 : Number(raw); volume.value = String((Number.isFinite(n) ? Math.max(0, Math.min(1,n)) : .4) * 100); muted.checked = localStorage.getItem('checkers.sfxMuted') === '1'; } catch {}
- volume.oninput = () => { muted.checked = Number(volume.value) === 0; try { if(Number(volume.value)>0)localStorage.setItem('checkers.sfxMaster', String(Number(volume.value)/100)); localStorage.setItem('checkers.sfxMuted',muted.checked?'1':'0'); } catch {} };
- muted.onchange = () => { try { localStorage.setItem('checkers.sfxMuted',muted.checked?'1':'0'); } catch {} };
- window.checkersStartup = { fail(message) { byId('opening-status').textContent = message; byId('opening-retry').hidden = false; byId('opening-play').disabled = true; byId('opening-play').hidden = true; }, status(message) { byId('opening-status').textContent = message; } };
+ // This state is usable before any module, including when storage is denied.
+ const keys = {master:'checkers.sfxMaster', muted:'checkers.sfxMuted', effects:'checkers.effectsVolume', music:'checkers.musicVolume', autoMove:'checkers.autoMove'};
+ const read = key => { try { return localStorage.getItem(keys[key]); } catch { return null; } };
+ const numeric = (raw, fallback) => raw === null || raw === '' || !Number.isFinite(Number(raw)) ? fallback : Math.max(0, Math.min(1, Number(raw)));
+ const state = {master:numeric(read('master'), .4), effects:numeric(read('effects'), 1), music:numeric(read('music'), 1), muted:['1','true'].includes(read('muted')), autoMove:!['0','false'].includes(read('autoMove'))};
+ if (state.master === 0) { state.master = .4; state.muted = true; }
+ const controls = {master:byId('opening-volume'), effects:byId('settings-effects'), music:byId('settings-music')};
+ const sync = () => {
+  for (const [key, input] of Object.entries(controls)) {
+   input.value = String(Math.round(state[key] * 100));
+   byId(input.id + '-value').textContent = input.value + '%';
+   input.setAttribute('aria-valuetext', input.value + '%');
+  }
+  byId('opening-muted').checked = state.muted;
+  byId('settings-auto').checked = state.autoMove;
+ };
+ window.checkersSettings = {
+  get: () => ({...state}),
+  set: patch => {
+   for (const key of Object.keys(keys)) if (key in patch) {
+    state[key] = typeof state[key] === 'boolean' ? Boolean(patch[key]) : numeric(String(patch[key]), state[key]);
+   }
+   sync();
+   try { for (const [key, storageKey] of Object.entries(keys)) localStorage.setItem(storageKey, typeof state[key] === 'boolean' ? (state[key] ? '1' : '0') : String(state[key])); } catch {}
+   window.dispatchEvent(new CustomEvent('checkers-settings-change', {detail:patch}));
+  },
+  open: () => { sync(); const dialog = byId('opening-settings-dialog'); if (!dialog.open) dialog.showModal(); }
+ };
+ for (const [key, input] of Object.entries(controls)) input.oninput = () => {
+  const value = Number(input.value) / 100;
+  // Zero master mutes, but never destroys the preferred volume.
+  window.checkersSettings.set(key === 'master' ? (value === 0 ? {muted:true} : {master:value, muted:state.muted}) : {[key]:value});
+ };
+ byId('opening-muted').onchange = event => window.checkersSettings.set({muted:event.target.checked});
+ byId('settings-auto').onchange = event => window.checkersSettings.set({autoMove:event.target.checked});
+ byId('opening-settings').onclick = () => window.checkersSettings.open();
+ const settingsDialog = byId('opening-settings-dialog');
+ settingsDialog.addEventListener('keydown', event => {
+  if (event.key !== 'Tab') return;
+  const controls = [...settingsDialog.querySelectorAll('input, button')].filter(control => !control.disabled);
+  const first = controls[0], last = controls[controls.length - 1];
+  if (event.shiftKey && (document.activeElement === first || !controls.includes(document.activeElement))) { event.preventDefault(); last.focus(); }
+  else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+ });
+ sync();
+ window.checkersStartup = { fail(message) { byId('opening-loading-status').textContent = message; byId('opening-play').setAttribute('aria-busy', 'false'); byId('opening-status').textContent = message; byId('opening-retry').hidden = false; byId('opening-play').disabled = true; byId('opening-play').hidden = true; }, status(message) { byId('opening-loading-status').textContent = message; if (!byId('opening-play').disabled) byId('opening-status').textContent = message; } };
  window.checkersStartup.watchdog = setTimeout(() => window.checkersStartup.fail('Загрузка затянулась. Проверьте соединение и повторите попытку.'), 30000);
 })();
 </script>

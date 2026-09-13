@@ -1,5 +1,4 @@
 import type Phaser from 'phaser';
-import { getSfxMaster, getSfxMuted, setSfxMaster, setSfxMuted } from '@/client/modules/sfx/createTableSfx';
 
 declare global {
  interface Window {
@@ -12,24 +11,17 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: { onPlayBot:
  const root = document.getElementById('opening')!;
  const play = document.getElementById('opening-play') as HTMLButtonElement;
  const retry = document.getElementById('opening-retry')!;
- const volume = document.getElementById('opening-volume') as HTMLInputElement;
- const muted = document.getElementById('opening-muted') as HTMLInputElement;
- const settings = document.getElementById('opening-settings')!;
- const syncSound = () => { volume.value = String(Math.round(getSfxMaster() * 100)); muted.checked = getSfxMuted(); };
- volume.oninput = () => { setSfxMaster(Number(volume.value) / 100); syncSound(); };
- muted.onchange = () => { setSfxMuted(muted.checked); syncSound(); };
- settings.addEventListener('click', syncSound);
  play.onclick = () => { if (!play.disabled && !root.hidden) handlers.onPlayBot(); };
  clearTimeout(window.checkersStartup.watchdog);
  play.disabled = false;
  play.textContent = 'Играть';
+ play.removeAttribute('aria-label');
+ play.setAttribute('aria-busy', 'false');
  play.hidden = false;
  retry.hidden = true;
- window.checkersStartup.status('Всё готово. Ваш ход — первый.');
- syncSound();
+ window.checkersStartup.status('Всё готово. Первый ход ваш.');
  scene.events.once('shutdown', () => {
-  play.onclick = null; volume.oninput = null; muted.onchange = null;
-  settings.removeEventListener('click', syncSound);
+  play.onclick = null;
  });
  let firstShow = true;
  return {

@@ -90,6 +90,26 @@ type VolumeSound = { volume: number };
 let boundScene: Phaser.Scene | undefined;
 let sfxLinear = sfxMaster;
 let sfxMutedFlag = false;
+let effectsLinear = 1;
+let musicLinear = 1;
+
+export function setEffectsVolume(value: number): void {
+	effectsLinear = clampSfxMaster(value);
+	try {
+		readStorage()?.setItem('checkers.effectsVolume', String(effectsLinear));
+	} catch {}
+	applyAmp();
+	applyMusicVol();
+}
+export function setMusicVolume(value: number): void {
+	musicLinear = clampSfxMaster(value);
+	try {
+		readStorage()?.setItem('checkers.musicVolume', String(musicLinear));
+	} catch {}
+	unlockMusic();
+	applyMusicVol();
+}
+
 let musicUnlocked = false;
 let applyMusicVol: () => void = () => undefined;
 
@@ -101,8 +121,16 @@ function readStorage(): Storage | undefined {
 	}
 }
 
+function parseChannel(raw: string | null | undefined): number {
+	return raw == null || raw === '' || !Number.isFinite(Number(raw))
+		? 1
+		: clampSfxMaster(Number(raw));
+}
+
 function loadPrefs(): void {
 	const store = readStorage();
+	effectsLinear = parseChannel(store?.getItem('checkers.effectsVolume'));
+	musicLinear = parseChannel(store?.getItem('checkers.musicVolume'));
 	if (!store) {
 		sfxLinear = sfxMaster;
 		sfxMutedFlag = false;
@@ -133,10 +161,8 @@ function applyAmp(): void {
 	if (!boundScene) {
 		return;
 	}
-	(boundScene.sound as VolumeSound).volume = outputVolume(
-		sfxLinear,
-		sfxMutedFlag,
-	);
+	(boundScene.sound as VolumeSound).volume =
+		outputVolume(sfxLinear, sfxMutedFlag) * sfxMasterAmp(effectsLinear);
 }
 
 function unlockMusic(): void {
@@ -321,10 +347,16 @@ export function createTableSfx(
 	}
 
 	function applyMusic(): void {
+		const amp = sfxMasterAmp(getSfxMaster()) * sfxMasterAmp(musicLinear);
+		// The first-capture voice is a game effect, not background music.
+		if (firstCapture)
+			firstCapture.volume =
+				sfxMasterAmp(getSfxMaster()) *
+				sfxMasterAmp(effectsLinear) *
+				musicGain.firstCapture;
 		if (!meadow) {
 			return;
 		}
-		const amp = sfxMasterAmp(getSfxMaster());
 		if (!meadowWanted || paused || amp <= 0) {
 			meadow.volume = 0;
 			meadow.pause();
@@ -338,6 +370,35 @@ export function createTableSfx(
 	}
 
 	applyMusicVol = applyMusic;
+	const syncSettings = () => {
+		const prefs =
+			typeof window !== 'undefined'
+				? window.checkersSettings?.get()
+				: undefined;
+		if (!prefs) return;
+		sfxLinear = prefs.master;
+		sfxMutedFlag = prefs.muted;
+		effectsLinear = prefs.effects;
+		musicLinear = prefs.music;
+		applyAmp();
+		unlockMusic();
+		applyMusic();
+	};
+	if (typeof window !== 'undefined') {
+		// HTML preferences also survive denied storage until the bundle arrives.
+		const prefs = window.checkersSettings?.get();
+		if (prefs) {
+			sfxLinear = prefs.master;
+			sfxMutedFlag = prefs.muted;
+			effectsLinear = prefs.effects;
+			musicLinear = prefs.music;
+			applyAmp();
+		}
+		window.addEventListener('checkers-settings-change', syncSettings);
+		scene.events.once('shutdown', () =>
+			window.removeEventListener('checkers-settings-change', syncSettings),
+		);
+	}
 	applyMusic();
 
 	const input = scene.input as
@@ -362,7 +423,9 @@ export function createTableSfx(
 		try {
 			firstCapture.currentTime = 0;
 			firstCapture.volume =
-				sfxMasterAmp(getSfxMaster()) * musicGain.firstCapture;
+				sfxMasterAmp(getSfxMaster()) *
+				sfxMasterAmp(effectsLinear) *
+				musicGain.firstCapture;
 			void firstCapture.play().catch(() => undefined);
 		} catch {
 			return;

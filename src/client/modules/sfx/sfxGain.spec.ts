@@ -101,6 +101,42 @@ describe('sfxGain', () => {
 		setSfxMuted(false);
 	});
 
+	it('applies independent effects and music gain including an already playing capture track', async () => {
+		const { setEffectsVolume, setMusicVolume } = await import(
+			'./createTableSfx'
+		);
+		const fake = installFakeAudio();
+		try {
+			const scene = stubScene();
+			const table = createTableSfx(scene, {
+				meadow: 'meadow.ogg',
+				firstCapture: 'capture.ogg',
+			});
+			table.startMeadow();
+			scene.emitPointer();
+			table.takeoff(true);
+			const amp = sfxMasterAmp(sfxMaster);
+			setEffectsVolume(0);
+			expect(scene.sound.volume).toBe(0);
+			expect(fake.made[0].volume).toBeCloseTo(amp * musicGain.meadow);
+			setMusicVolume(0);
+			expect(fake.made[0].volume).toBe(0);
+			expect(fake.made[1].volume).toBe(0);
+			setEffectsVolume(1);
+			expect(scene.sound.volume).toBeCloseTo(amp);
+			expect(fake.made[1].volume).toBeCloseTo(amp * musicGain.firstCapture);
+			setMusicVolume(0.5);
+			expect(fake.made[1].volume).toBeCloseTo(amp * musicGain.firstCapture);
+			expect(fake.made[0].volume).toBeCloseTo(
+				amp * sfxMasterAmp(0.5) * musicGain.meadow,
+			);
+		} finally {
+			setEffectsVolume(1);
+			setMusicVolume(1);
+			fake.restore();
+		}
+	});
+
 	it('uses per-clip volumes from the 8-bit pack', () => {
 		expect(sfxGain.select).toBe(0.28);
 		expect(sfxGain.hover).toBe(0.16);
