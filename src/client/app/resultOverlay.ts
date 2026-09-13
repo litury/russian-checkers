@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { logicalSize } from './displayDensity';
 import { hudFont, whenHudFontReady } from '@/client/fonts/fonts';
 import { palette } from '@/client/config/palette';
 import type { Side } from '@/rules';
@@ -440,7 +441,7 @@ export function createResultOverlay(
 			else { againHit.disableInteractive(); menuHit.disableInteractive(); }
 			title.setText(won ? 'Вы выиграли' : 'ВЫ ПРОИГРАЛИ');
 			glass.setTexture(won ? 'resultGlassWin' : 'resultGlassLose');
-			place(scene.scale.width, scene.scale.height);
+			place(logicalSize(scene).width, logicalSize(scene).height);
 			if (won) {
 				startCheer();
 			} else {

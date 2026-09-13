@@ -16,7 +16,8 @@ async function boot(): Promise<void> {
 		parent: 'game',
 		backgroundColor: palette.background,
 		scale: {
-			mode: Phaser.Scale.RESIZE,
+			// Public manual resize path: displayDensity owns CSS/backing density.
+			mode: Phaser.Scale.NONE,
 			parent: 'game',
 			width: window.innerWidth,
 			height: window.innerHeight,

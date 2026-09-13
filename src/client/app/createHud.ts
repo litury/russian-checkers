@@ -114,6 +114,7 @@ export function createHud(
 	scene: Phaser.Scene,
 	handlers: HudHandlers = {},
 ): {
+	isMenuOpen: () => boolean;
 	layout: (width: number, height: number) => void;
 	setTurn: (copy: string) => void;
 	setTimer: (elapsedSec: number) => void;
@@ -566,6 +567,7 @@ export function createHud(
 	}
 
 	return {
+		isMenuOpen: () => sfxPanel.isOpen(),
 		layout: (width, height) => {
 			const field = computeFieldLayout(width, height);
 			const menuY = layout.hudBar / 2;

@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { hudFont } from '@/client/fonts/fonts';
+import { logicalSize } from './displayDensity';
 
 const btnW = 224;
 const btnH = 48;
@@ -37,7 +38,9 @@ export const titleBgPortrait = 'titleBg916';
 export const titleBgLandscape = 'titleBg169';
 
 export function pickTitleBgKey(width: number, height: number): string {
-	return height / width >= titlePortraitMinRatio ? titleBgPortrait : titleBgLandscape;
+	return height / width >= titlePortraitMinRatio
+		? titleBgPortrait
+		: titleBgLandscape;
 }
 
 export function coverScale(
@@ -96,13 +99,19 @@ export function createTitleOverlay(
 	bg.setDepth(depth - 1);
 	bg.setVisible(false);
 	if (scene.textures.exists(titleBgPortrait)) {
-		scene.textures.get(titleBgPortrait).setFilter(Phaser.Textures.FilterMode.NEAREST);
+		scene.textures
+			.get(titleBgPortrait)
+			.setFilter(Phaser.Textures.FilterMode.NEAREST);
 	}
 	if (scene.textures.exists(titleBgLandscape)) {
-		scene.textures.get(titleBgLandscape).setFilter(Phaser.Textures.FilterMode.NEAREST);
+		scene.textures
+			.get(titleBgLandscape)
+			.setFilter(Phaser.Textures.FilterMode.NEAREST);
 	}
 	if (scene.textures.exists(titleWordmarkKey)) {
-		scene.textures.get(titleWordmarkKey).setFilter(Phaser.Textures.FilterMode.NEAREST);
+		scene.textures
+			.get(titleWordmarkKey)
+			.setFilter(Phaser.Textures.FilterMode.NEAREST);
 	}
 
 	const catcher = scene.add.rectangle(0, 0, 16, 16, 0x000000, 0);
@@ -115,7 +124,9 @@ export function createTitleOverlay(
 
 	const title = scene.add.image(0, 0, titleWordmarkKey).setOrigin(0.5);
 	if (scene.textures.exists(titleWordmarkKey)) {
-		scene.textures.get(titleWordmarkKey).setFilter(Phaser.Textures.FilterMode.NEAREST);
+		scene.textures
+			.get(titleWordmarkKey)
+			.setFilter(Phaser.Textures.FilterMode.NEAREST);
 	}
 
 	const botBtn = scene.add.graphics();
@@ -232,7 +243,7 @@ export function createTitleOverlay(
 		},
 		show: () => {
 			shown = true;
-			place(scene.scale.width, scene.scale.height);
+			place(logicalSize(scene).width, logicalSize(scene).height);
 			bg.setVisible(true);
 			catcher.setVisible(true);
 			catcher.setInteractive();

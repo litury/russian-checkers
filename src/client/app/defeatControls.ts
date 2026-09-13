@@ -1,10 +1,12 @@
 import type Phaser from 'phaser';
+import { logicalSize } from './displayDensity';
 import { defeatTerminalLayout } from './defeatTerminalLayout';
 import { createDefeatPress } from './defeatPress';
 
 /** Native modal semantics; explicit release/cancel and keyboard-only focus. */
 export function createDefeatControls(scene: Phaser.Scene, actions: [() => void, () => void], pressed: (index: number, down: boolean) => void) {
  let modal: HTMLDivElement | undefined;
+
  let buttons: HTMLButtonElement[] = [];
  let previous: HTMLElement | null = null;
  let keyboard = false;
@@ -18,6 +20,7 @@ export function createDefeatControls(scene: Phaser.Scene, actions: [() => void, 
  const cancel = () => { pointer=null; press.cancel(); };
  const onVisibility = () => { if(document.hidden) cancel(); };
  const hide = () => {
+
   cancel();
   if(typeof window !== 'undefined') { window.removeEventListener('blur',cancel); document.removeEventListener('visibilitychange',onVisibility); }
   modal?.remove(); modal=undefined; buttons=[];
@@ -28,8 +31,8 @@ export function createDefeatControls(scene: Phaser.Scene, actions: [() => void, 
  const layout = () => {
   if(!modal) return;
   const bounds=scene.game.canvas.getBoundingClientRect();
-  const l=defeatTerminalLayout(scene.scale.width,scene.scale.height);
-  const sx=bounds.width/scene.scale.width, sy=bounds.height/scene.scale.height;
+  const l=defeatTerminalLayout(logicalSize(scene).width,logicalSize(scene).height);
+  const sx=bounds.width/logicalSize(scene).width, sy=bounds.height/logicalSize(scene).height;
   buttons.forEach((button,i) => {
    const b=l.buttons[i];
    Object.assign(button.style,{left:`${bounds.left+b.x*sx}px`,top:`${bounds.top+b.y*sy}px`,width:`${b.width*sx}px`,height:`${b.height*sy}px`});
@@ -82,6 +85,7 @@ export function createDefeatControls(scene: Phaser.Scene, actions: [() => void, 
   });
   window.addEventListener('blur',cancel); document.addEventListener('visibilitychange',onVisibility);
   document.body.append(modal); layout(); buttons[0].focus();
+
  };
  scene.events?.once('shutdown',hide);
  return {show,hide,layout};

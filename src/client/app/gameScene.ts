@@ -15,6 +15,7 @@ import {
 import { palette } from '@/client/config/palette';
 import type { IBoardView } from '@/client/modules/board';
 import { createBoardView } from '@/client/modules/board';
+import { installDisplayDensity, logicalSize } from './displayDensity';
 import tongue0IdleUrl from '@/client/modules/board/fire_rocket/tongue_0_idle.png';
 import tongue0LandUrl from '@/client/modules/board/fire_rocket/tongue_0_land.png';
 import tongue0UpUrl from '@/client/modules/board/fire_rocket/tongue_0_up.png';
@@ -499,7 +500,12 @@ export class GameScene extends Phaser.Scene {
 			.setVisible(false);
 		this.board = createBoardView(this, (square) => {
 			this.onSquare(square);
-		});
+		}, () => {
+			if (this.phase !== 'human' || this.paused || this.moving || this.countingIn) return;
+			this.selected = null;
+			this.sfx.stopHover();
+			this.refresh();
+		}, () => this.hud.isMenuOpen());
 		this.board.setPlayfieldVisible(false);
 		this.title = createTitleOverlay(this, {
 			onPlayBot: () => {
@@ -520,9 +526,7 @@ export class GameScene extends Phaser.Scene {
 		this.sdk.onResume(() => {
 			this.setPaused(false);
 		});
-		this.scale.on('resize', (gameSize: { width: number; height: number }) => {
-			this.layout(gameSize.width, gameSize.height);
-		});
+		installDisplayDensity(this, (width, height) => this.layout(width, height));
 		this.time.addEvent({
 			delay: 100,
 			loop: true,
@@ -530,10 +534,10 @@ export class GameScene extends Phaser.Scene {
 				this.tickClock();
 			},
 		});
-		this.board.layout(this.scale.width, this.scale.height);
-		this.hud.layout(this.scale.width, this.scale.height);
-		this.overlay.layout(this.scale.width, this.scale.height);
-		this.title.layout(this.scale.width, this.scale.height);
+		this.board.layout(logicalSize(this).width, logicalSize(this).height);
+		this.hud.layout(logicalSize(this).width, logicalSize(this).height);
+		this.overlay.layout(logicalSize(this).width, logicalSize(this).height);
+		this.title.layout(logicalSize(this).width, logicalSize(this).height);
 		this.showTitle();
 		this.sdk.ready();
 	}
@@ -598,7 +602,7 @@ export class GameScene extends Phaser.Scene {
 	private beginCountdown(): void {
 		this.stopCountdown();
 		this.countingIn = true;
-		this.countText?.setPosition(this.scale.width / 2, this.scale.height / 2);
+		this.countText?.setPosition(logicalSize(this).width / 2, logicalSize(this).height / 2);
 		const step = (index: number): void => {
 			if (!this.countingIn) {
 				return;
