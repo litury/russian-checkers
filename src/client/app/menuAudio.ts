@@ -1,5 +1,6 @@
 import type {IYandexSdk} from './IYandexSdk';
 import {MenuAudioPolicy} from './menuAudioPolicy';
+import {menuClickLevel,menuBackSound} from './menuClickLevel';
 import {previewLoop,mechanismEnvelope} from './menuAudioPreview';
 const urls=import.meta.glob('./audio/menu/*',{eager:true,query:'?url',import:'default'}) as Record<string,string>;
 /** The old Phaser sound manager is disabled. This menu-only Web Audio owner uses
@@ -70,11 +71,11 @@ export function createMenuAudio(sdk:IYandexSdk) {
   else if(target.closest('#opening-help,#opening-settings')){
    // Wait only for this current gesture, bounded; never replay after hide/pause/mute.
    const serial=++clickSerial,run=epoch,at=performance.now();
-   if(ctx?.state==='running'&&buffers.has('ui_click')){unlocked=true;sound('ui_click');return;}
+   if(ctx?.state==='running'&&buffers.has('ui_click')){unlocked=true;sound('ui_click',menuClickLevel);return;}
    prepare();
    void Promise.all([ctx?.resume(),loading.get('ui_click')]).then(()=>{
     if(serial!==clickSerial||run!==epoch||performance.now()-at>350||policy.departing)return;
-    unlocked=ctx?.state==='running';sound('ui_click');
+    unlocked=ctx?.state==='running';sound('ui_click',menuClickLevel);
    }).catch(()=>{});
   }
  };
@@ -83,7 +84,7 @@ export function createMenuAudio(sdk:IYandexSdk) {
  document.addEventListener('visibilitychange',sync);
  window.addEventListener('checkers-settings-change',sync);
  sdk.onPause(()=>{policy.platform=true;sync();});sdk.onResume(()=>{policy.platform=false;sync();});
- for(const id of ['opening-help-dialog','opening-settings-dialog'])document.getElementById(id)!.addEventListener('close',()=>sound('ui_back'));
+ for(const id of ['opening-help-dialog','opening-settings-dialog'])document.getElementById(id)!.addEventListener('close',()=>sound(menuBackSound,menuClickLevel));
  prepare();sync();
  return {
   show(){epoch++;mechanisms.clear();policy.menu=true;policy.departing=false;musicEnded=false;stopEffects();sync();},
