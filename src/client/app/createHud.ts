@@ -3,6 +3,7 @@ import type { Side } from '@/rules';
 import { matchLayout, readSafeInsets } from '@/client/config/matchLayout';
 import { createBunkerPanel } from './bunkerPanel';
 import { PanelReveal, preparationMs } from './panelReveal';
+import { panelDurationMs } from './openingGates';
 
 export function clipPlayerName(raw: string): string {
 	const chars = Array.from(raw.trim());
@@ -57,7 +58,7 @@ export function createHud(
 		if (!visible || !reveal.active || document.hidden || handlers.isPaused?.())
 			return;
 		// Same time domain as match banks, not Phaser's FPS-smoothed animation delta.
-		reveal.advance(reduced ? preparationMs : delta);
+		reveal.advance(reduced ? preparationMs : delta * preparationMs / panelDurationMs);
 		paint();
 	};
 	const autoChanged = (event: Event) => {
@@ -98,6 +99,13 @@ export function createHud(
 		setNames(own: string, other: string) {
 			you.setName(clipPlayerName(own) || 'Ты');
 			foe.setName(clipPlayerName(other) || 'Бот');
+		},
+		prepareClosed() {
+			reveal.cancel();
+			reveal.elapsed = 0;
+			staticRun = false;
+			sampledAt = null;
+			paint();
 		},
 		startReveal(done: () => void) {
 			staticRun = reduced;

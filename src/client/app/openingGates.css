@@ -3,11 +3,21 @@
 #opening::before{display:none}
 #opening .opening-sheet{max-width:none;width:100%;height:100%;min-height:0;padding:0;margin:0}
 #opening .opening-art{position:absolute;inset:0;margin:0;height:100%;opacity:1;z-index:-1;transition:none}
-.gate-door{position:absolute;top:0;bottom:0;width:50%;overflow:hidden;background:#111718;border:1px solid #55594f}
+.gate-door{position:absolute;top:0;bottom:0;width:50%;overflow:hidden;background:#111718 url('./ui/opening/gates/material.png') center/cover no-repeat}
+/* Original v4 frame geometry, supplied by Illustrator; fixed thickness, flexible lengths. */
+.gate-door::before{content:'';position:absolute;inset:12px 5px 13px 8px;border:4px solid #777668;box-shadow:inset 0 0 0 5px #0a0d0e}
+.gate-door::after{content:'';position:absolute;top:45px;bottom:46px;right:15px;width:8px;background:#454942}
+.gate-right::before{left:5px;right:8px}.gate-right::after{left:15px;right:auto}
+.gate-left{border-right:4px solid #050708}.gate-right{border-left:4px solid #050708;box-shadow:inset 1px 0 #a28e60}
+.gate-crossbars i{position:absolute;left:20px;right:17px;top:36px;height:12px;background:#373d3b;border:2px solid #686c61}
+.gate-crossbars i:nth-child(2){top:33.333%}.gate-crossbars i:nth-child(3){top:66.667%}.gate-crossbars i:nth-child(4){top:auto;bottom:28px}
+.gate-crossbars i::before,.gate-crossbars i::after{content:'';position:absolute;top:-1px;width:10px;height:10px;border-radius:50%;background:#88816a;border:2px solid #101415}
+.gate-crossbars i::before{left:2px}.gate-crossbars i::after{right:2px}
+.gate-piece{z-index:1}
+
 .gate-left{left:0;transform:translateX(calc(-100% * var(--gate-open)))}
 .gate-right{right:0;transform:translateX(calc(100% * var(--gate-open)))}
-#opening .opening-art img{position:absolute;top:0;left:0;width:200%;height:100%;max-width:none;object-fit:fill;filter:none;transition:opacity .25s ease-out}
-#opening .gate-right img{left:-100%}
+#opening .opening-art img{position:absolute;max-width:none;object-fit:contain;filter:none;transition:opacity .25s ease-out}
 #opening .opening-actions{position:static;display:block;margin:0}
 #opening-play,#opening-retry,#opening-status{position:absolute;left:calc(50% - var(--bar-width)/2);width:var(--bar-width);margin:0;top:var(--play-y);height:54px;min-height:54px;padding:8px;font-size:22px;border:2px solid #f1e5c6;outline-offset:5px;box-shadow:inset 0 0 0 3px #665b43,0 3px 5px #0009;background:linear-gradient(#ddd0ab,#a79774);color:#292b28;transform:translate(calc(-1 * var(--travel) * var(--gate-slide) - 50vw * var(--gate-open)),calc(3px * var(--gate-press)))}
 #opening-retry{font-size:16px;line-height:1.1}
@@ -23,10 +33,10 @@
 #opening-help,#opening-settings{position:absolute;top:var(--utility-y);height:44px;min-height:44px;width:150px;border:2px solid #8b8878;background:linear-gradient(#444946,#252b2b);box-shadow:inset 0 0 0 3px #12191a,0 3px 5px #0009;font-size:16px}
 #opening-help{right:calc(50% + 20px);transform:translateX(calc(-50vw * var(--gate-open)))}
 #opening-settings{left:calc(50% + 20px);transform:translateX(calc(50vw * var(--gate-open)))}
-.gate-title-canopy{position:absolute;z-index:2;top:7.58%;left:50%;width:min(354px,calc(100vw - 36px));transform:translateX(-50%)}
+.gate-title-canopy{position:absolute;z-index:2;top:7.58%;left:50%;width:min(354px,calc(100vw - 36px));transform:translate(-50%,calc(-1 * (100% + 15vh + 40px) * var(--gate-title)))}
 .gate-title-canopy::after{content:'';position:absolute;top:-18px;left:-10px;right:-10px;height:18px;background:linear-gradient(#51594f 0 5px,#222a2b 5px 12px,#0a1011 12px);box-shadow:0 2px 3px #0008}
 .gate-title-clip{overflow:hidden;padding:5px 5px 16px;margin:-5px -5px 0}
-.gate-title-plate{position:relative;border:2px solid #8b8470;background:#252c2c;padding:6px 8px 10px;transform:translateY(calc(-125% * var(--gate-title)))}
+.gate-title-plate{position:relative;border:2px solid #8b8470;background:#252c2c;padding:6px 8px 10px}
 .gate-title-plate::before,.gate-title-plate::after{content:'';position:absolute;inset:-3px;border:5px solid #727366;clip-path:polygon(0 0,17px 0,17px 5px,5px 5px,5px 17px,0 17px,0 calc(100% - 17px),5px calc(100% - 17px),5px calc(100% - 5px),17px calc(100% - 5px),17px 100%,0 100%);pointer-events:none}
 .gate-title-plate::after{transform:scaleX(-1)}
 #opening h1{margin:0;height:auto;font-size:38px;line-height:1.12}#opening h1 span{font-size:51px}
@@ -34,5 +44,31 @@
 @media(min-width:700px) and (min-aspect-ratio:1/1){#opening{--bar-width:334px;--travel:179px;--play-y:73.75%;--utility-y:82.5%;--phrase-y:90.28%}.gate-title-canopy{top:4.44%}#opening-status{font-size:13px}}
 @media(max-width:359px){#opening-help,#opening-settings{width:130px}#opening-help{right:calc(50% + 10px)}#opening-settings{left:calc(50% + 10px)}#opening h1{font-size:32px}#opening h1 span{font-size:44px}#opening .opening-slogan{font-size:10px}}
 @media(max-height:600px){#opening{--play-y:calc(100% - 170px);--utility-y:calc(100% - 108px);--phrase-y:calc(100% - 52px)}.gate-title-canopy{top:24px}#opening h1{font-size:20px}#opening h1 span{font-size:26px}#opening .opening-slogan{font-size:10px;margin-top:4px}}
-@media(max-height:600px) and (min-width:700px){#opening .opening-art img{height:85%}}
+
 @media(prefers-reduced-motion:reduce){#opening .opening-art img{transition:none}}
+/* Separate proportional art; controls use a shared two-axis scale, not raster stretching. */
+#opening{--ui:clamp(1px,min(.14vw,.15vh),1.6px);--bar-width:min(calc(170 * var(--ui)),calc(50vw - 28px));--travel:calc(var(--bar-width)/2 + 12px);--piece-size:min(49vw,24vh)}
+#opening .opening-art .gate-piece{width:var(--piece-size);height:var(--piece-size);left:50%;transform:translateX(-50%);top:29%;object-fit:contain}
+#opening .opening-art .gate-piece-ivory{top:36%}
+#opening-play,#opening-retry{height:calc(54 * var(--ui));min-height:44px;font-size:calc(22 * var(--ui))}
+#opening-status{height:calc(44 * var(--ui));min-height:44px;font-size:calc(11 * var(--ui));padding:calc(8 * var(--ui))}
+#opening-help,#opening-settings{height:calc(44 * var(--ui));min-height:44px;width:min(calc(150 * var(--ui)),calc(50vw - 30px));font-size:calc(16 * var(--ui))}
+.gate-title-canopy{width:min(calc(354 * var(--ui)),calc(100vw - 36px))}
+#opening h1{font-size:calc(38 * var(--ui))}#opening h1 span{font-size:calc(51 * var(--ui))}
+#opening .opening-slogan{font-size:calc(12 * var(--ui))}
+#opening-retry{font-size:calc(16 * var(--ui))}
+@media(min-width:700px) and (min-aspect-ratio:1/1){
+ #opening{--bar-width:min(calc(334 * var(--ui)),calc(50vw - 36px));--piece-size:min(32vw,38vh)}
+ #opening .opening-art .gate-piece{top:26%}
+ #opening .opening-art .gate-piece-ivory{top:32%}
+ #opening-status{font-size:calc(13 * var(--ui))}
+}
+@media(max-height:600px){
+ #opening{--ui:1px;--piece-size:min(33vw,32vh);--play-y:calc(100% - 152px);--utility-y:calc(100% - 96px);--phrase-y:calc(100% - 48px)}
+ #opening .opening-art .gate-piece{top:23%}
+ #opening .opening-art .gate-piece-ivory{top:27%}
+ #opening-play,#opening-retry{height:44px;font-size:20px}
+ #opening h1{font-size:20px}#opening h1 span{font-size:26px}
+ #opening .opening-slogan{font-size:10px}
+ .gate-title-canopy{width:min(280px,calc(100vw - 36px))}
+}

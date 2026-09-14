@@ -1,6 +1,6 @@
 import type Phaser from 'phaser';
 import {gatePose, OpeningGates} from './openingGates';
-import {preparationMs} from './panelReveal';
+import {gateDurationMs as preparationMs} from './openingGates';
 
 declare global {
  interface Window {

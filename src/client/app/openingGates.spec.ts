@@ -1,6 +1,6 @@
 import {expect,it} from 'vitest';
 import {gatePose,OpeningGates} from './openingGates';
-import {preparationMs} from './panelReveal';
+import {gateDurationMs as preparationMs} from './openingGates';
 it('unlocks bars before title retracts and doors open',()=>{
  expect(gatePose(0)).toEqual({press:0,slide:0,title:0,doors:0});
  expect(gatePose(preparationMs*.48)).toMatchObject({slide:1,title:0,doors:0});

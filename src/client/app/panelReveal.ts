@@ -19,6 +19,7 @@ export function revealPose(ms: number, reduced: boolean) {
 	};
 }
 export class PanelReveal {
+	constructor(private readonly duration = preparationMs) {}
 	elapsed = preparationMs;
 	private done?: () => void;
 	get active() {
@@ -33,8 +34,8 @@ export class PanelReveal {
 	}
 	advance(delta: number, paused = false) {
 		if (!this.done || paused) return;
-		this.elapsed = Math.min(preparationMs, this.elapsed + Math.max(0, delta));
-		if (this.elapsed === preparationMs) {
+		this.elapsed = Math.min(this.duration, this.elapsed + Math.max(0, delta));
+		if (this.elapsed === this.duration) {
 			const done = this.done;
 			this.done = undefined;
 			done();

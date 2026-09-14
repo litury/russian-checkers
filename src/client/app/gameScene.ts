@@ -235,6 +235,7 @@ export class GameScene extends Phaser.Scene {
 		);
 		if (!fromOpening) this.title.hide();
 		this.overlay.hide();
+		this.hud.prepareClosed();
 		this.hud.setVisible(true);
 		this.hud.setNames('Ты', 'Бот');
 		this.board.setPlayfieldVisible(true);
@@ -250,17 +251,21 @@ export class GameScene extends Phaser.Scene {
 	private beginCountdown(fromOpening = false): void {
 		this.stopCountdown();
 		this.countingIn = true;
-		let pending = fromOpening ? 2 : 1;
 		const ready = () => {
-			if (!this.countingIn || --pending > 0) return;
-			// Gates and panels overlap. One boundary enables input, AutoMove and banks.
+			if (!this.countingIn) return;
+			// The entire sequential opening has finished; start banks and input now.
 			this.clockStartedAt = this.time.now;
 			this.countingIn = false;
 			this.paintClock();
 			this.refresh();
 		};
-		this.hud.startReveal(ready);
-		if (fromOpening) this.title.depart(ready);
+		const startPanels = () => {
+			if (!this.countingIn) return;
+			this.hud.startReveal(ready);
+			this.hud.setVisible(true);
+		};
+		if (fromOpening) this.title.depart(startPanels);
+		else startPanels();
 	}
 
 	private layout(width: number, height: number): void {
