@@ -1,11 +1,15 @@
-import type { IMove, IPosition, ISquare } from '@/rules';
+import type { IMove, IPosition, ISquare, Side } from '@/rules';
 
 export interface IBoardView {
+	startOpeningHint: (position: IPosition, local: Side) => void;
+	paintOpeningHint: (progress: number, reduced: boolean) => void;
+	clearOpeningHint: () => void;
 	sync: (
 		position: IPosition,
 		highlights: ISquare[],
 		selected: ISquare | null,
 		options?: IMove[],
+		availability?: IMove[],
 	) => void;
 	layout: (width: number, height: number) => void;
 	press: (square: ISquare) => void;

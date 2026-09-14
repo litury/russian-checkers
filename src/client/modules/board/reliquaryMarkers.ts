@@ -2,6 +2,7 @@ import type Phaser from 'phaser';
 import { markerPhase } from './reliquaryMotion';
 
 export type Marker =
+	| 'available'
 	| 'selected'
 	| 'move'
 	| 'landing'
@@ -25,11 +26,12 @@ export function drawReliquaryMarker(
 	box: { x: number; y: number; w: number; h: number },
 	state: Marker,
 	elapsed = 720,
+	opacity = 1,
 ): void {
 	const phase = markerPhase(elapsed);
 	const u = Math.min(box.w, box.h) / 44;
 	const path = (points: number[][], width: number, color: number): void => {
-		g.lineStyle(width * u, color, 1);
+		g.lineStyle(width * u, color, state === 'available' ? opacity : 1);
 		g.beginPath();
 		points.forEach(([x, y], i) => {
 			const px = box.x - box.w / 2 + x * u,
@@ -49,7 +51,14 @@ export function drawReliquaryMarker(
 		if (bevel) path(points, width + 0.7, mix(color, 0xe1d3ac, 0.4));
 		path(points, width, color);
 	};
-	if (state === 'selected' || state === 'target') {
+	if (state === 'available') {
+		// Opaque light core with dark backing; fixed geometry, no pulse.
+		for (const [sx, sy] of [[1,1], [-1,1], [1,-1], [-1,-1]]) {
+			const pts = [[22+sx*12,22+sy*19], [22+sx*19,22+sy*19], [22+sx*19,22+sy*12]];
+			path(pts, 4.5, 0x101619);
+			path(pts, 2.25, 0xf4f1df);
+		}
+	} else if (state === 'selected' || state === 'target') {
 		const r = phase.radius;
 		for (const [sx, sy] of [
 			[1, 1],

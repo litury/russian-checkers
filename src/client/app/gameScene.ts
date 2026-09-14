@@ -145,6 +145,7 @@ export class GameScene extends Phaser.Scene {
 			this.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
 		}
 		this.hud = createHud(this, {
+			onRevealProgress: (progress, reduced) => this.board?.paintOpeningHint(progress, reduced),
 			isPaused: () => this.paused,
 			onAutoChange: () => {
 				this.refresh();
@@ -244,6 +245,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private stopCountdown(): void {
+		this.board?.clearOpeningHint();
 		this.hud?.stopReveal();
 		this.countingIn = false;
 	}
@@ -261,6 +263,7 @@ export class GameScene extends Phaser.Scene {
 		};
 		const startPanels = () => {
 			if (!this.countingIn) return;
+			this.board.startOpeningHint(this.position, this.humanSide);
 			this.hud.startReveal(ready);
 			this.hud.setVisible(true);
 		};
@@ -359,6 +362,9 @@ export class GameScene extends Phaser.Scene {
 			this.humanHighlights(),
 			this.selected,
 			this.optionMoves(),
+			this.countingIn ? undefined :
+				this.phase === 'human' && this.position.turn === this.humanSide && !this.moving
+					? this.humanChain?.remainingRoutes ?? legalMoves(this.position) : [],
 		);
 		this.board.setWaitingIdle(
 			this.phase === 'bot' || this.countingIn || this.paused,
@@ -550,9 +556,11 @@ export class GameScene extends Phaser.Scene {
 		this.selected = null;
 		this.refresh();
 		this.overlay.show('black', this.humanSide);
+		this.board.clearOpeningHint();
 	}
 
 	private endMatch(side: Side): void {
+		this.board.clearOpeningHint();
 		this.phase = 'over';
 		this.selected = null;
 		this.refresh();

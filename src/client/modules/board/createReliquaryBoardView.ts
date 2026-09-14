@@ -8,6 +8,7 @@ import type { IBoardView } from './IBoardView';
 import { markerDestinations, markerMoves } from './reliquaryHints';
 import { drawReliquaryMarker, type Marker } from './reliquaryMarkers';
 import { MarkerMotion } from './reliquaryMotion';
+import { OpeningMoveHint } from '@/client/app/openingMoveHint';
 
 type PieceView = {
 	square: ISquare;
@@ -48,6 +49,10 @@ export function createBoardView(
 		.setOrigin(0)
 		.setDepth(1.1);
 	const marks = scene.add.graphics().setDepth(8);
+	const introMarks = scene.add.graphics().setDepth(3.8).setName('opening-move-hint');
+	const intro = new OpeningMoveHint();
+	let introProgress = 0, introReduced = false;
+
 	const interaction = scene.add.graphics().setDepth(9);
 	const hintMotion = new MarkerMotion();
 
@@ -79,6 +84,14 @@ export function createBoardView(
 	});
 	const paint = (square: ISquare, state: Marker): void =>
 		drawReliquaryMarker(marks, cellBox(square), state, hintMotion.elapsed);
+	const drawIntro = () => {
+		introMarks.clear();
+		if (!visible || moving || isInputBlocked()) return;
+		for (const {square, alpha} of intro.sample(introProgress, introReduced, selected)) {
+			const b = cellBox(square);
+			drawReliquaryMarker(introMarks, b, 'available', 720, alpha);
+		}
+	};
 	const label = (): void => {
 		canvas.setAttribute(
 			'aria-label',
@@ -112,17 +125,12 @@ export function createBoardView(
 	};
 	const draw = (): void => {
 		marks.clear();
+		drawIntro();
 
 		if (!visible) return;
 		if (selected) paint(selected, 'selected');
 		const seen = new Set<string>();
-		if (!selected) {
-			for (const move of choices) {
-				if (!targets(move).length || seen.has(key(move.from))) continue;
-				paint(move.from, 'selected');
-				seen.add(key(move.from));
-			}
-		}
+
 		const routes = markerMoves(choices, selected);
 		for (const move of routes) {
 			const victims = targets(move);
@@ -159,10 +167,15 @@ export function createBoardView(
 		highlights,
 		selection,
 		options = [],
+		availability,
 	) => {
 		if (moving) return;
 		position = next;
 		selected = selection;
+		if (availability !== undefined) {
+			intro.update(availability);
+			introProgress = 1;
+		}
 		enabled = visible && highlights.length > 0;
 		choices = enabled ? (selected ? options : legalMoves(next)) : [];
 		hintMotion.sync(
@@ -315,6 +328,9 @@ export function createBoardView(
 		draw();
 	};
 	const reset = (): void => {
+		intro.clear();
+		introMarks.clear();
+
 		hintMotion.cancel();
 		generation++;
 		moving = false;
@@ -343,6 +359,8 @@ export function createBoardView(
 	) => {
 		if (moving) return;
 		const view = pieces.get(key(move.from));
+		intro.clear();
+		drawIntro();
 		if (!view) {
 			onDone();
 			return;
@@ -424,6 +442,7 @@ export function createBoardView(
 		step(0);
 	};
 	const updateHints = (_time: number, delta: number): void => {
+		drawIntro();
 		if (!hintMotion.active) return;
 		hintMotion.advance(delta, reduced());
 		draw();
@@ -442,6 +461,9 @@ export function createBoardView(
 	});
 	layout(logicalSize(scene).width, logicalSize(scene).height);
 	return {
+		clearOpeningHint: () => { intro.clear(); introMarks.clear(); },
+		startOpeningHint: (position, local) => { intro.start(position, local); introProgress = 0; introReduced = reduced(); drawIntro(); },
+		paintOpeningHint: (progress, motionReduced) => { introProgress = progress; introReduced = motionReduced; drawIntro(); },
 		sync,
 		layout,
 		reset,
@@ -464,6 +486,7 @@ export function createBoardView(
 				view.outline.setVisible(on);
 			}
 			if (!on) {
+				intro.clear();
 				hintMotion.cancel();
 				enabled = false;
 				hover = null;
