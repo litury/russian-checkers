@@ -29,6 +29,13 @@ export class StepwiseMove {
 		}
 		return [...unique.values()];
 	}
+	/** Full visual continuations of compatible routes; never input destinations. */
+	get remainingRoutes(): IMove[] {
+		return this.routes.map(move => ({
+			from: this.selected,
+			path: move.path.slice(this.prefix.length),
+		}));
+	}
 	get visualPosition(): IPosition {
 		const next = clonePosition(this.origin);
 		const piece = next.squares[this.from.row][this.from.col];

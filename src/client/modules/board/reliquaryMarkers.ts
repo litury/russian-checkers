@@ -5,6 +5,7 @@ export type Marker =
 	| 'selected'
 	| 'move'
 	| 'landing'
+	| 'futureLanding'
 	| 'target'
 	| 'focus'
 	| 'hover';
@@ -89,10 +90,11 @@ export function drawReliquaryMarker(
 				}
 			}
 		}
-	} else if (state === 'move' || state === 'landing') {
+	} else if (state === 'move' || state === 'landing' || state === 'futureLanding') {
+		const future = state === 'futureLanding';
 		// Soft local slate imprint (not a ring/ghost); layered vector falloff avoids an FBO.
 		for (let i = 6; i >= 0; i--) {
-			g.fillStyle(0x86a6b8, (27 / 255 / 7) * (1 + phase.blue / 0.75));
+			g.fillStyle(0x86a6b8, (27 / 255 / 7) * (1 + phase.blue / 0.75) * (future ? 0.5 : 1));
 			g.fillEllipse(box.x, box.y + u, (18 + i * 2) * u, (12 + i * 2) * u);
 		}
 
@@ -108,8 +110,8 @@ export function drawReliquaryMarker(
 					[22 + vx * (16.5 + phase.opening), 22 + vy * (16.5 + phase.opening)],
 				],
 				mix(
-					0x779db8,
-					0xaac1cf,
+					future ? 0x55758a : 0x779db8,
+					future ? 0x7793a5 : 0xaac1cf,
 					phase.blue + (state === 'landing' ? phase.pulse * 0.14 : 0),
 				),
 			);

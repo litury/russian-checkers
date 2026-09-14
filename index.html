@@ -41,9 +41,6 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 #opening-settings-dialog h2{margin-bottom:18px}
 .settings-section + .settings-section{border-top:1px solid #8e806540;margin-top:12px;padding-top:14px}
 .settings-section h3{margin:0 0 8px;color:#e0cba5;font-size:17px;font-weight:600}
-.settings-volume{display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:12px}
-.settings-volume label{min-height:26px}.settings-volume output{font-size:14px;color:#d0c9bb;font-variant-numeric:tabular-nums}
-.settings-volume input{grid-column:1/-1;margin:0;touch-action:pan-y}
 .settings-check{cursor:pointer}.settings-check input{flex-shrink:0;margin:0}
 #settings-auto-description{margin:0 0 4px;font-size:14px;color:#d0c9bb;line-height:1.5}
 #opening-settings-dialog .opening-button{margin-top:18px}
@@ -107,12 +104,6 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 </dialog>
 <dialog id="opening-settings-dialog" aria-labelledby="opening-settings-title">
 <h2 id="opening-settings-title" tabindex="-1" autofocus>Настройки</h2>
-<section class="settings-section" aria-labelledby="settings-sound"><h3 id="settings-sound">Звук</h3>
-<div class="settings-volume"><label for="opening-volume">Общая громкость</label><output id="opening-volume-value" for="opening-volume">40%</output><input id="opening-volume" type="range" min="0" max="100" step="1" value="40" /></div>
-<div class="settings-volume"><label for="settings-effects">Звуки игры</label><output id="settings-effects-value" for="settings-effects">100%</output><input id="settings-effects" type="range" min="0" max="100" step="1" value="100" /></div>
-<div class="settings-volume"><label for="settings-music">Музыка</label><output id="settings-music-value" for="settings-music">100%</output><input id="settings-music" type="range" min="0" max="100" step="1" value="100" /></div>
-<label class="settings-check"><input id="opening-muted" type="checkbox" />Выключить звук</label>
-</section>
 <section class="settings-section" aria-labelledby="settings-game"><h3 id="settings-game">Игра</h3>
 <label class="settings-check"><input id="settings-auto" type="checkbox" checked aria-describedby="settings-auto-description" />Автоход</label>
 <p id="settings-auto-description">Выполнять ход автоматически, если доступен только один вариант.</p>
@@ -215,16 +206,8 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
  const numeric = (raw, fallback) => raw === null || raw === '' || !Number.isFinite(Number(raw)) ? fallback : Math.max(0, Math.min(1, Number(raw)));
  const state = {master:numeric(read('master'), .4), effects:numeric(read('effects'), 1), music:numeric(read('music'), 1), muted:['1','true'].includes(read('muted')), autoMove:!['0','false'].includes(read('autoMove'))};
  if (state.master === 0) { state.master = .4; state.muted = true; }
- const controls = {master:byId('opening-volume'), effects:byId('settings-effects'), music:byId('settings-music')};
- const sync = () => {
-  for (const [key, input] of Object.entries(controls)) {
-   input.value = String(Math.round(state[key] * 100));
-   byId(input.id + '-value').textContent = input.value + '%';
-   input.setAttribute('aria-valuetext', input.value + '%');
-  }
-  byId('opening-muted').checked = state.muted;
-  byId('settings-auto').checked = state.autoMove;
- };
+ // Retain saved audio fields/API for compatibility; no playback or audio UI.
+ const sync = () => { byId('settings-auto').checked = state.autoMove; };
  window.checkersSettings = {
   get: () => ({...state}),
   set: patch => {
@@ -237,12 +220,6 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   },
   open: () => { sync(); const dialog = byId('opening-settings-dialog'); if (!dialog.open) dialog.showModal(); }
  };
- for (const [key, input] of Object.entries(controls)) input.oninput = () => {
-  const value = Number(input.value) / 100;
-  // Zero master mutes, but never destroys the preferred volume.
-  window.checkersSettings.set(key === 'master' ? (value === 0 ? {muted:true} : {master:value, muted:state.muted}) : {[key]:value});
- };
- byId('opening-muted').onchange = event => window.checkersSettings.set({muted:event.target.checked});
  byId('settings-auto').onchange = event => window.checkersSettings.set({autoMove:event.target.checked});
  byId('opening-settings').onclick = () => window.checkersSettings.open();
  const settingsDialog = byId('opening-settings-dialog');

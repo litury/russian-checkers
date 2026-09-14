@@ -123,7 +123,8 @@ export function createBoardView(
 				seen.add(key(move.from));
 			}
 		}
-		for (const move of markerMoves(choices, selected)) {
+		const routes = markerMoves(choices, selected);
+		for (const move of routes) {
 			const victims = targets(move);
 			for (const sq of victims) {
 				const id = `target:${key(sq)}`;
@@ -137,6 +138,9 @@ export function createBoardView(
 				seen.add(id);
 			}
 		}
+		// Union all future cells across compatible routes, never dim a current cell.
+		// Draw above pieces too: a legal continuation may return to the selected origin.
+		for (const land of markerDestinations(routes, true)) paint(land, 'futureLanding');
 		drawInteraction();
 	};
 	const place = (view: PieceView): void => {

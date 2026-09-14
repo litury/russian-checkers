@@ -1,6 +1,6 @@
 import { beforeEach, expect, it, vi } from 'vitest';
 vi.mock('phaser', () => ({ default: { Scene: class {} } }));
-vi.mock('./parts/createSfxPanel', () => ({ getAutoMove: () => auto }));
+vi.mock('./settings', () => ({ getAutoMove: () => auto }));
 import { GameScene } from './gameScene';
 import { apply, legalMoves, type IPosition } from '@/rules';
 let auto = false;
@@ -22,12 +22,6 @@ function setup(pieces: Record<string, string>, turn = 'white') {
 	s.phase = turn === 'white' ? 'human' : 'bot';
 	s.time = { now: 1000, delayedCall: vi.fn(() => ({ remove: vi.fn() })) };
 	s.clockStartedAt = 100;
-	s.sfx = {
-		land: vi.fn(),
-		takeoff: vi.fn(),
-		stopHover: vi.fn(),
-		selectThenHover: vi.fn(),
-	};
 	s.hud = { setTurn: vi.fn(), setClock: vi.fn() };
 	s.board = {
 		sync: vi.fn(),
@@ -94,6 +88,19 @@ it('waits for manual forced continuation with auto disabled', () => {
 	expect(s.selected).toEqual(sq('e5'));
 	expect(s.humanHighlights()).toEqual([sq('g7')]);
 });
+it('sends every remaining branch to the renderer while input stays next-hop only', () => {
+	const s = setup({ c3: 'w', d4: 'b', f4: 'b', f6: 'b' });
+	auto = true;
+	s.onSquare(sq('c3'));
+	expect(s.board.sync.mock.calls.at(-1)[3]).toEqual(legalMoves(s.position));
+	expect(s.humanHighlights()).toEqual([sq('e5')]);
+	expect(s.board.playMove).not.toHaveBeenCalled();
+	s.onSquare(sq('e5'));
+	expect(s.board.sync.mock.calls.at(-1)[3]).toEqual(
+		legalMoves(s.position).map(m => ({ from: sq('e5'), path: m.path.slice(1) })),
+	);
+});
+
 it('auto never chooses a genuine branch or takes over a manually started route', () => {
 	auto = true;
 	const s = setup({ c3: 'w', d4: 'b', f4: 'b', f6: 'b', h8: 'b' });

@@ -19,7 +19,6 @@ import {
 	resultMenuCopy,
 	winKeys,
 } from './resultOverlay';
-import { musicGain } from '@/client/modules/sfx/createTableSfx';
 
 describe('resultOverlay mascot timing', () => {
 	it('provides nine approved frames for each human side and final hold', () => {
@@ -40,7 +39,7 @@ describe('resultOverlay mascot timing', () => {
 		expect(resultCatcherDepth).toBeGreaterThan(15);
 	});
 
-	it('idles mascot after cheer/lose and sways grass tufts quietly', () => {
+	it('idles mascot after cheer/lose', () => {
 		expect(idleKeys).toEqual([
 			'mascotIdle0',
 			'mascotIdle1',
@@ -48,7 +47,5 @@ describe('resultOverlay mascot timing', () => {
 			'mascotIdle3',
 		]);
 		expect(idleMs).toBeGreaterThanOrEqual(200);
-		expect(musicGain.meadow).toBeGreaterThanOrEqual(0.02);
-		expect(musicGain.meadow).toBeLessThanOrEqual(0.05);
 	});
 });

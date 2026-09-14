@@ -8,18 +8,6 @@ import { createBoardView } from '@/client/modules/board';
 import { installDisplayDensity, logicalSize } from './displayDensity';
 import { StepwiseMove } from './stepwiseMove';
 import { pickBotMove } from '@/client/modules/bot';
-import captureUrl from '@/client/modules/sfx/capture.ogg';
-import {
-	createTableSfx,
-	preloadTableSfx,
-} from '@/client/modules/sfx/createTableSfx';
-import flightUrl from '@/client/modules/sfx/hop/flight.ogg';
-import hoverUrl from '@/client/modules/sfx/hop/hover.ogg';
-import igniteUrl from '@/client/modules/sfx/hop/ignite.ogg';
-import landUrl from '@/client/modules/sfx/hop/land.ogg';
-import meadowUrl from '@/client/modules/sfx/meadow_loop.ogg';
-import firstCaptureUrl from '@/client/modules/sfx/pervyy_vzryv.ogg';
-import selectUrl from '@/client/modules/sfx/select.ogg';
 import { sameSquare } from '@/client/shared/sameSquare';
 import { capturedOnSegment } from '@/rules/parts/capturedOnPath';
 import type { IMove, IPosition, ISquare, Side } from '@/rules';
@@ -38,22 +26,8 @@ import { preloadBunkerPanels } from './bunkerPanel';
 import { remainingForHud } from './matchClock';
 import { createOpeningOverlay } from './openingOverlay';
 import type { IYandexSdk } from './IYandexSdk';
-import { getAutoMove } from './parts/createSfxPanel';
+import { getAutoMove } from './settings';
 import { createResultOverlay } from './resultOverlay';
-import hudAiUrl from './ui/hud_ai.png';
-import hudAiOffUrl from './ui/hud_ai_off.png';
-
-import hudGlassMeadowUrl from './ui/hud_glass_meadow.png';
-import hudMenuUrl from './ui/hud_menu.png';
-import hudMenuFoldUrl from './ui/hud_menu_fold.png';
-import hudMenuOpenUrl from './ui/hud_menu_open.png';
-import hudMenuPressUrl from './ui/hud_menu_press.png';
-import hudMenuF0Url from './ui/hud_menu_f0.png';
-import hudMenuF1Url from './ui/hud_menu_f1.png';
-import hudMenuF2Url from './ui/hud_menu_f2.png';
-import hudNoteUrl from './ui/hud_note.png';
-import hudNoteOffUrl from './ui/hud_note_off.png';
-import hudPlateUrl from './ui/hud_plate.png';
 import mascotIdle0Url from './ui/result/mascot_idle_00.png';
 import mascotIdle1Url from './ui/result/mascot_idle_01.png';
 import mascotIdle2Url from './ui/result/mascot_idle_02.png';
@@ -80,7 +54,6 @@ export class GameScene extends Phaser.Scene {
 	private overlay!: ReturnType<typeof createResultOverlay>;
 	private title!: ReturnType<typeof createOpeningOverlay>;
 	private sdk!: IYandexSdk;
-	private sfx!: ReturnType<typeof createTableSfx>;
 	private position: IPosition = createInitialPosition();
 	private selected: ISquare | null = null;
 	private humanChain: StepwiseMove | null = null;
@@ -106,7 +79,7 @@ export class GameScene extends Phaser.Scene {
 
 	preload(): void {
 		this.startupFailed = false;
-		window.checkersStartup?.status('Загружаем доску, шашки и звук…');
+		window.checkersStartup?.status('Загружаем доску и шашки…');
 		this.load.on('loaderror', () => {
 			this.startupFailed = true;
 			clearTimeout(window.checkersStartup?.watchdog);
@@ -138,19 +111,6 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(pieceSprites.manDark, reliquaryAssets['../modules/board/reliquary/black_disk.png'] as string);
 		this.load.image(pieceSprites.kingLight, reliquaryAssets['../modules/board/reliquary/ivory_king.png'] as string);
 		this.load.image(pieceSprites.kingDark, reliquaryAssets['../modules/board/reliquary/black_king.png'] as string);
-		this.load.image('hudMenu', hudMenuUrl);
-		this.load.image('hudMenuFold', hudMenuFoldUrl);
-		this.load.image('hudMenuOpen', hudMenuOpenUrl);
-		this.load.image('hudMenuPress', hudMenuPressUrl);
-		this.load.image('hudMenuF0', hudMenuF0Url);
-		this.load.image('hudMenuF1', hudMenuF1Url);
-		this.load.image('hudMenuF2', hudMenuF2Url);
-		this.load.image('hudGlassMeadow', hudGlassMeadowUrl);
-		this.load.image('hudPlate', hudPlateUrl);
-		this.load.image('hudNote', hudNoteUrl);
-		this.load.image('hudNoteOff', hudNoteOffUrl);
-		this.load.image('hudAi', hudAiUrl);
-		this.load.image('hudAiOff', hudAiOffUrl);
 		preloadBunkerPanels(this);
 
 		this.load.image('resultMonitor', resultMonitorUrl);
@@ -165,14 +125,7 @@ export class GameScene extends Phaser.Scene {
 		this.load.image('mascotWin2', mascotWin2Url);
 		this.load.image('mascotWin3', mascotWin3Url);
 		this.load.image('mascotWin4', mascotWin4Url);
-		preloadTableSfx(this, {
-			select: selectUrl,
-			hover: hoverUrl,
-			ignite: igniteUrl,
-			flight: flightUrl,
-			land: landUrl,
-			capture: captureUrl,
-		});
+
 	}
 
 	create(): void {
@@ -180,20 +133,6 @@ export class GameScene extends Phaser.Scene {
 		this.sdk = this.registry.get('sdk') as IYandexSdk;
 		this.cameras.main.setBackgroundColor(palette.background);
 		for (const key of [
-			'hudMenu',
-			'hudMenuOpen',
-			'hudMenuFold',
-			'hudMenuPress',
-			'hudMenuF0',
-			'hudMenuF1',
-			'hudMenuF2',
-			'hudGlassMeadow',
-			'hudPlate',
-			'hudNote',
-			'hudNoteOff',
-			'hudAi',
-			'hudAiOff',
-
 			'resultMonitor',
 			'mascotIdle0',
 			'mascotIdle1',
@@ -205,10 +144,6 @@ export class GameScene extends Phaser.Scene {
 			}
 			this.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
 		}
-		this.sfx = createTableSfx(this, {
-			meadow: meadowUrl,
-			firstCapture: firstCaptureUrl,
-		});
 		this.hud = createHud(this, {
 			isPaused: () => this.paused,
 			onAutoChange: () => {
@@ -270,10 +205,7 @@ export class GameScene extends Phaser.Scene {
 		this.hud.setVisible(false);
 		this.stopCountdown();
 		this.board.setPlayfieldVisible(false);
-		this.sfx.stopHover();
-		this.sfx.stopMeadow();
 		this.title.show();
-		this.sfx.startMeadow();
 		this.refresh();
 	}
 
@@ -301,11 +233,9 @@ export class GameScene extends Phaser.Scene {
 		);
 		this.title.hide();
 		this.overlay.hide();
-		this.sfx.stopMeadow();
 		this.hud.setVisible(true);
 		this.hud.setNames('Ты', 'Бот');
 		this.board.setPlayfieldVisible(true);
-		this.sfx.resetMatch();
 		this.beginCountdown();
 		this.refresh();
 	}
@@ -453,8 +383,9 @@ export class GameScene extends Phaser.Scene {
 		if (this.phase !== 'human' || this.paused || this.countingIn) {
 			return [];
 		}
-		if (this.humanChain) return this.humanChain.options;
-		return this.selected ? new StepwiseMove(this.position, this.selected).options : [];
+		// Visual routes stay complete; humanHighlights/choose expose only the next hop.
+		if (this.humanChain) return this.humanChain.remainingRoutes;
+		return this.selected ? new StepwiseMove(this.position, this.selected).remainingRoutes : [];
 	}
 
 	private humanHighlights(): ISquare[] {
@@ -490,14 +421,12 @@ export class GameScene extends Phaser.Scene {
 		if (this.humanChain) return;
 		if (moves.some((move) => sameSquare(move.from, square))) {
 			this.selected = square;
-			this.sfx.selectThenHover();
 			this.refresh();
 			return;
 		}
 		const piece = this.position.squares[square.row][square.col];
 		const denied = Boolean(piece && piece.side === this.position.turn);
 		this.selected = null;
-		this.sfx.stopHover();
 		this.refresh();
 		if (denied) {
 			this.board.deny(square);
@@ -507,7 +436,6 @@ export class GameScene extends Phaser.Scene {
 	private cancelSelection(): void {
 		if (this.phase !== 'human' || this.paused || this.moving || this.countingIn || this.humanChain) return;
 		this.selected = null;
-		this.sfx.stopHover();
 		this.refresh();
 	}
 
@@ -530,7 +458,7 @@ export class GameScene extends Phaser.Scene {
 			}
 			if (chosen.complete) this.completeHumanMove(chosen.complete);
 			else this.refresh();
-		}, took => this.sfx.land(took), took => this.sfx.takeoff(took), true);
+		}, undefined, undefined, true);
 		return true;
 	}
 
@@ -543,12 +471,6 @@ export class GameScene extends Phaser.Scene {
 			() => {
 				this.moving = false;
 				after();
-			},
-			(took) => {
-				this.sfx.land(took);
-			},
-			(took) => {
-				this.sfx.takeoff(took);
 			},
 		);
 	}
@@ -616,7 +538,6 @@ export class GameScene extends Phaser.Scene {
 		}
 		this.phase = 'over';
 		this.selected = null;
-		this.sfx.stopHover();
 		this.refresh();
 		this.overlay.show('black', this.humanSide);
 	}
@@ -653,8 +574,6 @@ export class GameScene extends Phaser.Scene {
 			this.clockStartedAt = this.time.now;
 		}
 		this.paused = paused;
-		this.sound.mute = paused;
-		this.sfx.setPaused(paused);
 		if (paused) {
 			this.tweens.pauseAll();
 		} else {

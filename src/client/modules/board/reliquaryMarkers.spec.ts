@@ -35,6 +35,13 @@ function strokes(
 	return result;
 }
 describe('approved coloured B v2', () => {
+	it('keeps future continuation ticks visible with identical geometry but dimmer steel', () => {
+		const future = strokes('futureLanding').filter(s => s.color === 0x55758a);
+		const current = strokes('landing').filter(s => s.color === 0x779db8);
+		expect(future).toHaveLength(4);
+		expect(future.map(s => s.points)).toEqual(current.map(s => s.points));
+		expect(strokes('futureLanding', 0).length).toBeGreaterThan(0);
+	});
 	it('keeps the small slate imprint only at destinations, never under a victim', () => {
 		expect(strokes('landing').some((s) => s.color === 0x86a6b8)).toBe(true);
 		expect(strokes('target').some((s) => s.color === 0x86a6b8)).toBe(false);

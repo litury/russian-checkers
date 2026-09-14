@@ -56,6 +56,19 @@ it('promotes on the intermediate king row without lifting captured blockers or a
 	});
 });
 
+it('keeps full visual continuations of the chosen branch, including the vacated origin', () => {
+	const p = position({ c3: 'w', d4: 'b', f4: 'b', f2: 'b', d2: 'b' });
+	const chain = new StepwiseMove(p, sq('c3'));
+	expect(chain.remainingRoutes).toEqual(legalMoves(p));
+	chain.choose(sq('e5'));
+	expect(chain.remainingRoutes).toEqual([
+		{ from: sq('e5'), path: ['g3', 'e1', 'c3'].map(sq) },
+	]);
+	expect(chain.options).toEqual([{ from: sq('e5'), path: [sq('g3')] }]);
+	expect(chain.choose(sq('e1'))).toBeNull();
+	expect(chain.remainingRoutes[0].path).toHaveLength(3);
+});
+
 it('keeps distinct routes to the same endpoint selectable, including returning to the origin', () => {
 	const p = position({ c3: 'w', d4: 'b', f4: 'b', f2: 'b', d2: 'b' });
 	for (const names of [

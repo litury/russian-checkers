@@ -14,3 +14,9 @@ it('marks the next landing of every legal chain, deduplicating shared first hops
 		]),
 	).toEqual([mid, { row: 4, col: 0 }]);
 });
+
+it('unions future landings including origin/repeats, with current cells taking priority', () => {
+	const from = { row: 2, col: 2 }, a = { row: 4, col: 4 }, b = { row: 2, col: 6 };
+	const routes = [{ from, path: [a, b, from, b] }, { from, path: [b, a, from] }];
+	expect(markerDestinations(routes, true)).toEqual([from]);
+});

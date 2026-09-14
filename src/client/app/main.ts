@@ -20,7 +20,7 @@ function boot(): void {
 			height: window.innerHeight,
 		},
 		audio: {
-			noAudio: false,
+			noAudio: true,
 		},
 		scene: [GameScene],
 		callbacks: {
