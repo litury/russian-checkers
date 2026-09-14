@@ -2,7 +2,7 @@ import type Phaser from 'phaser';
 import type { Side } from '@/rules';
 import { matchLayout, readSafeInsets } from '@/client/config/matchLayout';
 import { createBunkerPanel } from './bunkerPanel';
-import { PanelReveal } from './panelReveal';
+import { PanelReveal, preparationMs } from './panelReveal';
 
 export function clipPlayerName(raw: string): string {
 	const chars = Array.from(raw.trim());
@@ -57,7 +57,7 @@ export function createHud(
 		if (!visible || !reveal.active || document.hidden || handlers.isPaused?.())
 			return;
 		// Same time domain as match banks, not Phaser's FPS-smoothed animation delta.
-		reveal.advance(delta);
+		reveal.advance(reduced ? preparationMs : delta);
 		paint();
 	};
 	const autoChanged = (event: Event) => {

@@ -127,8 +127,7 @@ export function createBunkerPanel(scene: Phaser.Scene, own: boolean) {
 		clip(left);
 		clip(right);
 		jets.forEach((go) => {
-			go.setVisible(p.steam >= 0);
-			if (p.steam >= 0) go.setFrame(p.steam);
+			go.setVisible(false); // Opening v4: no smoke, including the overlapping panel reveal.
 		});
 	}
 	// Font arrival updates actual canvas text, but never reveals a hidden root or restarts motion.

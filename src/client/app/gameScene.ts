@@ -157,8 +157,9 @@ export class GameScene extends Phaser.Scene {
 		}, () => this.cancelSelection(), () => this.hud.isMenuOpen());
 		this.board.setPlayfieldVisible(false);
 		this.title = createOpeningOverlay(this, {
+			isPaused: () => this.paused,
 			onPlayBot: () => {
-				this.startMatch();
+				this.startMatch(true);
 			},
 		});
 		this.overlay = createResultOverlay(this, {
@@ -209,7 +210,8 @@ export class GameScene extends Phaser.Scene {
 		this.refresh();
 	}
 
-	private startMatch(): void {
+	private startMatch(fromOpening = false): void {
+		if (fromOpening && this.phase !== 'title') return;
 		this.stopCountdown();
 		this.countingIn = true;
 		this.humanChain = null;
@@ -231,12 +233,12 @@ export class GameScene extends Phaser.Scene {
 			Math.ceil(blitzStartMs / 1000),
 			Math.ceil(blitzStartMs / 1000),
 		);
-		this.title.hide();
+		if (!fromOpening) this.title.hide();
 		this.overlay.hide();
 		this.hud.setVisible(true);
 		this.hud.setNames('Ты', 'Бот');
 		this.board.setPlayfieldVisible(true);
-		this.beginCountdown();
+		this.beginCountdown(fromOpening);
 		this.refresh();
 	}
 
@@ -245,17 +247,20 @@ export class GameScene extends Phaser.Scene {
 		this.countingIn = false;
 	}
 
-	private beginCountdown(): void {
+	private beginCountdown(fromOpening = false): void {
 		this.stopCountdown();
 		this.countingIn = true;
-		this.hud.startReveal(() => {
-			if (!this.countingIn) return;
-			// One authoritative boundary: input and the active bank become live together.
+		let pending = fromOpening ? 2 : 1;
+		const ready = () => {
+			if (!this.countingIn || --pending > 0) return;
+			// Gates and panels overlap. One boundary enables input, AutoMove and banks.
 			this.clockStartedAt = this.time.now;
 			this.countingIn = false;
 			this.paintClock();
 			this.refresh();
-		});
+		};
+		this.hud.startReveal(ready);
+		if (fromOpening) this.title.depart(ready);
 	}
 
 	private layout(width: number, height: number): void {

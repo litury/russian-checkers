@@ -71,15 +71,21 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 @media(max-width:389px){.opening-sheet{padding-left:20px;padding-right:20px}.opening-art{margin-left:-20px;margin-right:-20px}.opening-iron{left:calc(100% - 237px)}h1{font-size:38px}h1 span{font-size:52px}}
 @media(max-height:760px) and (max-width:699px){.opening-sheet{min-height:740px;padding-top:24px}h1{margin-top:24px}.opening-art{height:254px}.opening-iron{top:4px;width:190px;height:190px}.opening-bone{top:52px;width:209px;height:209px}.opening-actions{margin-top:0}}
 </style>
+<link rel="stylesheet" href="/src/client/app/openingGates.css" />
 </head>
 <body>
 <div id="game"></div>
 <main id="opening" aria-labelledby="opening-title">
  <div class="opening-sheet">
 
-  <h1 id="opening-title">РУССКИЕ <span>ШАШКИ</span></h1>
-  <p class="opening-slogan">Великие планы. Неизбежные жертвы.</p>
-  <div class="opening-art" aria-hidden="true"><img class="opening-iron" src="/src/client/app/ui/opening/black_disk.webp" width="217" height="217" alt="" decoding="async" /><img class="opening-bone" src="/src/client/app/ui/opening/ivory_disk.webp" width="229" height="229" alt="" decoding="async" /></div>
+  <div class="gate-title-canopy"><div class="gate-title-clip"><div class="gate-title-plate">
+   <h1 id="opening-title">РУССКИЕ <span>ШАШКИ</span></h1>
+   <p class="opening-slogan">Великие планы. Неизбежные жертвы.</p>
+  </div></div></div>
+  <div class="opening-art" aria-hidden="true">
+   <div class="gate-door gate-left"><picture><source media="(min-width:700px) and (min-aspect-ratio:1/1)" srcset="/src/client/app/ui/opening/gates/desktop.png" /><img src="/src/client/app/ui/opening/gates/mobile.png" width="390" height="844" alt="" decoding="async" /></picture></div>
+   <div class="gate-door gate-right"><picture><source media="(min-width:700px) and (min-aspect-ratio:1/1)" srcset="/src/client/app/ui/opening/gates/desktop.png" /><img src="/src/client/app/ui/opening/gates/mobile.png" width="390" height="844" alt="" decoding="async" /></picture></div>
+  </div>
   <nav class="opening-actions" aria-label="Главное меню">
    <button id="opening-play" class="opening-button opening-primary" aria-label="Загрузка игры" aria-busy="true" disabled><span class="opening-activity" aria-hidden="true"><i style="--segment:0"></i><i style="--segment:1"></i><i style="--segment:2"></i><i style="--segment:3"></i><i style="--segment:4"></i></span></button>
    <button id="opening-retry" class="opening-button opening-primary" hidden>Повторить загрузку</button>
@@ -190,7 +196,13 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   if (image.complete) decode();
   else { image.addEventListener('load', decode, {once:true}); image.addEventListener('error', failed, {once:true}); }
  });
- Promise.all([...art.querySelectorAll('img')].map(prepareImage)).then(images => {
+ const artImages = [...art.querySelectorAll('img')];
+ // Picture sources may change on rotation; never expose a replacement before decode.
+ artImages.forEach(image => image.addEventListener('load', () => {
+  image.classList.remove('is-decoded');
+  prepareImage(image).then(decoded => decoded?.classList.add('is-decoded'));
+ }));
+ Promise.all(artImages.map(prepareImage)).then(images => {
   images.forEach(image => image?.classList.add('is-decoded'));
   art.classList.add('is-prepared');
  });
