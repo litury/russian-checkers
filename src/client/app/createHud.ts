@@ -24,22 +24,13 @@ export const hudClockEOk1Key = 'hudClockEOk1';
 export const hudClockEOk2Key = 'hudClockEOk2';
 export const hudClockLampMs = 140;
 export const hudNamePlankKey = 'hudNamePlank';
-export const hudClockGrassKey = 'hudClockGrass';
-export const hudClockGrassKeys = [
-	'hudClockGrass',
-	'hudClockGrass1',
-	'hudClockGrass2',
-	'hudClockGrass3',
-] as const;
-export const hudClockGrassWindMs = 780;
-export const hudClockGrassYouWindMs = 1100;
-export const hudClockGrassSize = 150;
+
 export const hudNamePlankW = 160;
 export const hudNamePlankH = 128;
 export const hudNamePlankNativeW = 160;
 export const hudNamePlankNativeH = 80;
 export const hudNamePlankTextNativeY = 22;
-export const hudClockGrassDropPx = 4;
+
 export const hudNameMaxChars = 12;
 
 export function clipPlayerName(raw: string): string {
@@ -62,7 +53,7 @@ export const hudClockNeedle = 0xa68e63;
 const textStroke = '#1a1410';
 const hudDepth = 12;
 const plankDepth = 10;
-const grassDepth = 13;
+
 const clockDigitDepth = 14;
 const nameDepth = 15;
 
@@ -275,40 +266,7 @@ export function createHud(
 		fontSize: `${clockFontPx}px`,
 		color: palette.text,
 	};
-	const foeGrass = scene.add
-		.image(0, 0, hudClockGrassKey)
-		.setOrigin(0.5, 1)
-		.setDisplaySize(hudClockGrassSize, hudClockGrassSize)
-		.setDepth(grassDepth);
-	const youGrass = scene.add
-		.image(0, 0, hudClockGrassKeys[2])
-		.setOrigin(0.5, 1)
-		.setFlipX(true)
-		.setDisplaySize(hudClockGrassSize, hudClockGrassSize)
-		.setDepth(grassDepth);
-	if (!prefersReducedMotion() && typeof scene.time?.addEvent === 'function') {
-		const ping = [0, 1, 2, 1] as const;
-		const loopGrass = (
-			sprite: Phaser.GameObjects.Image,
-			start: number,
-			delay: number,
-			reverse: boolean,
-		): void => {
-			let step = start % ping.length;
-			scene.time.addEvent({
-				delay,
-				loop: true,
-				callback: () => {
-					step = reverse
-						? (step + ping.length - 1) % ping.length
-						: (step + 1) % ping.length;
-					sprite.setTexture(hudClockGrassKeys[ping[step]]);
-				},
-			});
-		};
-		loopGrass(foeGrass, 0, hudClockGrassWindMs, false);
-		loopGrass(youGrass, 2, hudClockGrassYouWindMs, true);
-	}
+
 	const foeClock = scene.add
 		.text(0, 0, '', clockStyle)
 		.setOrigin(0.5)
@@ -388,8 +346,7 @@ export function createHud(
 		youLabel.setVisible(on && clockFontReady);
 		foePlank.setVisible(on);
 		youPlank.setVisible(on);
-		foeGrass.setVisible(on);
-		youGrass.setVisible(on);
+
 		foeShell.setVisible(on);
 		youShell.setVisible(on);
 		turn.setVisible(false);
@@ -427,10 +384,7 @@ export function createHud(
 			youPlank.setPosition(youCx, youPlankBottom);
 			foePlank.setDisplaySize(hudNamePlankW, hudNamePlankH);
 			youPlank.setDisplaySize(hudNamePlankW, hudNamePlankH);
-			foeGrass.setPosition(foeCx, foeBottom + hudClockGrassDropPx);
-			youGrass.setPosition(youCx, youBottom + hudClockGrassDropPx);
-			foeGrass.setDisplaySize(hudClockGrassSize, hudClockGrassSize);
-			youGrass.setDisplaySize(hudClockGrassSize, hudClockGrassSize);
+
 			foeLabel.setPosition(foeCx, nameY(hudNamePlankH, foePlankBottom));
 			youLabel.setPosition(youCx, nameY(hudNamePlankH, youPlankBottom));
 

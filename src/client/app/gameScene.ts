@@ -51,10 +51,7 @@ import hudClockEOkUrl from './ui/hud_clock_e_ok.png';
 import hudClockEOk1Url from './ui/hud_clock_e_ok_1.png';
 import hudClockEOk2Url from './ui/hud_clock_e_ok_2.png';
 import hudNamePlankUrl from './ui/hud/hud_name_plank.png';
-import hudClockGrassUrl from './ui/hud/hud_clock_grass.png';
-import hudClockGrass01Url from './ui/hud/hud_clock_grass_01.png';
-import hudClockGrass02Url from './ui/hud/hud_clock_grass_02.png';
-import hudClockGrass03Url from './ui/hud/hud_clock_grass_03.png';
+
 import hudGlassMeadowUrl from './ui/hud_glass_meadow.png';
 import hudMenuUrl from './ui/hud_menu.png';
 import hudMenuFoldUrl from './ui/hud_menu_fold.png';
@@ -173,10 +170,7 @@ export class GameScene extends Phaser.Scene {
 		this.load.image('hudClockEOk1', hudClockEOk1Url);
 		this.load.image('hudClockEOk2', hudClockEOk2Url);
 		this.load.image('hudNamePlank', hudNamePlankUrl);
-		this.load.image('hudClockGrass', hudClockGrassUrl);
-		this.load.image('hudClockGrass1', hudClockGrass01Url);
-		this.load.image('hudClockGrass2', hudClockGrass02Url);
-		this.load.image('hudClockGrass3', hudClockGrass03Url);
+
 		this.load.image('resultMonitor', resultMonitorUrl);
 		this.load.image('mascotIdle0', mascotIdle0Url);
 		this.load.image('mascotIdle1', mascotIdle1Url);
@@ -226,10 +220,7 @@ export class GameScene extends Phaser.Scene {
 			'hudClockEOk1',
 			'hudClockEOk2',
 			'hudNamePlank',
-			'hudClockGrass',
-			'hudClockGrass1',
-			'hudClockGrass2',
-			'hudClockGrass3',
+
 			'resultMonitor',
 			'mascotIdle0',
 			'mascotIdle1',

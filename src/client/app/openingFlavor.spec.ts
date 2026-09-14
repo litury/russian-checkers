@@ -1,0 +1,58 @@
+import html from '../../../index.html?raw';
+const runInNewContext = (script: string, context: Record<string, unknown>) => new Function(...Object.keys(context), script)(...Object.values(context));
+import { expect, it, vi } from 'vitest';
+
+it('types at 60ms, holds for 2500ms, erases at 30ms and settles without delaying readiness', () => {
+ vi.useFakeTimers();
+ try {
+  const script = html.match(/<script id="opening-flavor">([\s\S]*?)<\/script>/)?.[1];
+  expect(script).toBeTruthy();
+  const nodes = Object.fromEntries(['opening', 'opening-flavor-size', 'opening-flavor-text', 'opening-flavor-cursor'].map(id => [id, {textContent:'', hidden:false, dataset:{} as Record<string, string>}]));
+  const listeners: Record<string, () => void> = {};
+  const motion = {matches:false, addEventListener: (_: string, fn: () => void) => { listeners.motion = fn; }};
+  const document = {hidden:false, getElementById: (id: string) => nodes[id], addEventListener: (name: string, fn: () => void) => { listeners[name] = fn; }};
+  const window: any = {};
+  runInNewContext(script!, {document, window, matchMedia: () => motion, setTimeout, clearTimeout, Math, MutationObserver: class { observe() {} }});
+  const text = nodes['opening-flavor-text'];
+  expect(text.textContent).toBe('');
+  const cursor = nodes['opening-flavor-cursor'];
+  expect(nodes['opening-flavor-size'].textContent.endsWith('...')).toBe(true);
+  expect(cursor.dataset.phase).toBe('type');
+  vi.advanceTimersByTime(59);
+  expect(text.textContent).toBe('');
+  vi.advanceTimersByTime(1);
+  expect(text.textContent.length).toBe(1);
+  while (!text.textContent.endsWith('...')) vi.advanceTimersByTime(60);
+  const first = text.textContent;
+  expect(cursor.dataset.phase).toBe('hold');
+  expect(nodes['opening-flavor-size'].textContent).toBe(first);
+  vi.advanceTimersByTime(2499);
+  expect(text.textContent).toBe(first);
+  vi.advanceTimersByTime(1);
+  expect(text.textContent.length).toBe(first.length - 1);
+  expect(cursor.dataset.phase).toBe('erase');
+  vi.advanceTimersByTime(29);
+  expect(text.textContent.length).toBe(first.length - 1);
+  vi.advanceTimersByTime(1);
+  expect(text.textContent.length).toBe(first.length - 2);
+  vi.advanceTimersByTime((first.length - 2) * 30);
+  expect(text.textContent).toBe('');
+  expect(nodes['opening-flavor-size'].textContent).not.toBe(first);
+  while (!text.textContent.endsWith('...')) vi.advanceTimersByTime(60);
+  expect(text.textContent.endsWith('...')).toBe(true);
+  expect(text.textContent).not.toBe(first);
+  motion.matches = true; listeners.motion();
+  expect(vi.getTimerCount()).toBe(0);
+  expect(nodes['opening-flavor-cursor'].hidden).toBe(true);
+  motion.matches = false; listeners.motion();
+  expect(vi.getTimerCount()).toBe(1);
+  document.hidden = true; listeners.visibilitychange();
+  expect(vi.getTimerCount()).toBe(0);
+  document.hidden = false; listeners.visibilitychange();
+  window.checkersFlavor.setState('ready');
+  expect(text.textContent.endsWith('...')).toBe(true);
+  expect(vi.getTimerCount()).toBe(0);
+  window.checkersFlavor.setState('error');
+  expect(nodes['opening-flavor-cursor'].hidden).toBe(true);
+ } finally { vi.useRealTimers(); }
+});

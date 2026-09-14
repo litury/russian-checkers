@@ -2,7 +2,7 @@ import type Phaser from 'phaser';
 
 declare global {
  interface Window {
-  checkersStartup: { watchdog: number; fail: (message: string) => void; status: (message: string) => void };
+  checkersStartup: { watchdog: number; fail: (message: string) => void; ready: () => void; status: (message: string) => void };
  }
 }
 
@@ -19,7 +19,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: { onPlayBot:
  play.setAttribute('aria-busy', 'false');
  play.hidden = false;
  retry.hidden = true;
- window.checkersStartup.status('Всё готово. Первый ход ваш.');
+ window.checkersStartup.ready();
  scene.events.once('shutdown', () => {
   play.onclick = null;
  });

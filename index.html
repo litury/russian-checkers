@@ -59,6 +59,14 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 @media(max-width:359px){#opening-help-dialog{padding:16px 12px}.rules-row{grid-template-columns:100px minmax(0,1fr);gap:12px}.rules-row figure{width:100px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 @media(min-width:700px) and (min-aspect-ratio:1/1){.opening-sheet{max-width:960px;min-height:720px;padding:38px 48px}h1{width:390px;margin:0 0 0 auto}.opening-slogan{width:390px;margin:20px 0 0 auto}.opening-art{position:absolute;left:20px;top:175px;width:calc(420px * 1.12);height:calc(314px * 1.12);margin:0}.opening-iron{width:calc(217px * 1.12);height:calc(217px * 1.12);left:calc(153px * 1.12);top:calc(31px * 1.12)}.opening-bone{width:calc(229px * 1.12);height:calc(229px * 1.12);left:calc(9px * 1.12);top:calc(90px * 1.12)}.opening-actions{width:334px;margin:58px 28px 0 auto}.opening-status{width:334px;margin:12px 28px 0 auto}.opening-retry{display:block;width:334px;margin:8px 28px 0 auto}}
+/* Full phrase reserves its font-correct width; cursor is outside centring. */
+.opening-status{display:flex;align-items:center;justify-content:center}
+.opening-flavor{display:block;position:relative;text-align:left;white-space:nowrap}
+#opening-flavor-size{visibility:hidden}
+.opening-flavor-ink{position:absolute;left:0;top:0;white-space:nowrap}
+#opening-flavor-cursor{position:absolute;color:#a99572}
+#opening-flavor-cursor[data-phase="hold"]{animation:opening-cursor 800ms steps(1,end) infinite}
+@keyframes opening-cursor{50%{opacity:0}}
 /* Mobile feedback stays centred in its reserved row; decode only fades art. */
 @media(max-width:699px){.opening-status{display:flex;align-items:center;justify-content:center;font-size:14px;padding:4px 8px}}
 @media(max-width:389px){.opening-sheet{padding-left:20px;padding-right:20px}.opening-art{margin-left:-20px;margin-right:-20px}.opening-iron{left:calc(100% - 237px)}h1{font-size:38px}h1 span{font-size:52px}}
@@ -82,7 +90,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
    </div>
   </nav>
   <p id="opening-loading-status" class="opening-sr-only" role="status" aria-live="polite" aria-atomic="true">Загрузка игры</p>
-  <p id="opening-status" class="opening-status" aria-live="off" aria-atomic="true">Подготавливаем игру…</p>
+  <p id="opening-status" class="opening-status" aria-live="off"><span class="opening-flavor" aria-hidden="true"><span id="opening-flavor-size"></span><span class="opening-flavor-ink"><span id="opening-flavor-text"></span><span id="opening-flavor-cursor" hidden>▌</span></span></span><span id="opening-error" hidden></span></p>
   <noscript><p>Для игры нужен JavaScript. Включите его в настройках браузера и обновите страницу.</p></noscript>
  </div>
 </main>
@@ -109,18 +117,57 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 </section>
 <form method="dialog"><button class="opening-button opening-primary">Готово</button></form>
 </dialog>
+<script id="opening-flavor">
+(() => {
+ const root = document.getElementById('opening');
+ const text = document.getElementById('opening-flavor-text');
+ const size = document.getElementById('opening-flavor-size');
+ const cursor = document.getElementById('opening-flavor-cursor');
+ const phrases = ['Пленных не будет...', 'Жертвы неизбежны...', 'Пощады не предусмотрено...', 'Ваш план переживут не все...', 'Слабый ход стоит головы...'];
+ const motion = matchMedia('(prefers-reduced-motion: reduce)');
+ let index = Math.floor(Math.random() * phrases.length);
+ let state = 'loading', phase = 'type', length = 0, timer;
+ const active = () => state === 'loading' && !document.hidden && !root.hidden && !motion.matches;
+ const paint = () => { size.textContent = phrases[index]; text.textContent = phrases[index].slice(0, length); cursor.dataset.phase = phase; };
+ const stop = () => { clearTimeout(timer); timer = undefined; cursor.hidden = true; };
+ const schedule = delay => { timer = setTimeout(tick, delay); };
+ function tick() {
+  timer = undefined;
+  if (!active()) { sync(); return; }
+  if (phase === 'hold') phase = 'erase';
+  if (phase === 'erase') {
+   length--;
+   if (length === 0) {
+    index = (index + 1 + Math.floor(Math.random() * (phrases.length - 1))) % phrases.length;
+    phase = 'type';
+   }
+   paint();
+   schedule(phase === 'type' ? 60 : 30);
+  } else {
+   length++;
+   if (length === phrases[index].length) { phase = 'hold'; schedule(2500); }
+   else schedule(60);
+   paint();
+  }
+ }
+ function sync() {
+  stop();
+  if (!active()) { length = phrases[index].length; phase = 'hold'; paint(); return; }
+  cursor.hidden = false;
+  paint();
+  schedule(phase === 'hold' ? 2500 : phase === 'erase' ? 30 : 60);
+ }
+ window.checkersFlavor = { setState(next) { state = next; sync(); } };
+ document.addEventListener('visibilitychange', sync);
+ motion.addEventListener('change', sync);
+ new MutationObserver(sync).observe(root, {attributes:true, attributeFilter:['hidden']});
+ sync();
+})();
+</script>
 <script>
 (() => {
  const byId = id => document.getElementById(id);
- // Pick once per document, never rotate or delay actual readiness.
- const loadingPhrases = [
-  'Пленных не будет...',
-  'Жертвы неизбежны...',
-  'Пощады не предусмотрено...',
-  'Ваш план переживут не все...',
-  'Слабый ход стоит головы...',
- ];
- byId('opening-status').textContent = loadingPhrases[Math.floor(Math.random() * loadingPhrases.length)];
+ // Flavor has its own HTML-first lifecycle; technical status never types.
  // Commit the title once: a late font must never replace a visible fallback.
  // Opacity leaves the live heading and its accessible name in the tree.
  const titleDeadline = setTimeout(() => finishTitle(false), 1800);
@@ -205,7 +252,27 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
  });
  sync();
- window.checkersStartup = { fail(message) { byId('opening-loading-status').textContent = message; byId('opening-play').setAttribute('aria-busy', 'false'); byId('opening-status').textContent = message; byId('opening-retry').hidden = false; byId('opening-play').disabled = true; byId('opening-play').hidden = true; }, status(message) { byId('opening-loading-status').textContent = message; if (!byId('opening-play').disabled) byId('opening-status').textContent = message; } };
+ window.checkersStartup = {
+  fail(message) {
+   clearTimeout(window.checkersStartup.watchdog);
+   window.checkersFlavor.setState('error');
+   document.querySelector('.opening-flavor').hidden = true;
+   byId('opening-error').hidden = false;
+   byId('opening-error').textContent = message;
+   byId('opening-loading-status').textContent = message;
+   byId('opening-play').setAttribute('aria-busy', 'false');
+   byId('opening-retry').hidden = false;
+   byId('opening-play').disabled = true;
+   byId('opening-play').hidden = true;
+  },
+  ready() {
+   window.checkersFlavor.setState('ready');
+   document.querySelector('.opening-flavor').hidden = false;
+   byId('opening-error').hidden = true;
+   window.checkersStartup.status('Всё готово. Первый ход ваш.');
+  },
+  status(message) { byId('opening-loading-status').textContent = message; }
+ };
  window.checkersStartup.watchdog = setTimeout(() => window.checkersStartup.fail('Загрузка затянулась. Проверьте соединение и повторите попытку.'), 30000);
 })();
 </script>

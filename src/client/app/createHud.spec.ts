@@ -335,10 +335,7 @@ describe('createHud', () => {
 		const grass = scene.images.filter((img) =>
 			String(img.key).startsWith('hudClockGrass'),
 		);
-		expect(grass).toHaveLength(2);
-		expect(grass[0]?.displayW).toBe(150);
-		expect(grass[0]?.y).toBe((shells[0]?.y ?? 0) + 4);
-		expect(grass[1]?.key).toBe('hudClockGrass2');
+		expect(grass).toHaveLength(0);
 	});
 
 	it('holds lamp frame 2 on your turn and plays 2-1-0 only on turn change', () => {
