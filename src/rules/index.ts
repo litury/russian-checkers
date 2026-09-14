@@ -4,8 +4,6 @@ export {
 	afterMoveBank,
 	blitzHoldMs,
 	blitzStartMs,
-	countdownBeatMs,
-	countdownBeats,
 	explodeFlag,
 	ownPieceSquares,
 	remainingMs,

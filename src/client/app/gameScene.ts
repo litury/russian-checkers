@@ -21,20 +21,20 @@ import meadowUrl from '@/client/modules/sfx/meadow_loop.ogg';
 import firstCaptureUrl from '@/client/modules/sfx/pervyy_vzryv.ogg';
 import selectUrl from '@/client/modules/sfx/select.ogg';
 import { sameSquare } from '@/client/shared/sameSquare';
+import { capturedOnSegment } from '@/rules/parts/capturedOnPath';
 import type { IMove, IPosition, ISquare, Side } from '@/rules';
 import {
 	afterMoveBank,
 	apply,
 	blitzStartMs,
-	countdownBeatMs,
-	countdownBeats,
+
 	createInitialPosition,
 	legalMoves,
 	remainingMs,
 	winner,
 } from '@/rules';
-import { hudFont } from '@/client/fonts/fonts';
-import { createHud } from './createHud';
+import { createHud, matchStatus } from './createHud';
+import { preloadBunkerPanels } from './bunkerPanel';
 import { remainingForHud } from './matchClock';
 import { createOpeningOverlay } from './openingOverlay';
 import type { IYandexSdk } from './IYandexSdk';
@@ -42,15 +42,6 @@ import { getAutoMove } from './parts/createSfxPanel';
 import { createResultOverlay } from './resultOverlay';
 import hudAiUrl from './ui/hud_ai.png';
 import hudAiOffUrl from './ui/hud_ai_off.png';
-import hudClockFaceUrl from './ui/hud_clock_face.png';
-import hudClockEIdleUrl from './ui/hud_clock_e_idle.png';
-import hudClockEHotUrl from './ui/hud_clock_e_hot.png';
-import hudClockEHot1Url from './ui/hud_clock_e_hot_1.png';
-import hudClockEHot2Url from './ui/hud_clock_e_hot_2.png';
-import hudClockEOkUrl from './ui/hud_clock_e_ok.png';
-import hudClockEOk1Url from './ui/hud_clock_e_ok_1.png';
-import hudClockEOk2Url from './ui/hud_clock_e_ok_2.png';
-import hudNamePlankUrl from './ui/hud/hud_name_plank.png';
 
 import hudGlassMeadowUrl from './ui/hud_glass_meadow.png';
 import hudMenuUrl from './ui/hud_menu.png';
@@ -104,8 +95,7 @@ export class GameScene extends Phaser.Scene {
 	private flagLock = false;
 
 	private countingIn = false;
-	private countText?: Phaser.GameObjects.Text;
-	private countEvent?: Phaser.Time.TimerEvent;
+
 	private botTimer?: Phaser.Time.TimerEvent;
 
 	constructor() {
@@ -161,15 +151,7 @@ export class GameScene extends Phaser.Scene {
 		this.load.image('hudNoteOff', hudNoteOffUrl);
 		this.load.image('hudAi', hudAiUrl);
 		this.load.image('hudAiOff', hudAiOffUrl);
-		this.load.image('hudClockFace', hudClockFaceUrl);
-		this.load.image('hudClockEIdle', hudClockEIdleUrl);
-		this.load.image('hudClockEHot', hudClockEHotUrl);
-		this.load.image('hudClockEHot1', hudClockEHot1Url);
-		this.load.image('hudClockEHot2', hudClockEHot2Url);
-		this.load.image('hudClockEOk', hudClockEOkUrl);
-		this.load.image('hudClockEOk1', hudClockEOk1Url);
-		this.load.image('hudClockEOk2', hudClockEOk2Url);
-		this.load.image('hudNamePlank', hudNamePlankUrl);
+		preloadBunkerPanels(this);
 
 		this.load.image('resultMonitor', resultMonitorUrl);
 		this.load.image('mascotIdle0', mascotIdle0Url);
@@ -211,15 +193,6 @@ export class GameScene extends Phaser.Scene {
 			'hudNoteOff',
 			'hudAi',
 			'hudAiOff',
-			'hudClockFace',
-			'hudClockEIdle',
-			'hudClockEHot',
-			'hudClockEHot1',
-			'hudClockEHot2',
-			'hudClockEOk',
-			'hudClockEOk1',
-			'hudClockEOk2',
-			'hudNamePlank',
 
 			'resultMonitor',
 			'mascotIdle0',
@@ -237,23 +210,13 @@ export class GameScene extends Phaser.Scene {
 			firstCapture: firstCaptureUrl,
 		});
 		this.hud = createHud(this, {
-			onResign: () => {
-				this.resignMatch();
-			},
+			isPaused: () => this.paused,
 			onAutoChange: () => {
 				this.refresh();
 			},
 		});
 		this.hud.setVisible(false);
-		this.countText = this.add
-			.text(0, 0, '', {
-				fontFamily: hudFont,
-				fontSize: '48px',
-				color: palette.text,
-			})
-			.setOrigin(0.5)
-			.setDepth(40)
-			.setVisible(false);
+
 		this.board = createBoardView(this, (square) => {
 			this.onSquare(square);
 		}, () => this.cancelSelection(), () => this.hud.isMenuOpen());
@@ -315,6 +278,8 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private startMatch(): void {
+		this.stopCountdown();
+		this.countingIn = true;
 		this.humanChain = null;
 		this.botTimer?.remove(false);
 		this.tweens.killAll();
@@ -341,38 +306,26 @@ export class GameScene extends Phaser.Scene {
 		this.hud.setNames('Ты', 'Бот');
 		this.board.setPlayfieldVisible(true);
 		this.sfx.resetMatch();
-		this.refresh();
 		this.beginCountdown();
+		this.refresh();
 	}
 
 	private stopCountdown(): void {
-		this.countEvent?.remove(false);
-		this.countEvent = undefined;
+		this.hud?.stopReveal();
 		this.countingIn = false;
-		this.countText?.setVisible(false);
 	}
 
 	private beginCountdown(): void {
 		this.stopCountdown();
 		this.countingIn = true;
-		this.countText?.setPosition(logicalSize(this).width / 2, logicalSize(this).height / 2);
-		const step = (index: number): void => {
-			if (!this.countingIn) {
-				return;
-			}
-			const beat = countdownBeats[index];
-			if (!beat) {
-				this.stopCountdown();
-				this.clockStartedAt = this.time.now;
-				this.refresh();
-				return;
-			}
-			this.countText?.setText(beat).setVisible(true);
-			this.countEvent = this.time.delayedCall(countdownBeatMs, () => {
-				step(index + 1);
-			});
-		};
-		step(0);
+		this.hud.startReveal(() => {
+			if (!this.countingIn) return;
+			// One authoritative boundary: input and the active bank become live together.
+			this.clockStartedAt = this.time.now;
+			this.countingIn = false;
+			this.paintClock();
+			this.refresh();
+		});
 	}
 
 	private layout(width: number, height: number): void {
@@ -380,7 +333,7 @@ export class GameScene extends Phaser.Scene {
 		this.hud.layout(width, height);
 		this.overlay.layout(width, height);
 		this.title.layout(width, height);
-		this.countText?.setPosition(width / 2, height / 2);
+
 		this.refresh();
 	}
 
@@ -470,7 +423,8 @@ export class GameScene extends Phaser.Scene {
 		this.board.setWaitingIdle(
 			this.phase === 'bot' || this.countingIn || this.paused,
 		);
-		this.hud.setTurn('');
+		this.hud.setTurn(matchStatus(this.countingIn, this.phase,
+			legalMoves(this.position).some(move => move.path[0] && capturedOnSegment(this.position, move.from, move.path[0])), Boolean(this.humanChain)));
 		this.maybeAutoMove();
 	}
 
@@ -656,7 +610,7 @@ export class GameScene extends Phaser.Scene {
 		});
 	}
 
-	private resignMatch(): void {
+	resignMatch(): void {
 		if (this.paused || this.moving || this.flagLock || this.phase !== 'human') {
 			return;
 		}
@@ -685,7 +639,7 @@ export class GameScene extends Phaser.Scene {
 		if (paused === this.paused) {
 			return;
 		}
-		if (paused) {
+		if (paused && !this.countingIn && (this.phase === 'human' || this.phase === 'bot')) {
 			const side = this.position.turn;
 			this.clocks[side] = remainingMs(
 				this.clocks[side],

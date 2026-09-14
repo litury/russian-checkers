@@ -4,7 +4,6 @@ import {
 	afterMoveBank,
 	blitzHoldMs,
 	blitzStartMs,
-	countdownBeats,
 	explodeFlag,
 	ownPieceSquares,
 	remainingMs,
@@ -343,7 +342,6 @@ describe('bullet 1+0', () => {
 		expect(remainingMs(60_000, 0, 2_000, false)).toBe(58_000);
 		expect(remainingMs(60_000, 0, 4_000, false)).toBe(56_000);
 		expect(remainingMs(60_000, 10_000, 12_000, true)).toBe(60_000);
-		expect(countdownBeats).toEqual(['3', '2', '1', 'ГО']);
 	});
 
 	it('explodes a random own piece and keeps the same turn', () => {

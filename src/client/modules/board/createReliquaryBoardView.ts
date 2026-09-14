@@ -50,17 +50,7 @@ export function createBoardView(
 	const marks = scene.add.graphics().setDepth(8);
 	const interaction = scene.add.graphics().setDepth(9);
 	const hintMotion = new MarkerMotion();
-	const status = scene.add
-		.text(0, 0, '', {
-			fontFamily: 'sans-serif',
-			fontSize: '18px',
-			color: '#eee4ca',
-			backgroundColor: '#121618',
-			padding: { x: 10, y: 6 },
-		})
-		.setOrigin(0.5, 1)
-		.setDepth(10)
-		.setVisible(false);
+
 	const pieces = new Map<string, PieceView>();
 	const cells: { square: ISquare; rect: Phaser.GameObjects.Rectangle }[] = [];
 	const canvas = scene.game.canvas;
@@ -122,10 +112,7 @@ export function createBoardView(
 	};
 	const draw = (): void => {
 		marks.clear();
-		status.setVisible(
-			visible && choices.some((move) => targets(move).length > 0),
-		);
-		status.setText('Нужно бить');
+
 		if (!visible) return;
 		if (selected) paint(selected, 'selected');
 		const seen = new Set<string>();
@@ -297,10 +284,7 @@ export function createBoardView(
 	const layout: IBoardView['layout'] = (width, height) => {
 		field = reliquaryLayout(width, height);
 		ground.setSize(width, height);
-		status.setPosition(
-			width / 2,
-			Math.max(38, field.originY - 33 * field.scale - 8),
-		);
+
 		board
 			.setPosition(
 				field.originX - 14 * field.scale,
@@ -339,7 +323,7 @@ export function createBoardView(
 		position = null;
 		if (movingView) remove(movingView);
 		movingView = null;
-		status.setVisible(false);
+
 		for (const view of pieces.values()) remove(view);
 		pieces.clear();
 		marks.clear();
@@ -392,9 +376,7 @@ export function createBoardView(
 					Math.abs(s.row - from.row) < Math.abs(land.row - from.row),
 			);
 			marks.clear();
-			status
-				.setText(index > 0 ? 'Серия взятий' : 'Нужно бить')
-				.setVisible(Boolean(victim));
+
 			paint(from, 'selected');
 			paint(land, victim ? 'landing' : 'move');
 			if (victim) paint(victim, 'target');
