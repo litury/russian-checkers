@@ -1,4 +1,5 @@
 import type Phaser from 'phaser';
+import {createMenuAudio} from './menuAudio';
 import {gatePose, OpeningGates} from './openingGates';
 import {gateDurationMs as preparationMs} from './openingGates';
 
@@ -15,8 +16,10 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: { onPlayBot:
  const retry = document.getElementById('opening-retry')!;
  const motion = matchMedia('(prefers-reduced-motion: reduce)');
  const gates = new OpeningGates();
+ const audio=createMenuAudio(scene.registry.get('sdk'));
  let sampledAt: number | null = null, firstShow = true;
  const paint = (ms: number) => {
+  if(gates.active)audio.gate(ms,motion.matches);
   const p=gatePose(ms);
   root.style.setProperty('--gate-open',String(p.doors));
   root.style.setProperty('--gate-slide',String(p.slide));
@@ -29,7 +32,8 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: { onPlayBot:
    if(dialog.open) dialog.close();
   }
  };
- const hide = () => {
+ const hide = (completed=false) => {
+  audio.hide(completed,motion.matches);
   gates.cancel(); closeDialogs(); root.hidden=true; root.inert=false;
   root.classList.remove('is-departing');
   document.getElementById('game')!.inert=false;
@@ -51,7 +55,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: { onPlayBot:
  document.addEventListener('visibilitychange',visibilityChange);
  scene.events.on('update',update);
  scene.events.once('shutdown',()=>{
-  gates.cancel();play.onclick=null;
+  gates.cancel();audio.dispose();play.onclick=null;
   scene.events.off('update',update);
   document.removeEventListener('visibilitychange',visibilityChange);
   root.inert=false;root.classList.remove('is-departing');paint(0);
@@ -59,15 +63,17 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: { onPlayBot:
  return {
   layout: (_width:number,_height:number)=>undefined,
   show:()=>{
+   audio.show();
    gates.cancel();sampledAt=null;paint(0);root.inert=false;root.classList.remove('is-departing');
    play.disabled=false;root.hidden=false;document.getElementById('game')!.inert=true;
    if(!firstShow)play.focus({preventScroll:true});firstShow=false;
   },
   hide,
   depart:(done:()=>void)=>{
+   audio.depart();
    closeDialogs();root.inert=true;play.disabled=true;root.classList.add('is-departing');
    sampledAt=scene.time.now;
-   gates.start(()=>{paint(preparationMs);hide();done();});
+   gates.start(()=>{paint(preparationMs);hide(true);done();});
    paint(0);
   },
  };
