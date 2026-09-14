@@ -24,6 +24,7 @@ function setup(pieces: Record<string, string>, turn = 'white') {
 	s.clockStartedAt = 100;
 	s.hud = { setTurn: vi.fn(), setClock: vi.fn() };
 	s.board = {
+		clearOpeningHint: vi.fn(),
 		sync: vi.fn(),
 		setWaitingIdle: vi.fn(),
 		playMove: vi.fn((_m, done) => done()),
