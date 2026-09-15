@@ -9,6 +9,7 @@ import { preloadKingFire } from '@/client/modules/board/kingFireAssets';
 import { installDisplayDensity, logicalSize } from './displayDensity';
 import { preparationMs } from './panelReveal';
 import { orcOpeningTurnLine } from './orcTurn';
+import { pieceSelectSfx } from './pieceSfx';
 import { orcOutcomeLine, orcTimeLow } from './orcResult';
 import { StepwiseMove } from './stepwiseMove';
 import { pickBotMove } from '@/client/modules/bot';
@@ -464,8 +465,10 @@ export class GameScene extends Phaser.Scene {
 		// A started capture is irrevocable, including clicks on other own pieces.
 		if (this.humanChain) return;
 		if (moves.some((move) => sameSquare(move.from, square))) {
+			const same = selected && sameSquare(selected, square);
 			this.selected = square;
 			this.refresh();
+			if (!same) pieceSelectSfx();
 			return;
 		}
 		const piece = this.position.squares[square.row][square.col];

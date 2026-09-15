@@ -6,7 +6,7 @@ import {previewLoop,mechanismEnvelope} from './menuAudioPreview';
 import {startPanelWindows,startTimerLock,startTimerSlide} from './startAudio';
 import {orcArenaLine} from './orcTurn';
 import {bindKingFireSfx} from './kingFireSfx';
-import {bindPieceSfx} from './pieceSfx';
+import {bindPieceSfx,cancelPieceAh} from './pieceSfx';
 const urls=import.meta.glob('./audio/menu/*',{eager:true,query:'?url',import:'default'}) as Record<string,string>;
 /** The old Phaser sound manager is disabled. This menu-only Web Audio owner uses
  * the existing persisted settings and SDK, never creates an HTML media player. */
@@ -23,7 +23,7 @@ export function createMenuAudio(sdk:IYandexSdk) {
  // Producer can replace this technical preview with an approved loop later.
  const loop={enabled:true,start:0,end:0}; // Temporary crossfaded preview, NOT approved master.
  const settings=()=>window.checkersSettings.get();
- const stopEffects=()=>{if(voice){try{voice.stop()}catch{}voice=undefined;}for(const s of effects){try{s.stop()}catch{}}effects.clear();};
+ const stopEffects=()=>{cancelPieceAh();if(voice){try{voice.stop()}catch{}voice=undefined;}for(const s of effects){try{s.stop()}catch{}}effects.clear();};
  const stopMusic=()=>{fadeGen++;fading=false;if(music){music.onended=null;try{music.stop()}catch{}music=undefined;}musicGain=undefined;};
  const stopMatch=()=>{if(match){match.onended=null;try{match.stop()}catch{}match=undefined;}matchGain=undefined;};
  const matchLevel=()=>settings().master*settings().music*matchMusicLevel;
@@ -137,15 +137,7 @@ export function createMenuAudio(sdk:IYandexSdk) {
  for(const id of ['opening-help-dialog','opening-settings-dialog'])document.getElementById(id)!.addEventListener('close',()=>sound(menuBackSound,menuClickLevel));
  prepare();sync();
  bindKingFireSfx(sound);
- bindPieceSfx((name,level)=>{
-  const r=sound(name,level);
-  if(name==='capture'&&r&&ctx){
-   const t=ctx.currentTime;
-   r.gain.gain.setValueAtTime(r.gain.gain.value,t);
-   r.gain.gain.linearRampToValueAtTime(0,t+.7);
-   try{r.source.stop(t+.75);}catch{}
-  }
- });
+ bindPieceSfx(sound);
  return {
   show(){epoch++;mechanisms.clear();policy.menu=true;policy.match=false;policy.departing=false;musicEnded=false;stopEffects();stopMatch();sync();},
   hide(completed=false,reduced=false){epoch++;stopEffects();if(completed&&!reduced)sound('gate_stop');policy.menu=false;policy.departing=false;if(completed)policy.match=true;mechanisms.clear();sync();},
