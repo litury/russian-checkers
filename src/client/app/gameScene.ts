@@ -111,6 +111,14 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(pieceSprites.manDark, reliquaryAssets['../modules/board/reliquary/black_disk.png'] as string);
 		this.load.image(pieceSprites.kingLight, reliquaryAssets['../modules/board/reliquary/ivory_king.png'] as string);
 		this.load.image(pieceSprites.kingDark, reliquaryAssets['../modules/board/reliquary/black_king.png'] as string);
+		// V2: lossless composition of approved RGBA layers, individual 724px frames.
+		const selectionFrames = import.meta.glob('../modules/board/selection-v2/frames/*/*.png', {
+			eager: true, query: '?url', import: 'default',
+		});
+		for (const [path, url] of Object.entries(selectionFrames)) {
+			this.load.image(`selection_${path.split('/').pop()!.replace('.png', '')}`, url as string);
+		}
+		this.load.image('selection_king-seal', new URL('../modules/board/selection/markers/king-seal-proposed.png', import.meta.url).href);
 		preloadBunkerPanels(this);
 
 		this.load.image('resultMonitor', resultMonitorUrl);
@@ -458,12 +466,12 @@ export class GameScene extends Phaser.Scene {
 	private playHumanHop(square: ISquare): boolean {
 		if (!this.selected) return false;
 		const chain = this.humanChain ?? new StepwiseMove(this.position, this.selected);
-		const visual = chain.visualPosition;
+
 		const chosen = chain.choose(square);
 		if (!chosen) return false;
 		this.humanChain = chain;
 		this.moving = true;
-		this.board.sync(visual, [], null);
+
 		this.board.playMove(chosen.hop, () => {
 			this.moving = false;
 			this.selected = chain.selected;
@@ -481,7 +489,7 @@ export class GameScene extends Phaser.Scene {
 	private animateMove(move: IMove, after: () => void): void {
 		this.moving = true;
 		this.selected = null;
-		this.board.sync(this.position, [], null);
+
 		this.board.playMove(
 			move,
 			() => {
@@ -552,6 +560,7 @@ export class GameScene extends Phaser.Scene {
 		if (this.paused || this.moving || this.flagLock || this.phase !== 'human') {
 			return;
 		}
+		this.board.reset();
 		this.phase = 'over';
 		this.selected = null;
 		this.refresh();
@@ -560,6 +569,9 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private endMatch(side: Side): void {
+		this.board.reset();
+		this.moving = false;
+		this.botTimer?.remove(false);
 		this.board.clearOpeningHint();
 		this.phase = 'over';
 		this.selected = null;

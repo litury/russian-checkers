@@ -1,0 +1,1138 @@
+{
+  "source": "/Users/urylit/russian-checkers/docs/preview-selection-quality-upgrade/v2",
+  "pivot": [
+    365,
+    679
+  ],
+  "canvas": [
+    724,
+    724
+  ],
+  "footprint": 648,
+  "nominalWidth": 35,
+  "nominalCell": 44,
+  "anchorY": 0.9,
+  "rounding": "ties-to-even(progress*55)",
+  "frames": [
+    {
+      "file": "frames/white/white-00.png",
+      "displacement": 0,
+      "sha256": "8112a2654947685b9f2e1c77ec7a51890a314efbd20dd66af2bf7e38b6b5cb1f",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-01.png",
+      "displacement": 1,
+      "sha256": "cb0a8ad12c00f54ca78911696de9a64abac0141afae5574278a7487782f5a513",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-02.png",
+      "displacement": 2,
+      "sha256": "8012b57ff9edc06c3d722362f6a20062b02d6d59e37d38b57564348c1e9d2c41",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-03.png",
+      "displacement": 3,
+      "sha256": "ec4aab3693e7047dbc8e0cb8d9b3fa4640747bacc03c42bb9ae3c793303edc86",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-04.png",
+      "displacement": 4,
+      "sha256": "c9710f78604a8853eaa17859092f0d2d80e29fa0fc4da9446b0fb4e2f36ff88f",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-05.png",
+      "displacement": 5,
+      "sha256": "0e7666554c173079dd5f17d6ca3c8fde922d55f38a1828867c6e743c5fa12edd",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-06.png",
+      "displacement": 6,
+      "sha256": "c29082082d9ea45fed23d36255eeba8a0e39f27b0fe88c2abbf380561141aae0",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-07.png",
+      "displacement": 7,
+      "sha256": "592f3f8c53d49f08608e157d222414e47cf8447d20ab4399f3e2514544ada91c",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-08.png",
+      "displacement": 8,
+      "sha256": "f40872e3e766fc9f5437a0d7d3fcc377d26459ee06c03280b642371f11696046",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-09.png",
+      "displacement": 9,
+      "sha256": "dc2e9eee279b3c2a5aab8335291ebdc51e3d94f7c8783089aba3177a26f9628e",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-10.png",
+      "displacement": 10,
+      "sha256": "ebbeab931825f2dcc9681cdce2b0d4d7bab031853193395df72091c325225091",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-11.png",
+      "displacement": 11,
+      "sha256": "79ab1dadc43955a0e7c2d7e0161e2f3dd0eee78e00b227b770e713bc252aa657",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-12.png",
+      "displacement": 12,
+      "sha256": "e56dbca8d2a6e93b6eb70ed45da48359d58ef6ffdbb351500dcff959a55f21e2",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-13.png",
+      "displacement": 13,
+      "sha256": "e9deb9136902b5e3f103d422ef319576f740031f3fa06097f02914ae77a11c09",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-14.png",
+      "displacement": 14,
+      "sha256": "9bf5422ea49c4758bd18dae96f92941678efb75240a8b85277e30d4e8c39c0f6",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-15.png",
+      "displacement": 15,
+      "sha256": "51704352e6e4a1fec4661ec0436f4ecd05c4d3f28a279d8dd11d960ee5c09701",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-16.png",
+      "displacement": 16,
+      "sha256": "1473ccf698cf1fc6adefefcfc15355fe1a583d726e18054bac658f062c3eb744",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-17.png",
+      "displacement": 17,
+      "sha256": "b8203974fdc1c786eff98dd8d5eedf52ebaf8dba6e4ee1728bef7baa31b1af7b",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-18.png",
+      "displacement": 18,
+      "sha256": "b4d275b468e3f969e8ea0816d58f8ecf455add7280030de3935608bad2933a5e",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-19.png",
+      "displacement": 19,
+      "sha256": "1e4ac14a6790f35d3c50999b6671e5c31ec51973d7c82ffa955fa21109e4f064",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-20.png",
+      "displacement": 20,
+      "sha256": "01b751a5d8c4605236cb8f152ff4fc3912f44392bed64c85fcc1fe9d969b77c3",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-21.png",
+      "displacement": 21,
+      "sha256": "8b35d494c392dd904f80daee780ed470d951454ab9ab639f4564765ba56f5d96",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-22.png",
+      "displacement": 22,
+      "sha256": "7195eea7a3c45f474af3b7b19fb9f50b8ae59319f9ed90025aa15862b13d9b64",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-23.png",
+      "displacement": 23,
+      "sha256": "7f04e203afc329f6003501fcf2172148b753418734ac4876e1b80477d5e23e4d",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-24.png",
+      "displacement": 24,
+      "sha256": "c61b06296b9c2ad95c016c6f929838b2e014213fb8cd3f28f933f76b69f54f59",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-25.png",
+      "displacement": 25,
+      "sha256": "34f7b85ae8bfa211ed193a9ecefbc4b4b14f20c6b71b686eae4e16f1ec096743",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-26.png",
+      "displacement": 26,
+      "sha256": "1349e9b6f834f66fea25d8a4fa8c9bddab229d59c90d0da62c679417c9fa5594",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-27.png",
+      "displacement": 27,
+      "sha256": "6b300847451610f1bb809a666c5112174fb3b525b626fd1cdbe6afa14cb21568",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-28.png",
+      "displacement": 28,
+      "sha256": "3023f6b5bd52f1a3cc02caef145ddda531283b4fceb8f128e429e4224f03654c",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-29.png",
+      "displacement": 29,
+      "sha256": "0a5816065e3eaa73dd969558ba08638f519b6bde828ec0111518f60303d4080f",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-30.png",
+      "displacement": 30,
+      "sha256": "473d069bcac076d6267739607dca5d116604fce472ee5e79384743afac4bcf18",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-31.png",
+      "displacement": 31,
+      "sha256": "bf93387999e8bb136283adb81889cd79ec7952f6cb490c404a7ec2b4f1e2b5bd",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-32.png",
+      "displacement": 32,
+      "sha256": "25a408e8700db92acb933ecbc605d17c04d367c7cf265cbe04df7c08859cfa30",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-33.png",
+      "displacement": 33,
+      "sha256": "40d2159e7d980a7e4c68fa736243ba4d44ecabe483d36223001aff757b69178d",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-34.png",
+      "displacement": 34,
+      "sha256": "833554d2e1a9966cce4d83022c02a4499b05a0506f2fb9fe1638dc7c6cf6de76",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-35.png",
+      "displacement": 35,
+      "sha256": "4f28137e7d5dd6ec0bf7f07062bd5d5cca695468f4e6b3b8b07f5d55e22b7fbc",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-36.png",
+      "displacement": 36,
+      "sha256": "4a9d42a537be5f352398527101ff0e5426cc3b0fcfcc10af07214b4cc6a5d85a",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-37.png",
+      "displacement": 37,
+      "sha256": "c189e3614be0d87d9f945afa48bb3f7bb2ab3ee67833702beb42fce7f1c803fb",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-38.png",
+      "displacement": 38,
+      "sha256": "e4d0d806871c792bf4d0e9567b1b6828ae7efa7934b8a1585ab2e9096d39e9f2",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-39.png",
+      "displacement": 39,
+      "sha256": "523a7ac4eddfee376d23d704f72c14edb6e9327c878501ea4604e8e4fcf48364",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-40.png",
+      "displacement": 40,
+      "sha256": "998e2217bfc2b54fcb35281fb8bbef88bc390a91617a64d8b83a39060beb0a48",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-41.png",
+      "displacement": 41,
+      "sha256": "c4b799a97c32c124bea12de77bcc8da380ff9aac650650c43a00ab67f22293b7",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-42.png",
+      "displacement": 42,
+      "sha256": "09179d6098ad95463958f7e89ec6fb13d0365e5810efe4b4fdcdfb206cbde6e1",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-43.png",
+      "displacement": 43,
+      "sha256": "75bf053a322806e4a54e77296a09a115c44b9137ac494600d4b01bd5a4ad48eb",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-44.png",
+      "displacement": 44,
+      "sha256": "e16e9382afa5747ed18d51a6d5ca0c3b47d88f6d2d4daf681f296f4db0aad755",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-45.png",
+      "displacement": 45,
+      "sha256": "c4127adbb89a8c1d920d5da21cf7cc2e153777a2747198ed101e0615a217b1fe",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-46.png",
+      "displacement": 46,
+      "sha256": "06b45b125c40926ac49bb707fab8e62c223bad3a51e2a34dbd2a5be01fb60ca9",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-47.png",
+      "displacement": 47,
+      "sha256": "a9ce4d3d5fc30c0f858d71abe5f31d89a3feada1f3d532df1b8d816a91d9bda8",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-48.png",
+      "displacement": 48,
+      "sha256": "1527f30fc1e933b7670d058467a8a5c7caafc6aa9945d9a2a998586bdb36380e",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-49.png",
+      "displacement": 49,
+      "sha256": "d568bbf4f26e260726792b05447a2b4f5680c650c132a2e478caea327db6e91c",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-50.png",
+      "displacement": 50,
+      "sha256": "47f9aa068c9dc074bf3533432aedef784be4f9604eb5cffc64f1d1434a6ad70e",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-51.png",
+      "displacement": 51,
+      "sha256": "24d7d7feac95f8dd10a5b117110edf329e540b0c6c40d94df57f9312a86909df",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-52.png",
+      "displacement": 52,
+      "sha256": "66c9b95d8d513366ef688e1c693e064b69fdafe7638844a51a7e77b4eb5d279a",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-53.png",
+      "displacement": 53,
+      "sha256": "1c35dcf9110548f36b1b7af32d60afebb69367ad2315e0fbd9568df5cfd4235c",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-54.png",
+      "displacement": 54,
+      "sha256": "7a103b13188b54e9787d4a9533bea2df7066a26d77be218463958aeab202d79c",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/white/white-55.png",
+      "displacement": 55,
+      "sha256": "00c216e2ac629a1faee2d9ac39283c5c3706c40b494fd219e916bd07041ec113",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-00.png",
+      "displacement": 0,
+      "sha256": "fd67706ead3f57d45e8bc2564cacad05c326a648bf35e4f6741a6d2184a08ee0",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-01.png",
+      "displacement": 1,
+      "sha256": "3033b8923418b0a5843d3c30e8c6aee7117dc1d30a6a8c4278a46f2819a9e4a0",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-02.png",
+      "displacement": 2,
+      "sha256": "5552ac44e22785da7ad1cf551d81c16593c0e247c5c203251bf7680b52b8b1e3",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-03.png",
+      "displacement": 3,
+      "sha256": "94d5b43edf93bb37f2c83991d7529c95a536c556bf611021ceb16005dbbd493a",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-04.png",
+      "displacement": 4,
+      "sha256": "205636d75d20177110a51bca9d31e3008e73cf9543c997f853cb824447b31390",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-05.png",
+      "displacement": 5,
+      "sha256": "41e1fc0cbb699e225f286ce538109d8fb2b8ddb5c08d93d6b6d1baf4e6c5d340",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-06.png",
+      "displacement": 6,
+      "sha256": "b3abf152df498e79e1f03f40b4a5b659e6a63fe3eafa392cac2e0f01af23a3c5",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-07.png",
+      "displacement": 7,
+      "sha256": "3584a05047fe8b226bba493ae44f169b5467fb01279fc27af067f8dd627e7b7f",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-08.png",
+      "displacement": 8,
+      "sha256": "62fe87037411522ad04bd3e302d83791d796d6d060792d4bcdd6d0686fe11afd",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-09.png",
+      "displacement": 9,
+      "sha256": "c5b5bb8e6943427f0fd353e19bd2b1c85c346e10aaf8befa74dd56819bbc0639",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-10.png",
+      "displacement": 10,
+      "sha256": "c005e86adee2f4a9fc227f74b0d5848c55fb50195abddc618893450a54f93171",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-11.png",
+      "displacement": 11,
+      "sha256": "e1d6bb43f5ebcb27a405d0df6ede544f3afaaa6409ecc86c0eb017219f848018",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-12.png",
+      "displacement": 12,
+      "sha256": "6a49230e6373f44610d533dd28af2f74d73e3ae1b3c51f3c8bd78898c355ff75",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-13.png",
+      "displacement": 13,
+      "sha256": "7d8694a12727849ea12e445a07efb9eb1f8609f8fa9b5abd5f3e9a186b109fcf",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-14.png",
+      "displacement": 14,
+      "sha256": "655188480b0fe81264464849cdabf020b8d92790df18c6d27175935665809375",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-15.png",
+      "displacement": 15,
+      "sha256": "f05635e857e0e21888088927cb017d8fbaac57f6f74cd012a8902046ff7d197b",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-16.png",
+      "displacement": 16,
+      "sha256": "3a1ac5a6b1027848cafb2638d486487b2e4deb1460f96de2bd89d3e774a97f71",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-17.png",
+      "displacement": 17,
+      "sha256": "c7702d56044bda92c09099dca9e2b15cc37a21c557d63201d3d168f7c6e45c29",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-18.png",
+      "displacement": 18,
+      "sha256": "f5f416530d36ae1621c855ef158e9add40bca5d0373d0cac06575bc24f9fe5e8",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-19.png",
+      "displacement": 19,
+      "sha256": "8c4755fe40a581bbeb0b23858d986d50496621dd8a3cd8b976effcd81836aacc",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-20.png",
+      "displacement": 20,
+      "sha256": "99f00d02844ac7ba1c0422e36c8ca5dc60139bae36cfdfe93c90bbe6787163b3",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-21.png",
+      "displacement": 21,
+      "sha256": "aed9cac4ce6babf0a80f3fe5016430abde53a8c871489c3bf68dcc5fa8bdcfd9",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-22.png",
+      "displacement": 22,
+      "sha256": "9615c2e40323ebad6b3d12cf7982dfd952534f54066d7518f1c181320c784771",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-23.png",
+      "displacement": 23,
+      "sha256": "f46bbb379da4da6ed65c5f829a7969b53a148537adb03f63be54b38ae5f34d5f",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-24.png",
+      "displacement": 24,
+      "sha256": "234b0d3748fe412a2cbef0443dc06d8f2151ec9426a073ff8534d5c97d32570f",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-25.png",
+      "displacement": 25,
+      "sha256": "63bd9fee3a307f3fe3f31b7b5f39e0ca3885fb2dc63d41176b1535d1a6887a9c",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-26.png",
+      "displacement": 26,
+      "sha256": "d2f8a748a4efd3cd9d4cf8ebef9df75abd2702874af609ad6a643be16ec1d9a0",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-27.png",
+      "displacement": 27,
+      "sha256": "23794e7731fad5d08028c7e9b05b9ca4fc557c712ce540d35b11a97fb8486b5b",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-28.png",
+      "displacement": 28,
+      "sha256": "27b1ec5b4c86d08eef664ac8e74aeb94864c59d0feae4eeab8f84bbe2b1633ad",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-29.png",
+      "displacement": 29,
+      "sha256": "311237e535d250720f7d252f3bd800d7ba80bd88521856da679ee94523a85498",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-30.png",
+      "displacement": 30,
+      "sha256": "5a3e711e53a346ae9ba120d8c79dfc9697a1d7c58b5b19a262d1e432ceec7ae2",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-31.png",
+      "displacement": 31,
+      "sha256": "d673bca8e136a756f176733b42cfc57b61fa15970d3bd307569e0927d6b5d786",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-32.png",
+      "displacement": 32,
+      "sha256": "fa3fdb39d95929d577a3f569842525353398d4fe8515d56f1074849f821f6472",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-33.png",
+      "displacement": 33,
+      "sha256": "40a6f3be51d2c7812274ef1b2e9b222b01d15652cdfee254f3a294b53969c714",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-34.png",
+      "displacement": 34,
+      "sha256": "7db7c9e87e483dd9d5aaef0cbc106032be8e5a0bfe798e3d79c8958c947d2cee",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-35.png",
+      "displacement": 35,
+      "sha256": "06f7727aaec723b9d8e2a74f3cc4a270a1a387b7d4c4b47a42b35833faf8fcca",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-36.png",
+      "displacement": 36,
+      "sha256": "8cc76c470650ca7c3ce5c8eeff1dd70a548fc613bd316435aae474ba1f751b9f",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-37.png",
+      "displacement": 37,
+      "sha256": "e461beeb9eb29f81ed20734438e10ee40128e637aff772e4e0a7a3e4f8219710",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-38.png",
+      "displacement": 38,
+      "sha256": "718eff1aa7a498cd3429262d767b2ec2a6066e46a283977f36ffbf3c1df77f77",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-39.png",
+      "displacement": 39,
+      "sha256": "360f30a621cde8b428defad5e3ad41f17c753b330a405ef1d1e62e8ed8c11555",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-40.png",
+      "displacement": 40,
+      "sha256": "81b845c85943d9aa29b7823755aca14775fd4a3fb8939106a652f51cb5c514f2",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-41.png",
+      "displacement": 41,
+      "sha256": "44add3432995ed78ffce07295b238130d6763e4007e2ef3cd4722604fe957248",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-42.png",
+      "displacement": 42,
+      "sha256": "9d6a707cad364dc9ed7d59e6b5cc9dd0a4140dc418b35471840fa31ba49ab463",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-43.png",
+      "displacement": 43,
+      "sha256": "7bd6be9ecde444b649f5391622dc8ca610c97496dac7f2d69e88dd410405788a",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-44.png",
+      "displacement": 44,
+      "sha256": "e02fb310e174447a62c6f16b8c6dac012755de01c5ce4ec7004aa8d25183a56b",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-45.png",
+      "displacement": 45,
+      "sha256": "843bdde1eeb2fd51648630df2cff86f5705611319d897f2ede0632ca52ecc55a",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-46.png",
+      "displacement": 46,
+      "sha256": "a9975c69d4c5a40547d1470c462ea3ff71a7c475892bec1f76f8dd37f92b1b98",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-47.png",
+      "displacement": 47,
+      "sha256": "1f05b315a747e7f1e5a3c97fc72437e7275fb15cee5a9bae01af1da0a51a7156",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-48.png",
+      "displacement": 48,
+      "sha256": "060de9f425c51892df93c670e17558bf4a4754f7791b5d0dbd3a8827b74dd475",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-49.png",
+      "displacement": 49,
+      "sha256": "464295afa9a62a6b615745b91c449da8b7c1a5017d90c31910b3adf66bd20281",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-50.png",
+      "displacement": 50,
+      "sha256": "23db829aff96ca2eec4aca6839a2a8b6e7293907d574e30b74cccbb1168ac5db",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-51.png",
+      "displacement": 51,
+      "sha256": "906dfdea5df54824f696414d0baf58503be3ac8623870b6406de6a81d7607d67",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-52.png",
+      "displacement": 52,
+      "sha256": "1ef2e0091c5f76870077f3697e136ce1495b58d6af898a66947296b14c6840ab",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-53.png",
+      "displacement": 53,
+      "sha256": "4969fd0af8409326a968886386bffaaa5c7a93eb136d7a5cb9bc6db803c6552c",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-54.png",
+      "displacement": 54,
+      "sha256": "118723a92b50ebe043003c9135ae2b3d6818fec1e793f05caa25bbb717984564",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    },
+    {
+      "file": "frames/black/black-55.png",
+      "displacement": 55,
+      "sha256": "7c2d6bb56cfda138b3bf37d74cfce194cb423c5e7c401ef910440be2dafe71f4",
+      "mode": "RGBA",
+      "size": [
+        724,
+        724
+      ]
+    }
+  ]
+}

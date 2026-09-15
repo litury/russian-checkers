@@ -9,9 +9,16 @@ import { markerDestinations, markerMoves } from './reliquaryHints';
 import { drawReliquaryMarker, type Marker } from './reliquaryMarkers';
 import { MarkerMotion } from './reliquaryMotion';
 import { OpeningMoveHint } from '@/client/app/openingMoveHint';
+import { SelectionMotion } from './selectionMotion';
+import { selectionV2Frame } from './selectionV2';
 
 type PieceView = {
 	square: ISquare;
+	kind: 'man' | 'king';
+	side: 'white' | 'black';
+	motion: SelectionMotion;
+	group: Phaser.GameObjects.Container;
+	seal: Phaser.GameObjects.Image;
 	sprite: Phaser.GameObjects.Image;
 	outline: Phaser.GameObjects.Image;
 };
@@ -32,6 +39,8 @@ export function createBoardView(
 		pieceSprites.manDark,
 		pieceSprites.kingLight,
 		pieceSprites.kingDark,
+		'selection_king-seal',
+		...['white', 'black'].flatMap(side => Array.from({ length: 56 }, (_, i) => `selection_${side}-${String(i).padStart(2, '0')}`)),
 	]) {
 		scene.textures.get(texture).setFilter(Phaser.Textures.FilterMode.LINEAR);
 	}
@@ -68,6 +77,7 @@ export function createBoardView(
 	let visible = true;
 	let moving = false;
 	let movingView: PieceView | null = null;
+	let landedView: PieceView | null = null;
 	let enabled = false;
 	let generation = 0;
 	let position: IPosition | null = null;
@@ -151,16 +161,37 @@ export function createBoardView(
 		for (const land of markerDestinations(routes, true)) paint(land, 'futureLanding');
 		drawInteraction();
 	};
+	const renderPiece = (view: PieceView): void => {
+		const king = view.kind === 'king';
+		const texture = king
+			? view.side === 'white' ? pieceSprites.kingLight : pieceSprites.kingDark
+			: `selection_${view.side}-${String(selectionV2Frame(view.motion.progress)).padStart(2, '0')}`;
+		view.sprite.setTexture(texture).setName('selection-piece')
+			.setData('square', { ...view.square }).setData('kind', view.kind)
+			.setData('side', view.side).setData('progress', view.motion.progress);
+		view.outline.setTexture(texture);
+		view.seal.setVisible(king);
+		// 440px kings keep their origin; V2 724px men share ONE fixed body pivot.
+		if (king) {
+			view.sprite.setOrigin(0.5).setPosition(0, 0).setDisplaySize(field.cell, field.cell);
+			view.outline.setOrigin(0.5).setPosition(0, 0).setDisplaySize(field.cell + 2, field.cell + 2);
+		} else {
+			const size = 724 * (35 / 648) * field.cell / 44;
+			for (const image of [view.sprite, view.outline])
+				image.setOrigin(365 / 724, 679 / 724).setPosition(0, 17.6 * field.cell / 44).setDisplaySize(size, size);
+			// Exported alpha/art is authoritative: do not add a tinted duplicate mask.
+		}
+		view.outline.setVisible(king);
+		view.seal.setPosition(0, 0).setDisplaySize(field.cell, field.cell);
+	};
 	const place = (view: PieceView): void => {
 		const box = cellBox(view.square);
-		view.sprite.setPosition(box.x, box.y).setDisplaySize(box.w, box.h);
-		view.outline.setPosition(box.x, box.y).setDisplaySize(box.w + 2, box.h + 2);
+		view.group.setPosition(box.x, box.y);
+		renderPiece(view);
 	};
 	const remove = (view: PieceView): void => {
-		scene.tweens.killTweensOf(view.sprite);
-		scene.tweens.killTweensOf(view.outline);
-		view.sprite.destroy();
-		view.outline.destroy();
+		scene.tweens.killTweensOf(view.group);
+		view.group.destroy();
 	};
 	const sync: IBoardView['sync'] = (
 		next,
@@ -203,18 +234,22 @@ export function createBoardView(
 							: pieceSprites.manDark;
 				let view = pieces.get(id);
 				if (!view) {
+					const sprite = scene.add.image(0, 0, texture);
+					const outline = scene.add.image(0, 0, texture).setTint(0x141210);
+					const seal = scene.add.image(0, 0, 'selection_king-seal').setName('king-seal');
 					view = {
 						square,
-						sprite: scene.add.image(0, 0, texture).setDepth(4),
-						outline: scene.add
-							.image(0, 0, texture)
-							.setTint(0x141210)
-							.setDepth(3.95),
+						kind: piece.kind, side: piece.side, motion: new SelectionMotion(),
+						sprite, outline, seal,
+						group: scene.add.container(0, 0, [outline, sprite, seal]).setDepth(4).setName('selection-piece-group'),
 					};
 					pieces.set(id, view);
 				}
-				view.sprite.setTexture(texture).setVisible(visible);
-				view.outline.setTexture(texture).setVisible(visible);
+				view.kind = piece.kind;
+				view.side = piece.side;
+				const open = Boolean(selected && sameSquare(selected, square));
+				view.motion.select(open, reduced() || (open && view === landedView));
+				view.group.setVisible(visible);
 				place(view);
 			});
 		});
@@ -343,6 +378,7 @@ export function createBoardView(
 		position = null;
 		if (movingView) remove(movingView);
 		movingView = null;
+		landedView = null;
 
 		for (const view of pieces.values()) remove(view);
 		pieces.clear();
@@ -387,7 +423,14 @@ export function createBoardView(
 				selected = null;
 				pieces.set(key(view.square), view);
 				draw();
+				landedView = view;
 				onDone();
+				if (generation !== run) return;
+				landedView = null;
+				if (pieces.get(key(view.square)) === view) {
+					view.motion.select(Boolean(selected && sameSquare(selected, view.square)), reduced());
+					renderPiece(view);
+				}
 				return;
 			}
 			const victim = victims.find(
@@ -411,15 +454,8 @@ export function createBoardView(
 					pieces.delete(key(victim));
 				}
 				view.square = land;
-				const texture = view.sprite.texture.key;
-				const promoted =
-					texture === pieceSprites.manLight && land.row === 7
-						? pieceSprites.kingLight
-						: texture === pieceSprites.manDark && land.row === 0
-							? pieceSprites.kingDark
-							: texture;
-				view.sprite.setTexture(promoted);
-				view.outline.setTexture(promoted);
+				if (view.kind === 'man' && land.row === (view.side === 'white' ? 7 : 0))
+					view.kind = 'king';
 				place(view);
 				from = land;
 				onLand?.(Boolean(victim));
@@ -431,7 +467,7 @@ export function createBoardView(
 			}
 			const box = cellBox(land);
 			scene.tweens.add({
-				targets: [view.sprite, view.outline],
+				targets: view.group,
 				x: box.x,
 				y: box.y,
 				duration: 160,
@@ -442,6 +478,10 @@ export function createBoardView(
 		step(0);
 	};
 	const updateHints = (_time: number, delta: number): void => {
+		for (const view of pieces.values()) {
+			view.motion.advance(delta, reduced());
+			renderPiece(view);
+		}
 		drawIntro();
 		if (!hintMotion.active) return;
 		hintMotion.advance(delta, reduced());
@@ -474,6 +514,7 @@ export function createBoardView(
 		setWaitingIdle: () => {},
 		notePly: () => {},
 		setPlayfieldVisible: (on) => {
+			if (!on) reset();
 			visible = on;
 			board.setVisible(on);
 			shadow.setVisible(on);
@@ -482,8 +523,7 @@ export function createBoardView(
 				else rect.disableInteractive();
 			}
 			for (const view of pieces.values()) {
-				view.sprite.setVisible(on);
-				view.outline.setVisible(on);
+				view.group.setVisible(on);
 			}
 			if (!on) {
 				intro.clear();
