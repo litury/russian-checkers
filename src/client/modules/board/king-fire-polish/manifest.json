@@ -1,0 +1,42 @@
+[
+  {
+    "file": "idle-back.png",
+    "size": [
+      1280,
+      80
+    ],
+    "sha256": "2330cd8a181f519cd10211331e974ff5f4248b00c7977d602146114c4a323ae2",
+    "firstAlphaOld": 437613,
+    "firstAlphaNew": 390534
+  },
+  {
+    "file": "idle-front.png",
+    "size": [
+      1280,
+      80
+    ],
+    "sha256": "0a580293a5ca4db11c68023be4b93ca8192d2b87048ee9e521c4a87fdb58e3a6",
+    "firstAlphaOld": 18902,
+    "firstAlphaNew": 16198
+  },
+  {
+    "file": "ignite-back.png",
+    "size": [
+      768,
+      80
+    ],
+    "sha256": "7a0933bc0ae6de195cf0dd5ff36fbc8028de2e05f9f6e1c9696adaef86855447",
+    "firstAlphaOld": 0,
+    "firstAlphaNew": 49216
+  },
+  {
+    "file": "ignite-front.png",
+    "size": [
+      768,
+      80
+    ],
+    "sha256": "837a92ae4124df6457831d04cdffd090cd3cc09e54cdd1c1004774caacce32f0",
+    "firstAlphaOld": 0,
+    "firstAlphaNew": 0
+  }
+]
