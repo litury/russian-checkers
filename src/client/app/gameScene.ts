@@ -8,7 +8,7 @@ import { createBoardView } from '@/client/modules/board';
 import { preloadKingFire } from '@/client/modules/board/kingFireAssets';
 import { installDisplayDensity, logicalSize } from './displayDensity';
 import { preparationMs } from './panelReveal';
-import { orcTurnLine } from './orcTurn';
+import { orcOpeningTurnLine } from './orcTurn';
 import { orcOutcomeLine, orcTimeLow } from './orcResult';
 import { StepwiseMove } from './stepwiseMove';
 import { pickBotMove } from '@/client/modules/bot';
@@ -72,8 +72,6 @@ export class GameScene extends Phaser.Scene {
 	private flagLock = false;
 
 	private countingIn = false;
-	private skipOpeningTurnLine = false;
-	private orcTurnKey = '';
 	private timeLowSaid = false;
 
 	private botTimer?: Phaser.Time.TimerEvent;
@@ -221,8 +219,6 @@ export class GameScene extends Phaser.Scene {
 		this.position = createInitialPosition();
 		this.selected = null;
 		this.phase = 'title';
-		this.skipOpeningTurnLine = false;
-		this.orcTurnKey = '';
 		this.timeLowSaid = false;
 		this.pendingBot = false;
 		this.overlay.hide();
@@ -245,8 +241,6 @@ export class GameScene extends Phaser.Scene {
 		this.position = createInitialPosition();
 		this.selected = null;
 		this.phase = 'human';
-		this.skipOpeningTurnLine = false;
-		this.orcTurnKey = '';
 		this.timeLowSaid = false;
 		this.pendingBot = false;
 		this.elapsedMs = 0;
@@ -285,13 +279,13 @@ export class GameScene extends Phaser.Scene {
 			this.countingIn = false;
 			this.paintClock();
 			this.refresh();
+			this.title.speakOrcTurn(orcOpeningTurnLine(this.humanSide));
 		};
 		const startPanels = () => {
 			if (!this.countingIn) return;
 			this.title.beginMatch();
 			this.board.startOpeningHint(this.position, this.humanSide);
 			this.title.hintWave();
-			this.skipOpeningTurnLine = true;
 			this.title.arenaVoice();
 			this.hud.startReveal(ready);
 			this.hud.setVisible(true);
@@ -405,21 +399,7 @@ export class GameScene extends Phaser.Scene {
 		);
 		this.hud.setTurn(matchStatus(this.countingIn, this.phase,
 			legalMoves(this.position).some(move => move.path[0] && capturedOnSegment(this.position, move.from, move.path[0])), Boolean(this.humanChain)));
-		this.speakOrcTurn();
 		this.maybeAutoMove();
-	}
-
-	private speakOrcTurn(): void {
-		if (this.phase === 'title' || this.phase === 'over' || this.countingIn || this.moving || this.humanChain) return;
-		const capture = legalMoves(this.position).some(move => move.path[0] && capturedOnSegment(this.position, move.from, move.path[0]));
-		const humanTurn = this.phase === 'human' && this.position.turn === this.humanSide;
-		const skip = this.skipOpeningTurnLine;
-		this.skipOpeningTurnLine = false;
-		const line = orcTurnLine(skip, humanTurn, capture);
-		const key = `${this.phase}:${this.position.turn}:${line ?? ''}`;
-		if (key === this.orcTurnKey) return;
-		this.orcTurnKey = key;
-		if (line) this.title?.speakOrcTurn(line);
 	}
 
 	private maybeAutoMove(): void {

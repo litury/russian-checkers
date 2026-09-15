@@ -1,3 +1,5 @@
+export { matchMusicLevel } from './audioMix';
+
 export class MenuAudioPolicy {
  menu = true;
  match = false;
@@ -14,6 +16,9 @@ export function gateAudioPhase(ms: number): string {
 }
 export function menuMusicShouldPlay(policy: MenuAudioPolicy, unlocked: boolean, musicEnabled: number | boolean): boolean {
  return policy.music && unlocked && Boolean(musicEnabled);
+}
+export function matchMusicShouldPlay(policy: MenuAudioPolicy, unlocked: boolean, musicEnabled: number | boolean): boolean {
+ return policy.live && policy.match && !policy.menu && unlocked && Boolean(musicEnabled);
 }
 export const menuMusicFadeSec = 1.2;
 export function menuMusicStopsInstantly(policy: MenuAudioPolicy, unlocked: boolean, musicEnabled: number | boolean): boolean {

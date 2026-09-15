@@ -1,5 +1,5 @@
 import {it,expect} from 'vitest';
-import {MenuAudioPolicy,gateAudioPhase,menuMusicShouldPlay,menuMusicStopsInstantly,menuMusicFadeSec} from './menuAudioPolicy';
+import {MenuAudioPolicy,gateAudioPhase,menuMusicShouldPlay,menuMusicStopsInstantly,menuMusicFadeSec,matchMusicShouldPlay,matchMusicLevel} from './menuAudioPolicy';
 import menuAudio from './menuAudio.ts?raw';
 it('keeps independent pause reasons and saved mute authoritative',()=>{
  const p=new MenuAudioPolicy();expect(p.music).toBe(true);
@@ -14,6 +14,9 @@ it('keeps organ off during a match even if the music setting is on',()=>{
  p.menu=false;p.match=true;
  expect(p.audible).toBe(true);
  expect(menuMusicShouldPlay(p,true,true)).toBe(false);
+ expect(matchMusicShouldPlay(p,true,true)).toBe(true);
+ expect(matchMusicLevel).toBeGreaterThanOrEqual(.15);
+ expect(matchMusicLevel).toBeLessThanOrEqual(.25);
  expect(menuMusicStopsInstantly(p,true,true)).toBe(false);
  expect(menuMusicFadeSec).toBeGreaterThanOrEqual(.8);
  expect(menuMusicFadeSec).toBeLessThanOrEqual(1.5);

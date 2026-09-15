@@ -12,6 +12,7 @@ import { OpeningMoveHint } from '@/client/app/openingMoveHint';
 import { SelectionMotion } from './selectionMotion';
 import { selectionV2Frame } from './selectionV2';
 import { KingFire } from './kingFire';
+import { pieceStepSfx } from '@/client/app/pieceSfx';
 import { kingFireAssets } from './kingFireAssets';
 
 type PieceView = {
@@ -449,6 +450,7 @@ export function createBoardView(
 			paint(land, victim ? 'landing' : 'move');
 			if (victim) paint(victim, 'target');
 			kingFire.takeoff(view, view.kind === 'king', cellBox(from), field.cell, reduced());
+			pieceStepSfx(view.kind === 'king', Boolean(victim));
 			onTakeoff?.(Boolean(victim));
 			const finish = (): void => {
 				if (generation !== run) return;
