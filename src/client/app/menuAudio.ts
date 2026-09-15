@@ -2,6 +2,7 @@ import type {IYandexSdk} from './IYandexSdk';
 import {MenuAudioPolicy} from './menuAudioPolicy';
 import {menuClickLevel,menuBackSound} from './menuClickLevel';
 import {previewLoop,mechanismEnvelope} from './menuAudioPreview';
+import {startPanelWindows,startTimerLock,startTimerSlide,startVoiceName} from './startAudio';
 const urls=import.meta.glob('./audio/menu/*',{eager:true,query:'?url',import:'default'}) as Record<string,string>;
 /** The old Phaser sound manager is disabled. This menu-only Web Audio owner uses
  * the existing persisted settings and SDK, never creates an HTML media player. */
@@ -87,16 +88,31 @@ export function createMenuAudio(sdk:IYandexSdk) {
  for(const id of ['opening-help-dialog','opening-settings-dialog'])document.getElementById(id)!.addEventListener('close',()=>sound(menuBackSound,menuClickLevel));
  prepare();sync();
  return {
-  show(){epoch++;mechanisms.clear();policy.menu=true;policy.departing=false;musicEnded=false;stopEffects();sync();},
-  hide(completed=false,reduced=false){epoch++;stopEffects();if(completed&&!reduced)sound('gate_stop');policy.menu=false;policy.departing=false;stopMusic();},
+  show(){epoch++;mechanisms.clear();policy.menu=true;policy.match=false;policy.departing=false;musicEnded=false;stopEffects();sync();},
+  hide(completed=false,reduced=false){epoch++;stopEffects();if(completed&&!reduced)sound('gate_stop');policy.menu=false;policy.departing=false;if(completed)policy.match=true;mechanisms.clear();stopMusic();},
   depart(){epoch++;mechanisms.clear();policy.departing=true;sync();},
+  beginMatch(){policy.match=true;policy.menu=false;policy.departing=false;mechanisms.clear();stopMusic();sync();},
+  hintWave(){sound('availability-wave',.85);},
+  readyVoice(){sound(startVoiceName());},
+  reveal(ms:number,reduced:boolean){
+   for(const [id,start,end,name,level] of [
+    ['timer-slide',startTimerSlide[0],startTimerSlide[1],'timer-slide',.9],
+    ['timer-lock',startTimerLock[0],startTimerLock[1],'timer-lock',1],
+   ] as const){
+    if(!mechanisms.has(id)&&ms>=start){mechanisms.set(id,!reduced&&ms<end?sound(name,0)??null:null);}
+    const m=mechanisms.get(id);
+    if(m&&effects.has(m.source)){
+     m.gain.gain.setTargetAtTime(reduced?0:settings().master*settings().effects*.65*level*mechanismEnvelope(ms,start,end),ctx!.currentTime,.008);
+     if(ms>=end||reduced){m.source.stop();mechanisms.set(id,null);}
+    }
+   }
+  },
   gate(ms:number,reduced:boolean){
 
    // Same scene-time windows as gatePose/CSS; no phrase-typing sounds.
    for(const [id,start,end,name,level] of [
     ['unlock',400,1160,'gate_unlock',1],
-    ['phrase-slide',400,920,'gate_motion',.18],
-    ['title-lift',960,1400,'gate_motion',.18],
+    ...startPanelWindows,
     ['doors',1160,2000,'gate_motion',1],
    ] as const){
     if(!mechanisms.has(id)&&ms>=start){mechanisms.set(id,!reduced&&ms<end?sound(name,0)??null:null);}

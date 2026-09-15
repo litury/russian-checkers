@@ -29,7 +29,7 @@ export function matchStatus(
 }
 export function createHud(
 	scene: Phaser.Scene,
-	handlers: { onAutoChange?: () => void; isPaused?: () => boolean; onRevealProgress?: (progress: number, reduced: boolean) => void } = {},
+	handlers: { onAutoChange?: () => void; isPaused?: () => boolean; onRevealProgress?: (elapsed: number, reduced: boolean) => void } = {},
 ) {
 	const foe = createBunkerPanel(scene, false),
 		you = createBunkerPanel(scene, true);
@@ -45,7 +45,7 @@ export function createHud(
 	const paint = () => {
 		foe.pose(reveal.elapsed, staticRun);
 		you.pose(reveal.elapsed, staticRun);
-		handlers.onRevealProgress?.(reveal.elapsed / preparationMs, staticRun);
+		handlers.onRevealProgress?.(reveal.elapsed, staticRun);
 	};
 	const motionChange = () => {
 		reduced = media?.matches ?? false;

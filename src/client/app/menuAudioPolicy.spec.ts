@@ -6,6 +6,7 @@ it('keeps independent pause reasons and saved mute authoritative',()=>{
  p.hidden=false;p.muted=true;expect(p.audible).toBe(false);
  p.muted=false;p.departing=true;expect(p.music).toBe(false);expect(p.audible).toBe(true);
  p.menu=false;expect(p.audible).toBe(false);
+ p.match=true;expect(p.audible).toBe(true);expect(p.music).toBe(false);
 });
 it('maps mechanism cues to actual gate phases',()=>{
  expect([0,400,1159,1160,1999,2000].map(gateAudioPhase)).toEqual(['press','unlock','unlock','motion','motion','stop']);

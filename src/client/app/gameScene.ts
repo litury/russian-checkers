@@ -7,6 +7,7 @@ import type { IBoardView } from '@/client/modules/board';
 import { createBoardView } from '@/client/modules/board';
 import { preloadKingFire } from '@/client/modules/board/kingFireAssets';
 import { installDisplayDensity, logicalSize } from './displayDensity';
+import { preparationMs } from './panelReveal';
 import { StepwiseMove } from './stepwiseMove';
 import { pickBotMove } from '@/client/modules/bot';
 import { sameSquare } from '@/client/shared/sameSquare';
@@ -155,7 +156,10 @@ export class GameScene extends Phaser.Scene {
 			this.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
 		}
 		this.hud = createHud(this, {
-			onRevealProgress: (progress, reduced) => this.board?.paintOpeningHint(progress, reduced),
+			onRevealProgress: (elapsed, reduced) => {
+				this.board?.paintOpeningHint(elapsed / preparationMs, reduced);
+				this.title?.revealAudio(elapsed, reduced);
+			},
 			isPaused: () => this.paused,
 			onAutoChange: () => {
 				this.refresh();
@@ -270,10 +274,13 @@ export class GameScene extends Phaser.Scene {
 			this.countingIn = false;
 			this.paintClock();
 			this.refresh();
+			this.title.readyVoice();
 		};
 		const startPanels = () => {
 			if (!this.countingIn) return;
+			this.title.beginMatch();
 			this.board.startOpeningHint(this.position, this.humanSide);
+			this.title.hintWave();
 			this.hud.startReveal(ready);
 			this.hud.setVisible(true);
 		};
