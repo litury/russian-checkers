@@ -1,4 +1,5 @@
 import type Phaser from 'phaser';
+import { kingFireIgniteSfx, kingFireTrailSfx } from '@/client/app/kingFireSfx';
 
 export type FirePoint = { x: number; y: number };
 type Sprite = Phaser.GameObjects.Sprite;
@@ -48,6 +49,7 @@ export class KingFire {
  }
  ignite(owner: object, p: FirePoint, cell: number, reduced: boolean) {
   if (reduced) return;
+  kingFireIgniteSfx(false);
   this.bursts.push({ owner, point: { x: p.x, y: p.y }, age: 0,
    sprites: [this.sprite('ignite-back', p, cell, 3.9, 'ignite'), this.sprite('ignite-front', p, cell, 4.1, 'ignite')],
   });
@@ -56,6 +58,7 @@ export class KingFire {
   // The logical promotion already happened; nothing square-shaped travels.
   this.remove(id); this.land();
   if (!king || reduced) return;
+  kingFireTrailSfx(true, false);
   if (this.owner !== id || this.cell !== cell) this.remaining = KING_FIRE_SPACING * cell / 44;
   this.owner = id; this.cell = cell;
   this.previous = { x: p.x, y: p.y };

@@ -78,7 +78,8 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: { onPlayBot:
   },
   beginMatch:()=>audio.beginMatch(),
   hintWave:()=>audio.hintWave(),
-  readyVoice:()=>audio.readyVoice(),
+  arenaVoice:()=>audio.arenaVoice(),
+  speakOrcTurn:(name:string)=>audio.speakOrcTurn(name),
   revealAudio:(ms:number,reduced:boolean)=>audio.reveal(ms,reduced),
  };
 }

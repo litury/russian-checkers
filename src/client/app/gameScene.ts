@@ -8,6 +8,8 @@ import { createBoardView } from '@/client/modules/board';
 import { preloadKingFire } from '@/client/modules/board/kingFireAssets';
 import { installDisplayDensity, logicalSize } from './displayDensity';
 import { preparationMs } from './panelReveal';
+import { orcTurnLine } from './orcTurn';
+import { orcOutcomeLine, orcTimeLow } from './orcResult';
 import { StepwiseMove } from './stepwiseMove';
 import { pickBotMove } from '@/client/modules/bot';
 import { sameSquare } from '@/client/shared/sameSquare';
@@ -70,6 +72,9 @@ export class GameScene extends Phaser.Scene {
 	private flagLock = false;
 
 	private countingIn = false;
+	private skipOpeningTurnLine = false;
+	private orcTurnKey = '';
+	private timeLowSaid = false;
 
 	private botTimer?: Phaser.Time.TimerEvent;
 
@@ -216,6 +221,9 @@ export class GameScene extends Phaser.Scene {
 		this.position = createInitialPosition();
 		this.selected = null;
 		this.phase = 'title';
+		this.skipOpeningTurnLine = false;
+		this.orcTurnKey = '';
+		this.timeLowSaid = false;
 		this.pendingBot = false;
 		this.overlay.hide();
 		this.hud.setVisible(false);
@@ -237,6 +245,9 @@ export class GameScene extends Phaser.Scene {
 		this.position = createInitialPosition();
 		this.selected = null;
 		this.phase = 'human';
+		this.skipOpeningTurnLine = false;
+		this.orcTurnKey = '';
+		this.timeLowSaid = false;
 		this.pendingBot = false;
 		this.elapsedMs = 0;
 		this.runningSince = this.time.now;
@@ -274,13 +285,14 @@ export class GameScene extends Phaser.Scene {
 			this.countingIn = false;
 			this.paintClock();
 			this.refresh();
-			this.title.readyVoice();
 		};
 		const startPanels = () => {
 			if (!this.countingIn) return;
 			this.title.beginMatch();
 			this.board.startOpeningHint(this.position, this.humanSide);
 			this.title.hintWave();
+			this.skipOpeningTurnLine = true;
+			this.title.arenaVoice();
 			this.hud.startReveal(ready);
 			this.hud.setVisible(true);
 		};
@@ -347,6 +359,11 @@ export class GameScene extends Phaser.Scene {
 		) {
 			return;
 		}
+		const own = this.sideRemainingMs(this.humanSide);
+		if (orcTimeLow(own, this.timeLowSaid)) {
+			this.timeLowSaid = true;
+			this.title?.speakOrcTurn('time-low');
+		}
 		const side = this.position.turn;
 		const left = remainingMs(
 			this.clocks[side],
@@ -366,7 +383,7 @@ export class GameScene extends Phaser.Scene {
 		this.flagLock = true;
 		const loser = this.position.turn;
 		const won = loser === 'white' ? 'black' : 'white';
-		this.endMatch(won);
+		this.endMatch(won, 'flag');
 	}
 
 	private refresh(): void {
@@ -388,7 +405,21 @@ export class GameScene extends Phaser.Scene {
 		);
 		this.hud.setTurn(matchStatus(this.countingIn, this.phase,
 			legalMoves(this.position).some(move => move.path[0] && capturedOnSegment(this.position, move.from, move.path[0])), Boolean(this.humanChain)));
+		this.speakOrcTurn();
 		this.maybeAutoMove();
+	}
+
+	private speakOrcTurn(): void {
+		if (this.phase === 'title' || this.phase === 'over' || this.countingIn || this.moving || this.humanChain) return;
+		const capture = legalMoves(this.position).some(move => move.path[0] && capturedOnSegment(this.position, move.from, move.path[0]));
+		const humanTurn = this.phase === 'human' && this.position.turn === this.humanSide;
+		const skip = this.skipOpeningTurnLine;
+		this.skipOpeningTurnLine = false;
+		const line = orcTurnLine(skip, humanTurn, capture);
+		const key = `${this.phase}:${this.position.turn}:${line ?? ''}`;
+		if (key === this.orcTurnKey) return;
+		this.orcTurnKey = key;
+		if (line) this.title?.speakOrcTurn(line);
 	}
 
 	private maybeAutoMove(): void {
@@ -573,11 +604,12 @@ export class GameScene extends Phaser.Scene {
 		this.phase = 'over';
 		this.selected = null;
 		this.refresh();
+		this.title?.speakOrcTurn(orcOutcomeLine('resign', false));
 		this.overlay.show('black', this.humanSide);
 		this.board.clearOpeningHint();
 	}
 
-	private endMatch(side: Side): void {
+	private endMatch(side: Side, kind: 'flag' | 'rules' = 'rules'): void {
 		this.board.reset();
 		this.moving = false;
 		this.botTimer?.remove(false);
@@ -585,6 +617,7 @@ export class GameScene extends Phaser.Scene {
 		this.phase = 'over';
 		this.selected = null;
 		this.refresh();
+		this.title?.speakOrcTurn(orcOutcomeLine(kind, side === this.humanSide));
 		this.sdk.showFullscreenAdv({
 			onClose: () => {
 				this.overlay.show(side, this.humanSide);

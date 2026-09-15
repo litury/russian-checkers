@@ -28,7 +28,6 @@ it('binds timer slide/lock to actual HUD lift, availability once, RU voice at re
  expect(startVoiceName('ru')).toBe('start-ru');
  expect(startVoiceName('en-US')).toBe('start-en');
  expect(scene).toContain('hintWave');
- expect(scene).toContain('readyVoice');
  expect(overlay).toContain('hintWave');
  expect(audio).toContain('availability-wave');
  expect(scene).not.toContain('your move');
