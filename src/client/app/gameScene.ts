@@ -5,6 +5,7 @@ import {
 import { palette } from '@/client/config/palette';
 import type { IBoardView } from '@/client/modules/board';
 import { createBoardView } from '@/client/modules/board';
+import { preloadKingFire } from '@/client/modules/board/kingFireAssets';
 import { installDisplayDensity, logicalSize } from './displayDensity';
 import { StepwiseMove } from './stepwiseMove';
 import { pickBotMove } from '@/client/modules/bot';
@@ -120,6 +121,7 @@ export class GameScene extends Phaser.Scene {
 		}
 		this.load.image('selection_king-seal', new URL('../modules/board/selection/markers/king-seal-proposed.png', import.meta.url).href);
 		preloadBunkerPanels(this);
+		preloadKingFire(this);
 
 		this.load.image('resultMonitor', resultMonitorUrl);
 		this.load.image('mascotIdle0', mascotIdle0Url);
@@ -163,7 +165,7 @@ export class GameScene extends Phaser.Scene {
 
 		this.board = createBoardView(this, (square) => {
 			this.onSquare(square);
-		}, () => this.cancelSelection(), () => this.hud.isMenuOpen());
+		}, () => this.cancelSelection(), () => this.hud.isMenuOpen() || this.phase === 'over' || this.phase === 'title');
 		this.board.setPlayfieldVisible(false);
 		this.title = createOpeningOverlay(this, {
 			isPaused: () => this.paused,

@@ -11,6 +11,8 @@ import { MarkerMotion } from './reliquaryMotion';
 import { OpeningMoveHint } from '@/client/app/openingMoveHint';
 import { SelectionMotion } from './selectionMotion';
 import { selectionV2Frame } from './selectionV2';
+import { KingFire } from './kingFire';
+import { kingFireAssets } from './kingFireAssets';
 
 type PieceView = {
 	square: ISquare;
@@ -26,7 +28,7 @@ const key = (s: ISquare): string => `${s.row},${s.col}`;
 const reduced = (): boolean =>
 	globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 
-/** Reliquary renderer: no legacy wreaths, flames or arcs. */
+/** Reliquary renderer with approved baked king-fire v3 and selection v2. */
 export function createBoardView(
 	scene: Phaser.Scene,
 	onSquare: (square: ISquare) => void,
@@ -40,6 +42,7 @@ export function createBoardView(
 		pieceSprites.kingLight,
 		pieceSprites.kingDark,
 		'selection_king-seal',
+		...Object.keys(kingFireAssets).map(name => `king-fire_${name}`),
 		...['white', 'black'].flatMap(side => Array.from({ length: 56 }, (_, i) => `selection_${side}-${String(i).padStart(2, '0')}`)),
 	]) {
 		scene.textures.get(texture).setFilter(Phaser.Textures.FilterMode.LINEAR);
@@ -58,7 +61,7 @@ export function createBoardView(
 		.setOrigin(0)
 		.setDepth(1.1);
 	const marks = scene.add.graphics().setDepth(8);
-	const introMarks = scene.add.graphics().setDepth(3.8).setName('opening-move-hint');
+	const introMarks = scene.add.graphics().setDepth(7.9).setName('opening-move-hint');
 	const intro = new OpeningMoveHint();
 	let introProgress = 0, introReduced = false;
 
@@ -66,6 +69,7 @@ export function createBoardView(
 	const hintMotion = new MarkerMotion();
 
 	const pieces = new Map<string, PieceView>();
+	const kingFire = new KingFire(scene);
 	const cells: { square: ISquare; rect: Phaser.GameObjects.Rectangle }[] = [];
 	const canvas = scene.game.canvas;
 	const oldTabIndex = canvas.getAttribute('tabindex');
@@ -163,26 +167,18 @@ export function createBoardView(
 	};
 	const renderPiece = (view: PieceView): void => {
 		const king = view.kind === 'king';
-		const texture = king
-			? view.side === 'white' ? pieceSprites.kingLight : pieceSprites.kingDark
-			: `selection_${view.side}-${String(selectionV2Frame(view.motion.progress)).padStart(2, '0')}`;
+		const texture = `selection_${view.side}-${String(selectionV2Frame(view.motion.progress)).padStart(2, '0')}`;
 		view.sprite.setTexture(texture).setName('selection-piece')
 			.setData('square', { ...view.square }).setData('kind', view.kind)
 			.setData('side', view.side).setData('progress', view.motion.progress);
 		view.outline.setTexture(texture);
 		view.seal.setVisible(king);
-		// 440px kings keep their origin; V2 724px men share ONE fixed body pivot.
-		if (king) {
-			view.sprite.setOrigin(0.5).setPosition(0, 0).setDisplaySize(field.cell, field.cell);
-			view.outline.setOrigin(0.5).setPosition(0, 0).setDisplaySize(field.cell + 2, field.cell + 2);
-		} else {
-			const size = 724 * (35 / 648) * field.cell / 44;
-			for (const image of [view.sprite, view.outline])
-				image.setOrigin(365 / 724, 679 / 724).setPosition(0, 17.6 * field.cell / 44).setDisplaySize(size, size);
-			// Exported alpha/art is authoritative: do not add a tinted duplicate mask.
-		}
-		view.outline.setVisible(king);
-		view.seal.setPosition(0, 0).setDisplaySize(field.cell, field.cell);
+		// Both ranks share approved v2 geometry; seal is TEMPORARY until crown art arrives.
+		const scale = (35 / 648) * field.cell / 44;
+		for (const image of [view.sprite, view.outline])
+			image.setOrigin(365 / 724, 679 / 724).setPosition(0, 17.6 * field.cell / 44).setDisplaySize(724 * scale, 724 * scale);
+		view.outline.setVisible(false);
+		view.seal.setPosition(0, -selectionV2Frame(view.motion.progress) * scale).setDisplaySize(field.cell, field.cell).setData('temporaryRank', true);
 	};
 	const place = (view: PieceView): void => {
 		const box = cellBox(view.square);
@@ -190,6 +186,7 @@ export function createBoardView(
 		renderPiece(view);
 	};
 	const remove = (view: PieceView): void => {
+		kingFire.remove(view);
 		scene.tweens.killTweensOf(view.group);
 		view.group.destroy();
 	};
@@ -251,6 +248,7 @@ export function createBoardView(
 				view.motion.select(open, reduced() || (open && view === landedView));
 				view.group.setVisible(visible);
 				place(view);
+				kingFire.rest(view, visible && !isInputBlocked() && view.kind === 'king', cellBox(square), field.cell, reduced());
 			});
 		});
 		for (const [id, view] of pieces)
@@ -334,6 +332,7 @@ export function createBoardView(
 	canvas.addEventListener('blur', drawInteraction);
 	label();
 	const layout: IBoardView['layout'] = (width, height) => {
+		kingFire.clear();
 		field = reliquaryLayout(width, height);
 		ground.setSize(width, height);
 
@@ -359,10 +358,14 @@ export function createBoardView(
 			);
 			if (!visible) rect.disableInteractive();
 		}
-		if (!moving) for (const view of pieces.values()) place(view);
+		if (!moving) for (const view of pieces.values()) {
+			place(view);
+			kingFire.rest(view, visible && !isInputBlocked() && view.kind === 'king', cellBox(view.square), field.cell, reduced());
+		}
 		draw();
 	};
 	const reset = (): void => {
+		kingFire.clear();
 		intro.clear();
 		introMarks.clear();
 
@@ -445,6 +448,7 @@ export function createBoardView(
 			paint(from, 'selected');
 			paint(land, victim ? 'landing' : 'move');
 			if (victim) paint(victim, 'target');
+			kingFire.takeoff(view, view.kind === 'king', cellBox(from), field.cell, reduced());
 			onTakeoff?.(Boolean(victim));
 			const finish = (): void => {
 				if (generation !== run) return;
@@ -453,10 +457,15 @@ export function createBoardView(
 					if (taken) remove(taken);
 					pieces.delete(key(victim));
 				}
+				kingFire.move(cellBox(land));
+				kingFire.land();
 				view.square = land;
-				if (view.kind === 'man' && land.row === (view.side === 'white' ? 7 : 0))
+				if (view.kind === 'man' && land.row === (view.side === 'white' ? 7 : 0)) {
 					view.kind = 'king';
+					kingFire.ignite(view, cellBox(land), field.cell, reduced());
+				}
 				place(view);
+				kingFire.rest(view, visible && view.kind === 'king', cellBox(land), field.cell, reduced());
 				from = land;
 				onLand?.(Boolean(victim));
 				step(index + 1);
@@ -472,13 +481,20 @@ export function createBoardView(
 				y: box.y,
 				duration: 160,
 				ease: 'Sine.easeInOut',
+				// Phaser calls this once per property: y is declared after x above.
+				onUpdate: (_tween: Phaser.Tweens.Tween, _target: object, property: string) => {
+					if (generation === run && property === 'y') kingFire.move(view.group, scene.game.loop?.delta ?? 0);
+				},
 				onComplete: finish,
 			});
 		};
 		step(0);
 	};
 	const updateHints = (_time: number, delta: number): void => {
+		if (!visible || isInputBlocked()) kingFire.clear();
+		kingFire.update(delta, reduced());
 		for (const view of pieces.values()) {
+			if (visible && !isInputBlocked()) kingFire.rest(view, view.kind === 'king', cellBox(view.square), field.cell, reduced());
 			view.motion.advance(delta, reduced());
 			renderPiece(view);
 		}
