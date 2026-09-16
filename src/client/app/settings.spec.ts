@@ -12,7 +12,7 @@ describe('shared settings', () => {
 		expect(hud).not.toMatch(/createSfxPanel|match-settings-entry|hudMenu/);
 		expect(html).not.toContain('match-settings-entry');
 		expect(html).not.toContain('Сдаться');
-		for (const id of ['opening-muted','settings-effects','settings-music']) expect(html).toContain(`id="${id}"`);
+		for (const id of ['settings-muted','settings-effects','settings-music']) expect(html).toContain(`id="${id}"`);
 	});
 	it('retains default sole-move automation and supports changing the preference', () => {
 		expect(getAutoMove()).toBe(true);

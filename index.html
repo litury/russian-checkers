@@ -90,7 +90,6 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
    <button id="opening-play" class="opening-button opening-primary" aria-label="Загрузка игры" aria-busy="true" disabled><span class="opening-activity" aria-hidden="true"><i style="--segment:0"></i><i style="--segment:1"></i><i style="--segment:2"></i><i style="--segment:3"></i><i style="--segment:4"></i></span></button>
    <button id="opening-retry" class="opening-button opening-primary" hidden>Повторить загрузку</button>
    <div class="opening-utilities">
-    <button id="opening-muted" class="opening-utility" aria-pressed="false">Звук: вкл.</button>
     <button id="opening-help" class="opening-utility" aria-haspopup="dialog" aria-controls="opening-help-dialog">Правила</button>
     <button id="opening-settings" class="opening-utility" aria-label="Настройки" title="Настройки" aria-haspopup="dialog" aria-controls="opening-settings-dialog">Настройки</button>
    </div>
@@ -114,6 +113,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 <section class="settings-section"><h3>Звук меню</h3>
 <label>Музыка <input id="settings-music" type="range" min="0" max="1" step="0.05" /></label>
 <label>Эффекты <input id="settings-effects" type="range" min="0" max="1" step="0.05" /></label>
+<label class="settings-check"><input id="settings-muted" type="checkbox" />Без звука</label>
 </section>
 <section class="settings-section" aria-labelledby="settings-game"><h3 id="settings-game">Игра</h3>
 <label class="settings-check"><input id="settings-auto" type="checkbox" checked aria-describedby="settings-auto-description" />Автоход</label>
@@ -226,8 +226,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
  const sync = () => {
   byId('settings-auto').checked = state.autoMove;
   byId('settings-music').value = state.music; byId('settings-effects').value = state.effects;
-  byId('opening-muted').textContent = state.muted ? 'Звук: выкл.' : 'Звук: вкл.';
-  byId('opening-muted').setAttribute('aria-pressed', String(state.muted));
+  byId('settings-muted').checked = state.muted;
  };
  window.checkersSettings = {
   get: () => ({...state}),
@@ -242,7 +241,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   open: () => { sync(); const dialog = byId('opening-settings-dialog'); if (!dialog.open) dialog.showModal(); }
  };
  byId('settings-auto').onchange = event => window.checkersSettings.set({autoMove:event.target.checked});
- byId('opening-muted').onclick = () => window.checkersSettings.set({muted:!state.muted});
+ byId('settings-muted').onchange = event => window.checkersSettings.set({muted:event.target.checked});
  for (const key of ['music','effects']) byId('settings-'+key).oninput = event => window.checkersSettings.set({[key]:Number(event.target.value)});
  byId('opening-settings').onclick = () => window.checkersSettings.open();
  const settingsDialog = byId('opening-settings-dialog');
