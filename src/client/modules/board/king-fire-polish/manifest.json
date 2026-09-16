@@ -1,6 +1,6 @@
 [
   {
-    "file": "idle-back.png",
+    "file": "idle-back.webp",
     "size": [
       1280,
       80
@@ -10,7 +10,7 @@
     "firstAlphaNew": 390534
   },
   {
-    "file": "idle-front.png",
+    "file": "idle-front.webp",
     "size": [
       1280,
       80
@@ -20,7 +20,7 @@
     "firstAlphaNew": 16198
   },
   {
-    "file": "ignite-back.png",
+    "file": "ignite-back.webp",
     "size": [
       768,
       80
@@ -30,7 +30,7 @@
     "firstAlphaNew": 49216
   },
   {
-    "file": "ignite-front.png",
+    "file": "ignite-front.webp",
     "size": [
       768,
       80

@@ -2,13 +2,13 @@ import type Phaser from 'phaser';
 import { revealPose } from './panelReveal';
 
 export function preloadBunkerPanels(scene: Phaser.Scene) {
-	const assets = import.meta.glob('./ui/bunker/*.png', {
+	const assets = import.meta.glob('./ui/bunker/*.webp', {
 		eager: true,
 		query: '?url',
 		import: 'default',
 	});
 	for (const [path, url] of Object.entries(assets)) {
-		const name = path.split('/').pop()!.replace('.png', '');
+		const name = path.split('/').pop()!.replace('.webp', '');
 		if (name === 'steam-sheet')
 			scene.load.spritesheet('bunker-steam', url as string, {
 				frameWidth: 72,
