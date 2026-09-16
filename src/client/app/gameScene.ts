@@ -52,8 +52,8 @@ import secondaryRestUrl from './ui/result/secondary_rest.webp';
 import secondaryPressedUrl from './ui/result/secondary_pressed.webp';
 
 export class GameScene extends Phaser.Scene {
-	// The current bot mode always assigns the human white.
-	private readonly humanSide: Side = 'white';
+	// Bot plays the opposite of the opening disk pick (default white).
+	private humanSide: Side = 'white';
 	private board?: IBoardView;
 	private hud?: ReturnType<typeof createHud>;
 	private overlay?: ReturnType<typeof createResultOverlay>;
@@ -125,6 +125,7 @@ export class GameScene extends Phaser.Scene {
 		this.title = createOpeningOverlay(this, {
 			isPaused: () => this.paused,
 			onPlayBot: () => {
+				this.humanSide = this.title.humanSide();
 				void this.requestStartFromOpening();
 			},
 		});
@@ -378,6 +379,7 @@ export class GameScene extends Phaser.Scene {
 		this.phase = 'title';
 		this.timeLowSaid = false;
 		this.pendingBot = false;
+		this.humanSide = 'white';
 		this.overlay?.hide();
 		this.hud?.setVisible(false);
 		this.stopCountdown();
@@ -447,6 +449,12 @@ export class GameScene extends Phaser.Scene {
 			this.paintClock();
 			this.refresh();
 			this.title.speakOrcTurn(orcOpeningTurnLine(this.humanSide), this.humanSide);
+			if (this.humanSide === 'black') {
+				this.phase = 'bot';
+				this.refresh();
+				this.botTimer?.remove(false);
+				this.botTimer = this.time.delayedCall(400, () => this.playBot());
+			}
 		};
 		const startPanels = () => {
 			if (!this.countingIn) return;

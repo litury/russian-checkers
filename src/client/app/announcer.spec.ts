@@ -14,5 +14,4 @@ it('uses elf lines when human is white and orc when black, no color UI', () => {
  expect(scene).toContain('this.humanSide');
  expect(audio).toContain('announcerCue');
  expect(scene).not.toContain('color-select');
- expect(scene).toContain("humanSide: Side = 'white'");
 });

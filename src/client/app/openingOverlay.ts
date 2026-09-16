@@ -24,6 +24,21 @@ declare global {
 export function createOpeningOverlay(scene: Phaser.Scene, handlers: { onPlayBot: () => void; isPaused?: () => boolean }) {
  const root = document.getElementById('opening')!;
  const play = document.getElementById('opening-play') as HTMLButtonElement;
+ const ivory = root.querySelector('.gate-piece-ivory') as HTMLElement | null;
+ const ebony = root.querySelector('.gate-piece-black') as HTMLElement | null;
+ let side: 'white' | 'black' = ivory?.classList.contains('is-chosen') ? 'white' : 'white';
+ const paintSide = (next: 'white' | 'black') => {
+  side = next;
+  ivory?.classList.toggle('is-chosen', next === 'white');
+  ebony?.classList.toggle('is-chosen', next === 'black');
+ };
+ paintSide('white');
+ const pick = (next: 'white' | 'black') => (event: Event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  if (root.hidden || gates.active || root.inert) return;
+  paintSide(next);
+ };
  const retry = document.getElementById('opening-retry')!;
  const motion = matchMedia('(prefers-reduced-motion: reduce)');
  const gates = new OpeningGates();
@@ -66,7 +81,11 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: { onPlayBot:
   if(root.hidden||gates.active||root.inert) return;
   handlers.onPlayBot();
  };
+ const pickWhite = pick('white');
+ const pickBlack = pick('black');
  play.onclick=()=>invoke();
+ ivory?.addEventListener('click', pickWhite);
+ ebony?.addEventListener('click', pickBlack);
  window.checkersStartup.playIntent=invoke;
  clearTimeout(window.checkersStartup.watchdog);
  retry.hidden=true;
@@ -78,6 +97,8 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: { onPlayBot:
  scene.events.on('update',update);
  scene.events.once('shutdown',()=>{
   gates.cancel();audio.dispose();play.onclick=null;
+  ivory?.removeEventListener('click', pickWhite);
+  ebony?.removeEventListener('click', pickBlack);
   if(window.checkersStartup.playIntent===invoke) window.checkersStartup.playIntent=null;
   scene.events.off('update',update);
   document.removeEventListener('visibilitychange',visibilityChange);
@@ -101,6 +122,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: { onPlayBot:
    if(window.checkersStartup.pendingPlay || window.checkersStartup.playCommitted) window.checkersStartup.waitPlay();
    else window.checkersStartup.unlock();
    root.hidden=false;document.getElementById('game')!.inert=true;
+   paintSide('white');
    if(!firstShow)play.focus({preventScroll:true});firstShow=false;
   },
   hide,
@@ -112,6 +134,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: { onPlayBot:
    paint(0);
   },
   beginMatch:()=>audio.beginMatch(),
+  humanSide:()=>side,
   hintWave:()=>audio.hintWave(),
   arenaVoice:(humanSide:'white'|'black'='white')=>audio.arenaVoice(humanSide),
   speakOrcTurn:(name:string,humanSide:'white'|'black'='white')=>audio.speakOrcTurn(name,humanSide),
