@@ -7,6 +7,19 @@ it('types at 60ms, holds for 2500ms, erases at 30ms and settles without delaying
  try {
   const script = html.match(/<script id="opening-flavor">([\s\S]*?)<\/script>/)?.[1];
   expect(script).toBeTruthy();
+  const slogan = html.match(/<p class="opening-slogan"[^>]*>([\s\S]*?)<\/p>/)?.[1] ?? '';
+  expect(slogan).toContain('id="opening-flavor-text"');
+  expect(slogan).toContain('id="opening-flavor-size"');
+  expect(slogan).toContain('id="opening-flavor-cursor"');
+  const status = html.match(/<p id="opening-status"[^>]*>([\s\S]*?)<\/p>/)?.[1] ?? '';
+  expect(status).not.toContain('opening-flavor');
+  expect(status).toContain('id="opening-error"');
+  expect(script).toContain("Пленных не будет...");
+  expect(script).toContain("Жертвы неизбежны...");
+  expect(script).toContain("Пощады не предусмотрено...");
+  expect(script).toContain("Ваш план переживут не все...");
+  expect(script).toContain("Слабый ход стоит головы...");
+  expect(html.split("Пленных не будет...").length - 1).toBe(1);
   const nodes = Object.fromEntries(['opening', 'opening-flavor-size', 'opening-flavor-text', 'opening-flavor-cursor'].map(id => [id, {textContent:'', hidden:false, dataset:{} as Record<string, string>}]));
   const listeners: Record<string, () => void> = {};
   const motion = {matches:false, addEventListener: (_: string, fn: () => void) => { listeners.motion = fn; }};

@@ -15,7 +15,7 @@
 @font-face{font-family:'Golos Text';src:url('/src/client/fonts/GolosText-600-cyrillic.woff2') format('woff2');font-weight:600;font-display:optional}
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#161a1b;overflow:hidden}#game{width:100%;height:100%;touch-action:none}button,input{font:inherit}button{cursor:pointer}button:disabled{cursor:wait}button:focus-visible,input:focus-visible{outline:3px solid #bed9ec;outline-offset:4px}[hidden]{display:none!important}
 #opening{position:fixed;inset:0;z-index:100;color:#e9e0ce;font:400 16px/1.45 'Golos Text',Arial,sans-serif;overflow:auto;background:#161a1b}
-#opening::before{content:'';position:fixed;inset:0;background:linear-gradient(#15191a70,#15191a70),url('/src/client/modules/board/reliquary/slate_tile.png') center/cover;filter:brightness(.65);pointer-events:none}
+#opening::before{content:'';position:fixed;inset:0;background:linear-gradient(#15191a70,#15191a70),url('/src/client/modules/board/reliquary/slate_tile.webp') center/cover;filter:brightness(.65);pointer-events:none}
 .opening-sheet{position:relative;max-width:390px;min-height:844px;margin:auto;padding:34px 28px 18px;isolation:isolate}
 #opening-play{height:56px;display:grid;place-items:center}
 #opening-play:disabled{background:linear-gradient(#272b2b,#171a1b);border-color:#776c56;box-shadow:inset 0 1px #474940,inset 0 -2px #0e1112,0 3px #0006}
@@ -60,7 +60,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 @media(min-width:700px) and (min-aspect-ratio:1/1) and (max-height:760px){.opening-sheet{padding-top:24px}h1{margin-top:24px}.opening-art{height:254px}.opening-iron{top:-7px}.opening-bone{top:52px}.opening-actions{margin-top:0}}
 /* Full phrase reserves its font-correct width; cursor is outside centring. */
 .opening-status{display:flex;align-items:center;justify-content:center}
-.opening-flavor{display:block;position:relative;text-align:left;white-space:nowrap}
+.opening-flavor{display:inline-block;position:relative;text-align:left;white-space:nowrap}
 #opening-flavor-size{visibility:hidden}
 .opening-flavor-ink{position:absolute;left:0;top:0;white-space:nowrap}
 #opening-flavor-cursor{position:absolute;color:#a99572}
@@ -80,7 +80,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 
   <div class="gate-title-canopy"><div class="gate-title-clip"><div class="gate-title-plate">
    <h1 id="opening-title">РУССКИЕ <span>ШАШКИ</span></h1>
-   <p class="opening-slogan">Великие планы. Неизбежные жертвы.</p>
+   <p class="opening-slogan" aria-hidden="true"><span class="opening-flavor"><span id="opening-flavor-size"></span><span class="opening-flavor-ink"><span id="opening-flavor-text"></span><span id="opening-flavor-cursor" hidden>▌</span></span></span></p>
   </div></div></div>
   <div class="opening-art" aria-hidden="true">
    <div class="gate-door gate-left"><div class="gate-crossbars"><i></i><i></i><i></i><i></i></div><img class="gate-piece gate-piece-ivory" src="/src/client/app/ui/opening/ivory_disk.webp" width="440" height="440" alt="" decoding="async" /></div>
@@ -96,7 +96,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
    </div>
   </nav>
   <p id="opening-loading-status" class="opening-sr-only" role="status" aria-live="polite" aria-atomic="true">Загрузка игры</p>
-  <p id="opening-status" class="opening-status" aria-live="off"><span class="opening-flavor" aria-hidden="true"><span id="opening-flavor-size"></span><span class="opening-flavor-ink"><span id="opening-flavor-text"></span><span id="opening-flavor-cursor" hidden>▌</span></span></span><span id="opening-error" hidden></span></p>
+  <p id="opening-status" class="opening-status" aria-live="off" hidden><span id="opening-error" hidden></span></p>
   <noscript><p>Для игры нужен JavaScript. Включите его в настройках браузера и обновите страницу.</p></noscript>
  </div>
 </main>
@@ -254,27 +254,66 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
  });
  sync();
+ const activity = '<span class="opening-activity" aria-hidden="true"><i style="--segment:0"></i><i style="--segment:1"></i><i style="--segment:2"></i><i style="--segment:3"></i><i style="--segment:4"></i></span>';
+ const play = byId('opening-play');
  window.checkersStartup = {
+  pendingPlay: false,
+  playCommitted: false,
+  playIntent: null,
   fail(message) {
    clearTimeout(window.checkersStartup.watchdog);
+   window.checkersStartup.pendingPlay = false;
+   window.checkersStartup.playCommitted = false;
+   window.checkersStartup.playIntent = null;
    window.checkersFlavor.setState('error');
-   document.querySelector('.opening-flavor').hidden = true;
+   byId('opening-status').hidden = false;
    byId('opening-error').hidden = false;
    byId('opening-error').textContent = message;
    byId('opening-loading-status').textContent = message;
-   byId('opening-play').setAttribute('aria-busy', 'false');
+   play.setAttribute('aria-busy', 'false');
    byId('opening-retry').hidden = false;
-   byId('opening-play').disabled = true;
-   byId('opening-play').hidden = true;
+   play.disabled = true;
+   play.hidden = true;
+  },
+  // HTML-first: enable Play before Phaser/modules; residual loads wait after click.
+  unlock() {
+   if (play.hidden) return;
+   // One-tap intent: queued or in-flight start must keep honest wait UI — never calm «Играть».
+   if (window.checkersStartup.pendingPlay || window.checkersStartup.playCommitted) {
+    window.checkersStartup.waitPlay();
+    return;
+   }
+   play.disabled = false;
+   play.textContent = 'Играть';
+   play.removeAttribute('aria-label');
+   play.setAttribute('aria-busy', 'false');
+   play.hidden = false;
+   byId('opening-retry').hidden = true;
+  },
+  waitPlay() {
+   if (play.hidden) return;
+   window.checkersStartup.playCommitted = true;
+   play.disabled = true;
+   play.setAttribute('aria-busy', 'true');
+   play.setAttribute('aria-label', 'Загрузка игры');
+   play.innerHTML = activity;
+   window.checkersStartup.status('Загружаем доску и шашки…');
   },
   ready() {
-   window.checkersFlavor.setState('ready');
-   document.querySelector('.opening-flavor').hidden = false;
+   // Do not settle flavor here — slogan typewriter keeps cycling on the title.
+   byId('opening-status').hidden = true;
    byId('opening-error').hidden = true;
    window.checkersStartup.status('Всё готово. Первый ход ваш.');
   },
   status(message) { byId('opening-loading-status').textContent = message; }
  };
+ play.onclick = () => {
+  if (play.hidden || play.disabled) return;
+  if (typeof window.checkersStartup.playIntent === 'function') window.checkersStartup.playIntent();
+  else { window.checkersStartup.pendingPlay = true; window.checkersStartup.waitPlay(); }
+ };
+ window.checkersStartup.unlock();
+ window.checkersStartup.ready();
  window.checkersStartup.watchdog = setTimeout(() => window.checkersStartup.fail('Загрузка затянулась. Проверьте соединение и повторите попытку.'), 30000);
 })();
 </script>

@@ -5,7 +5,18 @@ import {gateDurationMs as preparationMs} from './openingGates';
 
 declare global {
  interface Window {
-  checkersStartup: { watchdog: number; fail: (message: string) => void; ready: () => void; status: (message: string) => void };
+  checkersFlavor?: { setState: (next: string) => void };
+  checkersStartup: {
+   watchdog: number;
+   pendingPlay?: boolean;
+   playCommitted?: boolean;
+   playIntent?: (() => void) | null;
+   fail: (message: string) => void;
+   unlock: () => void;
+   waitPlay: () => void;
+   ready: () => void;
+   status: (message: string) => void;
+  };
  }
 }
 
@@ -33,6 +44,9 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: { onPlayBot:
   }
  };
  const hide = (completed=false) => {
+  if (completed) window.checkersFlavor?.setState('ready');
+  window.checkersStartup.playCommitted=false;
+  window.checkersStartup.pendingPlay=false;
   audio.hide(completed,motion.matches);
   gates.cancel(); closeDialogs(); root.hidden=true; root.inert=false;
   root.classList.remove('is-departing');
@@ -47,25 +61,46 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: { onPlayBot:
   gates.advance(motion.matches ? preparationMs : delta);
   if(gates.active) paint(gates.elapsed);
  };
- play.onclick=()=>{if(!play.disabled&&!root.hidden&&!gates.active&&!root.inert) handlers.onPlayBot();};
+ const invoke = () => {
+  // Allow invoke while waitPlay disabled the button (early click / residual load).
+  if(root.hidden||gates.active||root.inert) return;
+  handlers.onPlayBot();
+ };
+ play.onclick=()=>invoke();
+ window.checkersStartup.playIntent=invoke;
  clearTimeout(window.checkersStartup.watchdog);
- play.disabled=false;play.textContent='Играть';play.removeAttribute('aria-label');
- play.setAttribute('aria-busy','false');play.hidden=false;retry.hidden=true;
- window.checkersStartup.ready();
+ retry.hidden=true;
+ play.hidden=false;
+ // Keep pending/committed until invoke/auto-start so show()/unlock cannot idle the button.
+ if(window.checkersStartup.pendingPlay || window.checkersStartup.playCommitted) window.checkersStartup.waitPlay();
+ else { window.checkersStartup.unlock(); window.checkersStartup.ready(); }
  document.addEventListener('visibilitychange',visibilityChange);
  scene.events.on('update',update);
  scene.events.once('shutdown',()=>{
   gates.cancel();audio.dispose();play.onclick=null;
+  if(window.checkersStartup.playIntent===invoke) window.checkersStartup.playIntent=null;
   scene.events.off('update',update);
   document.removeEventListener('visibilitychange',visibilityChange);
   root.inert=false;root.classList.remove('is-departing');paint(0);
  });
  return {
   layout: (_width:number,_height:number)=>undefined,
+  /** After playfieldReady is wired: consume early «Играть» tap and auto-start. */
+  flushPendingPlay:()=>{
+   if(!window.checkersStartup.pendingPlay && !window.checkersStartup.playCommitted) return;
+   // Honest progress until auto-start; waitPlay before clearing pending so show cannot idle.
+   window.checkersStartup.waitPlay();
+   window.checkersStartup.pendingPlay=false;
+   invoke();
+  },
   show:()=>{
    audio.show();
    gates.cancel();sampledAt=null;paint(0);root.inert=false;root.classList.remove('is-departing');
-   play.disabled=false;root.hidden=false;document.getElementById('game')!.inert=true;
+   window.checkersFlavor?.setState('loading');
+   // Treat playCommitted like pending — never clear committed / unlock to calm «Играть».
+   if(window.checkersStartup.pendingPlay || window.checkersStartup.playCommitted) window.checkersStartup.waitPlay();
+   else window.checkersStartup.unlock();
+   root.hidden=false;document.getElementById('game')!.inert=true;
    if(!firstShow)play.focus({preventScroll:true});firstShow=false;
   },
   hide,
