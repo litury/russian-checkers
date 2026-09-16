@@ -33,30 +33,30 @@ import { createOpeningOverlay } from './openingOverlay';
 import type { IYandexSdk } from './IYandexSdk';
 import { getAutoMove } from './settings';
 import { createResultOverlay } from './resultOverlay';
-import mascotIdle0Url from './ui/result/mascot_idle_00.png';
-import mascotIdle1Url from './ui/result/mascot_idle_01.png';
-import mascotIdle2Url from './ui/result/mascot_idle_02.png';
-import mascotIdle3Url from './ui/result/mascot_idle_03.png';
-import mascotWin0Url from './ui/result/mascot_win_00.png';
-import mascotWin1Url from './ui/result/mascot_win_01.png';
-import mascotWin2Url from './ui/result/mascot_win_02.png';
-import mascotWin3Url from './ui/result/mascot_win_03.png';
-import mascotWin4Url from './ui/result/mascot_win_04.png';
-import resultBtnUrl from './ui/result/result_btn.png';
-import resultGlassWinUrl from './ui/result/result_glass_win.png';
-import resultMonitorUrl from './ui/result/result_monitor.png';
-import defeatTerminalUrl from './ui/result/terminal_sockets.png';
-import primaryRestUrl from './ui/result/primary_rest.png';
-import primaryPressedUrl from './ui/result/primary_pressed.png';
-import secondaryRestUrl from './ui/result/secondary_rest.png';
-import secondaryPressedUrl from './ui/result/secondary_pressed.png';
+import mascotIdle0Url from './ui/result/mascot_idle_00.webp';
+import mascotIdle1Url from './ui/result/mascot_idle_01.webp';
+import mascotIdle2Url from './ui/result/mascot_idle_02.webp';
+import mascotIdle3Url from './ui/result/mascot_idle_03.webp';
+import mascotWin0Url from './ui/result/mascot_win_00.webp';
+import mascotWin1Url from './ui/result/mascot_win_01.webp';
+import mascotWin2Url from './ui/result/mascot_win_02.webp';
+import mascotWin3Url from './ui/result/mascot_win_03.webp';
+import mascotWin4Url from './ui/result/mascot_win_04.webp';
+import resultBtnUrl from './ui/result/result_btn.webp';
+import resultGlassWinUrl from './ui/result/result_glass_win.webp';
+import resultMonitorUrl from './ui/result/result_monitor.webp';
+import defeatTerminalUrl from './ui/result/terminal_sockets.webp';
+import primaryRestUrl from './ui/result/primary_rest.webp';
+import primaryPressedUrl from './ui/result/primary_pressed.webp';
+import secondaryRestUrl from './ui/result/secondary_rest.webp';
+import secondaryPressedUrl from './ui/result/secondary_pressed.webp';
 
 export class GameScene extends Phaser.Scene {
 	// The current bot mode always assigns the human white.
 	private readonly humanSide: Side = 'white';
-	private board!: IBoardView;
-	private hud!: ReturnType<typeof createHud>;
-	private overlay!: ReturnType<typeof createResultOverlay>;
+	private board?: IBoardView;
+	private hud?: ReturnType<typeof createHud>;
+	private overlay?: ReturnType<typeof createResultOverlay>;
 	private title!: ReturnType<typeof createOpeningOverlay>;
 	private sdk!: IYandexSdk;
 	private position: IPosition = createInitialPosition();
@@ -82,111 +82,50 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private startupFailed = false;
+	private playfieldBuilt = false;
+	private startingFromOpening = false;
+	/** Settled by bootPlayfield; created before overlay so await never sees undefined. */
+	private settlePlayfieldReady!: () => void;
+	private playfieldReady: Promise<void> = new Promise((resolve) => {
+		this.settlePlayfieldReady = resolve;
+	});
+	private resultReady!: Promise<void>;
+	private interactiveReady!: Promise<void>;
 
 	preload(): void {
 		this.startupFailed = false;
-		window.checkersStartup?.status('Загружаем доску и шашки…');
+		// Title is HTML-first: do not queue heavy packs here — unlock must not wait on them.
+		window.checkersStartup?.status('Подключаем игру…');
 		this.load.on('loaderror', () => {
 			this.startupFailed = true;
 			clearTimeout(window.checkersStartup?.watchdog);
 			window.checkersStartup?.fail('Не удалось загрузить игровые ресурсы. Проверьте соединение и повторите загрузку.');
 		});
-		// Share exact lossless delivery copies with the HTML opening; keep PNG masters untouched.
-		const reliquaryAssets: Record<string, unknown> = {
-			...import.meta.glob(['../modules/board/reliquary/*.png', '!../modules/board/reliquary/black_disk.png', '!../modules/board/reliquary/ivory_disk.png'], { eager: true, query: '?url', import: 'default' }),
-			'../modules/board/reliquary/black_disk.png': new URL('./ui/opening/black_disk.webp', import.meta.url).href,
-			'../modules/board/reliquary/ivory_disk.png': new URL('./ui/opening/ivory_disk.webp', import.meta.url).href,
-		};
-		for(const [path,url] of Object.entries(reliquaryAssets)) {
-			const name=path.split('/').pop()!.replace('.png','');
-			this.load.image(`reliquary_${name}`,url as string);
-		}
-		this.load.image('defeatTerminal', defeatTerminalUrl);
-		this.load.image('defeat_primary_rest', primaryRestUrl);
-		this.load.image('defeat_primary_pressed', primaryPressedUrl);
-		this.load.image('defeat_secondary_rest', secondaryRestUrl);
-		this.load.image('defeat_secondary_pressed', secondaryPressedUrl);
-		const defeatFrames = import.meta.glob('./ui/result/checker-defeat/*.png', {
-			eager: true, query: '?url', import: 'default',
-		});
-		for (const [path, url] of Object.entries(defeatFrames)) {
-			const frame = path.split('/').pop()!.replace('.png', '');
-			this.load.image(`checkerDefeat_${frame}`, url as string);
-		}
-		this.load.image(pieceSprites.manLight, reliquaryAssets['../modules/board/reliquary/ivory_disk.png'] as string);
-		this.load.image(pieceSprites.manDark, reliquaryAssets['../modules/board/reliquary/black_disk.png'] as string);
-		this.load.image(pieceSprites.kingLight, reliquaryAssets['../modules/board/reliquary/ivory_king.png'] as string);
-		this.load.image(pieceSprites.kingDark, reliquaryAssets['../modules/board/reliquary/black_king.png'] as string);
-		// V2: lossless composition of approved RGBA layers, individual 724px frames.
-		const selectionFrames = import.meta.glob('../modules/board/selection-v2/frames/*/*.png', {
-			eager: true, query: '?url', import: 'default',
-		});
-		for (const [path, url] of Object.entries(selectionFrames)) {
-			this.load.image(`selection_${path.split('/').pop()!.replace('.png', '')}`, url as string);
-		}
-		this.load.image('selection_king-seal', new URL('../modules/board/selection/markers/king-seal-proposed.png', import.meta.url).href);
-		preloadBunkerPanels(this);
-		preloadKingFire(this);
-
-		this.load.image('resultMonitor', resultMonitorUrl);
-		this.load.image('mascotIdle0', mascotIdle0Url);
-		this.load.image('mascotIdle1', mascotIdle1Url);
-		this.load.image('mascotIdle2', mascotIdle2Url);
-		this.load.image('mascotIdle3', mascotIdle3Url);
-		this.load.image('resultGlassWin', resultGlassWinUrl);
-		this.load.image('resultBtn', resultBtnUrl);
-		this.load.image('mascotWin0', mascotWin0Url);
-		this.load.image('mascotWin1', mascotWin1Url);
-		this.load.image('mascotWin2', mascotWin2Url);
-		this.load.image('mascotWin3', mascotWin3Url);
-		this.load.image('mascotWin4', mascotWin4Url);
-
 	}
 
 	create(): void {
-		if (this.startupFailed) return;
+		if (this.startupFailed) {
+			this.settlePlayfieldReady();
+			return;
+		}
 		this.sdk = this.registry.get('sdk') as IYandexSdk;
 		this.cameras.main.setBackgroundColor(palette.background);
-		for (const key of [
-			'resultMonitor',
-			'mascotIdle0',
-			'mascotIdle1',
-			'mascotIdle2',
-			'mascotIdle3',
-		]) {
-			if (!this.textures.exists(key)) {
-				continue;
-			}
-			this.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
-		}
-		this.hud = createHud(this, {
-			onRevealProgress: (elapsed, reduced) => {
-				this.board?.paintOpeningHint(elapsed / preparationMs, reduced);
-				this.title?.revealAudio(elapsed, reduced);
-			},
-			isPaused: () => this.paused,
-			onAutoChange: () => {
-				this.refresh();
-			},
+		// Deferred exists from field init; boot board+pieces ASAP — before overlay/pending invoke.
+		void this.bootPlayfield().then(
+			() => this.settlePlayfieldReady(),
+			() => this.settlePlayfieldReady(),
+		);
+		// Selection-v2: background after playfieldReady; gates board *reveal*, not HTML unlock.
+		this.interactiveReady = this.bootMatchInteractive();
+		// KingFire then result: after interactive (single Phaser loader); never gate reveal/depart.
+		this.resultReady = this.interactiveReady.then(async () => {
+			await this.bootKingFire();
+			await this.bootResultPack();
 		});
-		this.hud.setVisible(false);
-
-		this.board = createBoardView(this, (square) => {
-			this.onSquare(square);
-		}, () => this.cancelSelection(), () => this.hud.isMenuOpen() || this.phase === 'over' || this.phase === 'title');
-		this.board.setPlayfieldVisible(false);
 		this.title = createOpeningOverlay(this, {
 			isPaused: () => this.paused,
 			onPlayBot: () => {
-				this.startMatch(true);
-			},
-		});
-		this.overlay = createResultOverlay(this, {
-			onPlayAgain: () => {
-				this.startMatch();
-			},
-			onMenu: () => {
-				this.showTitle();
+				void this.requestStartFromOpening();
 			},
 		});
 		this.sdk.onPause(() => {
@@ -203,35 +142,258 @@ export class GameScene extends Phaser.Scene {
 				this.tickClock();
 			},
 		});
-		this.board.layout(logicalSize(this).width, logicalSize(this).height);
-		this.hud.layout(logicalSize(this).width, logicalSize(this).height);
-		this.overlay.layout(logicalSize(this).width, logicalSize(this).height);
 		this.title.layout(logicalSize(this).width, logicalSize(this).height);
-		this.showTitle();
+		this.title.show();
+		// One-tap: early «Играть» before Phaser must auto-start once assets are wired.
+		this.title.flushPendingPlay();
 		this.sdk.ready();
+	}
+
+	private flushLoader(): Promise<void> {
+		return new Promise((resolve) => {
+			if (this.startupFailed) {
+				resolve();
+				return;
+			}
+			if (!this.load.isLoading() && this.load.list.size === 0) {
+				resolve();
+				return;
+			}
+			this.load.once('complete', () => resolve());
+			if (!this.load.isLoading()) this.load.start();
+		});
+	}
+
+	private queueTitleCritical(): void {
+		// Share exact lossless delivery copies with the HTML opening; runtime delivers WebP; PNG masters archived under asset-compress/originals.
+		const reliquaryAssets: Record<string, unknown> = {
+			...import.meta.glob(['../modules/board/reliquary/*.webp', '!../modules/board/reliquary/black_disk.webp', '!../modules/board/reliquary/ivory_disk.webp'], { eager: true, query: '?url', import: 'default' }),
+			'../modules/board/reliquary/black_disk.webp': new URL('./ui/opening/black_disk.webp', import.meta.url).href,
+			'../modules/board/reliquary/ivory_disk.webp': new URL('./ui/opening/ivory_disk.webp', import.meta.url).href,
+		};
+		for (const [path, url] of Object.entries(reliquaryAssets)) {
+			const name = path.split('/').pop()!.replace('.webp', '');
+			this.load.image(`reliquary_${name}`, url as string);
+		}
+		this.load.image(pieceSprites.manLight, reliquaryAssets['../modules/board/reliquary/ivory_disk.webp'] as string);
+		this.load.image(pieceSprites.manDark, reliquaryAssets['../modules/board/reliquary/black_disk.webp'] as string);
+		this.load.image(pieceSprites.kingLight, reliquaryAssets['../modules/board/reliquary/ivory_king.webp'] as string);
+		this.load.image(pieceSprites.kingDark, reliquaryAssets['../modules/board/reliquary/black_king.webp'] as string);
+	}
+
+	private queueMatchInteractive(): void {
+		// Selection-v2 frames + seal: required before playfield reveal (hitboxes/origin).
+		const selectionFrames = import.meta.glob('../modules/board/selection-v2/frames/*/*.webp', {
+			eager: true, query: '?url', import: 'default',
+		});
+		for (const [path, url] of Object.entries(selectionFrames)) {
+			this.load.image(`selection_${path.split('/').pop()!.replace('.webp', '')}`, url as string);
+		}
+		this.load.image('selection_king-seal', new URL('../modules/board/selection/markers/king-seal-proposed.webp', import.meta.url).href);
+	}
+
+	private queueKingFire(): void {
+		// KingFire polish: heavy; lazy after interactiveReady — do not gate countdown/reveal.
+		preloadKingFire(this);
+	}
+
+	private queueResultPack(): void {
+		this.load.image('defeatTerminal', defeatTerminalUrl);
+		this.load.image('defeat_primary_rest', primaryRestUrl);
+		this.load.image('defeat_primary_pressed', primaryPressedUrl);
+		this.load.image('defeat_secondary_rest', secondaryRestUrl);
+		this.load.image('defeat_secondary_pressed', secondaryPressedUrl);
+		const defeatFrames = import.meta.glob('./ui/result/checker-defeat/*.webp', {
+			eager: true, query: '?url', import: 'default',
+		});
+		for (const [path, url] of Object.entries(defeatFrames)) {
+			const frame = path.split('/').pop()!.replace('.webp', '');
+			this.load.image(`checkerDefeat_${frame}`, url as string);
+		}
+		this.load.image('resultMonitor', resultMonitorUrl);
+		this.load.image('mascotIdle0', mascotIdle0Url);
+		this.load.image('mascotIdle1', mascotIdle1Url);
+		this.load.image('mascotIdle2', mascotIdle2Url);
+		this.load.image('mascotIdle3', mascotIdle3Url);
+		this.load.image('resultGlassWin', resultGlassWinUrl);
+		this.load.image('resultBtn', resultBtnUrl);
+		this.load.image('mascotWin0', mascotWin0Url);
+		this.load.image('mascotWin1', mascotWin1Url);
+		this.load.image('mascotWin2', mascotWin2Url);
+		this.load.image('mascotWin3', mascotWin3Url);
+		this.load.image('mascotWin4', mascotWin4Url);
+	}
+
+	private async bootPlayfield(): Promise<void> {
+		if (this.startupFailed) return;
+		window.checkersStartup?.status('Загружаем доску и шашки…');
+		// Minimal pack to show board and accept first move; outside preload so HTML unlock is free.
+		this.queueTitleCritical();
+		// Bunker HUD faces are small and needed at depart — keep on critical path.
+		preloadBunkerPanels(this);
+		await this.flushLoader();
+		if (this.startupFailed) return;
+		this.buildPlayfield();
+	}
+
+	private async bootMatchInteractive(): Promise<void> {
+		if (this.startupFailed) return;
+		await this.playfieldReady;
+		if (this.startupFailed || !this.playfieldBuilt) return;
+		this.queueMatchInteractive();
+		await this.flushLoader();
+		if (this.startupFailed) return;
+		for (const key of this.textures.getTextureKeys()) {
+			if (!key.startsWith('selection_')) continue;
+			this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR);
+		}
+		// No mid-match disk→v2 refresh: reveal waits on interactiveReady.
+	}
+
+	private async bootKingFire(): Promise<void> {
+		if (this.startupFailed || !this.playfieldBuilt) return;
+		this.queueKingFire();
+		await this.flushLoader();
+		if (this.startupFailed) return;
+		for (const key of this.textures.getTextureKeys()) {
+			if (!key.startsWith('king-fire_')) continue;
+			this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR);
+		}
+	}
+
+	private async bootResultPack(): Promise<void> {
+		if (this.startupFailed || !this.playfieldBuilt) return;
+		this.queueResultPack();
+		await this.flushLoader();
+		if (this.startupFailed) return;
+		for (const key of [
+			'resultMonitor',
+			'mascotIdle0',
+			'mascotIdle1',
+			'mascotIdle2',
+			'mascotIdle3',
+		]) {
+			if (!this.textures.exists(key)) continue;
+			this.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
+		}
+		if (!this.overlay) {
+			this.overlay = createResultOverlay(this, {
+				onPlayAgain: () => {
+					void this.startMatch();
+				},
+				onMenu: () => {
+					this.showTitle();
+				},
+			});
+			this.overlay.layout(logicalSize(this).width, logicalSize(this).height);
+		}
+	}
+
+	private buildPlayfield(): void {
+		if (this.playfieldBuilt || this.startupFailed) return;
+		this.hud = createHud(this, {
+			onRevealProgress: (elapsed, reduced) => {
+				this.board?.paintOpeningHint(elapsed / preparationMs, reduced);
+				this.title?.revealAudio(elapsed, reduced);
+			},
+			isPaused: () => this.paused,
+			onAutoChange: () => {
+				this.refresh();
+			},
+		});
+		this.hud.setVisible(false);
+		this.board = createBoardView(this, (square) => {
+			this.onSquare(square);
+		}, () => this.cancelSelection(), () => this.hud!.isMenuOpen() || this.phase === 'over' || this.phase === 'title');
+		this.board.setPlayfieldVisible(false);
+		const { width, height } = logicalSize(this);
+		this.board.layout(width, height);
+		this.hud.layout(width, height);
+		this.playfieldBuilt = true;
+	}
+
+	private async requestStartFromOpening(): Promise<void> {
+		if (this.phase !== 'title' || this.startingFromOpening) return;
+		this.startingFromOpening = true;
+		window.checkersStartup.pendingPlay = false;
+		try {
+			window.checkersStartup.waitPlay();
+			await this.playfieldReady;
+			// Hard fail: clear committed only; fail() owns the error UI — never calm unlock.
+			if (this.startupFailed) {
+				window.checkersStartup.playCommitted = false;
+				return;
+			}
+			// Soft leave (no longer title): do not unlock idle «Играть».
+			if (this.phase !== 'title') return;
+			// If boot resolved without a playfield, rebuild and keep waiting on the promise.
+			if (!this.playfieldBuilt) {
+				window.checkersStartup.waitPlay();
+				this.playfieldReady = this.bootPlayfield();
+				this.interactiveReady = this.bootMatchInteractive();
+				this.resultReady = this.interactiveReady.then(async () => {
+					await this.bootKingFire();
+					await this.bootResultPack();
+				});
+				await this.playfieldReady;
+				if (this.startupFailed) {
+					window.checkersStartup.playCommitted = false;
+					return;
+				}
+				if (this.phase !== 'title') return;
+				if (!this.playfieldBuilt) {
+					window.checkersStartup.waitPlay();
+					return;
+				}
+			}
+			// Selection frames must be ready before board+timers appear — no disk flash.
+			window.checkersStartup.waitPlay();
+			await this.interactiveReady;
+			if (this.startupFailed) {
+				window.checkersStartup.playCommitted = false;
+				return;
+			}
+			if (this.phase !== 'title') return;
+			await this.startMatch(true);
+			// startMatch no-op while still title: keep bars — committed cleared only by hide/depart or hard fail.
+			if (this.phase === 'title') window.checkersStartup.waitPlay();
+		} finally {
+			this.startingFromOpening = false;
+		}
+	}
+
+	private async ensureResultOverlay(): Promise<ReturnType<typeof createResultOverlay> | undefined> {
+		await this.resultReady;
+		return this.overlay;
 	}
 
 	private showTitle(): void {
 		this.humanChain = null;
 		this.botTimer?.remove(false);
 		this.tweens.killAll();
-		this.board.reset();
+		this.board?.reset();
 		this.moving = false;
 		this.position = createInitialPosition();
 		this.selected = null;
 		this.phase = 'title';
 		this.timeLowSaid = false;
 		this.pendingBot = false;
-		this.overlay.hide();
-		this.hud.setVisible(false);
+		this.overlay?.hide();
+		this.hud?.setVisible(false);
 		this.stopCountdown();
-		this.board.setPlayfieldVisible(false);
+		this.board?.setPlayfieldVisible(false);
 		this.title.show();
 		this.refresh();
 	}
 
-	private startMatch(fromOpening = false): void {
+	private async startMatch(fromOpening = false): Promise<void> {
 		if (fromOpening && this.phase !== 'title') return;
+		if (!this.playfieldBuilt || !this.board || !this.hud) return;
+		// Gate reveal on selection-v2; kingFire stays off this wait.
+		await this.interactiveReady;
+		if (this.startupFailed) return;
+		if (fromOpening && this.phase !== 'title') return;
+		if (!this.playfieldBuilt || !this.board || !this.hud) return;
 		this.stopCountdown();
 		this.countingIn = true;
 		this.humanChain = null;
@@ -255,10 +417,11 @@ export class GameScene extends Phaser.Scene {
 			Math.ceil(blitzStartMs / 1000),
 		);
 		if (!fromOpening) this.title.hide();
-		this.overlay.hide();
+		this.overlay?.hide();
 		this.hud.prepareClosed();
 		this.hud.setVisible(true);
 		this.hud.setNames('Ты', 'Бот');
+		// interactiveReady already settled: first paint is selection-v2 (disk only if boot failed).
 		this.board.setPlayfieldVisible(true);
 		this.beginCountdown(fromOpening);
 		this.refresh();
@@ -271,6 +434,9 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private beginCountdown(fromOpening = false): void {
+		const board = this.board;
+		const hud = this.hud;
+		if (!board || !hud) return;
 		this.stopCountdown();
 		this.countingIn = true;
 		const ready = () => {
@@ -285,23 +451,22 @@ export class GameScene extends Phaser.Scene {
 		const startPanels = () => {
 			if (!this.countingIn) return;
 			this.title.beginMatch();
-			this.board.startOpeningHint(this.position, this.humanSide);
+			board.startOpeningHint(this.position, this.humanSide);
 			this.title.hintWave();
 			this.title.arenaVoice();
-			this.hud.startReveal(ready);
-			this.hud.setVisible(true);
+			hud.startReveal(ready);
+			hud.setVisible(true);
 		};
 		if (fromOpening) this.title.depart(startPanels);
 		else startPanels();
 	}
 
 	private layout(width: number, height: number): void {
-		this.board.layout(width, height);
-		this.hud.layout(width, height);
-		this.overlay.layout(width, height);
-		this.title.layout(width, height);
-
-		this.refresh();
+		this.board?.layout(width, height);
+		this.hud?.layout(width, height);
+		this.overlay?.layout(width, height);
+		this.title?.layout(width, height);
+		if (this.playfieldBuilt) this.refresh();
 	}
 
 	private sideRemainingMs(side: Side): number {
@@ -318,7 +483,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private paintClock(): void {
-		this.hud.setClock(
+		this.hud?.setClock(
 			Math.ceil(this.sideRemainingMs('white') / 1000),
 			Math.ceil(this.sideRemainingMs('black') / 1000),
 			this.countingIn || this.phase === 'over' ? null : this.position.turn,
@@ -383,9 +548,10 @@ export class GameScene extends Phaser.Scene {
 
 	private refresh(): void {
 		if (this.phase === 'title') {
-			this.hud.setTurn('');
+			this.hud?.setTurn('');
 			return;
 		}
+		if (!this.board || !this.hud) return;
 		this.board.sync(
 			this.humanChain?.visualPosition ?? this.position,
 			this.humanHighlights(),
@@ -476,7 +642,7 @@ export class GameScene extends Phaser.Scene {
 		this.selected = null;
 		this.refresh();
 		if (denied) {
-			this.board.deny(square);
+			this.board?.deny(square);
 		}
 	}
 
@@ -495,7 +661,7 @@ export class GameScene extends Phaser.Scene {
 		this.humanChain = chain;
 		this.moving = true;
 
-		this.board.playMove(chosen.hop, () => {
+		this.board?.playMove(chosen.hop, () => {
 			this.moving = false;
 			this.selected = chain.selected;
 			// Time runs through hops and branch decisions; a final tap cannot rescue a flag.
@@ -513,7 +679,7 @@ export class GameScene extends Phaser.Scene {
 		this.moving = true;
 		this.selected = null;
 
-		this.board.playMove(
+		this.board?.playMove(
 			move,
 			() => {
 				this.moving = false;
@@ -534,7 +700,7 @@ export class GameScene extends Phaser.Scene {
 		this.position = next;
 		this.humanChain = null;
 		this.selected = null;
-		this.board.notePly();
+		this.board?.notePly();
 		const side = winner(this.position);
 		if (side) {
 			this.endMatch(side);
@@ -580,7 +746,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	resignMatch(): void {
-		if (this.paused || this.moving || this.flagLock || this.phase !== 'human') {
+		if (this.paused || this.moving || this.flagLock || this.phase !== 'human' || !this.board) {
 			return;
 		}
 		this.board.reset();
@@ -588,11 +754,12 @@ export class GameScene extends Phaser.Scene {
 		this.selected = null;
 		this.refresh();
 		this.title?.speakOrcTurn(orcOutcomeLine('resign', false));
-		this.overlay.show('black', this.humanSide);
+		void this.ensureResultOverlay().then((overlay) => overlay?.show('black', this.humanSide));
 		this.board.clearOpeningHint();
 	}
 
 	private endMatch(side: Side, kind: 'flag' | 'rules' = 'rules'): void {
+		if (!this.board) return;
 		this.board.reset();
 		this.moving = false;
 		this.botTimer?.remove(false);
@@ -601,13 +768,12 @@ export class GameScene extends Phaser.Scene {
 		this.selected = null;
 		this.refresh();
 		this.title?.speakOrcTurn(orcOutcomeLine(kind, side === this.humanSide));
+		const show = () => {
+			void this.ensureResultOverlay().then((overlay) => overlay?.show(side, this.humanSide));
+		};
 		this.sdk.showFullscreenAdv({
-			onClose: () => {
-				this.overlay.show(side, this.humanSide);
-			},
-			onError: () => {
-				this.overlay.show(side, this.humanSide);
-			},
+			onClose: show,
+			onError: show,
 		});
 	}
 

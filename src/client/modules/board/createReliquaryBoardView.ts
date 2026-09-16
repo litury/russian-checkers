@@ -46,6 +46,7 @@ export function createBoardView(
 		...Object.keys(kingFireAssets).map(name => `king-fire_${name}`),
 		...['white', 'black'].flatMap(side => Array.from({ length: 56 }, (_, i) => `selection_${side}-${String(i).padStart(2, '0')}`)),
 	]) {
+		if (typeof scene.textures.exists === 'function' && !scene.textures.exists(texture)) continue;
 		scene.textures.get(texture).setFilter(Phaser.Textures.FilterMode.LINEAR);
 	}
 	const ground = scene.add
@@ -166,20 +167,40 @@ export function createBoardView(
 		for (const land of markerDestinations(routes, true)) paint(land, 'futureLanding');
 		drawInteraction();
 	};
+	const hasTexture = (key: string): boolean =>
+		typeof scene.textures.exists !== 'function' || scene.textures.exists(key);
+	const pieceTexture = (kind: PieceView['kind'], side: PieceView['side']): string =>
+		kind === 'king'
+			? side === 'white'
+				? pieceSprites.kingLight
+				: pieceSprites.kingDark
+			: side === 'white'
+				? pieceSprites.manLight
+				: pieceSprites.manDark;
 	const renderPiece = (view: PieceView): void => {
 		const king = view.kind === 'king';
-		const texture = `selection_${view.side}-${String(selectionV2Frame(view.motion.progress)).padStart(2, '0')}`;
+		const frame = `selection_${view.side}-${String(selectionV2Frame(view.motion.progress)).padStart(2, '0')}`;
+		// Disk fallback only if selection frames missing (interactive boot failed) — no mid-match swap.
+		const selectionReady = hasTexture(frame);
+		const texture = selectionReady ? frame : pieceTexture(view.kind, view.side);
 		view.sprite.setTexture(texture).setName('selection-piece')
 			.setData('square', { ...view.square }).setData('kind', view.kind)
 			.setData('side', view.side).setData('progress', view.motion.progress);
 		view.outline.setTexture(texture);
-		view.seal.setVisible(king);
-		// Both ranks share approved v2 geometry; seal is TEMPORARY until crown art arrives.
-		const scale = (35 / 648) * field.cell / 44;
-		for (const image of [view.sprite, view.outline])
-			image.setOrigin(365 / 724, 679 / 724).setPosition(0, 17.6 * field.cell / 44).setDisplaySize(724 * scale, 724 * scale);
-		view.outline.setVisible(false);
-		view.seal.setPosition(0, -selectionV2Frame(view.motion.progress) * scale).setDisplaySize(field.cell, field.cell).setData('temporaryRank', true);
+		view.seal.setVisible(king && hasTexture('selection_king-seal'));
+		if (selectionReady) {
+			// Both ranks share approved v2 geometry; seal is TEMPORARY until crown art arrives.
+			const scale = (35 / 648) * field.cell / 44;
+			for (const image of [view.sprite, view.outline])
+				image.setOrigin(365 / 724, 679 / 724).setPosition(0, 17.6 * field.cell / 44).setDisplaySize(724 * scale, 724 * scale);
+			view.outline.setVisible(false);
+			view.seal.setPosition(0, -selectionV2Frame(view.motion.progress) * scale).setDisplaySize(field.cell, field.cell).setData('temporaryRank', true);
+		} else {
+			for (const image of [view.sprite, view.outline])
+				image.setOrigin(0.5, 0.5).setPosition(0, 0).setDisplaySize(field.cell * 0.86, field.cell * 0.86);
+			view.outline.setVisible(false);
+			view.seal.setPosition(0, 0).setDisplaySize(field.cell, field.cell).setData('temporaryRank', true);
+		}
 	};
 	const place = (view: PieceView): void => {
 		const box = cellBox(view.square);
@@ -234,7 +255,8 @@ export function createBoardView(
 				if (!view) {
 					const sprite = scene.add.image(0, 0, texture);
 					const outline = scene.add.image(0, 0, texture).setTint(0x141210);
-					const seal = scene.add.image(0, 0, 'selection_king-seal').setName('king-seal');
+					const sealKey = hasTexture('selection_king-seal') ? 'selection_king-seal' : texture;
+					const seal = scene.add.image(0, 0, sealKey).setName('king-seal').setVisible(false);
 					view = {
 						square,
 						kind: piece.kind, side: piece.side, motion: new SelectionMotion(),

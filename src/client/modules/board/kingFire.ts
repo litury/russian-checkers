@@ -24,6 +24,11 @@ export class KingFire {
  private serial = 0;
  constructor(private scene: Phaser.Scene) {}
 
+ private has(texture: string): boolean {
+  // Harness without exists() treats sheets as present; live path checks TextureManager.
+  if (typeof this.scene.textures?.exists !== 'function') return true;
+  return this.scene.textures.exists(`king-fire_${texture}`);
+ }
  private sprite(texture: string, p: FirePoint, cell: number, depth: number, mode: string) {
   const layer = texture.endsWith('-back') ? 'back' : texture.endsWith('-front') ? 'front' : mode;
   return this.scene.add.sprite(p.x, p.y, `king-fire_${texture}`, 0)
@@ -36,6 +41,8 @@ export class KingFire {
  }
  rest(id: object, king: boolean, p: FirePoint, cell: number, reduced: boolean) {
   if (!king) { this.remove(id); return; }
+  // Sheets may still be background-loading; skip VFX until ready.
+  if (!(reduced ? this.has('static') : this.has('idle-back') && this.has('idle-front'))) return;
   if (this.idle.get(id)?.reduced !== reduced) this.dropIdle(id);
   if (!this.idle.has(id)) this.idle.set(id, {
    point: { x: p.x, y: p.y }, cell, reduced,
@@ -49,6 +56,7 @@ export class KingFire {
  }
  ignite(owner: object, p: FirePoint, cell: number, reduced: boolean) {
   if (reduced) return;
+  if (!this.has('ignite-back') || !this.has('ignite-front')) return;
   kingFireIgniteSfx(false);
   this.bursts.push({ owner, point: { x: p.x, y: p.y }, age: 0,
    sprites: [this.sprite('ignite-back', p, cell, 3.9, 'ignite'), this.sprite('ignite-front', p, cell, 4.1, 'ignite')],
@@ -58,6 +66,7 @@ export class KingFire {
   // The logical promotion already happened; nothing square-shaped travels.
   this.remove(id); this.land();
   if (!king || reduced) return;
+  if (!this.has('trail')) return;
   kingFireTrailSfx(true, false);
   if (this.owner !== id || this.cell !== cell) this.remaining = KING_FIRE_SPACING * cell / 44;
   this.owner = id; this.cell = cell;
