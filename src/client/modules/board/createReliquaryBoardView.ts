@@ -472,7 +472,7 @@ export function createBoardView(
 			paint(land, victim ? 'landing' : 'move');
 			if (victim) paint(victim, 'target');
 			kingFire.takeoff(view, view.kind === 'king', cellBox(from), field.cell, reduced());
-			pieceStepSfx(view.kind === 'king', Boolean(victim));
+			pieceStepSfx(view.kind === 'king', Boolean(victim), view.side, victim ? pieces.get(key(victim))?.side : undefined);
 			onTakeoff?.(Boolean(victim));
 			const finish = (): void => {
 				if (generation !== run) return;

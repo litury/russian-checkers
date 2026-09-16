@@ -5,6 +5,7 @@ import {
  menuOrganLevel,
  pieceCaptureLevel,
  pieceMoveLevel,
+ pieceSelectLevel,
  sfxBus,
  voiceBus,
 } from './audioMix';
@@ -18,6 +19,7 @@ it('keeps voice above SFX and match bed below the menu organ', () => {
  expect(matchMusicLevel).toBeLessThanOrEqual(.22);
  expect(matchMusicDuck).toBeLessThan(.35);
  expect(pieceMoveLevel).toBeLessThan(pieceCaptureLevel);
+ expect(pieceSelectLevel).toBeLessThan(pieceMoveLevel);
  expect(audio).toContain('voiceBus');
  expect(audio).not.toMatch(/say=\(name:string\)=>\{[^}]*sound\(name\)/s);
  expect(piece).toContain('pieceMoveLevel');

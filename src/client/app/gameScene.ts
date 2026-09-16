@@ -446,14 +446,14 @@ export class GameScene extends Phaser.Scene {
 			this.countingIn = false;
 			this.paintClock();
 			this.refresh();
-			this.title.speakOrcTurn(orcOpeningTurnLine(this.humanSide));
+			this.title.speakOrcTurn(orcOpeningTurnLine(this.humanSide), this.humanSide);
 		};
 		const startPanels = () => {
 			if (!this.countingIn) return;
 			this.title.beginMatch();
 			board.startOpeningHint(this.position, this.humanSide);
 			this.title.hintWave();
-			this.title.arenaVoice();
+			this.title.arenaVoice(this.humanSide);
 			hud.startReveal(ready);
 			hud.setVisible(true);
 		};
@@ -522,7 +522,7 @@ export class GameScene extends Phaser.Scene {
 		const own = this.sideRemainingMs(this.humanSide);
 		if (orcTimeLow(own, this.timeLowSaid)) {
 			this.timeLowSaid = true;
-			this.title?.speakOrcTurn('time-low');
+			this.title?.speakOrcTurn('time-low', this.humanSide);
 		}
 		const side = this.position.turn;
 		const left = remainingMs(
@@ -753,7 +753,7 @@ export class GameScene extends Phaser.Scene {
 		this.phase = 'over';
 		this.selected = null;
 		this.refresh();
-		this.title?.speakOrcTurn(orcOutcomeLine('resign', false));
+		this.title?.speakOrcTurn(orcOutcomeLine('resign', false), this.humanSide);
 		void this.ensureResultOverlay().then((overlay) => overlay?.show('black', this.humanSide));
 		this.board.clearOpeningHint();
 	}
@@ -767,7 +767,7 @@ export class GameScene extends Phaser.Scene {
 		this.phase = 'over';
 		this.selected = null;
 		this.refresh();
-		this.title?.speakOrcTurn(orcOutcomeLine(kind, side === this.humanSide));
+		this.title?.speakOrcTurn(orcOutcomeLine(kind, side === this.humanSide), this.humanSide);
 		const show = () => {
 			void this.ensureResultOverlay().then((overlay) => overlay?.show(side, this.humanSide));
 		};

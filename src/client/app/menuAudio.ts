@@ -5,6 +5,7 @@ import {menuClickLevel,menuBackSound} from './menuClickLevel';
 import {previewLoop,mechanismEnvelope} from './menuAudioPreview';
 import {startPanelWindows,startTimerLock,startTimerSlide} from './startAudio';
 import {orcArenaLine} from './orcTurn';
+import {announcerCue} from './announcer';
 import {bindKingFireSfx} from './kingFireSfx';
 import {bindPieceSfx,cancelPieceAh} from './pieceSfx';
 const urls=import.meta.glob('./audio/menu/*',{eager:true,query:'?url',import:'default'}) as Record<string,string>;
@@ -144,8 +145,8 @@ export function createMenuAudio(sdk:IYandexSdk) {
   depart(){epoch++;mechanisms.clear();policy.departing=true;sync();},
   beginMatch(){policy.match=true;policy.menu=false;policy.departing=false;mechanisms.clear();sync();},
   hintWave(){sound('availability-wave',.85);},
-  arenaVoice(){say(orcArenaLine);},
-  speakOrcTurn(name:string){say(name);},
+  arenaVoice(humanSide:'white'|'black'='white'){say(announcerCue(humanSide,orcArenaLine));},
+  speakOrcTurn(name:string,humanSide:'white'|'black'='white'){say(announcerCue(humanSide,name));},
   reveal(ms:number,reduced:boolean){
    for(const [id,start,end,name,level] of [
     ['timer-slide',startTimerSlide[0],startTimerSlide[1],'timer-slide',.9],

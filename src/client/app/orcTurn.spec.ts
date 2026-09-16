@@ -11,4 +11,5 @@ it('prepares once then one color line, never every turn or attack lines', () => 
  expect(scene).not.toContain('atakuy');
  expect(scene).not.toContain('zashchishchaysya');
  expect(audio).toContain('orcArenaLine');
+ expect(audio).toContain('announcerCue');
 });
