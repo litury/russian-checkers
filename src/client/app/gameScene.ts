@@ -113,7 +113,15 @@ export class GameScene extends Phaser.Scene {
 			this.settlePlayfieldReady();
 			return;
 		}
-		this.sdk = this.registry.get('sdk') as IYandexSdk;
+		this.sdk = (this.registry.get('sdk') as IYandexSdk | undefined) ?? {
+			isStub: true,
+			ready: () => undefined,
+			showFullscreenAdv: (handlers) => {
+				handlers.onClose?.(false);
+			},
+			onPause: () => undefined,
+			onResume: () => undefined,
+		};
 		this.cameras.main.setBackgroundColor(palette.background);
 		// Deferred exists from field init; boot board+pieces ASAP — before overlay/pending invoke.
 		void this.bootPlayfield().then(
