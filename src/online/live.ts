@@ -1,6 +1,7 @@
 import type { IMove, Side } from '@/rules';
 import { squareAlg } from './notation';
 import { ensureGuest } from './cloud';
+import { runtimeApiOrigin, wsUrl as wsFromOrigin } from './apiOrigin';
 
 export type LiveHandlers = {
  onQueued?: () => void;
@@ -10,11 +11,7 @@ export type LiveHandlers = {
  onError?: (error: string) => void;
 };
 
-const wsUrl = () => {
- const host = typeof location === 'undefined' ? '127.0.0.1' : location.hostname;
- const proto = typeof location !== 'undefined' && location.protocol === 'https:' ? 'wss' : 'ws';
- return `${proto}://${host}:8787/ws`;
-};
+const wsUrl = () => wsFromOrigin(runtimeApiOrigin());
 
 export function openLive(handlers: LiveHandlers) {
  let ws: WebSocket | null = null;

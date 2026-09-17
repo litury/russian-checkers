@@ -216,7 +216,7 @@ const server = createServer(async (req, res) => {
   const path = req.url?.split('?')[0] ?? '/';
   if (req.method === 'GET' && path === '/health') {
    await pool.query('SELECT 1');
-   json(res, 200, {ok: true, db: true, queue: queue.length, rooms: rooms.size, ws: `ws://127.0.0.1:${port}/ws`});
+   json(res, 200, {ok: true, db: true, queue: queue.length, rooms: rooms.size, ws: '/ws'});
    return;
   }
   if (req.method === 'POST' && path === '/players/guest') {

@@ -1,8 +1,9 @@
 import type { Side } from '@/rules';
 import { squareAlg } from './notation';
 import type { IMove } from '@/rules';
+import { runtimeApiOrigin } from './apiOrigin';
 
-const api = () => (typeof location === 'undefined' ? 'http://127.0.0.1:8787' : `${location.protocol}//${location.hostname}:8787`);
+const api = () => runtimeApiOrigin();
 
 const tokenKey = 'checkers.playerToken';
 const idKey = 'checkers.playerId';

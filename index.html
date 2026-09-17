@@ -227,6 +227,14 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
  };
  byId('opening-retry').onclick = () => location.reload();
  // This state is usable before any module, including when storage is denied.
+ const bakedApi = '%VITE_API_URL%';
+ const checkersApi = () => {
+  const baked = String(window.CHECKERS_API || bakedApi).replace(/%VITE_API_URL%/g, '').trim().replace(/\/$/, '');
+  if (baked) return baked;
+  const host = location.hostname;
+  if (host === 'localhost' || host === '127.0.0.1' || host === '[::1]') return location.protocol + '//' + host + ':8787';
+  return location.protocol + '//' + location.host;
+ };
  const keys = {master:'checkers.sfxMaster', muted:'checkers.sfxMuted', effects:'checkers.effectsVolume', music:'checkers.musicVolume', autoMove:'checkers.autoMove'};
  const read = key => { try { return localStorage.getItem(keys[key]); } catch { return null; } };
  const numeric = (raw, fallback) => raw === null || raw === '' || !Number.isFinite(Number(raw)) ? fallback : Math.max(0, Math.min(1, Number(raw)));
@@ -252,7 +260,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
    const dialog = byId('opening-settings-dialog');
    const statsEl = byId('settings-profile-stats');
    const id = (() => { try { return localStorage.getItem('checkers.playerId'); } catch { return null; } })();
-   if (statsEl && id) fetch('http://127.0.0.1:8787/players/' + id + '/stats').then(r => r.ok ? r.json() : null).then(s => {
+   if (statsEl && id) fetch(checkersApi() + '/players/' + id + '/stats').then(r => r.ok ? r.json() : null).then(s => {
     if (!s || !statsEl) return;
     statsEl.textContent = 'Партий: ' + s.games + '. Побед белыми: ' + s.white_wins + ', чёрными: ' + s.black_wins + '.';
    }).catch(() => {});
@@ -265,7 +273,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   const token = (() => { try { return localStorage.getItem('checkers.playerToken'); } catch { return null; } })();
   const email = byId('settings-email').value;
   if (!token || !email) return;
-  fetch('http://127.0.0.1:8787/auth/email/start', {method:'POST', headers:{'content-type':'application/json', authorization:'Bearer '+token}, body: JSON.stringify({email})}).then(r => r.json()).then(s => {
+  fetch(checkersApi() + '/auth/email/start', {method:'POST', headers:{'content-type':'application/json', authorization:'Bearer '+token}, body: JSON.stringify({email})}).then(r => r.json()).then(s => {
    byId('settings-profile-copy').textContent = s.ok ? 'Код в логе сервера (локально).' : (s.error || 'не отправлено');
   }).catch(() => {});
  };
@@ -274,7 +282,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   const email = byId('settings-email').value;
   const code = byId('settings-email-code').value;
   if (!token) return;
-  fetch('http://127.0.0.1:8787/auth/email/confirm', {method:'POST', headers:{'content-type':'application/json', authorization:'Bearer '+token}, body: JSON.stringify({email, code})}).then(r => r.json()).then(s => {
+  fetch(checkersApi() + '/auth/email/confirm', {method:'POST', headers:{'content-type':'application/json', authorization:'Bearer '+token}, body: JSON.stringify({email, code})}).then(r => r.json()).then(s => {
    byId('settings-profile-copy').textContent = s.ok ? 'Почта привязана к этому профилю.' : (s.error === 'link_conflict' ? 'Эта почта уже у другого игрока.' : 'Код не подошёл');
   }).catch(() => {});
  };

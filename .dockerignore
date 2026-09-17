@@ -1,0 +1,13 @@
+.git
+.github
+.playwright-cli
+node_modules
+server/node_modules
+dist
+docs
+integration-backups
+*.md
+AGENTS.md
+.env
+.env.*
+!.env.example
