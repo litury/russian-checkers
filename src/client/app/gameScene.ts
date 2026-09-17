@@ -986,7 +986,10 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private playHuman(move: IMove): void {
-		this.animateMove(move, () => this.completeHumanMove(move));
+		this.animateMove(move, () => {
+			if (this.online) this.live?.move(move);
+			else this.completeHumanMove(move);
+		});
 	}
 
 	private completeHumanMove(move: IMove): void {
