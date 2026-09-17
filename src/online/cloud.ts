@@ -2,6 +2,7 @@ import type { Side } from '@/rules';
 import { squareAlg } from './notation';
 import type { IMove } from '@/rules';
 import { runtimeApiOrigin } from './apiOrigin';
+import { CONNECT_BUDGET_MS } from '@/client/app/matchmakingSearch';
 
 const api = () => runtimeApiOrigin();
 
@@ -14,11 +15,17 @@ async function request(path: string, init: RequestInit = {}): Promise<Response |
  try {
   return await fetch(`${api()}${path}`, {
    ...init,
+   signal: init.signal ?? AbortSignal.timeout(CONNECT_BUDGET_MS),
    headers: { 'content-type': 'application/json', ...(init.headers ?? {}) },
   });
  } catch {
   return null;
  }
+}
+
+export async function probeApi(): Promise<boolean> {
+ const res = await request('/health', { method: 'GET' });
+ return !!res?.ok;
 }
 
 export async function ensureGuest(): Promise<{ id: string; token: string } | null> {

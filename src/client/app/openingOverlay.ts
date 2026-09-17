@@ -3,6 +3,7 @@ import {createMenuAudio} from './menuAudio';
 import {ensureGuest} from '@/online/cloud';
 import {gatePose, OpeningGates} from './openingGates';
 import {gateDurationMs as preparationMs} from './openingGates';
+import {searchCopy, type SearchPhase} from './matchmakingSearch';
 
 declare global {
  interface Window {
@@ -22,10 +23,22 @@ declare global {
 }
 
 /** HTML-first controls survive asset failures; the board behind them is real Phaser. */
-export function createOpeningOverlay(scene: Phaser.Scene, handlers: { onPlayBot: () => void; onPlayOnline?: () => void; isPaused?: () => boolean }) {
+export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
+ onPlayBot: () => void;
+ onPlayOnline?: () => void;
+ onSearchCancel?: () => void;
+ onSearchStay?: () => void;
+ onSearchBot?: () => void;
+ isPaused?: () => boolean;
+}) {
  const root = document.getElementById('opening')!;
  const play = document.getElementById('opening-play') as HTMLButtonElement;
  const online = document.getElementById('opening-online') as HTMLButtonElement | null;
+ const search = document.getElementById('opening-search') as HTMLElement | null;
+ const searchCopyEl = document.getElementById('opening-search-copy');
+ const searchCancel = document.getElementById('opening-search-cancel') as HTMLButtonElement | null;
+ const searchStay = document.getElementById('opening-search-stay') as HTMLButtonElement | null;
+ const searchBot = document.getElementById('opening-search-bot') as HTMLButtonElement | null;
  const ivory = root.querySelector('.gate-piece-ivory') as HTMLElement | null;
  const ebony = root.querySelector('.gate-piece-black') as HTMLElement | null;
  let side: 'white' | 'black' = ivory?.classList.contains('is-chosen') ? 'white' : 'white';
@@ -61,9 +74,10 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: { onPlayBot:
   }
  };
  const hide = (completed=false) => {
-  if (completed) window.checkersFlavor?.setState('ready');
-  window.checkersStartup.playCommitted=false;
-  window.checkersStartup.pendingPlay=false;
+ if (completed) window.checkersFlavor?.setState('ready');
+ window.checkersStartup.playCommitted=false;
+ window.checkersStartup.pendingPlay=false;
+ clearSearch();
   audio.hide(completed,motion.matches);
   gates.cancel(); closeDialogs(); root.hidden=true; root.inert=false;
   root.classList.remove('is-departing');
@@ -86,7 +100,23 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: { onPlayBot:
  const pickWhite = pick('white');
  const pickBlack = pick('black');
  play.onclick=()=>invoke();
- if (online) online.onclick=()=>{ if(root.hidden||gates.active||root.inert) return; handlers.onPlayOnline?.(); };
+ if (online) online.onclick=()=>{ if(root.hidden||root.inert) return; handlers.onPlayOnline?.(); };
+ searchCancel?.addEventListener('click', () => handlers.onSearchCancel?.());
+ searchStay?.addEventListener('click', () => handlers.onSearchStay?.());
+ searchBot?.addEventListener('click', () => handlers.onSearchBot?.());
+ const setSearch = (phase: SearchPhase, seconds: number) => {
+  const view = searchCopy(phase, seconds);
+  if (!search || !searchCopyEl) return;
+  const on = phase !== 'idle';
+  search.hidden = !on;
+  root.classList.toggle('is-searching', view.hidePlay);
+  searchCopyEl.textContent = view.title;
+  if (searchCancel) searchCancel.hidden = !view.showCancel;
+  if (searchStay) searchStay.hidden = !view.showStay;
+  if (searchBot) searchBot.hidden = !view.showBot;
+  window.checkersStartup.status(view.title || 'Всё готово. Первый ход ваш.');
+ };
+ const clearSearch = () => setSearch('idle', 0);
  ivory?.addEventListener('click', pickWhite);
  ebony?.addEventListener('click', pickBlack);
  window.checkersStartup.playIntent=invoke;
@@ -130,6 +160,8 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: { onPlayBot:
    if(!firstShow)play.focus({preventScroll:true});firstShow=false;
   },
   hide,
+  setSearch,
+  clearSearch,
   depart:(done:()=>void)=>{
    audio.depart();
    closeDialogs();root.inert=true;play.disabled=true;root.classList.add('is-departing');

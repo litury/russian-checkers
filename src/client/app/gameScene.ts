@@ -10,8 +10,9 @@ import { installDisplayDensity, logicalSize } from './displayDensity';
 import { preparationMs } from './panelReveal';
 import { orcOpeningTurnLine } from './orcTurn';
 import { pieceSelectSfx } from './pieceSfx';
-import { recordBotMatch, type CloudPly } from '@/online/cloud';
+import { recordBotMatch, probeApi, type CloudPly } from '@/online/cloud';
 import { openLive } from '@/online/live';
+import { FOUND_HOLD_MS, SEARCH_TIMEOUT_MS, type SearchPhase } from './matchmakingSearch';
 import { orcOutcomeLine, orcTimeLow } from './orcResult';
 import { StepwiseMove } from './stepwiseMove';
 import { pickBotMove } from '@/client/modules/bot';
@@ -79,6 +80,10 @@ export class GameScene extends Phaser.Scene {
 	private matchPlies: CloudPly[] = [];
 	private online = false;
 	private live: ReturnType<typeof openLive> | null = null;
+	private searchPhase: SearchPhase = 'idle';
+	private searchStartedAt = 0;
+	private searchTimer?: Phaser.Time.TimerEvent;
+	private foundHold?: Phaser.Time.TimerEvent;
 
 	private botTimer?: Phaser.Time.TimerEvent;
 
@@ -145,6 +150,9 @@ export class GameScene extends Phaser.Scene {
 			onPlayOnline: () => {
 				void this.requestOnline();
 			},
+			onSearchCancel: () => this.cancelSearch(),
+			onSearchStay: () => this.stayInSearch(),
+			onSearchBot: () => this.searchPlayBot(),
 		});
 		this.sdk.onPause(() => {
 			this.setPaused(true);
@@ -330,15 +338,106 @@ export class GameScene extends Phaser.Scene {
 		this.playfieldBuilt = true;
 	}
 
+	private paintSearch(): void {
+		const seconds = Math.max(0, Math.floor((this.time.now - this.searchStartedAt) / 1000));
+		this.title.setSearch(this.searchPhase, seconds);
+	}
+
+	private stopSearchTicker(): void {
+		this.searchTimer?.remove(false);
+		this.searchTimer = undefined;
+		this.foundHold?.remove(false);
+		this.foundHold = undefined;
+	}
+
+	private beginSearchUi(phase: SearchPhase = 'searching'): void {
+		this.searchPhase = phase;
+		this.searchStartedAt = this.time.now;
+		this.paintSearch();
+		this.searchTimer?.remove(false);
+		this.searchTimer = this.time.addEvent({
+			delay: 250,
+			loop: true,
+			callback: () => {
+				if (this.searchPhase !== 'searching' && this.searchPhase !== 'waiting') return;
+				this.paintSearch();
+				if (this.time.now - this.searchStartedAt >= SEARCH_TIMEOUT_MS) {
+					this.searchPhase = 'timeout-offer';
+					this.stopSearchTicker();
+					this.paintSearch();
+				}
+			},
+		});
+	}
+
+	private cancelSearch(): void {
+		this.live?.leave();
+		this.live?.close();
+		this.live = null;
+		this.searchPhase = 'idle';
+		this.stopSearchTicker();
+		this.title.clearSearch();
+		window.checkersStartup.unlock();
+	}
+
+	private markSearchOffline(): void {
+		this.searchPhase = 'offline';
+		this.stopSearchTicker();
+		this.paintSearch();
+		this.live?.close();
+		this.live = null;
+		this.time.delayedCall(1600, () => {
+			if (this.searchPhase !== 'offline') return;
+			this.searchPhase = 'idle';
+			this.title.clearSearch();
+			window.checkersStartup.unlock();
+		});
+	}
+
+	private stayInSearch(): void {
+		if (!this.live?.isOpen()) {
+			this.markSearchOffline();
+			return;
+		}
+		this.beginSearchUi('waiting');
+	}
+
+	private searchPlayBot(): void {
+		this.live?.leave();
+		this.live?.close();
+		this.live = null;
+		this.searchPhase = 'idle';
+		this.stopSearchTicker();
+		this.title.clearSearch();
+		this.online = false;
+		this.humanSide = this.title.humanSide();
+		void this.requestStartFromOpening();
+	}
+
 	private async requestOnline(): Promise<void> {
-		window.checkersStartup.status('Ищем соперника…');
+		this.beginSearchUi('searching');
+		const healthy = await probeApi();
+		if (!healthy) {
+			this.markSearchOffline();
+			return;
+		}
 		this.live?.close();
 		this.live = openLive({
-			onQueued: () => window.checkersStartup.status('В очереди…'),
+			onQueued: () => {
+				if (this.searchPhase === 'timeout-offer') return;
+				this.searchPhase = 'waiting';
+				this.paintSearch();
+			},
 			onStart: (color) => {
+				this.searchPhase = 'found';
+				this.stopSearchTicker();
+				this.paintSearch();
 				this.online = true;
 				this.humanSide = color;
-				void this.requestStartFromOpening();
+				this.foundHold = this.time.delayedCall(FOUND_HOLD_MS, () => {
+					this.title.clearSearch();
+					void this.requestStartFromOpening();
+				});
 			},
 			onMove: (move, side) => {
 				if (this.phase === 'over' || this.moving) return;
@@ -363,11 +462,18 @@ export class GameScene extends Phaser.Scene {
 								: winner;
 				this.endMatch(side);
 			},
-			onError: (error) => window.checkersStartup.status(error === 'busy' ? 'Уже в матче' : 'Онлайн недоступен'),
+			onError: (error) => {
+				if (error === 'busy' && this.live?.isOpen()) {
+					this.searchPhase = 'waiting';
+					this.paintSearch();
+					return;
+				}
+				this.markSearchOffline();
+			},
 		});
 		const ok = await this.live.connect();
 		if (!ok) {
-			window.checkersStartup.status('Сервер онлайн недоступен. Можно играть с ботом.');
+			this.markSearchOffline();
 			return;
 		}
 		this.live.queue();

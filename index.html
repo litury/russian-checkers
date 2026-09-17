@@ -89,6 +89,14 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   <nav class="opening-actions" aria-label="Главное меню">
    <button id="opening-play" class="opening-button opening-primary" aria-label="Загрузка игры" aria-busy="true" disabled><span class="opening-activity" aria-hidden="true"><i style="--segment:0"></i><i style="--segment:1"></i><i style="--segment:2"></i><i style="--segment:3"></i><i style="--segment:4"></i></span></button>
    <button id="opening-online" class="opening-button" type="button">С человеком</button>
+   <div id="opening-search" hidden>
+    <p id="opening-search-copy">Ищем соперника</p>
+    <div id="opening-search-actions">
+     <button type="button" id="opening-search-cancel">Отмена</button>
+     <button type="button" id="opening-search-stay" hidden>Остаться</button>
+     <button type="button" id="opening-search-bot" hidden>Играть с ботом</button>
+    </div>
+   </div>
    <button id="opening-retry" class="opening-button opening-primary" hidden>Повторить загрузку</button>
    <div class="opening-utilities">
     <button id="opening-help" class="opening-utility" aria-haspopup="dialog" aria-controls="opening-help-dialog">Правила</button>
