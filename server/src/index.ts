@@ -3,6 +3,7 @@ import {createHash, randomBytes, randomInt} from 'node:crypto';
 import {createRequire} from 'node:module';
 import {createServer} from 'node:http';
 import {applyPly, replayPlies, type RecordedPly} from '../../src/online/replay.ts';
+import {bothReady, hashPosition, READY_MS, snapshotOf} from '../../src/online/matchState.ts';
 import {createInitialPosition, winner, type IPosition, type Side} from '../../src/rules/index.ts';
 import {acceptWebsocket, type TextSock} from './wsRaw.ts';
 import {runMigrations} from './migrate.ts';
@@ -62,6 +63,9 @@ type Room = {
  black: string;
  position: IPosition;
  ply: number;
+ begun: boolean;
+ ready: Set<string>;
+ readyTimer?: ReturnType<typeof setTimeout>;
  socks: Map<string, TextSock>;
  drop: Map<string, ReturnType<typeof setTimeout>>;
 };
@@ -78,6 +82,7 @@ const endRoom = async (room: Room, win: Side | 'draw', reason: string, loserId?:
  rooms.delete(room.id);
  playerRoom.delete(room.white);
  playerRoom.delete(room.black);
+ if (room.readyTimer) clearTimeout(room.readyTimer);
  for (const t of room.drop.values()) clearTimeout(t);
  for (const [pid, sock] of room.socks) {
   const youWin = loserId ? pid !== loserId : win !== 'draw' && ((win === 'white' && pid === room.white) || (win === 'black' && pid === room.black));
@@ -92,13 +97,29 @@ const endRoom = async (room: Room, win: Side | 'draw', reason: string, loserId?:
 
 const otherOf = (room: Room, id: string) => (id === room.white ? room.black : room.white);
 
+const pushState = (room: Room, sock: TextSock | undefined, color?: Side) => {
+ const snap = snapshotOf(room.id, room.position, room.ply, room.begun);
+ send(sock, {type: 'state', color, ...snap});
+};
+
+const beginRoom = (room: Room) => {
+ if (room.begun) return;
+ room.begun = true;
+ if (room.readyTimer) clearTimeout(room.readyTimer);
+ room.readyTimer = undefined;
+ const snap = snapshotOf(room.id, room.position, room.ply, true);
+ for (const s of room.socks.values()) send(s, {type: 'begin', ...snap});
+};
+
 const attach = (room: Room, id: string, sock: TextSock) => {
  room.socks.set(id, sock);
  const pending = room.drop.get(id);
  if (pending) clearTimeout(pending);
  room.drop.delete(id);
  const color: Side = id === room.white ? 'white' : 'black';
- send(sock, {type: 'start', matchId: room.id, color, turn: room.position.turn});
+ const snap = snapshotOf(room.id, room.position, room.ply, room.begun);
+ send(sock, {type: 'start', matchId: room.id, color, turn: snap.turn, ply: snap.ply, hash: snap.hash, begun: snap.begun});
+ pushState(room, sock, color);
 };
 
 const dropPlayer = (room: Room, id: string) => {
@@ -128,9 +149,17 @@ const pair = async () => {
    black,
    position: createInitialPosition(),
    ply: 0,
+   begun: false,
+   ready: new Set(),
    socks: new Map(),
    drop: new Map(),
   };
+  room.readyTimer = setTimeout(() => {
+   if (room.begun || !rooms.has(room.id)) return;
+   const missing = [room.white, room.black].filter((pid) => !room.ready.has(pid));
+   if (missing.length === 1) void endRoom(room, otherOf(room, missing[0]) as Side, 'timeout', missing[0]);
+   else void endRoom(room, 'draw', 'timeout');
+  }, READY_MS);
   rooms.set(id, room);
   playerRoom.set(white, id);
   playerRoom.set(black, id);
@@ -172,21 +201,38 @@ const handleWs = async (sock: TextSock, raw: string, ctx: {player?: string}) => 
   if (i >= 0) queue.splice(i, 1);
   return;
  }
+ if (msg.type === 'ready') {
+  const rid = playerRoom.get(player);
+  const room = rid ? rooms.get(rid) : undefined;
+  if (!room) return;
+  room.ready.add(player);
+  if (bothReady(room.ready, room.white, room.black)) beginRoom(room);
+  return;
+ }
+ if (msg.type === 'state') {
+  const rid = playerRoom.get(player);
+  const room = rid ? rooms.get(rid) : undefined;
+  if (!room) return;
+  const color: Side = player === room.white ? 'white' : 'black';
+  pushState(room, sock, color);
+  return;
+ }
  if (msg.type === 'move') {
   const rid = playerRoom.get(player);
   const room = rid ? rooms.get(rid) : undefined;
   if (!room) { send(sock, {type: 'error', error: 'no_match'}); return; }
+  if (!room.begun) { send(sock, {type: 'error', error: 'illegal'}); return; }
   const side: Side = player === room.white ? 'white' : 'black';
   const ply: RecordedPly = {side, from: msg.from ?? '', path: msg.path ?? []};
   const next = applyPly(room.position, ply);
-  if (!next) { send(sock, {type: 'error', error: 'illegal'}); return; }
+  if (!next) { send(sock, {type: 'error', error: 'illegal'}); pushState(room, sock, side); return; }
   room.position = next;
   room.ply += 1;
   await pool.query(
    `INSERT INTO match_plies (match_id, ply, side, from_sq, path) VALUES ($1,$2,$3,$4,$5)`,
    [room.id, room.ply, side, ply.from, JSON.stringify(ply.path)],
   );
-  const payload = {type: 'move', from: ply.from, path: ply.path, side, turn: next.turn};
+  const payload = {type: 'move', from: ply.from, path: ply.path, side, ply: room.ply, turn: next.turn, hash: hashPosition(next)};
   for (const s of room.socks.values()) send(s, payload);
   const w = winner(next);
   if (w) await endRoom(room, w, 'rules');

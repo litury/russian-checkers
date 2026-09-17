@@ -11,7 +11,8 @@ import { preparationMs } from './panelReveal';
 import { orcOpeningTurnLine } from './orcTurn';
 import { pieceSelectSfx } from './pieceSfx';
 import { recordBotMatch, probeApi, type CloudPly } from '@/online/cloud';
-import { openLive } from '@/online/live';
+import { openLive, type NetMove } from '@/online/live';
+import { classifyPly, positionFromSnapshot, takeNextPly } from '@/online/matchState';
 import { FOUND_HOLD_MS, SEARCH_TIMEOUT_MS, type SearchPhase } from './matchmakingSearch';
 import { orcOutcomeLine, orcTimeLow } from './orcResult';
 import { StepwiseMove } from './stepwiseMove';
@@ -84,6 +85,11 @@ export class GameScene extends Phaser.Scene {
 	private searchStartedAt = 0;
 	private searchTimer?: Phaser.Time.TimerEvent;
 	private foundHold?: Phaser.Time.TimerEvent;
+	private lastPly = 0;
+	private serverTurn: Side = 'white';
+	private onlineBegun = false;
+	private inboundNet: NetMove[] = [];
+	private applyingNet = false;
 
 	private botTimer?: Phaser.Time.TimerEvent;
 
@@ -428,21 +434,27 @@ export class GameScene extends Phaser.Scene {
 				this.searchPhase = 'waiting';
 				this.paintSearch();
 			},
-			onStart: (color) => {
+			onStart: (color, _matchId, snap) => {
 				this.searchPhase = 'found';
 				this.stopSearchTicker();
 				this.paintSearch();
 				this.online = true;
 				this.humanSide = color;
+				this.lastPly = snap.ply;
+				this.serverTurn = snap.turn;
+				this.onlineBegun = snap.begun;
+				if (snap.pieces.length) this.position = positionFromSnapshot(snap);
 				this.foundHold = this.time.delayedCall(FOUND_HOLD_MS, () => {
 					this.title.clearSearch();
 					void this.requestStartFromOpening();
 				});
 			},
-			onMove: (move, side) => {
-				if (this.phase === 'over' || this.moving) return;
-				if (side === this.humanSide) this.playHumanLocal(move);
-				else this.playRemote(move);
+			onBegin: (snap) => this.applyBegin(snap),
+			onState: (snap) => this.applyState(snap),
+			onMove: (move) => {
+				if (this.phase === 'over') return;
+				this.inboundNet.push(move);
+				this.drainInbound();
 			},
 			onEnd: (winner, reason, youWin) => {
 				if (this.phase === 'over') return;
@@ -463,6 +475,11 @@ export class GameScene extends Phaser.Scene {
 				this.endMatch(side);
 			},
 			onError: (error) => {
+				if (error === 'illegal') {
+					this.live?.requestState();
+					return;
+				}
+				if (this.onlineBegun || this.phase !== 'title') return;
 				if (error === 'busy' && this.live?.isOpen()) {
 					this.searchPhase = 'waiting';
 					this.paintSearch();
@@ -477,6 +494,56 @@ export class GameScene extends Phaser.Scene {
 			return;
 		}
 		this.live.queue();
+	}
+
+	private applyBegin(snap: {ply: number; turn: Side; hash: string; pieces: {row: number; col: number; side: Side; kind: 'man' | 'king'}[]}): void {
+		this.onlineBegun = true;
+		this.lastPly = snap.ply;
+		this.serverTurn = snap.turn;
+		if (snap.pieces.length) this.position = positionFromSnapshot(snap);
+		this.phase = this.serverTurn === this.humanSide ? 'human' : 'bot';
+		if (this.countingIn) {
+			this.clockStartedAt = this.time.now;
+			this.countingIn = false;
+		}
+		this.paintClock();
+		this.refresh();
+		this.drainInbound();
+	}
+
+	private applyState(snap: {ply: number; turn: Side; hash: string; begun: boolean; pieces: {row: number; col: number; side: Side; kind: 'man' | 'king'}[]}): void {
+		this.lastPly = snap.ply;
+		this.serverTurn = snap.turn;
+		this.onlineBegun = snap.begun;
+		if (snap.pieces.length) this.position = positionFromSnapshot(snap);
+		this.inboundNet = [];
+		this.moving = false;
+		this.humanChain = null;
+		this.selected = null;
+		this.phase = !snap.begun ? this.phase : this.serverTurn === this.humanSide ? 'human' : 'bot';
+		this.refresh();
+	}
+
+	private drainInbound(): void {
+		if (this.phase === 'over' || this.moving) return;
+		if (this.inboundNet.some((m) => classifyPly(this.lastPly, m.ply) === 'gap')) {
+			this.live?.requestState();
+			return;
+		}
+		const next = takeNextPly(this.inboundNet, this.lastPly);
+		if (!next) return;
+		this.lastPly = next.ply;
+		this.serverTurn = next.turn;
+		this.applyingNet = true;
+		if (next.side === this.humanSide && this.position.turn !== next.side) {
+			this.applyingNet = false;
+			this.phase = this.serverTurn === this.humanSide ? 'human' : 'bot';
+			this.refresh();
+			this.drainInbound();
+			return;
+		}
+		if (next.side === this.humanSide) this.playHumanLocal(next);
+		else this.playRemote(next);
 	}
 
 	private async requestStartFromOpening(): Promise<void> {
@@ -542,6 +609,9 @@ export class GameScene extends Phaser.Scene {
 		this.online = false;
 		this.live?.close();
 		this.live = null;
+		this.onlineBegun = false;
+		this.lastPly = 0;
+		this.inboundNet = [];
 		this.board?.setFacing('white');
 		this.hud?.setFacing('white');
 		this.moving = false;
@@ -587,6 +657,8 @@ export class GameScene extends Phaser.Scene {
 		this.clockStartedAt = 0;
 		this.flagLock = false;
 		this.matchPlies = [];
+		this.lastPly = this.online ? this.lastPly : 0;
+		this.inboundNet = [];
 
 		this.hud.setClock(
 			Math.ceil(blitzStartMs / 1000),
@@ -617,6 +689,11 @@ export class GameScene extends Phaser.Scene {
 		this.countingIn = true;
 		const ready = () => {
 			if (!this.countingIn) return;
+			if (this.online && !this.onlineBegun) {
+				this.live?.ready();
+				this.refresh();
+				return;
+			}
 			// The entire sequential opening has finished; start banks and input now.
 			this.clockStartedAt = this.time.now;
 			this.countingIn = false;
@@ -744,9 +821,13 @@ export class GameScene extends Phaser.Scene {
 					? this.humanChain?.remainingRoutes ?? legalMoves(this.position) : [],
 		);
 		this.board.setWaitingIdle(
-			this.phase === 'bot' || this.countingIn || this.paused,
+			this.phase === 'bot' || this.countingIn || this.paused || (this.online && !this.onlineBegun),
 		);
-		this.hud.setTurn(matchStatus(this.countingIn, this.phase,
+		this.hud.setTurn(matchStatus(
+			this.countingIn || (this.online && !this.onlineBegun),
+			this.online && this.onlineBegun
+				? (this.serverTurn === this.humanSide ? 'human' : 'bot')
+				: this.phase,
 			legalMoves(this.position).some(move => move.path[0] && capturedOnSegment(this.position, move.from, move.path[0])), Boolean(this.humanChain)));
 		this.maybeAutoMove();
 	}
@@ -799,7 +880,8 @@ export class GameScene extends Phaser.Scene {
 			this.moving ||
 			this.flagLock ||
 			this.countingIn ||
-			this.phase !== 'human'
+			this.phase !== 'human' ||
+			(this.online && !this.onlineBegun)
 		) {
 			return;
 		}
@@ -869,6 +951,7 @@ export class GameScene extends Phaser.Scene {
 			() => {
 				this.moving = false;
 				after();
+				this.drainInbound();
 			},
 		);
 	}
@@ -894,7 +977,12 @@ export class GameScene extends Phaser.Scene {
 		}
 		this.phase = this.position.turn === this.humanSide ? 'human' : 'bot';
 		this.refresh();
-		if (this.online) return;
+		if (this.online) {
+			if (!this.applyingNet && mover === this.humanSide) this.lastPly += 1;
+			this.applyingNet = false;
+			this.drainInbound();
+			return;
+		}
 		this.botTimer?.remove(false);
 		this.botTimer = this.time.delayedCall(400, () => this.playBot());
 	}
