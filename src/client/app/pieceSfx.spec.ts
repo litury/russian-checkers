@@ -1,6 +1,7 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import {
  bindPieceSfx,
+ bindPieceVoice,
  pieceAhDelayMs,
  pieceAhElfCue,
  pieceAhOrcCue,
@@ -10,13 +11,20 @@ import {
  pieceSelectCue,
  pieceSelectSfx,
  pieceStepSfx,
+ elfSelectBarks,
+ orcSelectBarks,
+ elfTaunts,
+ orcTaunts,
+ defeatTauntCue,
 } from './pieceSfx';
 import board from '@/client/modules/board/createReliquaryBoardView.ts?raw';
 import scene from './gameScene.ts?raw';
+import menu from './menuAudio.ts?raw';
 
 afterEach(() => {
  vi.useRealTimers();
  bindPieceSfx(() => {});
+ bindPieceVoice(() => {});
 });
 
 it('uses move-w for white men and b-click for black, one-shot per step, never a king quiet move', () => {
@@ -63,4 +71,24 @@ it('plays select-b on extend, not availability', () => {
  pieceSelectSfx();
  expect(heard).toEqual([pieceSelectCue]);
  expect(scene).toContain('pieceSelectSfx');
+});
+it('adds random full elf/orc select barks, not chopped uh/da/vpered', () => {
+ const heard: string[] = [];
+ bindPieceSfx(name => heard.push(name));
+ bindPieceVoice(name => heard.push(name));
+ pieceSelectSfx('white');
+ expect(heard[0]).toBe(pieceSelectCue);
+ expect(elfSelectBarks).toContain(heard[1]);
+ heard.length = 0;
+ pieceSelectSfx('black');
+ expect(heard[0]).toBe(pieceSelectCue);
+ expect(orcSelectBarks).toContain(heard[1]);
+ expect(elfSelectBarks.join()).not.toMatch(/elf-uh|elf-da|elf-vpered/);
+ expect(pieceCaptureCue).toBe('crush-b');
+});
+it('picks opponent taunt on human defeat', () => {
+ expect(orcTaunts).toContain(defeatTauntCue('white'));
+ expect(elfTaunts).toContain(defeatTauntCue('black'));
+ expect(scene).toContain('defeatTauntCue');
+ expect(menu).toContain('voiceStealSec');
 });

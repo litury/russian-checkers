@@ -9,7 +9,7 @@ import { preloadKingFire } from '@/client/modules/board/kingFireAssets';
 import { installDisplayDensity, logicalSize } from './displayDensity';
 import { preparationMs } from './panelReveal';
 import { orcOpeningTurnLine } from './orcTurn';
-import { pieceSelectSfx } from './pieceSfx';
+import { defeatTauntCue, pieceSelectSfx } from './pieceSfx';
 import { recordBotMatch, probeApi, type CloudPly } from '@/online/cloud';
 import { openLive, type NetMove } from '@/online/live';
 import { classifyPly, positionFromSnapshot, takeNextPly } from '@/online/matchState';
@@ -898,7 +898,7 @@ export class GameScene extends Phaser.Scene {
 			const same = selected && sameSquare(selected, square);
 			this.selected = square;
 			this.refresh();
-			if (!same) pieceSelectSfx();
+			if (!same) pieceSelectSfx(this.position.squares[square.row][square.col]?.side ?? 'black');
 			return;
 		}
 		const piece = this.position.squares[square.row][square.col];
@@ -1038,7 +1038,7 @@ export class GameScene extends Phaser.Scene {
 		this.phase = 'over';
 		this.selected = null;
 		this.refresh();
-		this.title?.speakOrcTurn(orcOutcomeLine('resign', false), this.humanSide);
+		this.title?.speakOrcTurn(defeatTauntCue(this.humanSide), this.humanSide);
 		void recordBotMatch({
 			humanSide: this.humanSide,
 			winner: this.humanSide === 'white' ? 'black' : 'white',
@@ -1057,7 +1057,10 @@ export class GameScene extends Phaser.Scene {
 		this.phase = 'over';
 		this.selected = null;
 		this.refresh();
-		this.title?.speakOrcTurn(orcOutcomeLine(kind, side === this.humanSide), this.humanSide);
+		{
+			const line = orcOutcomeLine(kind, side === this.humanSide);
+			this.title?.speakOrcTurn(line === 'victory' || line === 'time-up' ? line : defeatTauntCue(this.humanSide), this.humanSide);
+		}
 		if (!this.online) {
 		void recordBotMatch({
 			humanSide: this.humanSide,
