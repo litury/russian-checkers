@@ -6,3 +6,4 @@ export const matchMusicDuck = .12;
 export const pieceMoveLevel = .9;
 export const pieceCaptureLevel = 1;
 export const pieceSelectLevel = .45;
+export const pieceBarkLevel = .4;

@@ -72,18 +72,24 @@ it('plays select-b on extend, not availability', () => {
  expect(heard).toEqual([pieceSelectCue]);
  expect(scene).toContain('pieceSelectSfx');
 });
-it('adds random full elf/orc select barks, not chopped uh/da/vpered', () => {
+it('adds random lab/gob short select barks at 0.4 and cuts bark on takeoff', () => {
  const heard: string[] = [];
+ const levels: number[] = [];
+ let cuts = 0;
  bindPieceSfx(name => heard.push(name));
- bindPieceVoice(name => heard.push(name));
+ bindPieceVoice((name, level) => { heard.push(name); levels.push(level ?? 1); }, () => { cuts += 1; });
  pieceSelectSfx('white');
  expect(heard[0]).toBe(pieceSelectCue);
  expect(elfSelectBarks).toContain(heard[1]);
+ expect(elfSelectBarks).toEqual(['lab-ibo', 'lab-est', 'lab-rabota', 'lab-boi']);
+ expect(levels[0]).toBe(0.4);
  heard.length = 0;
  pieceSelectSfx('black');
- expect(heard[0]).toBe(pieceSelectCue);
  expect(orcSelectBarks).toContain(heard[1]);
- expect(elfSelectBarks.join()).not.toMatch(/elf-uh|elf-da|elf-vpered/);
+ expect(orcSelectBarks).toEqual(['gob-ibo', 'gob-est', 'gob-rubi', 'gob-boi']);
+ pieceStepSfx(false, false, 'white');
+ expect(cuts).toBe(1);
+ expect(board).toContain('pieceStepSfx');
  expect(pieceCaptureCue).toBe('crush-b');
 });
 it('picks opponent taunt on human defeat', () => {

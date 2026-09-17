@@ -16,7 +16,7 @@ export function createMenuAudio(sdk:IYandexSdk) {
  let ctx:AudioContext|undefined, music:AudioBufferSourceNode|undefined, musicGain:GainNode|undefined;
  let match:AudioBufferSourceNode|undefined, matchGain:GainNode|undefined;
  const buffers=new Map<string,AudioBuffer>(), effects=new Set<AudioBufferSourceNode>();
- let voice:AudioBufferSourceNode|undefined, voiceGain:GainNode|undefined;
+ let voice:AudioBufferSourceNode|undefined, voiceGain:GainNode|undefined, voiceBark=false;
  let unlocked=false, musicEnded=false, fadeGen=0, fading=false;
  let epoch=0, clickSerial=0;
  const loading=new Map<string,Promise<void>>();
@@ -24,7 +24,7 @@ export function createMenuAudio(sdk:IYandexSdk) {
  // Producer can replace this technical preview with an approved loop later.
  const loop={enabled:true,start:0,end:0}; // Temporary crossfaded preview, NOT approved master.
  const settings=()=>window.checkersSettings.get();
- const stopEffects=()=>{cancelPieceAh();if(voice){try{voice.stop()}catch{}voice=undefined;voiceGain=undefined;}for(const s of effects){try{s.stop()}catch{}}effects.clear();};
+ const stopEffects=()=>{cancelPieceAh();if(voice){try{voice.stop()}catch{}voice=undefined;voiceGain=undefined;voiceBark=false;}for(const s of effects){try{s.stop()}catch{}}effects.clear();};
  const stopMusic=()=>{fadeGen++;fading=false;if(music){music.onended=null;try{music.stop()}catch{}music=undefined;}musicGain=undefined;};
  const stopMatch=()=>{if(match){match.onended=null;try{match.stop()}catch{}match=undefined;}matchGain=undefined;};
  const matchLevel=()=>settings().master*settings().music*matchMusicLevel;
@@ -98,22 +98,26 @@ export function createMenuAudio(sdk:IYandexSdk) {
   effects.add(s);s.onended=()=>{effects.delete(s);s.disconnect();g.disconnect();};s.start();
   return {source:s,gain:g};
  };
- const say=(name:string)=>{
+ const cutBark=()=>{
+  if(!voiceBark||!voice)return;
+  try{voice.stop()}catch{}effects.delete(voice);voice=undefined;voiceGain=undefined;voiceBark=false;duckMatch(false);
+ };
+ const say=(name:string,level=1)=>{
   if(voice&&voiceGain&&ctx){
    const dying=voice,g=voiceGain,t=ctx.currentTime;
    g.gain.cancelScheduledValues(t);
    g.gain.setValueAtTime(g.gain.value,t);
    g.gain.linearRampToValueAtTime(0,t+voiceStealSec);
    window.setTimeout(()=>{try{dying.stop()}catch{}effects.delete(dying);},voiceStealSec*1000);
-   voice=undefined;voiceGain=undefined;duckMatch(false);
-  }else if(voice){try{voice.stop()}catch{}effects.delete(voice);voice=undefined;voiceGain=undefined;duckMatch(false);}
+   voice=undefined;voiceGain=undefined;voiceBark=false;duckMatch(false);
+  }else if(voice){try{voice.stop()}catch{}effects.delete(voice);voice=undefined;voiceGain=undefined;voiceBark=false;duckMatch(false);}
   duckMatch(true);
   sync();if(!policy.audible||!unlocked||ctx?.state!=='running'||!settings().effects){duckMatch(false);return;}
   const buffer=buffers.get(name);if(!buffer){duckMatch(false);return;}
   const s=ctx.createBufferSource(),g=ctx.createGain();s.buffer=buffer;
-  g.gain.value=settings().master*settings().effects*voiceBus;s.connect(g).connect(ctx.destination);
-  effects.add(s);s.onended=()=>{duckMatch(false);effects.delete(s);s.disconnect();g.disconnect();if(voice===s){voice=undefined;voiceGain=undefined;}};
-  voice=s;voiceGain=g;s.start();
+  g.gain.value=settings().master*settings().effects*voiceBus*level;s.connect(g).connect(ctx.destination);
+  effects.add(s);s.onended=()=>{duckMatch(false);effects.delete(s);s.disconnect();g.disconnect();if(voice===s){voice=undefined;voiceGain=undefined;voiceBark=false;}};
+  voice=s;voiceGain=g;voiceBark=level<1;s.start();
  };
  const gesture=(event:Event)=>{
   if(!event.isTrusted)return;
@@ -146,7 +150,7 @@ export function createMenuAudio(sdk:IYandexSdk) {
  prepare();sync();
  bindKingFireSfx(sound);
  bindPieceSfx(sound);
- bindPieceVoice(say);
+ bindPieceVoice(say,cutBark);
  return {
   show(){epoch++;mechanisms.clear();policy.menu=true;policy.match=false;policy.departing=false;musicEnded=false;stopEffects();stopMatch();sync();},
   hide(completed=false,reduced=false){epoch++;stopEffects();if(completed&&!reduced)sound('gate_stop');policy.menu=false;policy.departing=false;if(completed)policy.match=true;mechanisms.clear();sync();},
