@@ -99,6 +99,10 @@ export function deferYandexSdk(pending: Promise<IYandexSdk>): IYandexSdk {
 
 export function loadPlatformScript(): Promise<void> {
 	if (window.YaGames?.init) return Promise.resolve();
+	const host = typeof location === 'undefined' ? '' : location.hostname;
+	if (!/(^|\.)yandex\.(net|ru|com)$/i.test(host) && !/(^|\.)ya\.ru$/i.test(host)) {
+		return Promise.resolve();
+	}
 	return new Promise(resolve => {
 		const script = document.createElement('script');
 		let done = false;
@@ -111,7 +115,7 @@ export function loadPlatformScript(): Promise<void> {
 		};
 		const timer = setTimeout(finish, 2500);
 		script.async = true;
-		script.src = '/sdk.js';
+		script.src = 'https://yandex.ru/games/sdk/v2';
 		script.onload = script.onerror = finish;
 		document.head.append(script);
 	});

@@ -255,7 +255,7 @@ export class GameScene extends Phaser.Scene {
 		if (this.startupFailed) return;
 		for (const key of this.textures.getTextureKeys()) {
 			if (!key.startsWith('selection_')) continue;
-			this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR);
+			this.textures.get(key)?.setFilter(Phaser.Textures.FilterMode.LINEAR);
 		}
 		// No mid-match disk→v2 refresh: reveal waits on interactiveReady.
 	}

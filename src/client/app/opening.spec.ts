@@ -13,6 +13,7 @@ describe('HTML-first opening', () => {
  it('does not wait for fonts or the optional SDK before creating the game', () => {
   expect(main).not.toContain('await document.fonts.ready');
   expect(main).not.toContain('await createYandexSdk()');
+  expect(main).not.toContain('/sdk.js');
  });
  it('uses an accessible indeterminate loading indicator, without a duplicate kicker', () => {
   expect(html).toMatch(/id="opening-play"[^>]*aria-label="Загрузка игры"[^>]*aria-busy="true"[^>]*disabled>/);
@@ -33,6 +34,8 @@ describe('HTML-first opening', () => {
   expect(html).toContain('role="status"');
   expect(html.indexOf('id="opening"')).toBeLessThan(html.indexOf('type="module"'));
   expect(html).not.toContain('<script src="/sdk.js">');
+  expect(html).toContain('data-api="%VITE_API_URL%"');
+  expect(html).not.toContain('.replace(/%VITE_API_URL%');
  });
  it('unlocks Play from the HTML gate before Phaser preload packs', () => {
   expect(html).toContain('unlock()');

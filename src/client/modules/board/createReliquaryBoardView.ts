@@ -47,8 +47,8 @@ export function createBoardView(
 		...Object.keys(kingFireAssets).map(name => `king-fire_${name}`),
 		...['white', 'black'].flatMap(side => Array.from({ length: 56 }, (_, i) => `selection_${side}-${String(i).padStart(2, '0')}`)),
 	]) {
-		if (typeof scene.textures.exists === 'function' && !scene.textures.exists(texture)) continue;
-		scene.textures.get(texture).setFilter(Phaser.Textures.FilterMode.LINEAR);
+		if (!scene.textures?.exists?.(texture)) continue;
+		scene.textures.get(texture)?.setFilter(Phaser.Textures.FilterMode.LINEAR);
 	}
 	const ground = scene.add
 		.tileSprite(0, 0, 64, 64, 'reliquary_slate_tile')

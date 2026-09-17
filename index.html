@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" data-api="%VITE_API_URL%">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -227,9 +227,10 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
  };
  byId('opening-retry').onclick = () => location.reload();
  // This state is usable before any module, including when storage is denied.
- const bakedApi = '%VITE_API_URL%';
+ const attrApi = document.documentElement.getAttribute('data-api') || '';
+ const bakedApi = attrApi.indexOf('%') === 0 ? '' : attrApi.replace(/\/$/, '');
  const checkersApi = () => {
-  const baked = String(window.CHECKERS_API || bakedApi).replace(/%VITE_API_URL%/g, '').trim().replace(/\/$/, '');
+  const baked = String(window.CHECKERS_API || bakedApi).replace(/\/$/, '');
   if (baked) return baked;
   const host = location.hostname;
   if (host === 'localhost' || host === '127.0.0.1' || host === '[::1]') return location.protocol + '//' + host + ':8787';
