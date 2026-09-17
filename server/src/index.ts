@@ -6,6 +6,7 @@ import {applyPly, replayPlies, type RecordedPly} from '../../src/online/replay.t
 import {bothReady, hashPosition, READY_MS, snapshotOf} from '../../src/online/matchState.ts';
 import {createInitialPosition, winner, afterMoveBank, blitzStartMs, type IPosition, type Side} from '../../src/rules/index.ts';
 import {flagDue, flagWinner, turnLeft} from './flagClock.ts';
+import {colorStatsSql, COLOR_STATS_CACHE_MS} from '../../src/online/colorStats.ts';
 import {acceptWebsocket, type TextSock} from './wsRaw.ts';
 import {runMigrations} from './migrate.ts';
 
@@ -76,6 +77,7 @@ type Room = {
 const queue: {id: string; sock: TextSock}[] = [];
 const rooms = new Map<string, Room>();
 const playerRoom = new Map<string, string>();
+let colorStatsCache: {at: number; body: {white: number; black: number; games: number}} | undefined;
 
 const send = (sock: TextSock | undefined, msg: unknown) => {
  if (sock) sock.send(JSON.stringify(msg));
@@ -303,6 +305,22 @@ const server = createServer(async (req, res) => {
   if (req.method === 'GET' && path === '/health') {
    await pool.query('SELECT 1');
    json(res, 200, {ok: true, db: true, queue: queue.length, rooms: rooms.size, ws: '/ws'});
+   return;
+  }
+  if (req.method === 'GET' && path === '/stats/colors') {
+   const now = Date.now();
+   if (colorStatsCache && now - colorStatsCache.at < COLOR_STATS_CACHE_MS) {
+    json(res, 200, colorStatsCache.body);
+    return;
+   }
+   const rows = await pool.query(colorStatsSql);
+   const body = {
+    white: Number(rows.rows[0]?.white ?? 0),
+    black: Number(rows.rows[0]?.black ?? 0),
+    games: Number(rows.rows[0]?.games ?? 0),
+   };
+   colorStatsCache = {at: now, body};
+   json(res, 200, body);
    return;
   }
   if (req.method === 'POST' && path === '/players/guest') {

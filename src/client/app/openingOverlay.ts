@@ -1,6 +1,7 @@
 import type Phaser from 'phaser';
 import {createMenuAudio} from './menuAudio';
-import {ensureGuest} from '@/online/cloud';
+import {ensureGuest, loadColorStats} from '@/online/cloud';
+import {colorStatLabel} from '@/online/colorStats';
 import {gatePose, OpeningGates} from './openingGates';
 import {gateDurationMs as preparationMs} from './openingGates';
 import {searchCopy, type SearchPhase} from './matchmakingSearch';
@@ -127,6 +128,17 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  if(window.checkersStartup.pendingPlay || window.checkersStartup.playCommitted) window.checkersStartup.waitPlay();
  else { window.checkersStartup.unlock(); window.checkersStartup.ready(); }
  void ensureGuest();
+ const whiteStat = document.getElementById('opening-color-white');
+ const blackStat = document.getElementById('opening-color-black');
+ const paintColorStats = () => {
+  void loadColorStats().then((stats) => {
+   if (whiteStat) whiteStat.textContent = colorStatLabel(stats, 'white');
+   if (blackStat) blackStat.textContent = colorStatLabel(stats, 'black');
+  }).catch(() => {
+   if (whiteStat) whiteStat.textContent = '';
+   if (blackStat) blackStat.textContent = '';
+  });
+ };
  document.addEventListener('visibilitychange',visibilityChange);
  scene.events.on('update',update);
  scene.events.once('shutdown',()=>{
@@ -158,6 +170,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
    root.hidden=false;document.getElementById('game')!.inert=true;
    paintSide('white');
    if(!firstShow)play.focus({preventScroll:true});firstShow=false;
+   paintColorStats();
   },
   hide,
   setSearch,

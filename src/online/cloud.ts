@@ -67,6 +67,21 @@ export async function recordBotMatch(opts: {
  });
 }
 
+export async function loadColorStats(): Promise<{ white: number; black: number; games: number } | null> {
+ const res = await request('/stats/colors');
+ if (!res?.ok) return null;
+ try {
+  const body = (await res.json()) as { white?: unknown; black?: unknown; games?: unknown };
+  const white = Number(body.white);
+  const black = Number(body.black);
+  const games = Number(body.games);
+  if (![white, black, games].every((n) => Number.isFinite(n))) return null;
+  return { white, black, games };
+ } catch {
+  return null;
+ }
+}
+
 export async function loadStats(): Promise<{ games: number; white_wins: number; black_wins: number } | null> {
  const guest = await ensureGuest();
  if (!guest) return null;

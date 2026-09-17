@@ -14,6 +14,7 @@
 .gate-crossbars i::before,.gate-crossbars i::after{content:'';position:absolute;top:-1px;width:10px;height:10px;border-radius:50%;background:#88816a;border:2px solid #101415}
 .gate-crossbars i::before{left:2px}.gate-crossbars i::after{right:2px}
 .gate-piece{z-index:1;pointer-events:auto;cursor:pointer}
+.opening-color-stat{position:absolute;z-index:2;left:50%;top:52%;transform:translate(-50%,-50%);pointer-events:none;font:600 14px/1 Golos Text,sans-serif;color:#f1e5c6;text-shadow:0 1px 2px #000c}
 #opening .opening-art{pointer-events:none}
 #opening .opening-art .gate-piece{filter:brightness(.86)}
 #opening .opening-art .gate-piece.is-chosen{filter:brightness(1.08);outline:2px solid #f1e5c6;outline-offset:4px;transform:translateX(-50%) scale(1.05)}
