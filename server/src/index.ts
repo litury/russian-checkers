@@ -4,7 +4,8 @@ import {createRequire} from 'node:module';
 import {createServer} from 'node:http';
 import {applyPly, replayPlies, type RecordedPly} from '../../src/online/replay.ts';
 import {bothReady, hashPosition, READY_MS, snapshotOf} from '../../src/online/matchState.ts';
-import {createInitialPosition, winner, type IPosition, type Side} from '../../src/rules/index.ts';
+import {createInitialPosition, winner, afterMoveBank, blitzStartMs, type IPosition, type Side} from '../../src/rules/index.ts';
+import {flagDue, flagWinner, turnLeft} from './flagClock.ts';
 import {acceptWebsocket, type TextSock} from './wsRaw.ts';
 import {runMigrations} from './migrate.ts';
 
@@ -66,6 +67,9 @@ type Room = {
  begun: boolean;
  ready: Set<string>;
  readyTimer?: ReturnType<typeof setTimeout>;
+ flagTimer?: ReturnType<typeof setTimeout>;
+ banks: Record<Side, number>;
+ turnStarted: number;
  socks: Map<string, TextSock>;
  drop: Map<string, ReturnType<typeof setTimeout>>;
 };
@@ -83,6 +87,7 @@ const endRoom = async (room: Room, win: Side | 'draw', reason: string, loserId?:
  playerRoom.delete(room.white);
  playerRoom.delete(room.black);
  if (room.readyTimer) clearTimeout(room.readyTimer);
+ if (room.flagTimer) clearTimeout(room.flagTimer);
  for (const t of room.drop.values()) clearTimeout(t);
  for (const [pid, sock] of room.socks) {
   const youWin = loserId ? pid !== loserId : win !== 'draw' && ((win === 'white' && pid === room.white) || (win === 'black' && pid === room.black));
@@ -102,11 +107,30 @@ const pushState = (room: Room, sock: TextSock | undefined, color?: Side) => {
  send(sock, {type: 'state', color, ...snap});
 };
 
+const flagRoom = (room: Room) => {
+ const loser = room.position.turn;
+ const loserId = loser === 'white' ? room.white : room.black;
+ void endRoom(room, flagWinner(loser), 'flag', loserId);
+};
+
+const armFlag = (room: Room) => {
+ if (room.flagTimer) clearTimeout(room.flagTimer);
+ const side = room.position.turn;
+ const left = turnLeft(room.banks[side], room.turnStarted, Date.now());
+ room.flagTimer = setTimeout(() => {
+  if (!rooms.has(room.id) || !room.begun) return;
+  flagRoom(room);
+ }, left);
+};
+
 const beginRoom = (room: Room) => {
  if (room.begun) return;
  room.begun = true;
  if (room.readyTimer) clearTimeout(room.readyTimer);
  room.readyTimer = undefined;
+ room.banks = {white: blitzStartMs, black: blitzStartMs};
+ room.turnStarted = Date.now();
+ armFlag(room);
  const snap = snapshotOf(room.id, room.position, room.ply, true);
  for (const s of room.socks.values()) send(s, {type: 'begin', ...snap});
 };
@@ -151,6 +175,8 @@ const pair = async () => {
    ply: 0,
    begun: false,
    ready: new Set(),
+   banks: {white: blitzStartMs, black: blitzStartMs},
+   turnStarted: 0,
    socks: new Map(),
    drop: new Map(),
   };
@@ -223,11 +249,16 @@ const handleWs = async (sock: TextSock, raw: string, ctx: {player?: string}) => 
   if (!room) { send(sock, {type: 'error', error: 'no_match'}); return; }
   if (!room.begun) { send(sock, {type: 'error', error: 'illegal'}); return; }
   const side: Side = player === room.white ? 'white' : 'black';
+  if (side !== room.position.turn) { send(sock, {type: 'error', error: 'illegal'}); return; }
+  if (turnLeft(room.banks[side], room.turnStarted, Date.now()) <= 0) { flagRoom(room); return; }
   const ply: RecordedPly = {side, from: msg.from ?? '', path: msg.path ?? []};
   const next = applyPly(room.position, ply);
   if (!next) { send(sock, {type: 'error', error: 'illegal'}); pushState(room, sock, side); return; }
+  room.banks[side] = afterMoveBank(turnLeft(room.banks[side], room.turnStarted, Date.now()));
   room.position = next;
   room.ply += 1;
+  room.turnStarted = Date.now();
+  armFlag(room);
   await pool.query(
    `INSERT INTO match_plies (match_id, ply, side, from_sq, path) VALUES ($1,$2,$3,$4,$5)`,
    [room.id, room.ply, side, ply.from, JSON.stringify(ply.path)],
@@ -243,6 +274,15 @@ const handleWs = async (sock: TextSock, raw: string, ctx: {player?: string}) => 
   const room = rid ? rooms.get(rid) : undefined;
   if (!room) return;
   await endRoom(room, otherOf(room, player) as Side, 'resign', player);
+  return;
+ }
+ if (msg.type === 'flag') {
+  const rid = playerRoom.get(player);
+  const room = rid ? rooms.get(rid) : undefined;
+  if (!room || !room.begun) return;
+  const side = room.position.turn;
+  if (!flagDue(room.banks[side], room.turnStarted, Date.now())) return;
+  flagRoom(room);
  }
 };
 

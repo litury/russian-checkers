@@ -462,6 +462,16 @@ export class GameScene extends Phaser.Scene {
 					this.endMatch(this.humanSide);
 					return;
 				}
+				if (reason === 'flag') {
+					const side =
+						youWin === true
+							? this.humanSide
+							: this.humanSide === 'white'
+								? 'black'
+								: 'white';
+					this.endMatch(side, 'flag');
+					return;
+				}
 				const side =
 					youWin === true
 						? this.humanSide
@@ -740,11 +750,21 @@ export class GameScene extends Phaser.Scene {
 		});
 	}
 
+	private onlineHumanTurn(): boolean {
+		return this.onlineBegun && this.serverTurn === this.humanSide && this.position.turn === this.humanSide;
+	}
+
+	private canSelect(): boolean {
+		if (this.paused || this.moving || this.countingIn || this.flagLock || this.phase === 'over') return false;
+		if (this.online) return this.onlineHumanTurn();
+		return this.phase === 'human';
+	}
+
 	private paintClock(): void {
 		this.hud?.setClock(
 			Math.ceil(this.sideRemainingMs('white') / 1000),
 			Math.ceil(this.sideRemainingMs('black') / 1000),
-			this.countingIn || this.phase === 'over' ? null : this.position.turn,
+			this.countingIn || this.flagLock || this.phase === 'over' ? null : this.position.turn,
 		);
 	}
 
@@ -795,8 +815,15 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private onFlag(): void {
-		if (this.online) return;
 		if (this.flagLock || this.moving || this.countingIn || this.phase === 'over') {
+			return;
+		}
+		if (this.online) {
+			this.flagLock = true;
+			this.selected = null;
+			this.humanChain = null;
+			this.refresh();
+			this.live?.flag();
 			return;
 		}
 		this.flagLock = true;
@@ -817,29 +844,23 @@ export class GameScene extends Phaser.Scene {
 			this.selected,
 			this.optionMoves(),
 			this.countingIn ? undefined :
-				this.phase === 'human' && this.position.turn === this.humanSide && !this.moving
+				this.canSelect()
 					? this.humanChain?.remainingRoutes ?? legalMoves(this.position) : [],
 		);
 		this.board.setWaitingIdle(
-			this.phase === 'bot' || this.countingIn || this.paused || (this.online && !this.onlineBegun),
+			!this.canSelect() && (this.phase === 'bot' || this.countingIn || this.paused || (this.online && !this.onlineBegun) || (this.online && !this.onlineHumanTurn())),
 		);
 		this.hud.setTurn(matchStatus(
 			this.countingIn || (this.online && !this.onlineBegun),
 			this.online && this.onlineBegun
-				? (this.serverTurn === this.humanSide ? 'human' : 'bot')
+				? (this.onlineHumanTurn() ? 'human' : 'bot')
 				: this.phase,
 			legalMoves(this.position).some(move => move.path[0] && capturedOnSegment(this.position, move.from, move.path[0])), Boolean(this.humanChain)));
 		this.maybeAutoMove();
 	}
 
 	private maybeAutoMove(): void {
-		if (
-			this.paused ||
-			this.moving ||
-			this.flagLock ||
-			this.countingIn ||
-			this.phase !== 'human'
-		) {
+		if (!this.canSelect()) {
 			return;
 		}
 		if (!getAutoMove()) {
@@ -854,7 +875,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private optionMoves(): IMove[] {
-		if (this.phase !== 'human' || this.paused || this.countingIn) {
+		if (!this.canSelect()) {
 			return [];
 		}
 		// Visual routes stay complete; humanHighlights/choose expose only the next hop.
@@ -863,7 +884,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private humanHighlights(): ISquare[] {
-		if (this.phase !== 'human' || this.paused || this.countingIn) {
+		if (!this.canSelect()) {
 			return [];
 		}
 		const moves = legalMoves(this.position);
@@ -880,8 +901,9 @@ export class GameScene extends Phaser.Scene {
 			this.moving ||
 			this.flagLock ||
 			this.countingIn ||
-			this.phase !== 'human' ||
-			(this.online && !this.onlineBegun)
+			this.phase === 'over' ||
+			(this.online && !this.onlineBegun) ||
+			!this.canSelect()
 		) {
 			return;
 		}
@@ -918,6 +940,10 @@ export class GameScene extends Phaser.Scene {
 
 	private playHumanHop(square: ISquare): boolean {
 		if (!this.selected) return false;
+		if (this.online && this.sideRemainingMs(this.position.turn) <= 0) {
+			this.onFlag();
+			return false;
+		}
 		const chain = this.humanChain ?? new StepwiseMove(this.position, this.selected);
 
 		const chosen = chain.choose(square);
@@ -934,7 +960,10 @@ export class GameScene extends Phaser.Scene {
 				return;
 			}
 			if (chosen.complete) {
-				if (this.online) this.live?.move(chosen.complete);
+				if (this.online) {
+					this.live?.move(chosen.complete);
+					this.drainInbound();
+				}
 				else this.completeHumanMove(chosen.complete);
 			}
 			else this.refresh();
@@ -975,7 +1004,9 @@ export class GameScene extends Phaser.Scene {
 			this.endMatch(side);
 			return;
 		}
-		this.phase = this.position.turn === this.humanSide ? 'human' : 'bot';
+		this.phase = this.online
+			? (this.onlineHumanTurn() ? 'human' : 'bot')
+			: this.position.turn === this.humanSide ? 'human' : 'bot';
 		this.refresh();
 		if (this.online) {
 			if (!this.applyingNet && mover === this.humanSide) this.lastPly += 1;

@@ -85,6 +85,7 @@ export function openLive(handlers: LiveHandlers) {
   },
   leave() { send({ type: 'leave' }); },
   resign() { send({ type: 'resign' }); },
+  flag() { send({ type: 'flag' }); },
   isOpen() { return ws?.readyState === 1; },
   close() { try { ws?.close(); } catch {} ws = null; },
  };
