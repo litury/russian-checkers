@@ -1,5 +1,6 @@
 import type Phaser from 'phaser';
 import {createMenuAudio} from './menuAudio';
+import {ensureGuest} from '@/online/cloud';
 import {gatePose, OpeningGates} from './openingGates';
 import {gateDurationMs as preparationMs} from './openingGates';
 
@@ -21,9 +22,10 @@ declare global {
 }
 
 /** HTML-first controls survive asset failures; the board behind them is real Phaser. */
-export function createOpeningOverlay(scene: Phaser.Scene, handlers: { onPlayBot: () => void; isPaused?: () => boolean }) {
+export function createOpeningOverlay(scene: Phaser.Scene, handlers: { onPlayBot: () => void; onPlayOnline?: () => void; isPaused?: () => boolean }) {
  const root = document.getElementById('opening')!;
  const play = document.getElementById('opening-play') as HTMLButtonElement;
+ const online = document.getElementById('opening-online') as HTMLButtonElement | null;
  const ivory = root.querySelector('.gate-piece-ivory') as HTMLElement | null;
  const ebony = root.querySelector('.gate-piece-black') as HTMLElement | null;
  let side: 'white' | 'black' = ivory?.classList.contains('is-chosen') ? 'white' : 'white';
@@ -84,6 +86,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: { onPlayBot:
  const pickWhite = pick('white');
  const pickBlack = pick('black');
  play.onclick=()=>invoke();
+ if (online) online.onclick=()=>{ if(root.hidden||gates.active||root.inert) return; handlers.onPlayOnline?.(); };
  ivory?.addEventListener('click', pickWhite);
  ebony?.addEventListener('click', pickBlack);
  window.checkersStartup.playIntent=invoke;
@@ -93,6 +96,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: { onPlayBot:
  // Keep pending/committed until invoke/auto-start so show()/unlock cannot idle the button.
  if(window.checkersStartup.pendingPlay || window.checkersStartup.playCommitted) window.checkersStartup.waitPlay();
  else { window.checkersStartup.unlock(); window.checkersStartup.ready(); }
+ void ensureGuest();
  document.addEventListener('visibilitychange',visibilityChange);
  scene.events.on('update',update);
  scene.events.once('shutdown',()=>{

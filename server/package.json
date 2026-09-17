@@ -1,0 +1,17 @@
+{
+  "name": "russian-checkers-server",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "cd .. && DATABASE_URL=${DATABASE_URL:-postgres://checkers:checkers@127.0.0.1:5433/checkers} PORT=${PORT:-8787} ./node_modules/.bin/vite-node server/src/index.ts",
+    "start": "cd .. && DATABASE_URL=${DATABASE_URL:-postgres://checkers:checkers@127.0.0.1:5433/checkers} PORT=${PORT:-8787} ./node_modules/.bin/vite-node server/src/index.ts"
+  },
+  "dependencies": {
+    "pg": "^8.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.3",
+    "@types/pg": "^8.23.1"
+  }
+}

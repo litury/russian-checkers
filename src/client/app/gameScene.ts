@@ -10,6 +10,8 @@ import { installDisplayDensity, logicalSize } from './displayDensity';
 import { preparationMs } from './panelReveal';
 import { orcOpeningTurnLine } from './orcTurn';
 import { pieceSelectSfx } from './pieceSfx';
+import { recordBotMatch, type CloudPly } from '@/online/cloud';
+import { openLive } from '@/online/live';
 import { orcOutcomeLine, orcTimeLow } from './orcResult';
 import { StepwiseMove } from './stepwiseMove';
 import { pickBotMove } from '@/client/modules/bot';
@@ -74,6 +76,9 @@ export class GameScene extends Phaser.Scene {
 
 	private countingIn = false;
 	private timeLowSaid = false;
+	private matchPlies: CloudPly[] = [];
+	private online = false;
+	private live: ReturnType<typeof openLive> | null = null;
 
 	private botTimer?: Phaser.Time.TimerEvent;
 
@@ -125,8 +130,12 @@ export class GameScene extends Phaser.Scene {
 		this.title = createOpeningOverlay(this, {
 			isPaused: () => this.paused,
 			onPlayBot: () => {
+				this.online = false;
 				this.humanSide = this.title.humanSide();
 				void this.requestStartFromOpening();
+			},
+			onPlayOnline: () => {
+				void this.requestOnline();
 			},
 		});
 		this.sdk.onPause(() => {
@@ -313,6 +322,49 @@ export class GameScene extends Phaser.Scene {
 		this.playfieldBuilt = true;
 	}
 
+	private async requestOnline(): Promise<void> {
+		window.checkersStartup.status('Ищем соперника…');
+		this.live?.close();
+		this.live = openLive({
+			onQueued: () => window.checkersStartup.status('В очереди…'),
+			onStart: (color) => {
+				this.online = true;
+				this.humanSide = color;
+				void this.requestStartFromOpening();
+			},
+			onMove: (move, side) => {
+				if (this.phase === 'over' || this.moving) return;
+				if (side === this.humanSide) this.playHumanLocal(move);
+				else this.playRemote(move);
+			},
+			onEnd: (winner, reason, youWin) => {
+				if (this.phase === 'over') return;
+				if (reason === 'timeout') {
+					this.endMatch(this.humanSide);
+					return;
+				}
+				const side =
+					youWin === true
+						? this.humanSide
+						: youWin === false
+							? this.humanSide === 'white'
+								? 'black'
+								: 'white'
+							: winner === 'draw'
+								? this.humanSide
+								: winner;
+				this.endMatch(side);
+			},
+			onError: (error) => window.checkersStartup.status(error === 'busy' ? 'Уже в матче' : 'Онлайн недоступен'),
+		});
+		const ok = await this.live.connect();
+		if (!ok) {
+			window.checkersStartup.status('Сервер онлайн недоступен. Можно играть с ботом.');
+			return;
+		}
+		this.live.queue();
+	}
+
 	private async requestStartFromOpening(): Promise<void> {
 		if (this.phase !== 'title' || this.startingFromOpening) return;
 		this.startingFromOpening = true;
@@ -373,6 +425,11 @@ export class GameScene extends Phaser.Scene {
 		this.botTimer?.remove(false);
 		this.tweens.killAll();
 		this.board?.reset();
+		this.online = false;
+		this.live?.close();
+		this.live = null;
+		this.board?.setFacing('white');
+		this.hud?.setFacing('white');
 		this.moving = false;
 		this.position = createInitialPosition();
 		this.selected = null;
@@ -402,10 +459,12 @@ export class GameScene extends Phaser.Scene {
 		this.botTimer?.remove(false);
 		this.tweens.killAll();
 		this.board.reset();
+		this.board.setFacing(this.humanSide);
+		this.hud.setFacing(this.humanSide);
 		this.moving = false;
 		this.position = createInitialPosition();
 		this.selected = null;
-		this.phase = 'human';
+		this.phase = this.humanSide === 'black' ? 'bot' : 'human';
 		this.timeLowSaid = false;
 		this.pendingBot = false;
 		this.elapsedMs = 0;
@@ -413,6 +472,7 @@ export class GameScene extends Phaser.Scene {
 		this.clocks = { white: blitzStartMs, black: blitzStartMs };
 		this.clockStartedAt = 0;
 		this.flagLock = false;
+		this.matchPlies = [];
 
 		this.hud.setClock(
 			Math.ceil(blitzStartMs / 1000),
@@ -422,7 +482,7 @@ export class GameScene extends Phaser.Scene {
 		this.overlay?.hide();
 		this.hud.prepareClosed();
 		this.hud.setVisible(true);
-		this.hud.setNames('Ты', 'Бот');
+		this.hud.setNames('Ты', this.online ? 'Соперник' : 'Бот');
 		// interactiveReady already settled: first paint is selection-v2 (disk only if boot failed).
 		this.board.setPlayfieldVisible(true);
 		this.beginCountdown(fromOpening);
@@ -449,8 +509,7 @@ export class GameScene extends Phaser.Scene {
 			this.paintClock();
 			this.refresh();
 			this.title.speakOrcTurn(orcOpeningTurnLine(this.humanSide), this.humanSide);
-			if (this.humanSide === 'black') {
-				this.phase = 'bot';
+			if (this.phase === 'bot') {
 				this.refresh();
 				this.botTimer?.remove(false);
 				this.botTimer = this.time.delayedCall(400, () => this.playBot());
@@ -545,6 +604,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private onFlag(): void {
+		if (this.online) return;
 		if (this.flagLock || this.moving || this.countingIn || this.phase === 'over') {
 			return;
 		}
@@ -677,7 +737,10 @@ export class GameScene extends Phaser.Scene {
 				this.onFlag();
 				return;
 			}
-			if (chosen.complete) this.completeHumanMove(chosen.complete);
+			if (chosen.complete) {
+				if (this.online) this.live?.move(chosen.complete);
+				else this.completeHumanMove(chosen.complete);
+			}
 			else this.refresh();
 		}, undefined, undefined, true);
 		return true;
@@ -705,6 +768,7 @@ export class GameScene extends Phaser.Scene {
 		const next = apply(this.position, move);
 		if (!next) return;
 		this.settleClock(mover);
+		this.matchPlies.push({ side: mover, from: move.from, path: move.path });
 		this.position = next;
 		this.humanChain = null;
 		this.selected = null;
@@ -714,13 +778,23 @@ export class GameScene extends Phaser.Scene {
 			this.endMatch(side);
 			return;
 		}
-		this.phase = 'bot';
+		this.phase = this.position.turn === this.humanSide ? 'human' : 'bot';
 		this.refresh();
+		if (this.online) return;
 		this.botTimer?.remove(false);
 		this.botTimer = this.time.delayedCall(400, () => this.playBot());
 	}
 
+	private playRemote(move: IMove): void {
+		this.animateMove(move, () => this.completeHumanMove(move));
+	}
+
+	private playHumanLocal(move: IMove): void {
+		this.completeHumanMove(move);
+	}
+
 	private playBot(): void {
+		if (this.online) return;
 		if (this.paused) {
 			this.pendingBot = true;
 			return;
@@ -742,6 +816,7 @@ export class GameScene extends Phaser.Scene {
 				return;
 			}
 			this.settleClock(mover);
+			this.matchPlies.push({ side: mover, from: move.from, path: move.path });
 			this.position = next;
 			const side = winner(this.position);
 			if (side) {
@@ -762,6 +837,11 @@ export class GameScene extends Phaser.Scene {
 		this.selected = null;
 		this.refresh();
 		this.title?.speakOrcTurn(orcOutcomeLine('resign', false), this.humanSide);
+		void recordBotMatch({
+			humanSide: this.humanSide,
+			winner: this.humanSide === 'white' ? 'black' : 'white',
+			plies: this.matchPlies,
+		});
 		void this.ensureResultOverlay().then((overlay) => overlay?.show('black', this.humanSide));
 		this.board.clearOpeningHint();
 	}
@@ -776,6 +856,13 @@ export class GameScene extends Phaser.Scene {
 		this.selected = null;
 		this.refresh();
 		this.title?.speakOrcTurn(orcOutcomeLine(kind, side === this.humanSide), this.humanSide);
+		if (!this.online) {
+		void recordBotMatch({
+			humanSide: this.humanSide,
+			winner: side,
+			plies: this.matchPlies,
+		});
+		}
 		const show = () => {
 			void this.ensureResultOverlay().then((overlay) => overlay?.show(side, this.humanSide));
 		};

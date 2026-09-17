@@ -12,6 +12,7 @@ export interface IBoardView {
 		availability?: IMove[],
 	) => void;
 	layout: (width: number, height: number) => void;
+	setFacing: (side: Side) => void;
 	press: (square: ISquare) => void;
 	deny: (square: ISquare) => void;
 	playMove: (

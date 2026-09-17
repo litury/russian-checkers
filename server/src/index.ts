@@ -1,0 +1,365 @@
+import {writeFileSync} from 'node:fs';
+import {createHash, randomBytes, randomInt} from 'node:crypto';
+import {createRequire} from 'node:module';
+import {createServer} from 'node:http';
+import {applyPly, replayPlies, type RecordedPly} from '../../src/online/replay.ts';
+import {createInitialPosition, winner, type IPosition, type Side} from '../../src/rules/index.ts';
+import {acceptWebsocket, type TextSock} from './wsRaw.ts';
+import {runMigrations} from './migrate.ts';
+
+const require = createRequire(new URL('../package.json', import.meta.url));
+const pg = require('pg') as typeof import('pg');
+const url = process.env.DATABASE_URL ?? 'postgres://checkers:checkers@127.0.0.1:5433/checkers';
+const port = Number(process.env.PORT ?? 8787);
+const pool = new pg.Pool({connectionString: url});
+const DROP_MS = 12_000;
+
+type Res = import('node:http').ServerResponse;
+const json = (res: Res, code: number, body: unknown) => {
+ res.writeHead(code, {
+  'content-type': 'application/json; charset=utf-8',
+  'access-control-allow-origin': '*',
+  'access-control-allow-headers': 'content-type, authorization',
+ });
+ res.end(JSON.stringify(body));
+};
+const read = (req: import('node:http').IncomingMessage) =>
+ new Promise<string>((resolve, reject) => {
+  const chunks: Buffer[] = [];
+  req.on('data', (c) => chunks.push(c as Buffer));
+  req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+  req.on('error', reject);
+ });
+const hashToken = (token: string) => createHash('sha256').update(token).digest('hex');
+const ipOf = (req: import('node:http').IncomingMessage) =>
+ (req.headers['x-forwarded-for']?.toString().split(',')[0] ?? req.socket.remoteAddress ?? '').trim();
+
+const hits = new Map<string, {n: number; t: number}>();
+const limited = (key: string, max: number, windowMs = 60_000) => {
+ const now = Date.now();
+ const cur = hits.get(key);
+ if (!cur || now - cur.t > windowMs) {
+  hits.set(key, {n: 1, t: now});
+  return false;
+ }
+ cur.n += 1;
+ return cur.n > max;
+};
+
+const playerFromAuth = async (header: string | undefined) => {
+ const token = header?.startsWith('Bearer ') ? header.slice(7) : '';
+ if (!token) return null;
+ const h = hashToken(token);
+ const idn = await pool.query(`SELECT player_id FROM auth_identities WHERE kind='device' AND token_hash=$1`, [h]);
+ if (idn.rows[0]) return idn.rows[0].player_id as string;
+ const old = await pool.query(`SELECT id FROM players WHERE token_hash=$1`, [h]);
+ return (old.rows[0]?.id as string | undefined) ?? null;
+};
+
+type Room = {
+ id: string;
+ white: string;
+ black: string;
+ position: IPosition;
+ ply: number;
+ socks: Map<string, TextSock>;
+ drop: Map<string, ReturnType<typeof setTimeout>>;
+};
+const queue: {id: string; sock: TextSock}[] = [];
+const rooms = new Map<string, Room>();
+const playerRoom = new Map<string, string>();
+
+const send = (sock: TextSock | undefined, msg: unknown) => {
+ if (sock) sock.send(JSON.stringify(msg));
+};
+
+const endRoom = async (room: Room, win: Side | 'draw', reason: string, loserId?: string) => {
+ if (!rooms.has(room.id)) return;
+ rooms.delete(room.id);
+ playerRoom.delete(room.white);
+ playerRoom.delete(room.black);
+ for (const t of room.drop.values()) clearTimeout(t);
+ for (const [pid, sock] of room.socks) {
+  const youWin = loserId ? pid !== loserId : win !== 'draw' && ((win === 'white' && pid === room.white) || (win === 'black' && pid === room.black));
+  send(sock, {type: 'end', winner: win, youWin, reason});
+ }
+ try {
+  await pool.query(`UPDATE matches SET winner=$2, ended_at=now() WHERE id=$1`, [room.id, win]);
+ } catch (err) {
+  process.stderr.write(`endRoom db ${err}\n`);
+ }
+};
+
+const otherOf = (room: Room, id: string) => (id === room.white ? room.black : room.white);
+
+const attach = (room: Room, id: string, sock: TextSock) => {
+ room.socks.set(id, sock);
+ const pending = room.drop.get(id);
+ if (pending) clearTimeout(pending);
+ room.drop.delete(id);
+ const color: Side = id === room.white ? 'white' : 'black';
+ send(sock, {type: 'start', matchId: room.id, color, turn: room.position.turn});
+};
+
+const dropPlayer = (room: Room, id: string) => {
+ room.socks.delete(id);
+ void endRoom(room, otherOf(room, id) as Side, 'timeout', id);
+};
+
+const pair = async () => {
+ while (queue.length >= 2) {
+  const a = queue.shift()!;
+  const b = queue.shift()!;
+  if (a.id === b.id) {
+   queue.unshift(b);
+   continue;
+  }
+  if (playerRoom.has(a.id) || playerRoom.has(b.id)) continue;
+  const white = a.id;
+  const black = b.id;
+  const inserted = await pool.query(
+   `INSERT INTO matches (mode, white_id, black_id) VALUES ('online', $1, $2) RETURNING id`,
+   [white, black],
+  );
+  const id = inserted.rows[0].id as string;
+  const room: Room = {
+   id,
+   white,
+   black,
+   position: createInitialPosition(),
+   ply: 0,
+   socks: new Map(),
+   drop: new Map(),
+  };
+  rooms.set(id, room);
+  playerRoom.set(white, id);
+  playerRoom.set(black, id);
+  attach(room, white, a.sock);
+  attach(room, black, b.sock);
+ }
+};
+
+const handleWs = async (sock: TextSock, raw: string, ctx: {player?: string}) => {
+ let msg: {type?: string; token?: string; from?: string; path?: string[]} = {};
+ try { msg = JSON.parse(raw); } catch { send(sock, {type: 'error', error: 'bad_json'}); return; }
+ if (msg.type === 'auth') {
+  const id = await playerFromAuth(msg.token ? `Bearer ${msg.token}` : undefined);
+  if (!id) { send(sock, {type: 'error', error: 'unauthorized'}); sock.close(); return; }
+  ctx.player = id;
+  send(sock, {type: 'ok', playerId: id});
+  const rid = playerRoom.get(id);
+  if (rid) {
+   const room = rooms.get(rid);
+   if (room) attach(room, id, sock);
+  }
+  return;
+ }
+ if (!ctx.player) { send(sock, {type: 'error', error: 'unauthorized'}); return; }
+ const player = ctx.player;
+ if (msg.type === 'queue') {
+  if (limited(`q:${player}`, 8)) { send(sock, {type: 'error', error: 'rate'}); return; }
+  if (playerRoom.has(player) || queue.some((q) => q.id === player)) {
+   send(sock, {type: 'error', error: 'busy'});
+   return;
+  }
+  queue.push({id: player, sock});
+  send(sock, {type: 'queued'});
+  await pair();
+  return;
+ }
+ if (msg.type === 'leave') {
+  const i = queue.findIndex((q) => q.id === player);
+  if (i >= 0) queue.splice(i, 1);
+  return;
+ }
+ if (msg.type === 'move') {
+  const rid = playerRoom.get(player);
+  const room = rid ? rooms.get(rid) : undefined;
+  if (!room) { send(sock, {type: 'error', error: 'no_match'}); return; }
+  const side: Side = player === room.white ? 'white' : 'black';
+  const ply: RecordedPly = {side, from: msg.from ?? '', path: msg.path ?? []};
+  const next = applyPly(room.position, ply);
+  if (!next) { send(sock, {type: 'error', error: 'illegal'}); return; }
+  room.position = next;
+  room.ply += 1;
+  await pool.query(
+   `INSERT INTO match_plies (match_id, ply, side, from_sq, path) VALUES ($1,$2,$3,$4,$5)`,
+   [room.id, room.ply, side, ply.from, JSON.stringify(ply.path)],
+  );
+  const payload = {type: 'move', from: ply.from, path: ply.path, side, turn: next.turn};
+  for (const s of room.socks.values()) send(s, payload);
+  const w = winner(next);
+  if (w) await endRoom(room, w, 'rules');
+  return;
+ }
+ if (msg.type === 'resign') {
+  const rid = playerRoom.get(player);
+  const room = rid ? rooms.get(rid) : undefined;
+  if (!room) return;
+  await endRoom(room, otherOf(room, player) as Side, 'resign', player);
+ }
+};
+
+await runMigrations((text, params) => pool.query(text, params));
+
+const server = createServer(async (req, res) => {
+ if (req.method === 'OPTIONS') {
+  res.writeHead(204, {
+   'access-control-allow-origin': '*',
+   'access-control-allow-headers': 'content-type, authorization',
+   'access-control-allow-methods': 'GET,POST,OPTIONS',
+  });
+  res.end();
+  return;
+ }
+ try {
+  const path = req.url?.split('?')[0] ?? '/';
+  if (req.method === 'GET' && path === '/health') {
+   await pool.query('SELECT 1');
+   json(res, 200, {ok: true, db: true, queue: queue.length, rooms: rooms.size, ws: `ws://127.0.0.1:${port}/ws`});
+   return;
+  }
+  if (req.method === 'POST' && path === '/players/guest') {
+   if (limited(`g:${ipOf(req)}`, 8)) { json(res, 429, {error: 'rate'}); return; }
+   const token = randomBytes(24).toString('base64url');
+   const h = hashToken(token);
+   const created = await pool.query(
+    'INSERT INTO players (token_hash) VALUES ($1) RETURNING id, created_at',
+    [h],
+   );
+   const id = created.rows[0].id as string;
+   await pool.query(
+    `INSERT INTO auth_identities (player_id, kind, token_hash) VALUES ($1,'device',$2)`,
+    [id, h],
+   );
+   json(res, 201, {id, token, createdAt: created.rows[0].created_at});
+   return;
+  }
+  if (req.method === 'GET' && path.startsWith('/players/') && path.endsWith('/stats')) {
+   const id = path.slice('/players/'.length, -'/stats'.length);
+   const stats = await pool.query(
+    `SELECT
+      count(*) FILTER (WHERE winner IS NOT NULL)::int AS games,
+      count(*) FILTER (WHERE winner = 'white' AND white_id = $1)::int AS white_wins,
+      count(*) FILTER (WHERE winner = 'black' AND black_id = $1)::int AS black_wins,
+      count(*) FILTER (WHERE mode = 'bot' AND winner IS NOT NULL)::int AS bot_games,
+      count(*) FILTER (WHERE mode = 'online' AND winner IS NOT NULL)::int AS online_games
+     FROM matches WHERE white_id = $1 OR black_id = $1`,
+    [id],
+   );
+   json(res, 200, {playerId: id, ...stats.rows[0]});
+   return;
+  }
+  if (req.method === 'POST' && path === '/auth/email/start') {
+   const playerId = await playerFromAuth(req.headers.authorization);
+   if (!playerId) { json(res, 401, {error: 'unauthorized'}); return; }
+   if (limited(`e:${playerId}`, 5)) { json(res, 429, {error: 'rate'}); return; }
+   const email = String(JSON.parse((await read(req)) || '{}').email ?? '').trim().toLowerCase();
+   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { json(res, 400, {error: 'bad_email'}); return; }
+   const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
+   await pool.query(
+    `INSERT INTO email_codes (email, code_hash, player_id, expires_at)
+     VALUES ($1,$2,$3, now() + interval '10 minutes')
+     ON CONFLICT (email) DO UPDATE SET code_hash=$2, player_id=$3, expires_at=now()+interval '10 minutes'`,
+    [email, hashToken(code), playerId],
+   );
+   writeFileSync('/tmp/checkers-email-code.txt', `${email} ${code}\n`, 'utf8');
+   process.stdout.write(`email-code ${email} ${code}\n`);
+   json(res, 200, {ok: true, dev: true});
+   return;
+  }
+  if (req.method === 'POST' && path === '/auth/email/confirm') {
+   const playerId = await playerFromAuth(req.headers.authorization);
+   if (!playerId) { json(res, 401, {error: 'unauthorized'}); return; }
+   const body = JSON.parse((await read(req)) || '{}') as {email?: string; code?: string};
+   const email = String(body.email ?? '').trim().toLowerCase();
+   const row = await pool.query(
+    `SELECT * FROM email_codes WHERE email=$1 AND code_hash=$2 AND expires_at > now()`,
+    [email, hashToken(String(body.code ?? ''))],
+   );
+   if (!row.rows[0] || row.rows[0].player_id !== playerId) { json(res, 400, {error: 'bad_code'}); return; }
+   const taken = await pool.query(`SELECT player_id FROM auth_identities WHERE kind='email' AND email=$1`, [email]);
+   if (taken.rows[0] && taken.rows[0].player_id !== playerId) {
+    json(res, 409, {error: 'link_conflict', playerId: taken.rows[0].player_id});
+    return;
+   }
+   await pool.query(
+    `INSERT INTO auth_identities (player_id, kind, email) VALUES ($1,'email',$2)
+     ON CONFLICT DO NOTHING`,
+    [playerId, email],
+   );
+   await pool.query(`DELETE FROM email_codes WHERE email=$1`, [email]);
+   json(res, 200, {ok: true, playerId});
+   return;
+  }
+  if (req.method === 'POST' && path === '/matches') {
+   const playerId = await playerFromAuth(req.headers.authorization);
+   if (!playerId) { json(res, 401, {error: 'unauthorized'}); return; }
+   const body = JSON.parse((await read(req)) || '{}') as {
+    mode?: string; humanSide?: Side; winner?: Side | 'draw'; plies?: RecordedPly[];
+   };
+   if (body.mode !== 'bot' || (body.humanSide !== 'white' && body.humanSide !== 'black')) {
+    json(res, 400, {error: 'bad_match'}); return;
+   }
+   if (body.winner !== 'white' && body.winner !== 'black' && body.winner !== 'draw') {
+    json(res, 400, {error: 'bad_winner'}); return;
+   }
+   const plies = Array.isArray(body.plies) ? body.plies : [];
+   const replayed = replayPlies(plies);
+   if (!replayed.ok) { json(res, 400, {error: 'illegal_ply', ply: replayed.ply}); return; }
+   const whiteId = body.humanSide === 'white' ? playerId : null;
+   const blackId = body.humanSide === 'black' ? playerId : null;
+   const inserted = await pool.query(
+    `INSERT INTO matches (mode, white_id, black_id, winner, ended_at) VALUES ('bot', $1, $2, $3, now()) RETURNING id`,
+    [whiteId, blackId, body.winner],
+   );
+   const matchId = inserted.rows[0].id as string;
+   let ply = 0;
+   for (const step of plies) {
+    ply += 1;
+    await pool.query(
+     `INSERT INTO match_plies (match_id, ply, side, from_sq, path) VALUES ($1,$2,$3,$4,$5)`,
+     [matchId, ply, step.side, step.from, JSON.stringify(step.path)],
+    );
+   }
+   json(res, 201, {id: matchId, winner: body.winner, plies: ply});
+   return;
+  }
+  json(res, 404, {error: 'not_found'});
+ } catch (error) {
+  json(res, 500, {error: error instanceof Error ? error.message : 'server_error'});
+ }
+});
+
+server.on('upgrade', (req, socket) => {
+ if ((req.url ?? '').split('?')[0] !== '/ws') { socket.destroy(); return; }
+ const ctx: {player?: string} = {};
+ const sock = acceptWebsocket(
+  req,
+  socket,
+  (text) => { void handleWs(sock!, text, ctx).catch((err) => process.stderr.write(`ws ${err}\n`)); },
+  () => {
+   const id = ctx.player;
+   if (!id) return;
+   const i = queue.findIndex((q) => q.id === id);
+   if (i >= 0) queue.splice(i, 1);
+   const rid = playerRoom.get(id);
+   const room = rid ? rooms.get(rid) : undefined;
+   if (room) dropPlayer(room, id);
+  },
+ );
+ if (!sock) socket.destroy();
+});
+
+server.on('error', (err) => {
+ process.stderr.write(`checkers-server ${err}\n`);
+});
+process.on('uncaughtException', (err) => {
+ process.stderr.write(`uncaught ${err}\n`);
+});
+process.on('unhandledRejection', (err) => {
+ process.stderr.write(`unhandled ${err}\n`);
+});
+server.listen(port, '::', () => {
+ process.stdout.write(`checkers-server http://127.0.0.1:${port} http://localhost:${port} ws://localhost:${port}/ws\n`);
+});

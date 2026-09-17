@@ -39,6 +39,7 @@ export function createHud(
 		staticRun = reduced,
 		visible = false;
 	let sampledAt: number | null = null;
+	let facing: Side = 'white';
 	const visibilityChange = () => {
 		sampledAt = null;
 	};
@@ -87,9 +88,14 @@ export function createHud(
 		setTurn(copy: string) {
 			you.setStatus(copy);
 		},
+		setFacing(side: Side) {
+			facing = side;
+		},
 		setClock(whiteSec: number, blackSec: number, turn: Side | null = 'white') {
-			you.setClock(panelClock(whiteSec), turn === 'white', reveal.active);
-			foe.setClock(panelClock(blackSec), turn === 'black', reveal.active);
+			const own = facing === 'black' ? blackSec : whiteSec;
+			const other = facing === 'black' ? whiteSec : blackSec;
+			you.setClock(panelClock(own), turn === facing, reveal.active);
+			foe.setClock(panelClock(other), turn !== null && turn !== facing, reveal.active);
 		},
 		setVisible(on: boolean) {
 			visible = on;

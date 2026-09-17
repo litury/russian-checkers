@@ -88,6 +88,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   </div>
   <nav class="opening-actions" aria-label="Главное меню">
    <button id="opening-play" class="opening-button opening-primary" aria-label="Загрузка игры" aria-busy="true" disabled><span class="opening-activity" aria-hidden="true"><i style="--segment:0"></i><i style="--segment:1"></i><i style="--segment:2"></i><i style="--segment:3"></i><i style="--segment:4"></i></span></button>
+   <button id="opening-online" class="opening-utility" type="button">С человеком</button>
    <button id="opening-retry" class="opening-button opening-primary" hidden>Повторить загрузку</button>
    <div class="opening-utilities">
     <button id="opening-help" class="opening-utility" aria-haspopup="dialog" aria-controls="opening-help-dialog">Правила</button>
@@ -118,6 +119,14 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 <section class="settings-section" aria-labelledby="settings-game"><h3 id="settings-game">Игра</h3>
 <label class="settings-check"><input id="settings-auto" type="checkbox" checked aria-describedby="settings-auto-description" />Автоход</label>
 <p id="settings-auto-description">Выполнять ход автоматически, если доступен только один вариант.</p>
+</section>
+<section class="settings-section" aria-labelledby="settings-profile"><h3 id="settings-profile">Профиль</h3>
+<p id="settings-profile-copy">Гость. Партии с ботом пишутся, если сервер доступен.</p>
+<p id="settings-profile-stats">Счёт: нет данных</p>
+<label>Почта <input id="settings-email" type="email" autocomplete="email" /></label>
+<button type="button" id="settings-email-send" class="opening-button">Код</button>
+<label>Код <input id="settings-email-code" inputmode="numeric" maxlength="6" /></label>
+<button type="button" id="settings-email-ok" class="opening-button">Привязать</button>
 </section>
 <form method="dialog"><button class="opening-button opening-primary">Готово</button></form>
 </dialog>
@@ -238,10 +247,37 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
    try { for (const [key, storageKey] of Object.entries(keys)) localStorage.setItem(storageKey, typeof state[key] === 'boolean' ? (state[key] ? '1' : '0') : String(state[key])); } catch {}
    window.dispatchEvent(new CustomEvent('checkers-settings-change', {detail:patch}));
   },
-  open: () => { sync(); const dialog = byId('opening-settings-dialog'); if (!dialog.open) dialog.showModal(); }
+  open: () => {
+   sync();
+   const dialog = byId('opening-settings-dialog');
+   const statsEl = byId('settings-profile-stats');
+   const id = (() => { try { return localStorage.getItem('checkers.playerId'); } catch { return null; } })();
+   if (statsEl && id) fetch('http://127.0.0.1:8787/players/' + id + '/stats').then(r => r.ok ? r.json() : null).then(s => {
+    if (!s || !statsEl) return;
+    statsEl.textContent = 'Партий: ' + s.games + '. Побед белыми: ' + s.white_wins + ', чёрными: ' + s.black_wins + '.';
+   }).catch(() => {});
+   if (!dialog.open) dialog.showModal();
+  }
  };
  byId('settings-auto').onchange = event => window.checkersSettings.set({autoMove:event.target.checked});
  byId('settings-muted').onchange = event => window.checkersSettings.set({muted:event.target.checked});
+ byId('settings-email-send').onclick = () => {
+  const token = (() => { try { return localStorage.getItem('checkers.playerToken'); } catch { return null; } })();
+  const email = byId('settings-email').value;
+  if (!token || !email) return;
+  fetch('http://127.0.0.1:8787/auth/email/start', {method:'POST', headers:{'content-type':'application/json', authorization:'Bearer '+token}, body: JSON.stringify({email})}).then(r => r.json()).then(s => {
+   byId('settings-profile-copy').textContent = s.ok ? 'Код в логе сервера (локально).' : (s.error || 'не отправлено');
+  }).catch(() => {});
+ };
+ byId('settings-email-ok').onclick = () => {
+  const token = (() => { try { return localStorage.getItem('checkers.playerToken'); } catch { return null; } })();
+  const email = byId('settings-email').value;
+  const code = byId('settings-email-code').value;
+  if (!token) return;
+  fetch('http://127.0.0.1:8787/auth/email/confirm', {method:'POST', headers:{'content-type':'application/json', authorization:'Bearer '+token}, body: JSON.stringify({email, code})}).then(r => r.json()).then(s => {
+   byId('settings-profile-copy').textContent = s.ok ? 'Почта привязана к этому профилю.' : (s.error === 'link_conflict' ? 'Эта почта уже у другого игрока.' : 'Код не подошёл');
+  }).catch(() => {});
+ };
  for (const key of ['music','effects']) byId('settings-'+key).oninput = event => window.checkersSettings.set({[key]:Number(event.target.value)});
  byId('opening-settings').onclick = () => window.checkersSettings.open();
  const settingsDialog = byId('opening-settings-dialog');

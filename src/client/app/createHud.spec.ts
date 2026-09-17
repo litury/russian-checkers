@@ -14,3 +14,8 @@ it('uses an independent status for preparation, actual turn and continuation', (
 	expect(matchStatus(false, 'human', true, true)).toBe('Продолжайте взятие');
 	expect(matchStatus(false, 'bot', true, false)).toBe('Ход соперника');
 });
+it('maps the bottom bank clock to the human side', async () => {
+	const hud = await import('./createHud.ts?raw');
+	expect(hud.default).toContain('setFacing');
+	expect(hud.default).toContain("facing === 'black' ? blackSec : whiteSec");
+});

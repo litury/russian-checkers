@@ -1,9 +1,10 @@
 import Phaser from 'phaser';
 import { logicalSize } from '@/client/app/displayDensity';
 import { pieceSprites } from '@/client/config/layout';
+import { boardCellY, visualRowStep } from './boardFacing';
 import { reliquaryLayout } from '@/client/config/reliquaryLayout';
 import { sameSquare } from '@/client/shared/sameSquare';
-import { type IMove, type IPosition, type ISquare, legalMoves } from '@/rules';
+import { type IMove, type IPosition, type ISquare, type Side, legalMoves } from '@/rules';
 import type { IBoardView } from './IBoardView';
 import { markerDestinations, markerMoves } from './reliquaryHints';
 import { drawReliquaryMarker, type Marker } from './reliquaryMarkers';
@@ -91,10 +92,11 @@ export function createBoardView(
 	let choices: IMove[] = [];
 	let hover: ISquare | null = null;
 	let focus: ISquare = { row: 2, col: 0 };
+	let facing: Side = 'white';
 	let keyboard = false;
 	const cellBox = (s: ISquare) => ({
 		x: field.originX + (s.col + 0.5) * field.cell,
-		y: field.originY + (7.5 - s.row) * field.cell,
+		y: boardCellY(field.originY, field.cell, s.row, facing),
 		w: field.cell,
 		h: field.cell,
 	});
@@ -332,10 +334,10 @@ export function createBoardView(
 		event.preventDefault();
 		keyboard = true;
 		hover = null;
-		if (event.key === 'ArrowUp')
-			focus = { ...focus, row: Math.min(7, focus.row + 1) };
-		if (event.key === 'ArrowDown')
-			focus = { ...focus, row: Math.max(0, focus.row - 1) };
+		if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+			const next = focus.row + visualRowStep(facing, event.key);
+			focus = { ...focus, row: Math.max(0, Math.min(7, next)) };
+		}
 		if (event.key === 'ArrowLeft')
 			focus = { ...focus, col: Math.max(0, focus.col - 1) };
 		if (event.key === 'ArrowRight')
@@ -546,6 +548,11 @@ export function createBoardView(
 		paintOpeningHint: (progress, motionReduced) => { introProgress = progress; introReduced = motionReduced; drawIntro(); },
 		sync,
 		layout,
+		setFacing: (side) => {
+			facing = side;
+			const size = logicalSize(scene);
+			layout(size.width, size.height);
+		},
 		reset,
 		playMove,
 		press: () => {},

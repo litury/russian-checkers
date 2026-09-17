@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: checkers-postgres
+    environment:
+      POSTGRES_DB: checkers
+      POSTGRES_USER: checkers
+      POSTGRES_PASSWORD: checkers
+    ports:
+      - "5433:5432"
+    volumes:
+      - checkers-pg:/var/lib/postgresql/data
+      - ./server/sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U checkers -d checkers"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  checkers-pg:
