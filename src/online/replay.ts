@@ -27,3 +27,14 @@ export function replayPlies(plies: RecordedPly[]): { ok: true; winner: Side | nu
  }
  return { ok: true, winner: winner(position) };
 }
+
+export function positionAt(plies: RecordedPly[], n: number): IPosition {
+ let position = createInitialPosition();
+ const max = Math.max(0, Math.min(n, plies.length));
+ for (let i = 0; i < max; i += 1) {
+  const next = applyPly(position, plies[i]);
+  if (!next) break;
+  position = next;
+ }
+ return position;
+}

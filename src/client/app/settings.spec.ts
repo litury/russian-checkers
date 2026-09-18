@@ -24,6 +24,10 @@ describe('shared settings', () => {
 			'Выполнять ход автоматически, если доступен только один вариант.',
 		])
 			expect(html).toContain(label);
+		expect(html).toContain('Лёгкий');
+		expect(html).toContain('Норма');
+		expect(html).toContain('Сложный');
+		expect(html).toContain('id="settings-bot-normal"');
 		expect(html.indexOf('id="settings-auto"')).toBeLessThan(
 			html.indexOf('type="module"'),
 		);

@@ -132,3 +132,22 @@ export async function loadStats(): Promise<{ games: number; white_wins: number; 
  if (!res?.ok) return null;
  return res.json();
 }
+
+export async function loadMatches(): Promise<import('./matchHistory').MatchRow[] | null> {
+ const guest = await ensureGuest();
+ if (!guest) return null;
+ const res = await request('/matches', { headers: { authorization: `Bearer ${guest.token}` } });
+ if (!res?.ok) return null;
+ const body = (await res.json()) as { matches?: import('./matchHistory').MatchRow[] };
+ return Array.isArray(body.matches) ? body.matches : [];
+}
+
+export async function loadMatch(id: string): Promise<import('./matchHistory').MatchDetail | null> {
+ const guest = await ensureGuest();
+ if (!guest) return null;
+ const res = await request(`/matches/${id}`, { headers: { authorization: `Bearer ${guest.token}` } });
+ if (!res) return null;
+ if (res.status === 404) return null;
+ if (!res.ok) return null;
+ return res.json();
+}

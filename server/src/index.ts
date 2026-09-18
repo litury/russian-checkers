@@ -433,6 +433,60 @@ const server = createServer(async (req, res) => {
    json(res, 200, {ok: true, playerId});
    return;
   }
+  if (req.method === 'GET' && path === '/matches') {
+   const playerId = await playerFromAuth(req.headers.authorization);
+   if (!playerId) { json(res, 401, {error: 'unauthorized'}); return; }
+   const rows = await pool.query(
+    `SELECT m.id, m.mode, m.winner, m.started_at, m.white_id, m.black_id,
+      (SELECT count(*)::int FROM match_plies p WHERE p.match_id = m.id) AS plies
+     FROM matches m
+     WHERE m.white_id = $1 OR m.black_id = $1
+     ORDER BY m.started_at DESC
+     LIMIT 50`,
+    [playerId],
+   );
+   json(res, 200, {
+    matches: rows.rows.map((r: {id: string; mode: string; winner: string | null; started_at: Date; white_id: string | null; black_id: string | null; plies: number}) => ({
+     id: r.id,
+     mode: r.mode,
+     winner: r.winner,
+     startedAt: r.started_at,
+     color: r.white_id === playerId ? 'white' : 'black',
+     plies: Number(r.plies ?? 0),
+    })),
+   });
+   return;
+  }
+  if (req.method === 'GET' && path.startsWith('/matches/')) {
+   const playerId = await playerFromAuth(req.headers.authorization);
+   if (!playerId) { json(res, 401, {error: 'unauthorized'}); return; }
+   const id = path.slice('/matches/'.length);
+   if (!/^[0-9a-f-]{36}$/i.test(id)) { json(res, 404, {error: 'not_found'}); return; }
+   const row = await pool.query(
+    `SELECT id, mode, winner, started_at, white_id, black_id FROM matches WHERE id=$1`,
+    [id],
+   );
+   const m = row.rows[0] as {id: string; mode: string; winner: string | null; started_at: Date; white_id: string | null; black_id: string | null} | undefined;
+   if (!m || (m.white_id !== playerId && m.black_id !== playerId)) { json(res, 404, {error: 'not_found'}); return; }
+   const plies = await pool.query(
+    `SELECT ply, side, from_sq, path FROM match_plies WHERE match_id=$1 ORDER BY ply`,
+    [id],
+   );
+   json(res, 200, {
+    id: m.id,
+    mode: m.mode,
+    winner: m.winner,
+    startedAt: m.started_at,
+    color: m.white_id === playerId ? 'white' : 'black',
+    plies: plies.rows.length,
+    pliesList: plies.rows.map((p: {side: string; from_sq: string; path: string}) => {
+     let path: string[] = [];
+     try { path = JSON.parse(p.path) as string[]; } catch { path = []; }
+     return { side: p.side, from: p.from_sq, path };
+    }),
+   });
+   return;
+  }
   if (req.method === 'POST' && path === '/matches') {
    const playerId = await playerFromAuth(req.headers.authorization);
    if (!playerId) { json(res, 401, {error: 'unauthorized'}); return; }

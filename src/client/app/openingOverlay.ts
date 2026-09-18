@@ -1,5 +1,6 @@
 import type Phaser from 'phaser';
 import {createMenuAudio} from './menuAudio';
+import {bindMatchHistory} from './matchHistoryUi';
 import {ensureGuest, loadColorStats, loadPresence, beatPresence} from '@/online/cloud';
 import {colorStatLabel} from '@/online/colorStats';
 import {presenceLit, HEARTBEAT_MS, PRESENCE_CACHE_MS} from '@/online/presence';
@@ -176,6 +177,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   presenceTimer = window.setInterval(paintPresence, PRESENCE_CACHE_MS);
  };
  const startPresence = startBeat;
+ bindMatchHistory();
  document.addEventListener('visibilitychange',visibilityChange);
  document.addEventListener('pagehide', pageHide);
  scene.events.on('update',update);

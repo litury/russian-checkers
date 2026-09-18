@@ -35,7 +35,7 @@ import { preloadBunkerPanels } from './bunkerPanel';
 import { remainingForHud } from './matchClock';
 import { createOpeningOverlay } from './openingOverlay';
 import type { IYandexSdk } from './IYandexSdk';
-import { getAutoMove } from './settings';
+import { getAutoMove, getBotSkill } from './settings';
 import { createResultOverlay } from './resultOverlay';
 import mascotIdle0Url from './ui/result/mascot_idle_00.webp';
 import mascotIdle1Url from './ui/result/mascot_idle_01.webp';
@@ -1038,7 +1038,7 @@ export class GameScene extends Phaser.Scene {
 			return;
 		}
 		this.pendingBot = false;
-		const move = pickBotMove(this.position);
+		const move = pickBotMove(this.position, Math.random, getBotSkill());
 		if (!move) {
 			this.endMatch(winner(this.position) ?? 'white');
 			return;
