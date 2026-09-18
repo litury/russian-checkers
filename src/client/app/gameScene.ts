@@ -158,7 +158,16 @@ export class GameScene extends Phaser.Scene {
 				void this.requestOnline();
 			},
 			onPlayFriend: () => {
+				this.beginSearchUi('friend-pick');
+			},
+			onFriendCreate: () => {
 				void this.requestOnline('host');
+			},
+			onFriendEnter: () => {
+				this.beginSearchUi('friend-enter');
+			},
+			onFriendJoin: (code) => {
+				void this.requestOnline('join', code);
 			},
 			onSearchCancel: () => this.cancelSearch(),
 			onSearchStay: () => this.stayInSearch(),
@@ -430,7 +439,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private async requestOnline(kind: 'queue' | 'host' | 'join' = 'queue', matchId = ''): Promise<void> {
-		this.beginSearchUi(kind === 'queue' ? 'searching' : 'friend-wait');
+		this.beginSearchUi(kind === 'queue' ? 'searching' : kind === 'host' ? 'friend-wait' : 'friend-enter');
 		const healthy = await probeApi();
 		if (!healthy) {
 			this.markSearchOffline();
@@ -443,12 +452,11 @@ export class GameScene extends Phaser.Scene {
 				this.searchPhase = 'waiting';
 				this.paintSearch();
 			},
-			onHosted: (id) => {
-				this.friendJoin = `/?join=${id}`;
+			onHosted: (_id, code) => {
+				this.friendJoin = code && /^\d{6}$/.test(code) ? code : '';
 				this.searchPhase = 'friend-wait';
 				this.paintSearch();
-				const link = `${location.origin}${this.friendJoin}`;
-				void navigator.clipboard?.writeText(link).catch(() => {});
+				if (this.friendJoin) void navigator.clipboard?.writeText(this.friendJoin).catch(() => {});
 			},
 			onStart: (color, _matchId, snap) => {
 				this.searchPhase = 'found';
@@ -503,6 +511,13 @@ export class GameScene extends Phaser.Scene {
 			onError: (error) => {
 				if (error === 'illegal') {
 					this.live?.requestState();
+					return;
+				}
+				if (error === 'no_match') {
+					this.searchPhase = 'friend-enter';
+					this.paintSearch();
+					const copy = document.getElementById('opening-search-copy');
+					if (copy) copy.textContent = 'нет комнаты';
 					return;
 				}
 				if (this.onlineBegun || this.phase !== 'title') return;

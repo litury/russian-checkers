@@ -8,6 +8,7 @@ import {createInitialPosition, winner, afterMoveBank, blitzStartMs, type IPositi
 import {flagDue, flagWinner, turnLeft} from './flagClock.ts';
 import {colorStatsSql, COLOR_STATS_CACHE_MS} from '../../src/online/colorStats.ts';
 import {countHeartbeats, dropHeartbeat, touchHeartbeat} from '../../src/online/presence.ts';
+import {mintFriendCode, resolveFriendJoin} from '../../src/online/friendCode.ts';
 import {acceptWebsocket, type TextSock} from './wsRaw.ts';
 import {runMigrations} from './migrate.ts';
 
@@ -78,6 +79,7 @@ type Room = {
 };
 const queue: {id: string; sock: TextSock}[] = [];
 const rooms = new Map<string, Room>();
+const friendCodes = new Map<string, string>();
 const playerRoom = new Map<string, string>();
 let colorStatsCache: {at: number; body: {white: number; black: number; games: number}} | undefined;
 let presenceCache: {at: number; live: number} | undefined;
@@ -92,6 +94,7 @@ const send = (sock: TextSock | undefined, msg: unknown) => {
 const endRoom = async (room: Room, win: Side | 'draw', reason: string, loserId?: string) => {
  if (!rooms.has(room.id)) return;
  rooms.delete(room.id);
+ for (const [code, id] of friendCodes) if (id === room.id) friendCodes.delete(code);
  bumpPresence();
  playerRoom.delete(room.white);
  playerRoom.delete(room.black);
@@ -260,11 +263,14 @@ const handleWs = async (sock: TextSock, raw: string, ctx: {player?: string}) => 
   }
   const room = await openOnlineRoom(player, '', true);
   attach(room, player, sock);
-  send(sock, {type: 'hosted', matchId: room.id});
+  const code = mintFriendCode(new Set(friendCodes.keys()));
+  friendCodes.set(code, room.id);
+  send(sock, {type: 'hosted', matchId: room.id, code});
   return;
  }
  if (msg.type === 'join') {
-  const rid = String(msg.matchId ?? '');
+  const token = String(msg.matchId ?? '');
+  const rid = resolveFriendJoin(token, friendCodes) ?? '';
   const room = rooms.get(rid);
   if (!room || !room.friend || room.black || room.begun) {
    send(sock, {type: 'error', error: 'no_match'});
@@ -276,6 +282,7 @@ const handleWs = async (sock: TextSock, raw: string, ctx: {player?: string}) => 
   }
   room.black = player;
   playerRoom.set(player, room.id);
+  for (const [code, id] of friendCodes) if (id === room.id) friendCodes.delete(code);
   await pool.query(`UPDATE matches SET black_id=$2 WHERE id=$1`, [room.id, player]);
   attach(room, player, sock);
   attach(room, room.white, room.socks.get(room.white)!);

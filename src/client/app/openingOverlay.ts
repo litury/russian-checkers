@@ -30,6 +30,9 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  onPlayBot: () => void;
  onPlayOnline?: () => void;
  onPlayFriend?: () => void;
+ onFriendCreate?: () => void;
+ onFriendEnter?: () => void;
+ onFriendJoin?: (code: string) => void;
  onSearchCancel?: () => void;
  onSearchStay?: () => void;
  onSearchBot?: () => void;
@@ -112,7 +115,14 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  if (online) online.onclick=()=>{ if(root.hidden||root.inert) return; handlers.onPlayOnline?.(); };
  const friend = document.getElementById('opening-friend') as HTMLButtonElement | null;
  if (friend) friend.onclick=()=>{ if(root.hidden||root.inert) return; handlers.onPlayFriend?.(); };
+ const searchCreate = document.getElementById('opening-search-create') as HTMLButtonElement | null;
+ const searchEnter = document.getElementById('opening-search-enter') as HTMLButtonElement | null;
+ const searchGo = document.getElementById('opening-search-go') as HTMLButtonElement | null;
+ const friendCode = document.getElementById('opening-friend-code') as HTMLInputElement | null;
  searchCancel?.addEventListener('click', () => handlers.onSearchCancel?.());
+ searchCreate?.addEventListener('click', () => handlers.onFriendCreate?.());
+ searchEnter?.addEventListener('click', () => handlers.onFriendEnter?.());
+ searchGo?.addEventListener('click', () => handlers.onFriendJoin?.(friendCode?.value.trim() ?? ''));
  searchStay?.addEventListener('click', () => handlers.onSearchStay?.());
  searchBot?.addEventListener('click', () => handlers.onSearchBot?.());
  const setSearch = (phase: SearchPhase, seconds: number, join = '') => {
@@ -125,6 +135,10 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   if (searchCancel) searchCancel.hidden = !view.showCancel;
   if (searchStay) searchStay.hidden = !view.showStay;
   if (searchBot) searchBot.hidden = !view.showBot;
+  if (searchCreate) searchCreate.hidden = !view.showCreate;
+  if (searchEnter) searchEnter.hidden = !view.showEnter;
+  if (friendCode) friendCode.hidden = !view.showCode;
+  if (searchGo) searchGo.hidden = !view.showCode;
   window.checkersStartup.status(view.title || 'Всё готово. Первый ход ваш.');
  };
  const clearSearch = () => setSearch('idle', 0);
