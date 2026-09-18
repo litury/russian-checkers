@@ -1,8 +1,8 @@
 import type Phaser from 'phaser';
 import {createMenuAudio} from './menuAudio';
-import {ensureGuest, loadColorStats, loadPresence} from '@/online/cloud';
+import {ensureGuest, loadColorStats, loadPresence, beatPresence} from '@/online/cloud';
 import {colorStatLabel} from '@/online/colorStats';
-import {presenceLit, PRESENCE_CACHE_MS} from '@/online/presence';
+import {presenceLit, HEARTBEAT_MS, PRESENCE_CACHE_MS} from '@/online/presence';
 import {gatePose, OpeningGates} from './openingGates';
 import {gateDurationMs as preparationMs} from './openingGates';
 import {searchCopy, type SearchPhase} from './matchmakingSearch';
@@ -87,7 +87,11 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   document.getElementById('game')!.inert=false;
   scene.game.canvas.focus({preventScroll:true});
  };
- const visibilityChange = () => { sampledAt=null; };
+ const visibilityChange = () => {
+  sampledAt=null;
+  if (document.hidden) { void beatPresence(false); stopPresence(); }
+  else startPresence();
+ };
  const update = () => {
   const now=scene.time.now, delta=sampledAt===null?0:now-sampledAt;
   sampledAt=now;
@@ -142,23 +146,31 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   });
  };
  const liveDot = document.getElementById('opening-live-dot');
+ const liveCount = document.getElementById('opening-live-count');
  let presenceTimer: number | undefined;
+ let beatTimer: number | undefined;
  const paintPresence = () => {
   void loadPresence().then((live) => {
-   const on = live != null && presenceLit(live);
-   online?.classList.toggle('is-live', on);
-   if (liveDot) liveDot.hidden = !on;
+   const n = live ?? 0;
+   online?.classList.toggle('is-live', presenceLit(n));
+   if (liveDot) liveDot.hidden = false;
+   if (liveCount) liveCount.textContent = String(n);
   }).catch(() => {
    online?.classList.remove('is-live');
-   if (liveDot) liveDot.hidden = true;
+   if (liveCount) liveCount.textContent = '0';
   });
  };
  const stopPresence = () => {
   if (presenceTimer !== undefined) window.clearInterval(presenceTimer);
   presenceTimer = undefined;
+  if (beatTimer !== undefined) window.clearInterval(beatTimer);
+  beatTimer = undefined;
  };
  const startPresence = () => {
   stopPresence();
+  if (document.hidden) return;
+  void beatPresence(true);
+  beatTimer = window.setInterval(() => { void beatPresence(true); }, HEARTBEAT_MS);
   paintPresence();
   presenceTimer = window.setInterval(paintPresence, PRESENCE_CACHE_MS);
  };

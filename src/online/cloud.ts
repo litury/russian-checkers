@@ -93,6 +93,16 @@ export async function loadPresence(): Promise<number | null> {
  }
 }
 
+export async function beatPresence(on = true): Promise<void> {
+ const guest = await ensureGuest();
+ if (!guest) return;
+ await request('/stats/presence', {
+  method: 'POST',
+  headers: { authorization: `Bearer ${guest.token}` },
+  body: JSON.stringify({on}),
+ });
+}
+
 export async function loadStats(): Promise<{ games: number; white_wins: number; black_wins: number } | null> {
  const guest = await ensureGuest();
  if (!guest) return null;

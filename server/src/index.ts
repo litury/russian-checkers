@@ -7,7 +7,7 @@ import {bothReady, hashPosition, READY_MS, snapshotOf} from '../../src/online/ma
 import {createInitialPosition, winner, afterMoveBank, blitzStartMs, type IPosition, type Side} from '../../src/rules/index.ts';
 import {flagDue, flagWinner, turnLeft} from './flagClock.ts';
 import {colorStatsSql, COLOR_STATS_CACHE_MS} from '../../src/online/colorStats.ts';
-import {PRESENCE_CACHE_MS} from '../../src/online/presence.ts';
+import {countHeartbeats, dropHeartbeat, PRESENCE_CACHE_MS, touchHeartbeat} from '../../src/online/presence.ts';
 import {acceptWebsocket, type TextSock} from './wsRaw.ts';
 import {runMigrations} from './migrate.ts';
 
@@ -80,6 +80,8 @@ const rooms = new Map<string, Room>();
 const playerRoom = new Map<string, string>();
 let colorStatsCache: {at: number; body: {white: number; black: number; games: number}} | undefined;
 let presenceCache: {at: number; live: number} | undefined;
+const heartbeats = new Map<string, number>();
+const siteLive = () => countHeartbeats(heartbeats, Date.now());
 
 const send = (sock: TextSock | undefined, msg: unknown) => {
  if (sock) sock.send(JSON.stringify(msg));
@@ -337,11 +339,23 @@ const server = createServer(async (req, res) => {
     json(res, 200, {live: presenceCache.live});
     return;
    }
-   let seated = 0;
-   for (const room of rooms.values()) seated += room.socks.size;
-   const live = queue.length + seated;
+   const live = siteLive();
    presenceCache = {at: now, live};
    json(res, 200, {live});
+   return;
+  }
+  if (req.method === 'POST' && (path === '/stats/presence' || path === '/presence')) {
+   const playerId = await playerFromAuth(req.headers.authorization);
+   if (!playerId) { json(res, 401, {error: 'auth'}); return; }
+   let on = true;
+   try {
+    const body = JSON.parse((await read(req)) || '{}') as {on?: unknown};
+    if (body.on === false) on = false;
+   } catch {}
+   if (on) touchHeartbeat(heartbeats, playerId, Date.now());
+   else dropHeartbeat(heartbeats, playerId);
+   presenceCache = undefined;
+   json(res, 200, {live: siteLive()});
    return;
   }
   if (req.method === 'POST' && path === '/players/guest') {
