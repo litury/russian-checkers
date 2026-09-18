@@ -30,14 +30,19 @@ export function bindMatchHistory() {
  const none = document.getElementById('match-history-none');
  const back = document.getElementById('match-history-back');
  if (!open || !root || !list) return;
+ const title = document.getElementById('opening');
  let plies: RecordedPly[] = [];
+ const cover = (on: boolean) => {
+  root.hidden = !on;
+  if (title) title.inert = on;
+ };
  const showList = () => {
   boardWrap?.setAttribute('hidden', '');
   list.hidden = false;
   if (empty) empty.hidden = list.childElementCount > 0;
  };
  const openRoot = async () => {
-  root.hidden = false;
+  cover(true);
   list.replaceChildren();
   if (empty) empty.hidden = true;
   const rows = (await loadMatches()) ?? [];
@@ -94,5 +99,6 @@ export function bindMatchHistory() {
    return;
   }
   root.hidden = true;
+  if (title) title.inert = false;
  });
 }
