@@ -5,6 +5,7 @@ export const elfArenaLine = 'elf-k-boyu';
 const elfCues: Record<string, string> = {
  [orcArenaLine]: elfArenaLine,
  'tvoy-hod': 'elf-tvoy-hod',
+ 'hod-protivnika': 'elf-hod-protivnika',
  'time-low': 'elf-time-low',
  'time-up': 'elf-time-up',
  victory: 'elf-victory',
