@@ -29,4 +29,29 @@ describe('remainingForHud', () => {
 			}),
 		).toBe(58_000);
 	});
+
+	it('freezes the waiting side bank while the mover ticks', () => {
+		const white = remainingForHud({
+			countingIn: false,
+			phase: 'bot',
+			bankMs: blitzStartMs,
+			startedAt: 0,
+			now: 5_000,
+			paused: false,
+			side: 'white',
+			turn: 'black',
+		});
+		const black = remainingForHud({
+			countingIn: false,
+			phase: 'bot',
+			bankMs: blitzStartMs,
+			startedAt: 0,
+			now: 5_000,
+			paused: false,
+			side: 'black',
+			turn: 'black',
+		});
+		expect(white).toBe(blitzStartMs);
+		expect(black).toBe(55_000);
+	});
 });

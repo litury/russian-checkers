@@ -754,6 +754,11 @@ export class GameScene extends Phaser.Scene {
 		if (this.playfieldBuilt) this.refresh();
 	}
 
+	private clockTurn(): Side {
+		if (this.online && this.onlineBegun) return this.serverTurn;
+		return this.position.turn;
+	}
+
 	private sideRemainingMs(side: Side): number {
 		return remainingForHud({
 			countingIn: this.countingIn,
@@ -763,7 +768,7 @@ export class GameScene extends Phaser.Scene {
 			now: this.time.now,
 			paused: this.paused,
 			side,
-			turn: this.position.turn,
+			turn: this.clockTurn(),
 		});
 	}
 
@@ -781,7 +786,7 @@ export class GameScene extends Phaser.Scene {
 		this.hud?.setClock(
 			Math.ceil(this.sideRemainingMs('white') / 1000),
 			Math.ceil(this.sideRemainingMs('black') / 1000),
-			this.countingIn || this.flagLock || this.phase === 'over' ? null : this.position.turn,
+			this.countingIn || this.flagLock || this.phase === 'over' ? null : this.clockTurn(),
 		);
 	}
 
@@ -815,11 +820,11 @@ export class GameScene extends Phaser.Scene {
 			return;
 		}
 		const own = this.sideRemainingMs(this.humanSide);
-		if (orcTimeLow(own, this.timeLowSaid)) {
+		if (orcTimeLow(own, this.timeLowSaid) && this.clockTurn() === this.humanSide) {
 			this.timeLowSaid = true;
 			this.title?.speakOrcTurn('time-low', this.humanSide);
 		}
-		const side = this.position.turn;
+		const side = this.clockTurn();
 		const left = remainingMs(
 			this.clocks[side],
 			this.clockStartedAt,
@@ -869,7 +874,9 @@ export class GameScene extends Phaser.Scene {
 		);
 		this.hud.setTurn(matchStatus(
 			this.countingIn || (this.online && !this.onlineBegun),
-			this.online && this.onlineBegun
+			this.phase === 'over'
+				? 'over'
+				: this.online && this.onlineBegun
 				? (this.onlineHumanTurn() ? 'human' : 'bot')
 				: this.phase,
 			legalMoves(this.position).some(move => move.path[0] && capturedOnSegment(this.position, move.from, move.path[0])), Boolean(this.humanChain)));
