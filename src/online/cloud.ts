@@ -82,6 +82,17 @@ export async function loadColorStats(): Promise<{ white: number; black: number; 
  }
 }
 
+export async function loadPresence(): Promise<number | null> {
+ const res = await request('/stats/presence');
+ if (!res?.ok) return null;
+ try {
+  const live = Number((await res.json() as {live?: unknown}).live);
+  return Number.isFinite(live) ? live : null;
+ } catch {
+  return null;
+ }
+}
+
 export async function loadStats(): Promise<{ games: number; white_wins: number; black_wins: number } | null> {
  const guest = await ensureGuest();
  if (!guest) return null;

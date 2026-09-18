@@ -890,7 +890,8 @@ export class GameScene extends Phaser.Scene {
 		const moves = legalMoves(this.position);
 		const selected = this.selected;
 		if (selected) {
-			return uniqueSquares(this.optionMoves().map(move => move.path[0]));
+			const chain = this.humanChain ?? new StepwiseMove(this.position, selected);
+			return uniqueSquares(chain.clickable);
 		}
 		return uniqueSquares(moves.map((move) => move.from));
 	}

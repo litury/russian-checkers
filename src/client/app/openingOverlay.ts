@@ -1,7 +1,8 @@
 import type Phaser from 'phaser';
 import {createMenuAudio} from './menuAudio';
-import {ensureGuest, loadColorStats} from '@/online/cloud';
+import {ensureGuest, loadColorStats, loadPresence} from '@/online/cloud';
 import {colorStatLabel} from '@/online/colorStats';
+import {presenceLit, PRESENCE_CACHE_MS} from '@/online/presence';
 import {gatePose, OpeningGates} from './openingGates';
 import {gateDurationMs as preparationMs} from './openingGates';
 import {searchCopy, type SearchPhase} from './matchmakingSearch';
@@ -79,6 +80,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  window.checkersStartup.playCommitted=false;
  window.checkersStartup.pendingPlay=false;
  clearSearch();
+ stopPresence();
   audio.hide(completed,motion.matches);
   gates.cancel(); closeDialogs(); root.hidden=true; root.inert=false;
   root.classList.remove('is-departing');
@@ -139,9 +141,31 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
    if (blackStat) blackStat.textContent = '';
   });
  };
+ const liveDot = document.getElementById('opening-live-dot');
+ let presenceTimer: number | undefined;
+ const paintPresence = () => {
+  void loadPresence().then((live) => {
+   const on = live != null && presenceLit(live);
+   online?.classList.toggle('is-live', on);
+   if (liveDot) liveDot.hidden = !on;
+  }).catch(() => {
+   online?.classList.remove('is-live');
+   if (liveDot) liveDot.hidden = true;
+  });
+ };
+ const stopPresence = () => {
+  if (presenceTimer !== undefined) window.clearInterval(presenceTimer);
+  presenceTimer = undefined;
+ };
+ const startPresence = () => {
+  stopPresence();
+  paintPresence();
+  presenceTimer = window.setInterval(paintPresence, PRESENCE_CACHE_MS);
+ };
  document.addEventListener('visibilitychange',visibilityChange);
  scene.events.on('update',update);
  scene.events.once('shutdown',()=>{
+ stopPresence();
   gates.cancel();audio.dispose();play.onclick=null;
   ivory?.removeEventListener('click', pickWhite);
   ebony?.removeEventListener('click', pickBlack);
@@ -171,6 +195,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
    paintSide('white');
    if(!firstShow)play.focus({preventScroll:true});firstShow=false;
    paintColorStats();
+   startPresence();
   },
   hide,
   setSearch,

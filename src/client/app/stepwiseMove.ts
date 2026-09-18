@@ -51,18 +51,34 @@ export class StepwiseMove {
 		return next;
 	}
 	choose(land: ISquare): { hop: IMove; complete: IMove | null } | null {
-		const routes = this.routes.filter((move) => {
+		const nextHits = this.routes.filter((move) => {
 			const next = move.path[this.prefix.length];
 			return next && sameSquare(next, land);
 		});
-		if (!routes.length) return null;
-		const hop = { from: this.selected, path: [land] };
-		this.routes = routes;
-		this.prefix.push(land);
-		return {
-			hop,
-			complete:
-				routes.find((move) => move.path.length === this.prefix.length) ?? null,
-		};
+		if (nextHits.length) {
+			const hop = { from: this.selected, path: [land] };
+			this.routes = nextHits;
+			this.prefix.push(land);
+			return {
+				hop,
+				complete: nextHits.find((move) => move.path.length === this.prefix.length) ?? null,
+			};
+		}
+		if (this.routes.length !== 1) return null;
+		const move = this.routes[0]!;
+		if (!move.path.slice(this.prefix.length).some((s) => sameSquare(s, land))) return null;
+		const rest = move.path.slice(this.prefix.length);
+		if (!rest.length) return null;
+		const hop = { from: this.selected, path: rest };
+		this.prefix = move.path.slice();
+		return { hop, complete: move };
+	}
+
+	get clickable(): ISquare[] {
+		const next = this.options.map((move) => move.path[0]).filter(Boolean) as ISquare[];
+		if (this.routes.length === 1) {
+			return this.routes[0]!.path.slice(this.prefix.length);
+		}
+		return next;
 	}
 }

@@ -7,6 +7,7 @@ import {bothReady, hashPosition, READY_MS, snapshotOf} from '../../src/online/ma
 import {createInitialPosition, winner, afterMoveBank, blitzStartMs, type IPosition, type Side} from '../../src/rules/index.ts';
 import {flagDue, flagWinner, turnLeft} from './flagClock.ts';
 import {colorStatsSql, COLOR_STATS_CACHE_MS} from '../../src/online/colorStats.ts';
+import {PRESENCE_CACHE_MS} from '../../src/online/presence.ts';
 import {acceptWebsocket, type TextSock} from './wsRaw.ts';
 import {runMigrations} from './migrate.ts';
 
@@ -78,6 +79,7 @@ const queue: {id: string; sock: TextSock}[] = [];
 const rooms = new Map<string, Room>();
 const playerRoom = new Map<string, string>();
 let colorStatsCache: {at: number; body: {white: number; black: number; games: number}} | undefined;
+let presenceCache: {at: number; live: number} | undefined;
 
 const send = (sock: TextSock | undefined, msg: unknown) => {
  if (sock) sock.send(JSON.stringify(msg));
@@ -321,6 +323,19 @@ const server = createServer(async (req, res) => {
    };
    colorStatsCache = {at: now, body};
    json(res, 200, body);
+   return;
+  }
+  if (req.method === 'GET' && path === '/stats/presence') {
+   const now = Date.now();
+   if (presenceCache && now - presenceCache.at < PRESENCE_CACHE_MS) {
+    json(res, 200, {live: presenceCache.live});
+    return;
+   }
+   let seated = 0;
+   for (const room of rooms.values()) seated += room.socks.size;
+   const live = queue.length + seated;
+   presenceCache = {at: now, live};
+   json(res, 200, {live});
    return;
   }
   if (req.method === 'POST' && path === '/players/guest') {

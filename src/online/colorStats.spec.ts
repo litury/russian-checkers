@@ -10,6 +10,8 @@ it('counts online decisive games with ply floor, shows small samples', () => {
  expect(colorStatsSql).toContain("winner IN ('white', 'black')");
  expect(src).toContain('/stats/colors');
  expect(colorStatLabel(null, 'white')).toBe('');
+ expect(colorStatLabel({ white: 0, black: 0, games: 0 }, 'white')).toBe('0');
+ expect(colorStatLabel({ white: 0, black: 0, games: 0 }, 'black')).toBe('0');
  expect(colorStatLabel({ white: 1, black: 0, games: 1 }, 'white')).toBe('1');
  expect(colorStatLabel({ white: 1, black: 0, games: 1 }, 'black')).toBe('0');
  expect(overlay).toContain('loadColorStats');

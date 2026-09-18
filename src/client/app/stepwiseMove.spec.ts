@@ -65,8 +65,9 @@ it('keeps full visual continuations of the chosen branch, including the vacated 
 		{ from: sq('e5'), path: ['g3', 'e1', 'c3'].map(sq) },
 	]);
 	expect(chain.options).toEqual([{ from: sq('e5'), path: [sq('g3')] }]);
-	expect(chain.choose(sq('e1'))).toBeNull();
-	expect(chain.remainingRoutes[0].path).toHaveLength(3);
+	const skip = chain.choose(sq('e1'));
+	expect(skip?.hop.path).toEqual(['g3', 'e1', 'c3'].map(sq));
+	expect(skip?.complete?.path).toEqual(['e5', 'g3', 'e1', 'c3'].map(sq));
 });
 
 it('keeps distinct routes to the same endpoint selectable, including returning to the origin', () => {
@@ -84,4 +85,12 @@ it('keeps distinct routes to the same endpoint selectable, including returning t
 				expect(apply(p, step.complete)?.squares[2][2]?.side).toBe('white');
 		}
 	}
+});
+
+it('plays a unique remaining chain in one gesture', () => {
+	const p = position({ c3: 'wm', d4: 'bm', f6: 'bm' });
+	const chain = new StepwiseMove(p, sq('c3'));
+	const skip = chain.choose(sq('g7'));
+	expect(skip?.complete?.path).toEqual([sq('e5'), sq('g7')]);
+	expect(skip?.hop.path).toEqual([sq('e5'), sq('g7')]);
 });
