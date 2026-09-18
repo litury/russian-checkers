@@ -705,11 +705,11 @@ export class GameScene extends Phaser.Scene {
 				return;
 			}
 			// The entire sequential opening has finished; start banks and input now.
+			this.title.speakOrcTurn(orcOpeningTurnLine(this.humanSide), this.humanSide);
 			this.clockStartedAt = this.time.now;
 			this.countingIn = false;
 			this.paintClock();
 			this.refresh();
-			this.title.speakOrcTurn(orcOpeningTurnLine(this.humanSide), this.humanSide);
 			if (this.phase === 'bot') {
 				this.refresh();
 				this.botTimer?.remove(false);
@@ -721,7 +721,6 @@ export class GameScene extends Phaser.Scene {
 			this.title.beginMatch();
 			board.startOpeningHint(this.position, this.humanSide);
 			this.title.hintWave();
-			this.title.arenaVoice(this.humanSide);
 			hud.startReveal(ready);
 			hud.setVisible(true);
 		};
@@ -918,10 +917,9 @@ export class GameScene extends Phaser.Scene {
 		// A started capture is irrevocable, including clicks on other own pieces.
 		if (this.humanChain) return;
 		if (moves.some((move) => sameSquare(move.from, square))) {
-			const same = selected && sameSquare(selected, square);
 			this.selected = square;
 			this.refresh();
-			if (!same) pieceSelectSfx(this.position.squares[square.row][square.col]?.side ?? 'black');
+			pieceSelectSfx(this.position.squares[square.row][square.col]?.side ?? 'black');
 			return;
 		}
 		const piece = this.position.squares[square.row][square.col];
@@ -1073,7 +1071,7 @@ export class GameScene extends Phaser.Scene {
 		this.phase = 'over';
 		this.selected = null;
 		this.refresh();
-		this.title?.speakOrcTurn(defeatTauntCue(this.humanSide), this.humanSide);
+		this.title?.resultSting(false, defeatTauntCue(this.humanSide), this.humanSide);
 		void recordBotMatch({
 			humanSide: this.humanSide,
 			winner: this.humanSide === 'white' ? 'black' : 'white',
@@ -1094,7 +1092,8 @@ export class GameScene extends Phaser.Scene {
 		this.refresh();
 		{
 			const line = orcOutcomeLine(kind, side === this.humanSide);
-			this.title?.speakOrcTurn(line === 'victory' || line === 'time-up' ? line : defeatTauntCue(this.humanSide), this.humanSide);
+			if (line === 'time-up') this.title?.speakOrcTurn(line, this.humanSide);
+			else this.title?.resultSting(line === 'victory', line === 'victory' ? line : defeatTauntCue(this.humanSide), this.humanSide);
 		}
 		if (!this.online) {
 		void recordBotMatch({

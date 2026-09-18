@@ -18,5 +18,6 @@ it('picks one outcome line: flag time-up or victory, other losses defeat, never 
  expect(orcOutcomeLine('rules', false)).toBe('defeat');
  expect(orcOutcomeLine('resign', false)).toBe('defeat');
  expect(scene).toContain('speakOrcTurn');
+ expect(scene).toContain('resultSting');
  expect(scene).toContain('orcOutcomeLine');
 });

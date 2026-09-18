@@ -7,7 +7,7 @@ it('prepares once then one color line, never every turn or attack lines', () => 
  expect(orcArenaLine).toBe('arena-k-boyu');
  expect(orcOpeningTurnLine('white')).toBe('tvoy-hod');
  expect(orcOpeningTurnLine('black')).toBe('hod-protivnika');
- expect(scene).toContain('arenaVoice');
+ expect(scene).not.toContain('arenaVoice');
  expect(scene).toContain('orcOpeningTurnLine');
  expect(scene).not.toContain('atakuy');
  expect(scene).not.toContain('zashchishchaysya');

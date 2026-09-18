@@ -212,6 +212,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   hintWave:()=>audio.hintWave(),
   arenaVoice:(humanSide:'white'|'black'='white')=>audio.arenaVoice(humanSide),
   speakOrcTurn:(name:string,humanSide:'white'|'black'='white')=>audio.speakOrcTurn(name,humanSide),
+  resultSting:(win:boolean,line:string,humanSide:'white'|'black'='white')=>audio.resultSting(win,line,humanSide),
   revealAudio:(ms:number,reduced:boolean)=>audio.reveal(ms,reduced),
  };
 }

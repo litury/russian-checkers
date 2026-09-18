@@ -159,6 +159,7 @@ export function createMenuAudio(sdk:IYandexSdk) {
   hintWave(){sound('availability-wave',.85);},
   arenaVoice(humanSide:'white'|'black'='white'){say(announcerCue(humanSide,orcArenaLine));},
   speakOrcTurn(name:string,humanSide:'white'|'black'='white'){say(announcerCue(humanSide,name));},
+  resultSting(win:boolean,line:string,humanSide:'white'|'black'='white'){sound(win?'win':'lose');say(announcerCue(humanSide,line));},
   reveal(ms:number,reduced:boolean){
    for(const [id,start,end,name,level] of [
     ['timer-slide',startTimerSlide[0],startTimerSlide[1],'timer-slide',.9],

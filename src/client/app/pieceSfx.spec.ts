@@ -71,6 +71,7 @@ it('plays select-b on extend, not availability', () => {
  pieceSelectSfx();
  expect(heard).toEqual([pieceSelectCue]);
  expect(scene).toContain('pieceSelectSfx');
+ expect(scene).not.toContain('if (!same) pieceSelectSfx');
 });
 it('adds random lab/gob short select barks at 0.4 and cuts bark on takeoff', () => {
  const heard: string[] = [];
