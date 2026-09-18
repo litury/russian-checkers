@@ -152,7 +152,13 @@ const attach = (room: Room, id: string, sock: TextSock) => {
 
 const dropPlayer = (room: Room, id: string) => {
  room.socks.delete(id);
- void endRoom(room, otherOf(room, id) as Side, 'timeout', id);
+ const pending = room.drop.get(id);
+ if (pending) clearTimeout(pending);
+ room.drop.set(id, setTimeout(() => {
+  room.drop.delete(id);
+  if (!rooms.has(room.id) || room.socks.has(id)) return;
+  void endRoom(room, otherOf(room, id) as Side, 'timeout', id);
+ }, DROP_MS));
 };
 
 const pair = async () => {
@@ -325,7 +331,7 @@ const server = createServer(async (req, res) => {
    json(res, 200, body);
    return;
   }
-  if (req.method === 'GET' && path === '/stats/presence') {
+  if (req.method === 'GET' && (path === '/stats/presence' || path === '/presence')) {
    const now = Date.now();
    if (presenceCache && now - presenceCache.at < PRESENCE_CACHE_MS) {
     json(res, 200, {live: presenceCache.live});
