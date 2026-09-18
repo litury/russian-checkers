@@ -1,4 +1,3 @@
-export const COLOR_STATS_MIN_PLY = 6;
 export const COLOR_STATS_CACHE_MS = 60_000;
 
 export type ColorStats = { white: number; black: number; games: number };
@@ -11,7 +10,6 @@ SELECT
  FROM matches m
  WHERE m.mode = 'online'
    AND m.winner IN ('white', 'black')
-   AND (SELECT count(*) FROM match_plies p WHERE p.match_id = m.id) >= ${COLOR_STATS_MIN_PLY}
 `.trim();
 
 export function colorStatLabel(stats: ColorStats | null, side: 'white' | 'black'): string {
