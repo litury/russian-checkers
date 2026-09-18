@@ -20,6 +20,8 @@ it('lists own matches outside settings, board only with plies', () => {
  expect(html).toContain('Пока нет партий');
  expect(html).not.toMatch(/opening-settings-dialog[\s\S]{0,800}opening-history/);
  expect(overlay).toContain('bindMatchHistory');
+ expect(ui).toContain('mh-best');
+ expect(ui).toContain('Пример разбора');
  expect(ui).toContain('title.inert');
  expect(settings).not.toContain('match-history');
 });

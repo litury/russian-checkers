@@ -74,6 +74,7 @@ type Room = {
  turnStarted: number;
  socks: Map<string, TextSock>;
  drop: Map<string, ReturnType<typeof setTimeout>>;
+ friend: boolean;
 };
 const queue: {id: string; sock: TextSock}[] = [];
 const rooms = new Map<string, Room>();
@@ -150,6 +151,7 @@ const attach = (room: Room, id: string, sock: TextSock) => {
  if (pending) clearTimeout(pending);
  room.drop.delete(id);
  const color: Side = id === room.white ? 'white' : 'black';
+ if (room.friend && !room.black) return;
  const snap = snapshotOf(room.id, room.position, room.ply, room.begun);
  send(sock, {type: 'start', matchId: room.id, color, turn: snap.turn, ply: snap.ply, hash: snap.hash, begun: snap.begun});
  pushState(room, sock, color);
@@ -167,6 +169,46 @@ const dropPlayer = (room: Room, id: string) => {
  }, DROP_MS));
 };
 
+const armReady = (room: Room) => {
+ if (room.readyTimer) clearTimeout(room.readyTimer);
+ room.readyTimer = setTimeout(() => {
+  if (room.begun || !rooms.has(room.id)) return;
+  const missing = [room.white, room.black].filter((pid) => pid && !room.ready.has(pid));
+  if (missing.length === 1) void endRoom(room, otherOf(room, missing[0]) as Side, 'timeout', missing[0]);
+  else void endRoom(room, 'draw', 'timeout');
+ }, READY_MS);
+};
+
+const openOnlineRoom = async (white: string, black: string, friend: boolean) => {
+ const inserted = await pool.query(
+  `INSERT INTO matches (mode, white_id, black_id) VALUES ('online', $1, $2) RETURNING id`,
+  [white, black || null],
+ );
+ const id = inserted.rows[0].id as string;
+ const room: Room = {
+  id,
+  white,
+  black,
+  friend,
+  position: createInitialPosition(),
+  ply: 0,
+  begun: false,
+  ready: new Set(),
+  banks: {white: blitzStartMs, black: blitzStartMs},
+  turnStarted: 0,
+  socks: new Map(),
+  drop: new Map(),
+ };
+ rooms.set(id, room);
+ playerRoom.set(white, id);
+ if (black) {
+  playerRoom.set(black, id);
+  armReady(room);
+ }
+ bumpPresence();
+ return room;
+};
+
 const pair = async () => {
  while (queue.length >= 2) {
   const a = queue.shift()!;
@@ -176,42 +218,14 @@ const pair = async () => {
    continue;
   }
   if (playerRoom.has(a.id) || playerRoom.has(b.id)) continue;
-  const white = a.id;
-  const black = b.id;
-  const inserted = await pool.query(
-   `INSERT INTO matches (mode, white_id, black_id) VALUES ('online', $1, $2) RETURNING id`,
-   [white, black],
-  );
-  const id = inserted.rows[0].id as string;
-  const room: Room = {
-   id,
-   white,
-   black,
-   position: createInitialPosition(),
-   ply: 0,
-   begun: false,
-   ready: new Set(),
-   banks: {white: blitzStartMs, black: blitzStartMs},
-   turnStarted: 0,
-   socks: new Map(),
-   drop: new Map(),
-  };
-  room.readyTimer = setTimeout(() => {
-   if (room.begun || !rooms.has(room.id)) return;
-   const missing = [room.white, room.black].filter((pid) => !room.ready.has(pid));
-   if (missing.length === 1) void endRoom(room, otherOf(room, missing[0]) as Side, 'timeout', missing[0]);
-   else void endRoom(room, 'draw', 'timeout');
-  }, READY_MS);
-  rooms.set(id, room);
-  playerRoom.set(white, id);
-  playerRoom.set(black, id);
-  attach(room, white, a.sock);
-  attach(room, black, b.sock);
+  const room = await openOnlineRoom(a.id, b.id, false);
+  attach(room, a.id, a.sock);
+  attach(room, b.id, b.sock);
  }
 };
 
 const handleWs = async (sock: TextSock, raw: string, ctx: {player?: string}) => {
- let msg: {type?: string; token?: string; from?: string; path?: string[]} = {};
+ let msg: {type?: string; token?: string; from?: string; path?: string[]; matchId?: string} = {};
  try { msg = JSON.parse(raw); } catch { send(sock, {type: 'error', error: 'bad_json'}); return; }
  if (msg.type === 'auth') {
   const id = await playerFromAuth(msg.token ? `Bearer ${msg.token}` : undefined);
@@ -239,9 +253,44 @@ const handleWs = async (sock: TextSock, raw: string, ctx: {player?: string}) => 
   await pair();
   return;
  }
+ if (msg.type === 'host') {
+  if (playerRoom.has(player) || queue.some((q) => q.id === player)) {
+   send(sock, {type: 'error', error: 'busy'});
+   return;
+  }
+  const room = await openOnlineRoom(player, '', true);
+  attach(room, player, sock);
+  send(sock, {type: 'hosted', matchId: room.id});
+  return;
+ }
+ if (msg.type === 'join') {
+  const rid = String(msg.matchId ?? '');
+  const room = rooms.get(rid);
+  if (!room || !room.friend || room.black || room.begun) {
+   send(sock, {type: 'error', error: 'no_match'});
+   return;
+  }
+  if (room.white === player) {
+   send(sock, {type: 'error', error: 'busy'});
+   return;
+  }
+  room.black = player;
+  playerRoom.set(player, room.id);
+  await pool.query(`UPDATE matches SET black_id=$2 WHERE id=$1`, [room.id, player]);
+  attach(room, player, sock);
+  attach(room, room.white, room.socks.get(room.white)!);
+  armReady(room);
+  bumpPresence();
+  return;
+ }
  if (msg.type === 'leave') {
   const i = queue.findIndex((q) => q.id === player);
   if (i >= 0) { queue.splice(i, 1); bumpPresence(); }
+  const rid = playerRoom.get(player);
+  const room = rid ? rooms.get(rid) : undefined;
+  if (room?.friend && !room.begun) {
+   void endRoom(room, 'draw', 'timeout');
+  }
   return;
  }
  if (msg.type === 'ready') {

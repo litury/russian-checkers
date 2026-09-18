@@ -1,4 +1,4 @@
-export type SearchPhase = 'idle' | 'searching' | 'waiting' | 'found' | 'offline' | 'timeout-offer';
+export type SearchPhase = 'idle' | 'searching' | 'waiting' | 'found' | 'offline' | 'timeout-offer' | 'friend-wait';
 
 export const SEARCH_TIMEOUT_MS = 45_000;
 export const FOUND_HOLD_MS = 800;
@@ -12,7 +12,7 @@ export type SearchView = {
 	hidePlay: boolean;
 };
 
-export function searchCopy(phase: SearchPhase, seconds: number): SearchView {
+export function searchCopy(phase: SearchPhase, seconds: number, join = ''): SearchView {
 	if (phase === 'searching') {
 		return {title: `Ищем соперника · ${seconds} с`, showCancel: true, showStay: false, showBot: false, hidePlay: true};
 	}
@@ -27,6 +27,9 @@ export function searchCopy(phase: SearchPhase, seconds: number): SearchView {
 	}
 	if (phase === 'timeout-offer') {
 		return {title: 'Пока никого', showCancel: false, showStay: true, showBot: true, hidePlay: true};
+	}
+	if (phase === 'friend-wait') {
+		return {title: join ? `Ждём друга · ${join}` : 'Ждём друга', showCancel: true, showStay: false, showBot: false, hidePlay: true};
 	}
 	return {title: '', showCancel: false, showStay: false, showBot: false, hidePlay: false};
 }

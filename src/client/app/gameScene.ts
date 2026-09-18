@@ -82,6 +82,7 @@ export class GameScene extends Phaser.Scene {
 	private online = false;
 	private live: ReturnType<typeof openLive> | null = null;
 	private searchPhase: SearchPhase = 'idle';
+	private friendJoin = '';
 	private searchStartedAt = 0;
 	private searchTimer?: Phaser.Time.TimerEvent;
 	private foundHold?: Phaser.Time.TimerEvent;
@@ -156,6 +157,9 @@ export class GameScene extends Phaser.Scene {
 			onPlayOnline: () => {
 				void this.requestOnline();
 			},
+			onPlayFriend: () => {
+				void this.requestOnline('host');
+			},
 			onSearchCancel: () => this.cancelSearch(),
 			onSearchStay: () => this.stayInSearch(),
 			onSearchBot: () => this.searchPlayBot(),
@@ -176,6 +180,10 @@ export class GameScene extends Phaser.Scene {
 		});
 		this.title.layout(logicalSize(this).width, logicalSize(this).height);
 		this.title.show();
+		{
+			const join = new URLSearchParams(location.search).get('join');
+			if (join) void this.requestOnline('join', join);
+		}
 		// One-tap: early «Играть» before Phaser must auto-start once assets are wired.
 		this.title.flushPendingPlay();
 		this.sdk.ready();
@@ -346,7 +354,7 @@ export class GameScene extends Phaser.Scene {
 
 	private paintSearch(): void {
 		const seconds = Math.max(0, Math.floor((this.time.now - this.searchStartedAt) / 1000));
-		this.title.setSearch(this.searchPhase, seconds);
+		this.title.setSearch(this.searchPhase, seconds, this.friendJoin);
 	}
 
 	private stopSearchTicker(): void {
@@ -381,6 +389,7 @@ export class GameScene extends Phaser.Scene {
 		this.live?.close();
 		this.live = null;
 		this.searchPhase = 'idle';
+		this.friendJoin = '';
 		this.stopSearchTicker();
 		this.title.clearSearch();
 		window.checkersStartup.unlock();
@@ -420,8 +429,8 @@ export class GameScene extends Phaser.Scene {
 		void this.requestStartFromOpening();
 	}
 
-	private async requestOnline(): Promise<void> {
-		this.beginSearchUi('searching');
+	private async requestOnline(kind: 'queue' | 'host' | 'join' = 'queue', matchId = ''): Promise<void> {
+		this.beginSearchUi(kind === 'queue' ? 'searching' : 'friend-wait');
 		const healthy = await probeApi();
 		if (!healthy) {
 			this.markSearchOffline();
@@ -433,6 +442,13 @@ export class GameScene extends Phaser.Scene {
 				if (this.searchPhase === 'timeout-offer') return;
 				this.searchPhase = 'waiting';
 				this.paintSearch();
+			},
+			onHosted: (id) => {
+				this.friendJoin = `/?join=${id}`;
+				this.searchPhase = 'friend-wait';
+				this.paintSearch();
+				const link = `${location.origin}${this.friendJoin}`;
+				void navigator.clipboard?.writeText(link).catch(() => {});
 			},
 			onStart: (color, _matchId, snap) => {
 				this.searchPhase = 'found';
@@ -503,7 +519,9 @@ export class GameScene extends Phaser.Scene {
 			this.markSearchOffline();
 			return;
 		}
-		this.live.queue();
+		if (kind === 'host') this.live.host();
+		else if (kind === 'join') this.live.join(matchId);
+		else this.live.queue();
 	}
 
 	private applyBegin(snap: {ply: number; turn: Side; hash: string; pieces: {row: number; col: number; side: Side; kind: 'man' | 'king'}[]}): void {

@@ -9,6 +9,7 @@ export type NetMove = IMove & {ply: number; turn: Side; hash: string; side: Side
 
 export type LiveHandlers = {
  onQueued?: () => void;
+ onHosted?: (matchId: string) => void;
  onStart?: (color: Side, matchId: string, snap: MatchSnapshot) => void;
  onBegin?: (snap: MatchSnapshot) => void;
  onState?: (snap: MatchSnapshot) => void;
@@ -54,6 +55,7 @@ export function openLive(handlers: LiveHandlers) {
      const type = String(msg.type ?? '');
      if (type === 'ok') { finish(true); }
      if (type === 'queued') handlers.onQueued?.();
+     if (type === 'hosted' && msg.matchId) handlers.onHosted?.(String(msg.matchId));
      if (type === 'start' && msg.color) {
       handlers.onStart?.(msg.color as Side, String(msg.matchId ?? ''), asSnap(msg, String(msg.matchId ?? '')));
      }
@@ -78,6 +80,8 @@ export function openLive(handlers: LiveHandlers) {
    });
   },
   queue() { send({ type: 'queue' }); },
+  host() { send({ type: 'host' }); },
+  join(matchId: string) { send({ type: 'join', matchId }); },
   ready() { send({ type: 'ready' }); },
   requestState() { send({ type: 'state' }); },
   move(move: IMove) {

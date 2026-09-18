@@ -29,6 +29,7 @@ declare global {
 export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  onPlayBot: () => void;
  onPlayOnline?: () => void;
+ onPlayFriend?: () => void;
  onSearchCancel?: () => void;
  onSearchStay?: () => void;
  onSearchBot?: () => void;
@@ -109,11 +110,13 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  const pickBlack = pick('black');
  play.onclick=()=>invoke();
  if (online) online.onclick=()=>{ if(root.hidden||root.inert) return; handlers.onPlayOnline?.(); };
+ const friend = document.getElementById('opening-friend') as HTMLButtonElement | null;
+ if (friend) friend.onclick=()=>{ if(root.hidden||root.inert) return; handlers.onPlayFriend?.(); };
  searchCancel?.addEventListener('click', () => handlers.onSearchCancel?.());
  searchStay?.addEventListener('click', () => handlers.onSearchStay?.());
  searchBot?.addEventListener('click', () => handlers.onSearchBot?.());
- const setSearch = (phase: SearchPhase, seconds: number) => {
-  const view = searchCopy(phase, seconds);
+ const setSearch = (phase: SearchPhase, seconds: number, join = '') => {
+  const view = searchCopy(phase, seconds, join);
   if (!search || !searchCopyEl) return;
   const on = phase !== 'idle';
   search.hidden = !on;
