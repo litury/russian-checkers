@@ -93,14 +93,36 @@ export async function loadPresence(): Promise<number | null> {
  }
 }
 
-export async function beatPresence(on = true): Promise<void> {
+const tabKey = 'checkers.presenceTab';
+function presenceTab(): string {
+ try {
+  let tab = sessionStorage.getItem(tabKey);
+  if (!tab) {
+   tab = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+   sessionStorage.setItem(tabKey, tab);
+  }
+  return tab;
+ } catch {
+  return 'tab';
+ }
+}
+
+export async function beatPresence(on = true): Promise<number | null> {
  const guest = await ensureGuest();
- if (!guest) return;
- await request('/stats/presence', {
+ if (!guest) return null;
+ const res = await request('/stats/presence', {
   method: 'POST',
+  keepalive: true,
   headers: { authorization: `Bearer ${guest.token}` },
-  body: JSON.stringify({on}),
+  body: JSON.stringify({on, tab: presenceTab()}),
  });
+ if (!res?.ok) return null;
+ try {
+  const live = Number((await res.json() as {live?: unknown}).live);
+  return Number.isFinite(live) ? live : null;
+ } catch {
+  return null;
+ }
 }
 
 export async function loadStats(): Promise<{ games: number; white_wins: number; black_wins: number } | null> {

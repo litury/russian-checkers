@@ -80,7 +80,6 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  window.checkersStartup.playCommitted=false;
  window.checkersStartup.pendingPlay=false;
  clearSearch();
- stopPresence();
   audio.hide(completed,motion.matches);
   gates.cancel(); closeDialogs(); root.hidden=true; root.inert=false;
   root.classList.remove('is-departing');
@@ -89,9 +88,10 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  };
  const visibilityChange = () => {
   sampledAt=null;
-  if (document.hidden) { void beatPresence(false); stopPresence(); }
-  else startPresence();
+  if (document.hidden) { void beatPresence(false); stopBeat(); }
+  else startBeat();
  };
+ const pageHide = () => { void beatPresence(false); stopBeat(); };
  const update = () => {
   const now=scene.time.now, delta=sampledAt===null?0:now-sampledAt;
   sampledAt=now;
@@ -149,41 +149,46 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  const liveCount = document.getElementById('opening-live-count');
  let presenceTimer: number | undefined;
  let beatTimer: number | undefined;
- const paintPresence = () => {
-  void loadPresence().then((live) => {
-   const n = live ?? 0;
-   online?.classList.toggle('is-live', presenceLit(n));
-   if (liveDot) liveDot.hidden = false;
-   if (liveCount) liveCount.textContent = String(n);
-  }).catch(() => {
-   online?.classList.remove('is-live');
-   if (liveCount) liveCount.textContent = '0';
-  });
+ const showLive = (live: number | null) => {
+  const n = live ?? 0;
+  const on = presenceLit(n);
+  online?.classList.toggle('is-live', on);
+  if (liveDot) liveDot.hidden = !on;
+  if (liveCount) {
+   liveCount.hidden = !on;
+   liveCount.textContent = on ? String(n) : '';
+  }
  };
- const stopPresence = () => {
-  if (presenceTimer !== undefined) window.clearInterval(presenceTimer);
-  presenceTimer = undefined;
+ const paintPresence = () => {
+  void loadPresence().then(showLive).catch(() => showLive(0));
+ };
+ const stopBeat = () => {
   if (beatTimer !== undefined) window.clearInterval(beatTimer);
   beatTimer = undefined;
+  if (presenceTimer !== undefined) window.clearInterval(presenceTimer);
+  presenceTimer = undefined;
  };
- const startPresence = () => {
-  stopPresence();
+ const startBeat = () => {
+  stopBeat();
   if (document.hidden) return;
-  void beatPresence(true);
-  beatTimer = window.setInterval(() => { void beatPresence(true); }, HEARTBEAT_MS);
-  paintPresence();
+  void beatPresence(true).then(showLive);
+  beatTimer = window.setInterval(() => { void beatPresence(true).then(showLive); }, HEARTBEAT_MS);
   presenceTimer = window.setInterval(paintPresence, PRESENCE_CACHE_MS);
  };
+ const startPresence = startBeat;
  document.addEventListener('visibilitychange',visibilityChange);
+ document.addEventListener('pagehide', pageHide);
  scene.events.on('update',update);
  scene.events.once('shutdown',()=>{
- stopPresence();
+ stopBeat();
+  void beatPresence(false);
   gates.cancel();audio.dispose();play.onclick=null;
   ivory?.removeEventListener('click', pickWhite);
   ebony?.removeEventListener('click', pickBlack);
   if(window.checkersStartup.playIntent===invoke) window.checkersStartup.playIntent=null;
   scene.events.off('update',update);
   document.removeEventListener('visibilitychange',visibilityChange);
+  document.removeEventListener('pagehide', pageHide);
   root.inert=false;root.classList.remove('is-departing');paint(0);
  });
  return {

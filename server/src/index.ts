@@ -7,7 +7,7 @@ import {bothReady, hashPosition, READY_MS, snapshotOf} from '../../src/online/ma
 import {createInitialPosition, winner, afterMoveBank, blitzStartMs, type IPosition, type Side} from '../../src/rules/index.ts';
 import {flagDue, flagWinner, turnLeft} from './flagClock.ts';
 import {colorStatsSql, COLOR_STATS_CACHE_MS} from '../../src/online/colorStats.ts';
-import {countHeartbeats, dropHeartbeat, PRESENCE_CACHE_MS, touchHeartbeat} from '../../src/online/presence.ts';
+import {countHeartbeats, dropHeartbeat, touchHeartbeat} from '../../src/online/presence.ts';
 import {acceptWebsocket, type TextSock} from './wsRaw.ts';
 import {runMigrations} from './migrate.ts';
 
@@ -81,6 +81,7 @@ const playerRoom = new Map<string, string>();
 let colorStatsCache: {at: number; body: {white: number; black: number; games: number}} | undefined;
 let presenceCache: {at: number; live: number} | undefined;
 const heartbeats = new Map<string, number>();
+const bumpPresence = () => { presenceCache = undefined; };
 const siteLive = () => countHeartbeats(heartbeats, Date.now());
 
 const send = (sock: TextSock | undefined, msg: unknown) => {
@@ -90,6 +91,7 @@ const send = (sock: TextSock | undefined, msg: unknown) => {
 const endRoom = async (room: Room, win: Side | 'draw', reason: string, loserId?: string) => {
  if (!rooms.has(room.id)) return;
  rooms.delete(room.id);
+ bumpPresence();
  playerRoom.delete(room.white);
  playerRoom.delete(room.black);
  if (room.readyTimer) clearTimeout(room.readyTimer);
@@ -143,6 +145,7 @@ const beginRoom = (room: Room) => {
 
 const attach = (room: Room, id: string, sock: TextSock) => {
  room.socks.set(id, sock);
+ bumpPresence();
  const pending = room.drop.get(id);
  if (pending) clearTimeout(pending);
  room.drop.delete(id);
@@ -154,6 +157,7 @@ const attach = (room: Room, id: string, sock: TextSock) => {
 
 const dropPlayer = (room: Room, id: string) => {
  room.socks.delete(id);
+ bumpPresence();
  const pending = room.drop.get(id);
  if (pending) clearTimeout(pending);
  room.drop.set(id, setTimeout(() => {
@@ -230,13 +234,14 @@ const handleWs = async (sock: TextSock, raw: string, ctx: {player?: string}) => 
    return;
   }
   queue.push({id: player, sock});
+  bumpPresence();
   send(sock, {type: 'queued'});
   await pair();
   return;
  }
  if (msg.type === 'leave') {
   const i = queue.findIndex((q) => q.id === player);
-  if (i >= 0) queue.splice(i, 1);
+  if (i >= 0) { queue.splice(i, 1); bumpPresence(); }
   return;
  }
  if (msg.type === 'ready') {
@@ -334,13 +339,7 @@ const server = createServer(async (req, res) => {
    return;
   }
   if (req.method === 'GET' && (path === '/stats/presence' || path === '/presence')) {
-   const now = Date.now();
-   if (presenceCache && now - presenceCache.at < PRESENCE_CACHE_MS) {
-    json(res, 200, {live: presenceCache.live});
-    return;
-   }
    const live = siteLive();
-   presenceCache = {at: now, live};
    json(res, 200, {live});
    return;
   }
@@ -348,13 +347,16 @@ const server = createServer(async (req, res) => {
    const playerId = await playerFromAuth(req.headers.authorization);
    if (!playerId) { json(res, 401, {error: 'auth'}); return; }
    let on = true;
+   let tab = '';
    try {
-    const body = JSON.parse((await read(req)) || '{}') as {on?: unknown};
+    const body = JSON.parse((await read(req)) || '{}') as {on?: unknown; tab?: unknown};
     if (body.on === false) on = false;
+    if (typeof body.tab === 'string' && body.tab.length > 0 && body.tab.length < 80) tab = body.tab;
    } catch {}
-   if (on) touchHeartbeat(heartbeats, playerId, Date.now());
-   else dropHeartbeat(heartbeats, playerId);
-   presenceCache = undefined;
+   const key = `${playerId}:${tab || 'tab'}`;
+   if (on) touchHeartbeat(heartbeats, key, Date.now());
+   else dropHeartbeat(heartbeats, key);
+   bumpPresence();
    json(res, 200, {live: siteLive()});
    return;
   }
@@ -481,7 +483,7 @@ server.on('upgrade', (req, socket) => {
    const id = ctx.player;
    if (!id) return;
    const i = queue.findIndex((q) => q.id === id);
-   if (i >= 0) queue.splice(i, 1);
+   if (i >= 0) { queue.splice(i, 1); bumpPresence(); }
    const rid = playerRoom.get(id);
    const room = rid ? rooms.get(rid) : undefined;
    if (room) dropPlayer(room, id);

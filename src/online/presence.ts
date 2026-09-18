@@ -1,6 +1,6 @@
-export const PRESENCE_CACHE_MS = 10_000;
-export const HEARTBEAT_TTL_MS = 45_000;
-export const HEARTBEAT_MS = 15_000;
+export const PRESENCE_CACHE_MS = 2_000;
+export const HEARTBEAT_TTL_MS = 18_000;
+export const HEARTBEAT_MS = 8_000;
 
 export function liveWsCount(queued: number, seated: number): number {
  return queued + seated;
