@@ -4,7 +4,7 @@ import {createRequire} from 'node:module';
 import {createServer} from 'node:http';
 import {applyPly, replayPlies, type RecordedPly} from '../../src/online/replay.ts';
 import {bothReady, hashPosition, READY_MS, snapshotOf} from '../../src/online/matchState.ts';
-import {createInitialPosition, winner, afterMoveBank, blitzStartMs, type IPosition, type Side} from '../../src/rules/index.ts';
+import {createInitialPosition, winner, afterMoveBank, blitzStartMs, resultSide, type IPosition, type Side} from '../../src/rules/index.ts';
 import {flagDue, flagWinner, turnLeft} from './flagClock.ts';
 import {colorStatsSql, COLOR_STATS_CACHE_MS} from '../../src/online/colorStats.ts';
 import {countHeartbeats, dropHeartbeat, touchHeartbeat} from '../../src/online/presence.ts';
@@ -67,6 +67,7 @@ type Room = {
  black: string;
  position: IPosition;
  ply: number;
+ keys: string[];
  begun: boolean;
  ready: Set<string>;
  readyTimer?: ReturnType<typeof setTimeout>;
@@ -195,6 +196,7 @@ const openOnlineRoom = async (white: string, black: string, friend: boolean) => 
   friend,
   position: createInitialPosition(),
   ply: 0,
+  keys: [],
   begun: false,
   ready: new Set(),
   banks: {white: blitzStartMs, black: blitzStartMs},
@@ -330,6 +332,7 @@ const handleWs = async (sock: TextSock, raw: string, ctx: {player?: string}) => 
   room.banks[side] = afterMoveBank(turnLeft(room.banks[side], room.turnStarted, Date.now()));
   room.position = next;
   room.ply += 1;
+  room.keys.push(hashPosition(next));
   room.turnStarted = Date.now();
   armFlag(room);
   await pool.query(
@@ -338,8 +341,9 @@ const handleWs = async (sock: TextSock, raw: string, ctx: {player?: string}) => 
   );
   const payload = {type: 'move', from: ply.from, path: ply.path, side, ply: room.ply, turn: next.turn, hash: hashPosition(next)};
   for (const s of room.socks.values()) send(s, payload);
-  const w = winner(next);
-  if (w) await endRoom(room, w, 'rules');
+  const outcome = resultSide(next, room.keys);
+  if (outcome === 'draw') await endRoom(room, 'draw', 'rules');
+  else if (outcome) await endRoom(room, outcome, 'rules');
   return;
  }
  if (msg.type === 'resign') {

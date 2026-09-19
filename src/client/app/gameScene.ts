@@ -12,7 +12,7 @@ import { orcOpeningTurnLine } from './orcTurn';
 import { defeatTauntCue, pieceSelectSfx } from './pieceSfx';
 import { recordBotMatch, probeApi, type CloudPly } from '@/online/cloud';
 import { openLive, type NetMove } from '@/online/live';
-import { classifyPly, positionFromSnapshot, takeNextPly } from '@/online/matchState';
+import { classifyPly, hashPosition, positionFromSnapshot, takeNextPly } from '@/online/matchState';
 import { FOUND_HOLD_MS, SEARCH_TIMEOUT_MS, type SearchPhase } from './matchmakingSearch';
 import { orcOutcomeLine, orcTimeLow } from './orcResult';
 import { StepwiseMove } from './stepwiseMove';
@@ -28,6 +28,7 @@ import {
 	createInitialPosition,
 	legalMoves,
 	remainingMs,
+	resultSide,
 	winner,
 } from '@/rules';
 import { createHud, matchStatus } from './createHud';
@@ -79,6 +80,7 @@ export class GameScene extends Phaser.Scene {
 	private countingIn = false;
 	private timeLowSaid = false;
 	private matchPlies: CloudPly[] = [];
+	private posKeys: string[] = [];
 	private online = false;
 	private live: ReturnType<typeof openLive> | null = null;
 	private searchPhase: SearchPhase = 'idle';
@@ -704,6 +706,7 @@ export class GameScene extends Phaser.Scene {
 		this.clockStartedAt = 0;
 		this.flagLock = false;
 		this.matchPlies = [];
+		this.posKeys = [hashPosition(this.position)];
 		this.lastPly = this.online ? this.lastPly : 0;
 		this.inboundNet = [];
 
@@ -1048,9 +1051,16 @@ export class GameScene extends Phaser.Scene {
 		this.humanChain = null;
 		this.selected = null;
 		this.board?.notePly();
-		const side = winner(this.position);
-		if (side) {
-			this.endMatch(side);
+		this.posKeys.push(hashPosition(this.position));
+		const outcome = resultSide(this.position, this.posKeys);
+		if (outcome === 'draw') {
+			this.phase = 'over';
+			this.refresh();
+			if (!this.online) void recordBotMatch({ humanSide: this.humanSide, winner: 'draw', plies: this.matchPlies });
+			return;
+		}
+		if (outcome) {
+			this.endMatch(outcome);
 			return;
 		}
 		this.phase = this.online
@@ -1100,9 +1110,16 @@ export class GameScene extends Phaser.Scene {
 			this.settleClock(mover);
 			this.matchPlies.push({ side: mover, from: move.from, path: move.path });
 			this.position = next;
-			const side = winner(this.position);
-			if (side) {
-				this.endMatch(side);
+			this.posKeys.push(hashPosition(this.position));
+			const outcome = resultSide(this.position, this.posKeys);
+			if (outcome === 'draw') {
+				this.phase = 'over';
+				this.refresh();
+				void recordBotMatch({ humanSide: this.humanSide, winner: 'draw', plies: this.matchPlies });
+				return;
+			}
+			if (outcome) {
+				this.endMatch(outcome);
 				return;
 			}
 			this.phase = 'human';
