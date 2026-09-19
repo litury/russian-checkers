@@ -1,0 +1,15 @@
+import { expect, it } from 'vitest';
+import { canUndoBot } from './botUndo';
+import scene from './gameScene.ts?raw';
+import html from '../../../index.html?raw';
+
+it('undo is bot-only, one gesture, after over too', () => {
+ expect(canUndoBot(true, 3)).toBe(false);
+ expect(canUndoBot(false, 0)).toBe(false);
+ expect(canUndoBot(false, 1)).toBe(true);
+ expect(scene).toContain('undoBot');
+ expect(scene).toContain('canUndoBot');
+ expect(scene).toMatch(/if \(this\.online\) return/);
+ expect(html).toContain('id="match-undo"');
+ expect(html).toContain('Отменить ход');
+});

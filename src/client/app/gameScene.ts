@@ -37,6 +37,7 @@ import { remainingForHud } from './matchClock';
 import { createOpeningOverlay } from './openingOverlay';
 import type { IYandexSdk } from './IYandexSdk';
 import { getAutoMove, getBotSkill } from './settings';
+import { canUndoBot } from './botUndo';
 import { createResultOverlay } from './resultOverlay';
 import mascotIdle0Url from './ui/result/mascot_idle_00.webp';
 import mascotIdle1Url from './ui/result/mascot_idle_01.webp';
@@ -81,6 +82,7 @@ export class GameScene extends Phaser.Scene {
 	private timeLowSaid = false;
 	private matchPlies: CloudPly[] = [];
 	private posKeys: string[] = [];
+	private botUndoStack: { position: IPosition; clocks: { white: number; black: number }; plies: CloudPly[]; keys: string[] }[] = [];
 	private online = false;
 	private live: ReturnType<typeof openLive> | null = null;
 	private searchPhase: SearchPhase = 'idle';
@@ -181,6 +183,7 @@ export class GameScene extends Phaser.Scene {
 			onSearchStay: () => this.stayInSearch(),
 			onSearchBot: () => this.searchPlayBot(),
 		});
+		document.getElementById('match-undo')?.addEventListener('click', () => this.undoBot());
 		this.sdk.onPause(() => {
 			this.setPaused(true);
 		});
@@ -672,6 +675,7 @@ export class GameScene extends Phaser.Scene {
 		this.humanSide = 'white';
 		this.overlay?.hide();
 		this.hud?.setVisible(false);
+		this.paintUndo();
 		this.stopCountdown();
 		this.board?.setPlayfieldVisible(false);
 		this.title.show();
@@ -707,6 +711,7 @@ export class GameScene extends Phaser.Scene {
 		this.flagLock = false;
 		this.matchPlies = [];
 		this.posKeys = [hashPosition(this.position)];
+		this.botUndoStack = [];
 		this.lastPly = this.online ? this.lastPly : 0;
 		this.inboundNet = [];
 
@@ -906,6 +911,7 @@ export class GameScene extends Phaser.Scene {
 				: this.phase,
 			legalMoves(this.position).some(move => move.path[0] && capturedOnSegment(this.position, move.from, move.path[0])), Boolean(this.humanChain)));
 		this.maybeAutoMove();
+		this.paintUndo();
 	}
 
 	private maybeAutoMove(): void {
@@ -1034,7 +1040,43 @@ export class GameScene extends Phaser.Scene {
 		);
 	}
 
+	private paintUndo(): void {
+		const el = document.getElementById('match-undo') as HTMLButtonElement | null;
+		if (!el) return;
+		const on = canUndoBot(this.online, this.botUndoStack.length) && this.phase !== 'title';
+		el.hidden = !on;
+	}
+
+	private undoBot(): void {
+		if (this.online) return;
+		if (!canUndoBot(this.online, this.botUndoStack.length)) return;
+		const snap = this.botUndoStack.pop();
+		if (!snap) return;
+		this.botTimer?.remove(false);
+		this.moving = false;
+		this.position = snap.position;
+		this.clocks = { ...snap.clocks };
+		this.matchPlies = snap.plies.slice();
+		this.posKeys = snap.keys.slice();
+		this.selected = null;
+		this.humanChain = null;
+		this.flagLock = false;
+		this.overlay?.hide();
+		this.phase = this.position.turn === this.humanSide ? 'human' : 'bot';
+		this.clockStartedAt = this.time.now;
+		this.refresh();
+		if (this.phase === 'bot') this.botTimer = this.time.delayedCall(400, () => this.playBot());
+	}
+
 	private playHuman(move: IMove): void {
+		if (!this.online) {
+			this.botUndoStack.push({
+				position: structuredClone(this.position),
+				clocks: { ...this.clocks },
+				plies: this.matchPlies.slice(),
+				keys: this.posKeys.slice(),
+			});
+		}
 		this.animateMove(move, () => {
 			if (this.online) this.live?.move(move);
 			else this.completeHumanMove(move);
