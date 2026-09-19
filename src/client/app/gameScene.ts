@@ -63,6 +63,7 @@ export class GameScene extends Phaser.Scene {
 	private board?: IBoardView;
 	private hud?: ReturnType<typeof createHud>;
 	private overlay?: ReturnType<typeof createResultOverlay>;
+	private resultGen = 0;
 	private title!: ReturnType<typeof createOpeningOverlay>;
 	private sdk!: IYandexSdk;
 	private position: IPosition = createInitialPosition();
@@ -436,12 +437,12 @@ export class GameScene extends Phaser.Scene {
 		this.live?.close();
 		this.live = openLive({
 			onStart: (color, _matchId, snap) => {
-				if (!snap.begun) return;
+				if (!snap.begun && !snap.pieces.length && snap.ply < 1) return;
 				this.online = true;
 				this.humanSide = color;
 				this.lastPly = snap.ply;
 				this.serverTurn = snap.turn;
-				this.onlineBegun = true;
+				this.onlineBegun = snap.begun || snap.ply > 0;
 				if (snap.pieces.length) this.position = positionFromSnapshot(snap);
 				this.title.clearSearch();
 				void this.requestStartFromOpening();
@@ -1109,7 +1110,8 @@ export class GameScene extends Phaser.Scene {
 		this.selected = null;
 		this.humanChain = null;
 		this.flagLock = false;
-		this.overlay?.hide();
+		this.resultGen += 1;
+		this.overlay?.hide(true);
 		this.phase = this.position.turn === this.humanSide ? 'human' : 'bot';
 		this.clockStartedAt = this.time.now;
 		this.refresh();
@@ -1256,8 +1258,12 @@ export class GameScene extends Phaser.Scene {
 			plies: this.matchPlies,
 		});
 		}
+		const gen = ++this.resultGen;
 		const show = () => {
-			void this.ensureResultOverlay().then((overlay) => overlay?.show(side, this.humanSide));
+			void this.ensureResultOverlay().then((overlay) => {
+				if (gen !== this.resultGen) return;
+				overlay?.show(side, this.humanSide);
+			});
 		};
 		this.sdk.showFullscreenAdv({
 			onClose: show,

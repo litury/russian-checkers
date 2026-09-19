@@ -456,13 +456,14 @@ export function createResultOverlay(
 				transition = scene.tweens.add({targets:root,alpha:1,duration:180,ease:'Sine.easeOut'});
 			}
 		},
-		hide: () => {
-			const animateExit = shown && defeat && !prefersReducedMotion();
+		hide: (force = false) => {
+			const animateExit = !force && shown && defeat && !prefersReducedMotion();
 			shown = false;
 			transition?.stop(); transition = undefined;
 			controls.hide();
 			stopCheer();
 			stopPulse();
+			stopLose();
 			if (!defeat) { restAgain(); restMenu(); }
 			dim.setVisible(false);
 			dim.disableInteractive();

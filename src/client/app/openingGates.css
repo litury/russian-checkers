@@ -114,5 +114,5 @@
 #match-history-eval{display:block;width:min(360px,90vw);height:4px;margin-top:8px;background:#5a5144}
 #match-history-eval.mh-ok{background:#9ecf8a}
 #match-history-eval.mh-alt{background:#8b8878}
-#match-undo{position:fixed;z-index:120;left:50%;bottom:16px;transform:translateX(-50%);min-height:44px;min-width:160px;padding:8px 16px;border:2px solid #8b8878;background:linear-gradient(#444946,#252b2b);color:#e2d9c0;font:600 16px/1 "Golos Text",sans-serif}
+#match-undo{position:fixed;z-index:10000;left:50%;bottom:16px;transform:translateX(-50%);min-height:44px;min-width:160px;padding:8px 16px;border:2px solid #8b8878;background:linear-gradient(#444946,#252b2b);color:#e2d9c0;font:600 16px/1 "Golos Text",sans-serif;pointer-events:auto}
 
