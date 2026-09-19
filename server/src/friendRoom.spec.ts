@@ -15,6 +15,7 @@ it('hosts a friend room off the random queue', () => {
  expect(searchCopy('friend-wait', 0, '482910').title).toBe('Ждём друга · 482910');
  expect(searchCopy('friend-pick', 0).showCreate).toBe(true);
  expect(searchCopy('friend-enter', 0).showCode).toBe(true);
+ expect(searchCopy('friend-miss', 0).title).toBe('нет комнаты');
  expect(searchCopy('friend-wait', 0).showBot).toBe(false);
  expect(searchCopy('timeout-offer', 0).showBot).toBe(true);
  expect(search).toContain('friend-wait');

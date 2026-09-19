@@ -417,7 +417,7 @@ const server = createServer(async (req, res) => {
    return;
   }
   if (req.method === 'POST' && path === '/players/guest') {
-   if (limited(`g:${ipOf(req)}`, 8)) { json(res, 429, {error: 'rate'}); return; }
+   if (limited(`g:${ipOf(req)}`, 24)) { json(res, 429, {error: 'rate'}); return; }
    const token = randomBytes(24).toString('base64url');
    const h = hashToken(token);
    const created = await pool.query(

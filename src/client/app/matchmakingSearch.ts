@@ -1,4 +1,4 @@
-export type SearchPhase = 'idle' | 'searching' | 'waiting' | 'found' | 'offline' | 'timeout-offer' | 'friend-wait' | 'friend-pick' | 'friend-enter';
+export type SearchPhase = 'idle' | 'searching' | 'waiting' | 'found' | 'offline' | 'timeout-offer' | 'friend-wait' | 'friend-pick' | 'friend-enter' | 'friend-miss' | 'online-hub';
 
 export const SEARCH_TIMEOUT_MS = 45_000;
 export const FOUND_HOLD_MS = 800;
@@ -13,6 +13,7 @@ export type SearchView = {
 	showCreate?: boolean;
 	showEnter?: boolean;
 	showCode?: boolean;
+	showFind?: boolean;
 };
 
 export function searchCopy(phase: SearchPhase, seconds: number, join = ''): SearchView {
@@ -34,11 +35,17 @@ export function searchCopy(phase: SearchPhase, seconds: number, join = ''): Sear
 	if (phase === 'friend-wait') {
 		return {title: join ? `Ждём друга · ${join}` : 'Ждём друга', showCancel: true, showStay: false, showBot: false, hidePlay: true};
 	}
+	if (phase === 'online-hub') {
+		return {title: 'Онлайн', showCancel: true, showStay: false, showBot: false, hidePlay: true, showFind: true, showCreate: true, showEnter: true};
+	}
 	if (phase === 'friend-pick') {
 		return {title: 'С другом', showCancel: true, showStay: false, showBot: false, hidePlay: true, showCreate: true, showEnter: true};
 	}
 	if (phase === 'friend-enter') {
 		return {title: 'Введите код', showCancel: true, showStay: false, showBot: false, hidePlay: true, showCode: true};
+	}
+	if (phase === 'friend-miss') {
+		return {title: 'нет комнаты', showCancel: true, showStay: false, showBot: false, hidePlay: true, showCode: true};
 	}
 	return {title: '', showCancel: false, showStay: false, showBot: false, hidePlay: false};
 }

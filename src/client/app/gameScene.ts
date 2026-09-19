@@ -155,10 +155,10 @@ export class GameScene extends Phaser.Scene {
 				void this.requestStartFromOpening();
 			},
 			onPlayOnline: () => {
-				void this.requestOnline();
+				this.beginSearchUi('online-hub');
 			},
-			onPlayFriend: () => {
-				this.beginSearchUi('friend-pick');
+			onSearchFind: () => {
+				void this.requestOnline();
 			},
 			onFriendCreate: () => {
 				void this.requestOnline('host');
@@ -167,7 +167,13 @@ export class GameScene extends Phaser.Scene {
 				this.beginSearchUi('friend-enter');
 			},
 			onFriendJoin: (code) => {
-				void this.requestOnline('join', code);
+				const digits = code.replace(/\D/g, '').slice(0, 6);
+				if (!/^\d{6}$/.test(digits) || digits === '000000') {
+					this.searchPhase = 'friend-miss';
+					this.paintSearch();
+					return;
+				}
+				void this.requestOnline('join', digits);
 			},
 			onSearchCancel: () => this.cancelSearch(),
 			onSearchStay: () => this.stayInSearch(),
@@ -514,10 +520,8 @@ export class GameScene extends Phaser.Scene {
 					return;
 				}
 				if (error === 'no_match') {
-					this.searchPhase = 'friend-enter';
+					this.searchPhase = 'friend-miss';
 					this.paintSearch();
-					const copy = document.getElementById('opening-search-copy');
-					if (copy) copy.textContent = 'нет комнаты';
 					return;
 				}
 				if (this.onlineBegun || this.phase !== 'title') return;
@@ -770,7 +774,9 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private clockTurn(): Side {
-		if (this.online && this.onlineBegun) return this.serverTurn;
+		if (this.online && this.onlineBegun) {
+			return this.onlineHumanTurn() ? this.humanSide : this.humanSide === 'white' ? 'black' : 'white';
+		}
 		return this.position.turn;
 	}
 
@@ -847,6 +853,7 @@ export class GameScene extends Phaser.Scene {
 			false,
 		);
 		if (left <= 0) {
+			if (this.online && side !== this.humanSide) return;
 			this.onFlag();
 		}
 	}
