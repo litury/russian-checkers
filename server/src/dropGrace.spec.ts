@@ -10,4 +10,6 @@ it('presence routes exist and drop waits grace before endRoom', () => {
  expect(src).toMatch(/dropPlayer[\s\S]*setTimeout\([\s\S]*endRoom[\s\S]*DROP_MS/);
  expect(src).toContain('if (pending) clearTimeout(pending)');
  expect(src).toMatch(/attach[\s\S]*if \(pending\) clearTimeout\(pending\)/);
+ expect(src).toContain('pieces: snap.pieces');
+ expect(src).toMatch(/dropPlayer[\s\S]*flagTimer[\s\S]*DROP_MS/);
 });

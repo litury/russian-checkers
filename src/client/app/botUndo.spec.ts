@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { expect, it } from 'vitest';
 import { canUndoBot } from './botUndo';
 import scene from './gameScene.ts?raw';
@@ -12,4 +13,6 @@ it('undo is bot-only, one gesture, after over too', () => {
  expect(scene).toMatch(/if \(this\.online\) return/);
  expect(html).toContain('id="match-undo"');
  expect(html).toContain('Отменить ход');
+ expect(readFileSync(new URL('./openingGates.css', import.meta.url), 'utf8')).toContain('z-index:120');
+ expect(scene).toContain('seatResume');
 });

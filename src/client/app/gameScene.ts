@@ -200,6 +200,7 @@ export class GameScene extends Phaser.Scene {
 		});
 		this.title.layout(logicalSize(this).width, logicalSize(this).height);
 		this.title.show();
+		void this.seatResume();
 		{
 			const join = new URLSearchParams(location.search).get('join');
 			if (join) void this.requestOnline('join', join);
@@ -429,6 +430,47 @@ export class GameScene extends Phaser.Scene {
 		});
 	}
 
+	private async seatResume(): Promise<void> {
+		if (this.phase !== 'title') return;
+		if (new URLSearchParams(location.search).get('join')) return;
+		this.live?.close();
+		this.live = openLive({
+			onStart: (color, _matchId, snap) => {
+				if (!snap.begun) return;
+				this.online = true;
+				this.humanSide = color;
+				this.lastPly = snap.ply;
+				this.serverTurn = snap.turn;
+				this.onlineBegun = true;
+				if (snap.pieces.length) this.position = positionFromSnapshot(snap);
+				this.title.clearSearch();
+				void this.requestStartFromOpening();
+			},
+			onBegin: (snap) => this.applyBegin(snap),
+			onState: (snap) => this.applyState(snap),
+			onMove: (move) => {
+				if (this.phase === 'over') return;
+				this.inboundNet.push(move);
+				this.drainInbound();
+			},
+			onEnd: (winner, reason, youWin) => {
+				if (this.phase === 'over') return;
+				if (reason === 'timeout') {
+					this.endMatch(this.humanSide);
+					return;
+				}
+				if (reason === 'flag') {
+					const side = youWin === true ? this.humanSide : this.humanSide === 'white' ? 'black' : 'white';
+					this.endMatch(side, 'flag');
+					return;
+				}
+				const side = youWin === true ? this.humanSide : youWin === false ? (this.humanSide === 'white' ? 'black' : 'white') : winner === 'draw' ? this.humanSide : winner;
+				this.endMatch(side);
+			},
+		});
+		await this.live.connect();
+	}
+
 	private stayInSearch(): void {
 		if (!this.live?.isOpen()) {
 			this.markSearchOffline();
@@ -479,6 +521,11 @@ export class GameScene extends Phaser.Scene {
 				this.serverTurn = snap.turn;
 				this.onlineBegun = snap.begun;
 				if (snap.pieces.length) this.position = positionFromSnapshot(snap);
+				if (snap.begun && this.phase === 'title') {
+					this.title.clearSearch();
+					void this.requestStartFromOpening();
+					return;
+				}
 				this.foundHold = this.time.delayedCall(FOUND_HOLD_MS, () => {
 					this.title.clearSearch();
 					void this.requestStartFromOpening();
@@ -1043,8 +1090,9 @@ export class GameScene extends Phaser.Scene {
 	private paintUndo(): void {
 		const el = document.getElementById('match-undo') as HTMLButtonElement | null;
 		if (!el) return;
-		const on = canUndoBot(this.online, this.botUndoStack.length) && this.phase !== 'title';
+		const on = !this.online && this.phase !== 'title';
 		el.hidden = !on;
+		el.disabled = !canUndoBot(this.online, this.botUndoStack.length);
 	}
 
 	private undoBot(): void {

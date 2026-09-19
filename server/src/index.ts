@@ -157,8 +157,12 @@ const attach = (room: Room, id: string, sock: TextSock) => {
  const color: Side = id === room.white ? 'white' : 'black';
  if (room.friend && !room.black) return;
  const snap = snapshotOf(room.id, room.position, room.ply, room.begun);
- send(sock, {type: 'start', matchId: room.id, color, turn: snap.turn, ply: snap.ply, hash: snap.hash, begun: snap.begun});
+ send(sock, {type: 'start', matchId: room.id, color, turn: snap.turn, ply: snap.ply, hash: snap.hash, begun: snap.begun, pieces: snap.pieces});
  pushState(room, sock, color);
+ if (room.begun && room.drop.size === 0) {
+  room.turnStarted = Date.now();
+  armFlag(room);
+ }
 };
 
 const dropPlayer = (room: Room, id: string) => {
@@ -166,6 +170,7 @@ const dropPlayer = (room: Room, id: string) => {
  bumpPresence();
  const pending = room.drop.get(id);
  if (pending) clearTimeout(pending);
+ if (room.flagTimer) { clearTimeout(room.flagTimer); room.flagTimer = undefined; }
  room.drop.set(id, setTimeout(() => {
   room.drop.delete(id);
   if (!rooms.has(room.id) || room.socks.has(id)) return;
@@ -421,7 +426,7 @@ const server = createServer(async (req, res) => {
    return;
   }
   if (req.method === 'POST' && path === '/players/guest') {
-   if (limited(`g:${ipOf(req)}`, 24)) { json(res, 429, {error: 'rate'}); return; }
+   if (limited(`g:${ipOf(req)}`, 32)) { json(res, 429, {error: 'rate'}); return; }
    const token = randomBytes(24).toString('base64url');
    const h = hashToken(token);
    const created = await pool.query(
