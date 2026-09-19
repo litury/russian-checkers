@@ -37,7 +37,7 @@ describe('HTML-first opening', () => {
   expect(html).toContain('data-api="%VITE_API_URL%"');
   expect(html).not.toContain('.replace(/%VITE_API_URL%');
   expect(html).toContain('id="opening-online"');
-  expect(html).toContain('С человеком');
+  expect(html).toContain('Онлайн');
  });
  it('unlocks Play from the HTML gate before Phaser preload packs', () => {
   expect(html).toContain('unlock()');

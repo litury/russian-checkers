@@ -3,6 +3,7 @@ import {createMenuAudio} from './menuAudio';
 import {bindMatchHistory} from './matchHistoryUi';
 import {ensureGuest, loadColorStats, loadPresence, beatPresence} from '@/online/cloud';
 import {colorStatLabel} from '@/online/colorStats';
+import {guestTag} from '@/online/guestTag';
 import {presenceLit, HEARTBEAT_MS, PRESENCE_CACHE_MS} from '@/online/presence';
 import {gatePose, OpeningGates} from './openingGates';
 import {gateDurationMs as preparationMs} from './openingGates';
@@ -29,7 +30,7 @@ declare global {
 export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  onPlayBot: () => void;
  onPlayOnline?: () => void;
- onPlayFriend?: () => void;
+ onSearchFind?: () => void;
  onFriendCreate?: () => void;
  onFriendEnter?: () => void;
  onFriendJoin?: (code: string) => void;
@@ -48,11 +49,26 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  const searchBot = document.getElementById('opening-search-bot') as HTMLButtonElement | null;
  const ivory = root.querySelector('.gate-piece-ivory') as HTMLElement | null;
  const ebony = root.querySelector('.gate-piece-black') as HTMLElement | null;
+ const whiteGuest = document.getElementById('opening-guest-white');
+ const blackGuest = document.getElementById('opening-guest-black');
  let side: 'white' | 'black' = ivory?.classList.contains('is-chosen') ? 'white' : 'white';
+ const paintGuest = () => {
+  void ensureGuest().then((g) => {
+   const tag = g ? guestTag(g.id) : '';
+   const showW = side === 'white' && !!tag;
+   const showB = side === 'black' && !!tag;
+   if (whiteGuest) { whiteGuest.hidden = !showW; whiteGuest.textContent = showW ? tag : ''; }
+   if (blackGuest) { blackGuest.hidden = !showB; blackGuest.textContent = showB ? tag : ''; }
+  }).catch(() => {
+   if (whiteGuest) whiteGuest.hidden = true;
+   if (blackGuest) blackGuest.hidden = true;
+  });
+ };
  const paintSide = (next: 'white' | 'black') => {
   side = next;
   ivory?.classList.toggle('is-chosen', next === 'white');
   ebony?.classList.toggle('is-chosen', next === 'black');
+  paintGuest();
  };
  paintSide('white');
  const pick = (next: 'white' | 'black') => (event: Event) => {
@@ -113,13 +129,13 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  const pickBlack = pick('black');
  play.onclick=()=>invoke();
  if (online) online.onclick=()=>{ if(root.hidden||root.inert) return; handlers.onPlayOnline?.(); };
- const friend = document.getElementById('opening-friend') as HTMLButtonElement | null;
- if (friend) friend.onclick=()=>{ if(root.hidden||root.inert) return; handlers.onPlayFriend?.(); };
+ const searchFind = document.getElementById('opening-search-find') as HTMLButtonElement | null;
  const searchCreate = document.getElementById('opening-search-create') as HTMLButtonElement | null;
  const searchEnter = document.getElementById('opening-search-enter') as HTMLButtonElement | null;
  const searchGo = document.getElementById('opening-search-go') as HTMLButtonElement | null;
  const friendCode = document.getElementById('opening-friend-code') as HTMLInputElement | null;
  searchCancel?.addEventListener('click', () => handlers.onSearchCancel?.());
+ searchFind?.addEventListener('click', () => handlers.onSearchFind?.());
  searchCreate?.addEventListener('click', () => handlers.onFriendCreate?.());
  searchEnter?.addEventListener('click', () => handlers.onFriendEnter?.());
  searchGo?.addEventListener('click', () => handlers.onFriendJoin?.(friendCode?.value.trim() ?? ''));
@@ -135,6 +151,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   if (searchCancel) searchCancel.hidden = !view.showCancel;
   if (searchStay) searchStay.hidden = !view.showStay;
   if (searchBot) searchBot.hidden = !view.showBot;
+  if (searchFind) searchFind.hidden = !view.showFind;
   if (searchCreate) searchCreate.hidden = !view.showCreate;
   if (searchEnter) searchEnter.hidden = !view.showEnter;
   if (friendCode) friendCode.hidden = !view.showCode;

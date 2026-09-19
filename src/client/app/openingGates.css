@@ -15,8 +15,9 @@
 .gate-crossbars i::before{left:2px}.gate-crossbars i::after{right:2px}
 .gate-piece{z-index:1;pointer-events:auto;cursor:pointer}
 .opening-color-stat{position:absolute;inset:0;z-index:2;display:grid;place-items:center;pointer-events:none;font:600 36px/1 "Golos Text",sans-serif}
-.gate-piece-ivory .opening-color-stat{color:#292b28}
-.gate-piece-black .opening-color-stat{color:#f1e5c6}
+.opening-guest-tag{position:absolute;left:0;right:0;bottom:10%;z-index:2;text-align:center;pointer-events:none;font:600 12px/1 "Golos Text",sans-serif}
+.gate-piece-ivory .opening-color-stat,.gate-piece-ivory .opening-guest-tag{color:#292b28}
+.gate-piece-black .opening-color-stat,.gate-piece-black .opening-guest-tag{color:#f1e5c6}
 #opening .opening-art{pointer-events:none}
 #opening .opening-art .gate-piece{filter:brightness(.86)}
 #opening .opening-art .gate-piece-slot.is-chosen .gate-piece{filter:brightness(1.08)}
@@ -41,7 +42,7 @@
 #opening-search-actions button{min-height:44px;min-width:120px;padding:8px 12px;border:2px solid #c5b28e;background:linear-gradient(#ddd0ab,#a79774);color:#292b28;font-size:16px}
 #opening-search-create,#opening-search-enter,#opening-search-go{min-width:120px;min-height:44px}
 #opening-friend-code{width:120px;min-height:44px;text-align:center;font-size:20px;letter-spacing:.2em}
-#opening.is-searching #opening-play,#opening.is-searching #opening-online,#opening.is-searching #opening-friend{visibility:hidden;pointer-events:none}
+#opening.is-searching #opening-play,#opening.is-searching #opening-online{visibility:hidden;pointer-events:none}
 #opening-retry{font-size:16px;line-height:1.1}
 #opening.is-departing #opening-play:disabled{border-color:#f1e5c6;background:linear-gradient(#ddd0ab,#a79774);box-shadow:inset 0 0 0 3px #665b43,0 3px 5px #0009}
 #opening-play::before,#opening-play::after,#opening-status::before,#opening-status::after{content:'';position:absolute;top:8px;bottom:8px;width:12px;background:radial-gradient(circle at 50% 5px,#131b1d 0 3px,transparent 3px),radial-gradient(circle at 50% calc(100% - 5px),#131b1d 0 3px,transparent 3px),#575e58;border:1px solid #99917a;pointer-events:none}
@@ -71,8 +72,7 @@
 #opening .opening-art .gate-piece-slot{position:absolute;z-index:1;width:var(--piece-size);height:var(--piece-size);left:50%;transform:translateX(-50%);top:29%;pointer-events:auto;cursor:pointer}
 #opening .opening-art .gate-piece-ivory{top:36%}
 #opening .opening-art .gate-piece-slot img.gate-piece{position:absolute;inset:0;width:100%;height:100%;left:auto;top:auto;transform:none;object-fit:contain;max-width:none}
-#opening-play,#opening-retry{height:calc(54 * var(--ui));min-height:44px;font-size:calc(22 * var(--ui))}
-#opening-online{height:calc(54 * var(--ui));min-height:44px;font-size:calc(16 * var(--ui))}
+#opening-play,#opening-online,#opening-retry{height:calc(54 * var(--ui));min-height:44px;width:var(--bar-width)}
 #opening-status{height:calc(44 * var(--ui));min-height:44px;font-size:calc(11 * var(--ui));padding:calc(8 * var(--ui))}
 #opening-help,#opening-settings{height:calc(44 * var(--ui));min-height:44px;width:min(calc(150 * var(--ui)),calc(50vw - 30px));font-size:calc(16 * var(--ui))}
 .gate-title-canopy{width:min(calc(354 * var(--ui)),calc(100vw - 36px))}
@@ -95,7 +95,6 @@
  .gate-title-canopy{width:min(280px,calc(100vw - 36px))}
 }
 #opening-history{position:absolute;z-index:3;top:var(--phrase-y);left:50%;width:min(150px,40vw);height:44px;min-height:44px;border:2px solid #8b8878;background:linear-gradient(#444946,#252b2b);box-shadow:inset 0 0 0 3px #12191a,0 3px 5px #0009;color:#e2d9c0;font-size:16px;transform:translateX(-50%)}
-#opening-friend{position:absolute;z-index:4;top:calc(var(--play-y) + 52px);right:calc(50% + 8px);left:auto;width:var(--bar-width);height:40px;min-height:40px;margin:0;border:2px solid #8b8878;background:linear-gradient(#444946,#252b2b);color:#e2d9c0;transform:translate(calc(-1 * var(--travel) * var(--gate-slide) - 50vw * var(--gate-open)),0)}
 #match-history{position:fixed;inset:0;z-index:110;background:#161a1b;color:#e2d9c0;padding:16px;overflow:auto;font-family:"Golos Text",sans-serif}
 #match-history[hidden]{display:none}
 #match-history h2{margin:8px 0 16px;font:600 22px Literata,serif}

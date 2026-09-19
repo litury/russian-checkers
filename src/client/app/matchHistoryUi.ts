@@ -95,8 +95,9 @@ export function bindMatchHistory() {
    li.type = 'button';
    li.className = 'mh-row';
    const when = row.startedAt ? new Date(row.startedAt).toLocaleDateString('ru') : '';
-   li.innerHTML = `<span class="mh-disk mh-${row.color}"></span><span>${row.mode === 'bot' ? 'Бот' : 'Человек'}</span><span>${when}</span>`;
-   li.addEventListener('click', () => void openMatch(row));
+   const cut = !canOpenBoard(row);
+   li.innerHTML = `<span class="mh-disk mh-${row.color}"></span><span>${row.mode === 'bot' ? 'Бот' : 'Человек'}</span><span>${when}</span>${cut ? '<span>обрыв</span>' : ''}`;
+   if (!cut) li.addEventListener('click', () => void openMatch(row));
    list.append(li);
   }
   showList();

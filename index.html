@@ -83,17 +83,17 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
    <p class="opening-slogan" aria-hidden="true"><span class="opening-flavor"><span id="opening-flavor-size"></span><span class="opening-flavor-ink"><span id="opening-flavor-text"></span><span id="opening-flavor-cursor" hidden>▌</span></span></span></p>
   </div></div></div>
   <div class="opening-art" aria-hidden="true">
-   <div class="gate-door gate-left"><div class="gate-crossbars"><i></i><i></i><i></i><i></i></div><div class="gate-piece-slot gate-piece-ivory is-chosen"><img class="gate-piece" src="/src/client/app/ui/opening/ivory_disk.webp" width="440" height="440" alt="" decoding="async" /><span id="opening-color-white" class="opening-color-stat" aria-hidden="true"></span></div></div>
-   <div class="gate-door gate-right"><div class="gate-crossbars"><i></i><i></i><i></i><i></i></div><div class="gate-piece-slot gate-piece-black"><img class="gate-piece" src="/src/client/app/ui/opening/black_disk.webp" width="440" height="440" alt="" decoding="async" /><span id="opening-color-black" class="opening-color-stat" aria-hidden="true"></span></div></div>
+   <div class="gate-door gate-left"><div class="gate-crossbars"><i></i><i></i><i></i><i></i></div><div class="gate-piece-slot gate-piece-ivory is-chosen"><img class="gate-piece" src="/src/client/app/ui/opening/ivory_disk.webp" width="440" height="440" alt="" decoding="async" /><span id="opening-color-white" class="opening-color-stat" aria-hidden="true"></span><span id="opening-guest-white" class="opening-guest-tag" hidden></span></div></div>
+   <div class="gate-door gate-right"><div class="gate-crossbars"><i></i><i></i><i></i><i></i></div><div class="gate-piece-slot gate-piece-black"><img class="gate-piece" src="/src/client/app/ui/opening/black_disk.webp" width="440" height="440" alt="" decoding="async" /><span id="opening-color-black" class="opening-color-stat" aria-hidden="true"></span><span id="opening-guest-black" class="opening-guest-tag" hidden></span></div></div>
   </div>
   <nav class="opening-actions" aria-label="Главное меню">
    <button id="opening-play" class="opening-button opening-primary" aria-label="Загрузка игры" aria-busy="true" disabled><span class="opening-activity" aria-hidden="true"><i style="--segment:0"></i><i style="--segment:1"></i><i style="--segment:2"></i><i style="--segment:3"></i><i style="--segment:4"></i></span></button>
-   <button id="opening-online" class="opening-button" type="button">С человеком<span id="opening-live-dot" hidden></span><span id="opening-live-count" class="opening-live-badge" hidden></span></button>
-   <button id="opening-friend" class="opening-button" type="button">С другом</button>
+   <button id="opening-online" class="opening-button" type="button">Онлайн<span id="opening-live-dot" hidden></span><span id="opening-live-count" class="opening-live-badge" hidden></span></button>
    <div id="opening-search" hidden>
     <p id="opening-search-copy">Ищем соперника</p>
     <div id="opening-search-actions">
      <button type="button" id="opening-search-cancel">Отмена</button>
+     <button type="button" id="opening-search-find" hidden>Найти</button>
      <button type="button" id="opening-search-create" hidden>Создать</button>
      <button type="button" id="opening-search-enter" hidden>Ввести код</button>
      <input id="opening-friend-code" hidden maxlength="6" inputmode="numeric" autocomplete="one-time-code" />
@@ -362,7 +362,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
     return;
    }
    play.disabled = false;
-   play.textContent = 'С ботом';
+   play.textContent = 'Играть';
    play.removeAttribute('aria-label');
    play.setAttribute('aria-busy', 'false');
    play.hidden = false;
