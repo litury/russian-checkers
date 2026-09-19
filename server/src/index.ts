@@ -17,7 +17,7 @@ const pg = require('pg') as typeof import('pg');
 const url = process.env.DATABASE_URL ?? 'postgres://checkers:checkers@127.0.0.1:5433/checkers';
 const port = Number(process.env.PORT ?? 8787);
 const pool = new pg.Pool({connectionString: url});
-const DROP_MS = 12_000;
+const DROP_MS = 60_000;
 
 type Res = import('node:http').ServerResponse;
 const json = (res: Res, code: number, body: unknown) => {
