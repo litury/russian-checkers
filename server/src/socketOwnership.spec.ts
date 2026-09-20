@@ -27,6 +27,21 @@ it('closing a replaced socket does not drop the reconnected player', () => {
  expect(h.dropPlayer).not.toHaveBeenCalled();
 });
 
+it('closing an older socket preserves a newer queue entry', () => {
+ const h = harness();
+ const replacement = {id: 'p', sock: {}};
+ h.queue.push(replacement);
+ h.close();
+ expect(h.queue).toEqual([replacement]);
+});
+
+it('closing the queue owner removes its entry', () => {
+ const h = harness();
+ h.queue.push({id: 'p', sock: h.sock});
+ h.close();
+ expect(h.queue).toEqual([]);
+});
+
 it('closing the current room socket still drops its player', () => {
  const h = harness();
  h.room.socks.set('p', h.sock);

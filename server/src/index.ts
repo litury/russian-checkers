@@ -606,7 +606,7 @@ server.on('upgrade', (req, socket) => {
   () => {
    const id = ctx.player;
    if (!id) return;
-   const i = queue.findIndex((q) => q.id === id);
+   const i = queue.findIndex((q) => q.id === id && q.sock === sock);
    if (i >= 0) { queue.splice(i, 1); bumpPresence(); }
    const rid = playerRoom.get(id);
    const room = rid ? rooms.get(rid) : undefined;
