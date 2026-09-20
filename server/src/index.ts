@@ -115,9 +115,16 @@ const endRoom = async (room: Room, win: Side | 'draw', reason: string, loserId?:
 
 const otherOf = (room: Room, id: string): Side => (id === room.white ? 'black' : 'white');
 
+const clockFields = (room: Room) => ({
+ banks: {white: room.banks.white, black: room.banks.black},
+ turnStarted: room.turnStarted,
+ paused: room.drop.size > 0,
+ serverNow: Date.now(),
+});
+
 const pushState = (room: Room, sock: TextSock | undefined, color?: Side) => {
- const snap = snapshotOf(room.id, room.position, room.ply, room.begun);
- send(sock, {type: 'state', color, ...snap});
+ const snap = snapshotOf(room.id, room.position, room.ply, room.begun, clockFields(room));
+ send(sock, {type: 'state', color, ...snap, ...clockFields(room)});
 };
 
 const flagRoom = (room: Room) => {
@@ -145,8 +152,9 @@ const beginRoom = (room: Room) => {
  room.banks = {white: blitzStartMs, black: blitzStartMs};
  room.turnStarted = Date.now();
  armFlag(room);
- const snap = snapshotOf(room.id, room.position, room.ply, true);
- for (const s of room.socks.values()) send(s, {type: 'begin', ...snap});
+ const clocks = clockFields(room);
+ const snap = snapshotOf(room.id, room.position, room.ply, true, clocks);
+ for (const s of room.socks.values()) send(s, {type: 'begin', ...snap, ...clocks});
 };
 
 const attach = (room: Room, id: string, sock: TextSock) => {
@@ -157,8 +165,9 @@ const attach = (room: Room, id: string, sock: TextSock) => {
  room.drop.delete(id);
  const color: Side = id === room.white ? 'white' : 'black';
  if (room.friend && !room.black) return;
- const snap = snapshotOf(room.id, room.position, room.ply, room.begun);
- send(sock, {type: 'start', matchId: room.id, color, turn: snap.turn, ply: snap.ply, hash: snap.hash, begun: snap.begun, pieces: snap.pieces});
+ const clocks = clockFields(room);
+ const snap = snapshotOf(room.id, room.position, room.ply, room.begun, clocks);
+ send(sock, {type: 'start', matchId: room.id, color, ...snap, ...clocks});
  pushState(room, sock, color);
  if (room.begun && room.drop.size === 0) {
   if (pending) room.turnStarted = Date.now();

@@ -4,6 +4,13 @@ export const READY_MS = 25_000;
 
 export type BoardPiece = {row: number; col: number; side: Side; kind: PieceKind};
 
+export type ClockSnap = {
+	banks: {white: number; black: number};
+	turnStarted: number;
+	paused: boolean;
+	serverNow: number;
+};
+
 export type MatchSnapshot = {
 	matchId: string;
 	ply: number;
@@ -11,6 +18,7 @@ export type MatchSnapshot = {
 	hash: string;
 	begun: boolean;
 	pieces: BoardPiece[];
+	clocks?: ClockSnap;
 };
 
 export function encodePieces(position: IPosition): BoardPiece[] {
@@ -30,9 +38,9 @@ export function hashPosition(position: IPosition): string {
 		.join(',')}`;
 }
 
-export function snapshotOf(matchId: string, position: IPosition, ply: number, begun: boolean): MatchSnapshot {
+export function snapshotOf(matchId: string, position: IPosition, ply: number, begun: boolean, clocks?: ClockSnap): MatchSnapshot {
 	const pieces = encodePieces(position);
-	return {matchId, ply, turn: position.turn, hash: hashPosition(position), begun, pieces};
+	return {matchId, ply, turn: position.turn, hash: hashPosition(position), begun, pieces, ...(clocks ? {clocks} : {})};
 }
 
 export function positionFromSnapshot(snap: Pick<MatchSnapshot, 'pieces' | 'turn'>): IPosition {

@@ -45,6 +45,13 @@ describe('match state sync', () => {
 		expect(restored.turn).toBe('black');
 	});
 
+	it('carries authoritative clock banks, pause, and serverNow on snapshot', () => {
+		const start = createInitialPosition();
+		const clocks = {banks: {white: 51_000, black: 60_000}, turnStarted: 30_000, paused: true, serverNow: 31_000};
+		const snap = snapshotOf('m1', start, 0, true, clocks);
+		expect(snap.clocks).toEqual(clocks);
+	});
+
 	it('begin only after both ready; timeout window is 20–30s', () => {
 		expect(bothReady(new Set(['w']), 'w', 'b')).toBe(false);
 		expect(bothReady(new Set(['w', 'b']), 'w', 'b')).toBe(true);
@@ -57,7 +64,8 @@ describe('match state sync', () => {
 		expect(scene).toContain('this.inboundNet.push(move)');
 		expect(scene).not.toContain('if (this.phase === \'over\' || this.moving) return;\n				if (side === this.humanSide)');
 		expect(scene).toContain('live?.ready()');
-		expect(scene).toContain('onlineBegun');
+		expect(scene).toContain('applyResume');
+		expect(scene).toContain('applyAuthoritativeClocks');
 	});
 });
 

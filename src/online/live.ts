@@ -20,20 +20,38 @@ export type LiveHandlers = {
 
 const wsUrl = () => wsFromOrigin(runtimeApiOrigin());
 
-const asSnap = (msg: Record<string, unknown>, fallbackId = ''): MatchSnapshot => ({
+const asSnap = (msg: Record<string, unknown>, fallbackId = ''): MatchSnapshot => {
+ const banks = msg.banks as {white?: number; black?: number} | undefined;
+ const clocks = banks && typeof banks.white === 'number' && typeof banks.black === 'number'
+  ? {
+     banks: {white: Number(banks.white), black: Number(banks.black)},
+     turnStarted: Number(msg.turnStarted ?? 0),
+     paused: Boolean(msg.paused),
+     serverNow: Number(msg.serverNow ?? 0),
+    }
+  : undefined;
+ return {
  matchId: String(msg.matchId ?? fallbackId),
  ply: Number(msg.ply ?? 0),
  turn: (msg.turn === 'black' ? 'black' : 'white') as Side,
  hash: String(msg.hash ?? ''),
  begun: Boolean(msg.begun),
  pieces: Array.isArray(msg.pieces) ? (msg.pieces as MatchSnapshot['pieces']) : [],
-});
+ ...(clocks ? {clocks} : {}),
+};
+};
+
+const RECONNECT_MS = 1000;
+const RECONNECT_BUDGET = 3;
 
 export function openLive(handlers: LiveHandlers) {
  let ws: WebSocket | null = null;
  let generation = 0;
  let cancelPending: (() => void) | undefined;
- const close = () => {
+ let reconnectTimer: ReturnType<typeof setTimeout> | undefined;
+ let activeMatch = false;
+ let reconnectLeft = 0;
+ const dropAttempt = () => {
   generation++;
   cancelPending?.();
   cancelPending = undefined;
@@ -41,10 +59,16 @@ export function openLive(handlers: LiveHandlers) {
   ws = null;
   try { socket?.close(); } catch {}
  };
+ const close = () => {
+  activeMatch = false;
+  reconnectLeft = 0;
+  if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = undefined; }
+  dropAttempt();
+ };
  const send = (msg: unknown) => { if (ws?.readyState === 1) ws.send(JSON.stringify(msg)); };
- return {
+ const api = {
   async connect(): Promise<boolean> {
-   close();
+   dropAttempt();
    const attempt = generation;
    const guest = await ensureGuest();
    if (!guest || attempt !== generation) return false;
@@ -69,16 +93,24 @@ export function openLive(handlers: LiveHandlers) {
     const timer = setTimeout(cancel, CONNECT_BUDGET_MS);
     socket.onopen = () => { if (current()) socket.send(JSON.stringify({ type: 'auth', token: guest.token })); };
     socket.onerror = () => finish(false);
-    socket.onclose = () => { finish(false); if (ws === socket) ws = null; };
+    socket.onclose = () => {
+     finish(false);
+     if (ws === socket) ws = null;
+     if (attempt !== generation || !activeMatch || reconnectLeft <= 0) return;
+     reconnectLeft -= 1;
+     reconnectTimer = setTimeout(() => { reconnectTimer = undefined; void api.connect(); }, RECONNECT_MS);
+    };
     socket.onmessage = (ev) => {
      if (!current()) return;
      let msg: Record<string, unknown> = {};
      try { msg = JSON.parse(String(ev.data)); } catch { return; }
      const type = String(msg.type ?? '');
      if (type === 'ok') { finish(true); }
-     if (type === 'queued') handlers.onQueued?.();
+     if (type === 'queued') { activeMatch = false; handlers.onQueued?.(); }
      if (type === 'hosted' && msg.matchId) handlers.onHosted?.(String(msg.matchId), msg.code ? String(msg.code) : undefined);
      if (type === 'start' && msg.color) {
+      activeMatch = true;
+      reconnectLeft = RECONNECT_BUDGET;
       handlers.onStart?.(msg.color as Side, String(msg.matchId ?? ''), asSnap(msg, String(msg.matchId ?? '')));
      }
      if (type === 'begin') handlers.onBegin?.(asSnap(msg));
@@ -96,7 +128,11 @@ export function openLive(handlers: LiveHandlers) {
        side: msg.side as Side,
       });
      }
-     if (type === 'end' && msg.winner) handlers.onEnd?.(msg.winner as Side | 'draw', String(msg.reason ?? ''), msg.youWin as boolean | undefined);
+     if (type === 'end' && msg.winner) {
+      activeMatch = false;
+      reconnectLeft = 0;
+      handlers.onEnd?.(msg.winner as Side | 'draw', String(msg.reason ?? ''), msg.youWin as boolean | undefined);
+     }
      if (type === 'error' && msg.error) handlers.onError?.(String(msg.error));
     };
    });
@@ -115,4 +151,5 @@ export function openLive(handlers: LiveHandlers) {
   isOpen() { return ws?.readyState === 1; },
   close,
  };
+ return api;
 }

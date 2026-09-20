@@ -22,6 +22,33 @@ function setup() {
  return {live: openLive({onState}), onState};
 }
 afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); vi.clearAllMocks(); });
+it('reconnects an active match and authenticates the replacement without replaying moves', async () => {
+ const {live} = setup(); const first = live.connect(); await Promise.resolve();
+ Socket.all[0].message('ok'); await first;
+ Socket.all[0].onmessage?.({data: JSON.stringify({type:'start', color:'white',matchId:'r'})});
+ Socket.all[0].close();
+ await vi.advanceTimersByTimeAsync(1000);
+ expect(Socket.all).toHaveLength(2);
+ const next = Socket.all[1]; next.onopen?.();
+ expect(next.send).toHaveBeenCalledWith(JSON.stringify({type:'auth',token:'test'}));
+ next.message('ok'); await Promise.resolve();
+ expect(live.isOpen()).toBe(true); live.close();
+});
+
+it('explicit close cancels a scheduled reconnect', async () => {
+ const {live} = setup(); const first = live.connect(); await Promise.resolve();
+ Socket.all[0].message('ok'); await first;
+ Socket.all[0].onmessage?.({data: JSON.stringify({type:'start',color:'white',matchId:'r'})});
+ Socket.all[0].close(); live.close(); await vi.runAllTimersAsync();
+ expect(Socket.all).toHaveLength(1); expect(vi.getTimerCount()).toBe(0);
+});
+
+it('does not reconnect a queue-only session', async () => {
+ const {live} = setup(); const first = live.connect(); await Promise.resolve();
+ Socket.all[0].message('ok'); await first; live.queue(); Socket.all[0].close();
+ await vi.runAllTimersAsync(); expect(Socket.all).toHaveLength(1);
+});
+
 it('close cancels an outstanding authentication attempt immediately', async () => {
  const {live} = setup();
  const pending = live.connect(); await Promise.resolve();
