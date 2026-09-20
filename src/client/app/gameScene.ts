@@ -150,6 +150,10 @@ export class GameScene extends Phaser.Scene {
 		);
 		// Selection-v2: background after playfieldReady; gates board *reveal*, not HTML unlock.
 		this.interactiveReady = this.bootMatchInteractive();
+		void this.interactiveReady.then(() => {
+			if (this.startupFailed || this.phase === 'title' || !this.playfieldBuilt) return;
+			this.refresh();
+		});
 		// KingFire then result: after interactive (single Phaser loader); never gate reveal/depart.
 		this.resultReady = this.interactiveReady.then(async () => {
 			await this.bootKingFire();
@@ -723,14 +727,7 @@ export class GameScene extends Phaser.Scene {
 					return;
 				}
 			}
-			// Selection frames must be ready before board+timers appear — no disk flash.
 			window.checkersStartup.waitPlay();
-			await this.interactiveReady;
-			if (this.startupFailed) {
-				window.checkersStartup.playCommitted = false;
-				return;
-			}
-			if (this.phase !== 'title') return;
 			await this.startMatch(true);
 			// startMatch no-op while still title: keep bars — committed cleared only by hide/depart or hard fail.
 			if (this.phase === 'title') window.checkersStartup.waitPlay();
@@ -775,9 +772,7 @@ export class GameScene extends Phaser.Scene {
 
 	private async startMatch(fromOpening = false): Promise<void> {
 		if (fromOpening && this.phase !== 'title') return;
-		if (!this.playfieldBuilt || !this.board || !this.hud) return;
-		// Gate reveal on selection-v2; kingFire stays off this wait.
-		await this.interactiveReady;
+		await this.playfieldReady;
 		if (this.startupFailed) return;
 		if (fromOpening && this.phase !== 'title') return;
 		if (!this.playfieldBuilt || !this.board || !this.hud) return;
@@ -815,7 +810,7 @@ export class GameScene extends Phaser.Scene {
 		this.hud.prepareClosed();
 		this.hud.setVisible(true);
 		this.hud.setNames('Ты', this.online ? 'Соперник' : 'Бот');
-		// interactiveReady already settled: first paint is selection-v2 (disk only if boot failed).
+		// Disks until selection-v2 finishes in the background; refresh swaps textures then.
 		this.board.setPlayfieldVisible(true);
 		this.beginCountdown(fromOpening);
 		this.refresh();

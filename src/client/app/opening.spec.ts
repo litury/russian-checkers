@@ -75,13 +75,14 @@ describe('HTML-first opening', () => {
   expect(createBoot.indexOf('bootKingFire')).toBeLessThan(createBoot.indexOf('bootResultPack'));
   expect(createBoot).toContain('await this.bootKingFire()');
   expect(createBoot).toContain('await this.bootResultPack()');
-  // interactiveReady gates reveal (not HTML unlock); startMatch awaits before setPlayfieldVisible.
+  // Board reveal waits on playfieldReady only; selection-v2 loads in the background.
   const startMatch = scene.match(/private async startMatch\([\s\S]*?\n\t\}/)?.[0] ?? '';
-  expect(startMatch).toContain('await this.interactiveReady');
-  expect(startMatch.indexOf('await this.interactiveReady')).toBeLessThan(startMatch.indexOf('setPlayfieldVisible(true)'));
+  expect(startMatch).toContain('await this.playfieldReady');
+  expect(startMatch).not.toContain('await this.interactiveReady');
+  expect(startMatch.indexOf('await this.playfieldReady')).toBeLessThan(startMatch.indexOf('setPlayfieldVisible(true)'));
   expect(startMatch.indexOf('setPlayfieldVisible(true)')).toBeLessThan(startMatch.indexOf('beginCountdown'));
   expect(startMatch.indexOf('setPlayfieldVisible(true)')).toBeLessThan(startMatch.indexOf('this.refresh()'));
-  expect(scene).toMatch(/await this\.interactiveReady;[\s\S]*await this\.startMatch\(true\)/);
+  expect(scene).not.toMatch(/await this\.interactiveReady;[\s\S]*await this\.startMatch\(true\)/);
  });
 
  it('one-tap play intent auto-starts without a second click', () => {
