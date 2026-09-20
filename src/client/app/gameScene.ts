@@ -12,7 +12,7 @@ import { orcOpeningTurnLine } from './orcTurn';
 import { defeatTauntCue, pieceSelectSfx } from './pieceSfx';
 import { recordBotMatch, probeApi, type CloudPly } from '@/online/cloud';
 import { openLive, type NetMove } from '@/online/live';
-import { classifyPly, hashPosition, positionFromSnapshot, takeNextPly } from '@/online/matchState';
+import { classifyPly, hashPosition, positionFromSnapshot, takeNextPly, type MatchSnapshot } from '@/online/matchState';
 import { FOUND_HOLD_MS, SEARCH_TIMEOUT_MS, type SearchPhase } from './matchmakingSearch';
 import { orcOutcomeLine, orcTimeLow } from './orcResult';
 import { StepwiseMove } from './stepwiseMove';
@@ -80,6 +80,7 @@ export class GameScene extends Phaser.Scene {
 	private clocks = { white: blitzStartMs, black: blitzStartMs };
 	private clockStartedAt = 0;
 	private flagLock = false;
+	private remoteClockPaused = false;
 
 	private countingIn = false;
 	private timeLowSaid = false;
@@ -439,6 +440,10 @@ export class GameScene extends Phaser.Scene {
 		this.live?.close();
 		this.live = openLive({
 			onStart: (color, _matchId, snap) => {
+				if (this.phase !== 'title') {
+					this.applyResume(color, snap);
+					return;
+				}
 				if (!snap.begun && !snap.pieces.length && snap.ply < 1) return;
 				this.online = true;
 				this.humanSide = color;
@@ -515,6 +520,10 @@ export class GameScene extends Phaser.Scene {
 				if (this.friendJoin) void navigator.clipboard?.writeText(this.friendJoin).catch(() => {});
 			},
 			onStart: (color, _matchId, snap) => {
+				if (this.phase !== 'title') {
+					this.applyResume(color, snap);
+					return;
+				}
 				this.searchPhase = 'found';
 				this.stopSearchTicker();
 				this.paintSearch();
@@ -598,12 +607,41 @@ export class GameScene extends Phaser.Scene {
 		else this.live.queue();
 	}
 
-	private applyBegin(snap: {ply: number; turn: Side; hash: string; pieces: {row: number; col: number; side: Side; kind: 'man' | 'king'}[]}): void {
+	private applyAuthoritativeClocks(snap: MatchSnapshot): void {
+		if (!snap.clocks) return;
+		this.clocks = { white: snap.clocks.banks.white, black: snap.clocks.banks.black };
+		this.remoteClockPaused = snap.clocks.paused;
+		const elapsed = Math.max(0, snap.clocks.serverNow - snap.clocks.turnStarted);
+		this.clockStartedAt = this.remoteClockPaused ? this.time.now : this.time.now - elapsed;
+		this.paintClock();
+	}
+
+	private applyResume(color: Side, snap: MatchSnapshot): void {
+		this.online = true;
+		this.humanSide = color;
+		this.lastPly = snap.ply;
+		this.serverTurn = snap.turn;
+		this.onlineBegun = snap.begun || snap.ply > 0;
+		if (snap.pieces.length) this.position = positionFromSnapshot(snap);
+		this.inboundNet = [];
+		this.moving = false;
+		this.humanChain = null;
+		this.selected = null;
+		if (!this.countingIn && snap.begun) {
+			this.phase = this.serverTurn === this.humanSide ? 'human' : 'bot';
+		}
+		this.applyAuthoritativeClocks(snap);
+		this.refresh();
+		this.drainInbound();
+	}
+
+	private applyBegin(snap: MatchSnapshot): void {
 		this.onlineBegun = true;
 		this.lastPly = snap.ply;
 		this.serverTurn = snap.turn;
 		if (snap.pieces.length) this.position = positionFromSnapshot(snap);
 		this.phase = this.serverTurn === this.humanSide ? 'human' : 'bot';
+		this.applyAuthoritativeClocks(snap);
 		if (this.countingIn) {
 			this.clockStartedAt = this.time.now;
 			this.countingIn = false;
@@ -613,7 +651,7 @@ export class GameScene extends Phaser.Scene {
 		this.drainInbound();
 	}
 
-	private applyState(snap: {ply: number; turn: Side; hash: string; begun: boolean; pieces: {row: number; col: number; side: Side; kind: 'man' | 'king'}[]}): void {
+	private applyState(snap: MatchSnapshot): void {
 		this.lastPly = snap.ply;
 		this.serverTurn = snap.turn;
 		this.onlineBegun = snap.begun;
@@ -622,7 +660,10 @@ export class GameScene extends Phaser.Scene {
 		this.moving = false;
 		this.humanChain = null;
 		this.selected = null;
-		this.phase = !snap.begun ? this.phase : this.serverTurn === this.humanSide ? 'human' : 'bot';
+		if (!this.countingIn) {
+			this.phase = !snap.begun ? this.phase : this.serverTurn === this.humanSide ? 'human' : 'bot';
+		}
+		this.applyAuthoritativeClocks(snap);
 		this.refresh();
 	}
 
@@ -845,7 +886,7 @@ export class GameScene extends Phaser.Scene {
 			bankMs: this.clocks[side],
 			startedAt: this.clockStartedAt,
 			now: this.time.now,
-			paused: this.paused,
+			paused: this.paused || this.remoteClockPaused,
 			side,
 			turn: this.clockTurn(),
 		});
@@ -856,7 +897,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private canSelect(): boolean {
-		if (this.paused || this.moving || this.countingIn || this.flagLock || this.phase === 'over') return false;
+		if (this.paused || this.remoteClockPaused || this.moving || this.countingIn || this.flagLock || this.phase === 'over') return false;
 		if (this.online) return this.onlineHumanTurn();
 		return this.phase === 'human';
 	}
