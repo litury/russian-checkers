@@ -1,0 +1,151 @@
+import { SiegeSelection, setSiegeSide, siegeSide, type SiegeSide } from './siegeSelection';
+
+const layers = import.meta.glob('./ui/siege/{white,black}-{base,moving,front}.png', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
+const fireUrls = [
+ new URL('../modules/board/king-fire-polish/idle-back.webp', import.meta.url).href,
+ new URL('../modules/board/king-fire-polish/ignite-back.webp', import.meta.url).href,
+];
+const endpoints = import.meta.glob('../modules/board/selection-v2/frames/*/*-{00,55}.webp', { query: '?url', import: 'default' });
+
+/** Decode before revealing; a failed decoration never changes startup readiness. */
+async function decode(src: string) {
+ const image = new Image();
+ image.src = src;
+ await image.decode();
+ return image;
+}
+export function mountSiegeOpening(root: HTMLElement) {
+ const media = matchMedia('(prefers-reduced-motion: reduce)');
+ const state = new SiegeSelection(siegeSide(root));
+ const buttons = [...root.querySelectorAll<HTMLButtonElement>('.gate-piece-slot')];
+ const painters: Partial<Record<SiegeSide, (displacement: number) => void>> = {};
+ let frame = 0, previous = 0, disposed = false;
+ let fire: HTMLImageElement[] = [], elapsed = 0, burst = 0, lastPaint = -Infinity;
+ const drawFire = (context: CanvasRenderingContext2D, side: SiegeSide, front: boolean) => {
+  if (media.matches || root.hidden || document.hidden || side !== state.side || !fire.length) return;
+  const igniting = burst > 0;
+  const sheet = fire[igniting ? 1 : 0];
+  const sprite = igniting ? Math.min(11, Math.floor((600 - burst) / 50)) : Math.floor(elapsed / 100) % 20;
+  // Reuse the sheet's upper flame tongues around the elliptical ring seam.
+  // Twelve fixed stamps total, no particles, allocations, filters or new artwork.
+  for (let i = front ? 0 : 6; i < (front ? 6 : 12); i++) {
+   const angle = (i + .5) * Math.PI / 6;
+   const x = 365 + Math.cos(angle) * 238;
+   const y = 370 + Math.sin(angle) * 153;
+   context.drawImage(sheet, sprite * 64 + 8, 8, 48, 28, x - 78, y - 100, 156, 110);
+  }
+ };
+ const loadFire = () => {
+  if (media.matches || fire.length || fireLoading) return;
+  fireLoading = true;
+  void Promise.all(fireUrls.map(decode)).then(images => {
+   if (disposed) return;
+   fire = images; wake();
+  }).catch(() => {});
+ };
+ let fireLoading = false;
+ const paint = () => {
+  for (const side of ['white', 'black'] as const) painters[side]?.(state.displacement(side));
+ };
+ const tick = (now: number) => {
+  frame = 0;
+  if (disposed || root.hidden || document.hidden) { previous = 0; return; }
+  const delta = previous ? Math.min(50, now - previous) : 0;
+  state.advance(delta, media.matches);
+  elapsed += delta; burst = Math.max(0, burst - delta);
+  previous = now;
+  if (!state.settled || now - lastPaint >= 1000 / 30) { paint(); lastPaint = now; }
+  if (!state.settled || (!media.matches && fire.length && painters[state.side])) frame = requestAnimationFrame(tick);
+  else previous = 0;
+ };
+ const wake = () => {
+  if (disposed || root.hidden || document.hidden) {
+   cancelAnimationFrame(frame); frame = 0; previous = 0; burst = 0; return;
+  }
+  if (!frame) frame = requestAnimationFrame(tick);
+ };
+ const update = () => {
+  const next = siegeSide(root);
+  if (next !== state.side && !media.matches) burst = 600;
+  if (media.matches) burst = 0;
+  state.select(next, media.matches);
+  loadFire();
+  // Endpoint fallback remains correct even if a layer fails or loads after another choice.
+  for (const button of buttons) {
+   const side = button.dataset.side as SiegeSide;
+   const image = button.querySelector('img')!;
+   const selected = side === state.side;
+   const key = `../modules/board/selection-v2/frames/${side}/${side}-${selected ? '55' : '00'}.webp`;
+   if (!painters[side]) void endpoints[key]().then(async url => {
+    const loaded = await decode(url as string);
+    if (disposed || (side === state.side) !== selected || painters[side]) return;
+    image.src = loaded.src;
+    image.classList.add('is-decoded');
+   }).catch(() => {});
+  }
+  paint();
+  wake();
+ };
+ const choose = (event: Event) => {
+  const button = event.currentTarget as HTMLButtonElement;
+  if (root.hidden || root.inert) return;
+  setSiegeSide(root, button.dataset.side as SiegeSide);
+ };
+ const keyboard = (event: KeyboardEvent) => {
+  if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return;
+  event.preventDefault();
+  const side = event.key === 'Home' ? 'white' : event.key === 'End' ? 'black' : state.side === 'white' ? 'black' : 'white';
+  setSiegeSide(root, side);
+  buttons.find(button => button.dataset.side === side)?.focus();
+ };
+ for (const button of buttons) {
+  button.addEventListener('click', choose);
+  button.addEventListener('keydown', keyboard);
+  const side = button.dataset.side as SiegeSide;
+  // Only six small source layers; no frame sequence fetched. Latest state wins on decode.
+  void Promise.all(['base', 'moving', 'front'].map(name => decode(layers[`./ui/siege/${side}-${name}.png`]))).then(images => {
+   if (disposed) return;
+   const canvas = button.querySelector('canvas')!;
+   const context = canvas.getContext('2d');
+   if (!context) return;
+   painters[side] = displacement => {
+    context.clearRect(0, 0, 724, 724);
+    context.drawImage(images[0], 0, 0);
+    drawFire(context, side, false);
+    context.drawImage(images[1], 141, 160 - displacement);
+    context.drawImage(images[2], 0, 0);
+    drawFire(context, side, true);
+    canvas.dataset.displacement = String(displacement);
+   };
+   painters[side]!(state.displacement(side));
+   canvas.hidden = false;
+   button.querySelector('img')!.hidden = true;
+   wake();
+  }).catch(() => { if (!disposed) button.dataset.art = 'static'; });
+ }
+ loadFire();
+ root.addEventListener('siege-side', update);
+ media.addEventListener('change', update);
+ document.addEventListener('visibilitychange', wake);
+ const observer = new MutationObserver(wake);
+ observer.observe(root, { attributes: true, attributeFilter: ['hidden'] });
+ return () => {
+  disposed = true;
+  fire = [];
+  for (const side of ['white', 'black'] as const) delete painters[side];
+  cancelAnimationFrame(frame);
+  observer.disconnect();
+  root.removeEventListener('siege-side', update);
+  media.removeEventListener('change', update);
+  document.removeEventListener('visibilitychange', wake);
+  for (const button of buttons) {
+   button.removeEventListener('click', choose);
+   button.removeEventListener('keydown', keyboard);
+  }
+ };
+}
+const root = document.getElementById('opening');
+if (root) {
+ const dispose = mountSiegeOpening(root);
+ if (import.meta.hot) import.meta.hot.dispose(dispose);
+}

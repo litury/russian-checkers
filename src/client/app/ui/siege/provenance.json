@@ -1,0 +1,76 @@
+{
+  "unchanged_copies": [
+    {
+      "file": "gate.png",
+      "source": "/Users/urylit/russian-checkers/docs/opening-siege-art-kit/masters/gate-native.png",
+      "sha256": "d7138da42c31eda0fee73df18fdf89baf03464de2f0f7a9a61bafb60bab33db6"
+    },
+    {
+      "file": "cartouche.png",
+      "source": "/Users/urylit/russian-checkers/docs/opening-siege-art-kit/assets/cartouche.png",
+      "sha256": "195d3f696692cff919d1b477ab0aa04660cf20b15024073d8ac613ae1131051f"
+    },
+    {
+      "file": "button-primary.png",
+      "source": "/Users/urylit/russian-checkers/docs/opening-siege-art-kit/assets/button-primary.png",
+      "sha256": "be2d7fe1890917b356156471fad36d6c2a4094154bd3ab6d6a31b88465567d2b"
+    },
+    {
+      "file": "button-secondary.png",
+      "source": "/Users/urylit/russian-checkers/docs/opening-siege-art-kit/assets/button-secondary.png",
+      "sha256": "d70dee5f468c9ac6022293d6dd14c3ae10eb8283aa23322de1d2a621f8b24b77"
+    },
+    {
+      "file": "white-base.png",
+      "source": "/Users/urylit/russian-checkers/docs/preview-selection-quality-upgrade/v2/layers/white-base.png",
+      "sha256": "250420ca6fefdc6ce6184866b1d98ddb16c04124786fe855079ed769377d4c43"
+    },
+    {
+      "file": "white-moving.png",
+      "source": "/Users/urylit/russian-checkers/docs/preview-selection-quality-upgrade/v2/layers/white-moving.png",
+      "sha256": "5517025a8be759a3dee9b96b9cb8025eb1f76d0e834222b8c65997fb6f9e863d"
+    },
+    {
+      "file": "white-front.png",
+      "source": "/Users/urylit/russian-checkers/docs/preview-selection-quality-upgrade/v2/layers/white-front.png",
+      "sha256": "04335d53cb6172af103d81534929c3988a12d3c6487f0a9fc342ef85ee34135c"
+    },
+    {
+      "file": "black-base.png",
+      "source": "/Users/urylit/russian-checkers/docs/preview-selection-quality-upgrade/v2/layers/black-base.png",
+      "sha256": "f6d746b641639a245c2f87c857f6b574cd237f7e02f548c70064c68d242acf98"
+    },
+    {
+      "file": "black-moving.png",
+      "source": "/Users/urylit/russian-checkers/docs/preview-selection-quality-upgrade/v2/layers/black-moving.png",
+      "sha256": "6cf33a304ba70598ef4a093297add802ebbe4fefcdc614e721f87cd6c1e10394"
+    },
+    {
+      "file": "black-front.png",
+      "source": "/Users/urylit/russian-checkers/docs/preview-selection-quality-upgrade/v2/layers/black-front.png",
+      "sha256": "66c339add249a7a77b62edd2a615d5171679c77de8015ea9a6761c041bb5a35c"
+    }
+  ],
+  "selection": {
+    "canvas": [
+      724,
+      724
+    ],
+    "moving_origin": [
+      141,
+      160
+    ],
+    "travel": 55,
+    "pivot": [
+      365,
+      679
+    ],
+    "order": [
+      "base",
+      "moving",
+      "front"
+    ]
+  },
+  "gate": "Toothed horizontal opening: unchanged gate.png closed master; deterministic full-canvas left/right/frame extraction. See gate-masks.json and extract-gates.py. No generated art or hidden surface synthesis.",
+  "buttons": "Static only: new preview assets empty; generated masters not registered."
+}

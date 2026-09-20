@@ -16,19 +16,15 @@ describe('HTML-first opening', () => {
   expect(main).not.toContain('/sdk.js');
  });
  it('uses an accessible indeterminate loading indicator, without a duplicate kicker', () => {
-  expect(html).toMatch(/id="opening-play"[^>]*aria-label="Загрузка игры"[^>]*aria-busy="true"[^>]*disabled>/);
-  expect(html).toContain('class="opening-activity" aria-hidden="true"');
+  expect(html).toMatch(/id="opening-play"[^>]*aria-label="С машиной"[^>]*aria-busy="true"[^>]*disabled>/);
+  expect(html).toContain('disabled>С машиной</button>');
   expect(html).toContain('@keyframes opening-segment');
   expect(html).not.toContain('disabled>Загрузка…');
   expect(html).not.toContain('opening-kicker');
  });
  it('provides live title, honest status and disabled Play before modules load', () => {
   expect(html).toContain('id="opening"');
-  expect(html).toContain('class="opening-slogan"');
-  expect(html).toContain('id="opening-flavor-text"');
-  expect(html).toContain("Пленных не будет...");
   expect(html).not.toContain('Великие планы. Неизбежные жертвы.');
-  expect(html.indexOf('class="opening-slogan"')).toBeLessThan(html.indexOf('id="opening-status"'));
   expect(html).toMatch(/id="opening-status"[^>]*hidden/);
   expect(html).toMatch(/id="opening-play"[^>]*disabled/);
   expect(html).toContain('role="status"');
@@ -37,7 +33,7 @@ describe('HTML-first opening', () => {
   expect(html).toContain('data-api="%VITE_API_URL%"');
   expect(html).not.toContain('.replace(/%VITE_API_URL%');
   expect(html).toContain('id="opening-online"');
-  expect(html).toContain('Онлайн');
+  expect(html).toContain('С человеком');
  });
  it('unlocks Play from the HTML gate before Phaser preload packs', () => {
   expect(html).toContain('unlock()');
