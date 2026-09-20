@@ -5,10 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#161a1b" />
 <title>Русские шашки</title>
-<!-- Only the two UI weights are preloaded: keep discovery early and bounded. -->
-<link rel="preload" href="/src/client/fonts/GolosText-400-cyrillic.woff2" as="font" type="font/woff2" crossorigin />
-<link rel="preload" href="/src/client/fonts/GolosText-600-cyrillic.woff2" as="font" type="font/woff2" crossorigin />
+<!-- One LCP image high. Extra font preloads steal the mobile pipe (web.dev Fetch Priority). -->
 <link rel="preload" href="/src/client/app/ui/siege/gate.webp" as="image" type="image/webp" fetchpriority="high" />
+<link rel="preload" href="/src/client/app/ui/siege/button-steel-rest.webp" as="image" type="image/webp" fetchpriority="low" />
 <script>document.documentElement.dataset.titleFont = 'pending';</script>
 <style>
 @font-face{font-family:Literata;src:url('/src/client/fonts/Literata-600-cyrillic.woff2') format('woff2');font-weight:600;font-display:swap}
@@ -81,14 +80,14 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
  <div class="opening-sheet">
 
   <div class="gate-title-canopy" data-siege-mount="left"><div class="gate-title-clip"><div class="gate-title-plate">
-   <img class="siege-cartouche" src="/src/client/app/ui/siege/cassette-title.webp" width="1456" height="570" alt="" decoding="async" />
+   <img class="siege-cartouche" src="/src/client/app/ui/siege/cassette-title.webp" width="1456" height="570" alt="" decoding="async" fetchpriority="low" />
    <h1 id="opening-title">РУССКИЕ <span>ШАШКИ</span></h1>
   </div></div></div>
   <div class="opening-art" role="group" aria-label="Ваша сторона">
    <div class="siege-housing" aria-hidden="true">
-   <img class="siege-gate" src="/src/client/app/ui/siege/gate.webp" width="1536" height="1024" alt="" fetchpriority="high" decoding="sync" />
-    <img class="siege-layer siege-left" src="/src/client/app/ui/siege/gate.webp" width="1536" height="1024" alt="" decoding="async" />
-    <img class="siege-layer siege-right" src="/src/client/app/ui/siege/gate.webp" width="1536" height="1024" alt="" decoding="async" />
+   <img class="siege-gate" src="/src/client/app/ui/siege/gate.webp" width="1536" height="1024" alt="" fetchpriority="high" decoding="sync" loading="eager" />
+    <img class="siege-layer siege-left" src="/src/client/app/ui/siege/gate.webp" width="1536" height="1024" alt="" decoding="async" fetchpriority="low" loading="lazy" />
+    <img class="siege-layer siege-right" src="/src/client/app/ui/siege/gate.webp" width="1536" height="1024" alt="" decoding="async" fetchpriority="low" loading="lazy" />
    </div>
    <button type="button" class="gate-piece-slot gate-piece-ivory is-chosen" data-siege-mount="left" data-side="white" aria-pressed="true" aria-label="Играть белыми">
     <img class="gate-piece" src="/src/client/modules/board/selection-v2/frames/white/white-55.webp" width="724" height="724" alt="" decoding="async" />
