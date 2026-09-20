@@ -610,7 +610,7 @@ server.on('upgrade', (req, socket) => {
    if (i >= 0) { queue.splice(i, 1); bumpPresence(); }
    const rid = playerRoom.get(id);
    const room = rid ? rooms.get(rid) : undefined;
-   if (room) dropPlayer(room, id);
+   if (room && room.socks.get(id) === sock) dropPlayer(room, id);
   },
  );
  if (!sock) socket.destroy();
