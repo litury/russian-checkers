@@ -5,8 +5,8 @@
 #opening .opening-sheet { width:100%; max-width:none; min-height:844px; height:100%; margin:0; padding:0; }
 #opening .opening-art { position:absolute; inset:0; margin:0; height:100%; opacity:1; pointer-events:none; transition:none; overflow:visible; }
 #opening .opening-art img { filter:none; transition:none; max-width:none; }
-#opening .siege-housing { position:absolute; inset:0; container-type:size; overflow:hidden; }
-#opening .siege-housing img { width:max(1440px,100cqw,150cqh); height:auto; aspect-ratio:3/2; left:50%; top:50%; translate:-50% -50%; object-fit:contain; }
+#opening .siege-housing { position:absolute; inset:0; container-type:size; overflow:hidden; --gate-w:max(1440px,100cqw,150cqh); --gate-h:calc(var(--gate-w) * 2 / 3); }
+#opening .siege-housing img { height:100%; width:auto; aspect-ratio:3/2; left:50%; top:50%; translate:-50% -50%; max-width:none; object-fit:contain; }
 #opening .siege-layer { visibility:hidden; }
 #opening.is-departing { background:transparent; overflow:hidden; }
 #opening.is-departing :is(.siege-left,.siege-right) { visibility:visible; will-change:transform; }
@@ -19,7 +19,7 @@
 #opening h1 { position:relative; margin:0; height:auto; font-size:27px; line-height:1.12; letter-spacing:0; }
 #opening h1 span { font-size:36px; }
 #opening .opening-slogan { position:absolute; top:153px; left:50%; transform:translateX(-50%); margin:0; font-size:14px; background:none; white-space:nowrap; }
-#opening .gate-piece-slot { position:absolute; z-index:1; padding:0; width:164px; height:210px; border:0; background:none; color:#e9e0ce; pointer-events:auto; }
+#opening .gate-piece-slot { position:absolute; z-index:4; padding:0; width:164px; height:210px; border:0; background:none; color:#e9e0ce; pointer-events:auto; }
 #opening .gate-piece-ivory { left:calc(50% - 164px); top:284px; }
 #opening .gate-piece-black { left:50%; top:224px; }
 #opening .gate-piece-slot img, #opening .gate-piece-slot canvas { position:absolute; width:210px; height:210px; left:-23px; top:0; pointer-events:none; }
@@ -51,8 +51,8 @@
 #opening-search-actions button { min-height:44px; min-width:120px; padding:8px 12px; border:1px solid #c5b28e; background:#ddd0ab; color:#292b28; font-size:16px; }
 #opening-friend-code { width:120px; min-height:44px; text-align:center; font-size:20px; letter-spacing:.2em; }
 #opening.is-searching :is(#opening-play,#opening-online) { visibility:hidden; pointer-events:none; }
-/* Compact paired mounts at the seam; each shares its leaf's rigid translation. */
-#opening { --column:min(184px,calc((100vw - 28px)/2)); --piece:min(210px,var(--column)); --piece-y:clamp(155px,29dvh,320px); --play-y:calc(var(--piece-y) + var(--piece) + 8px); overflow:hidden; }
+/* Door height fills the screen so welds match layout. Checkers in the last plate: below the lower weld, above the thick sill. */
+#opening { --column:min(184px,calc((100vw - 28px)/2)); --piece:min(181px,var(--column),16dvh); --play-y:clamp(210px,42dvh,46%); --piece-y:calc(71dvh); overflow:hidden; }
 #opening .opening-sheet { min-height:0; height:100%; }
 #opening .gate-piece-slot { top:var(--piece-y); width:var(--column); height:var(--piece); }
 #opening .gate-piece-ivory { left:calc(50% - var(--column) - 6px); }
@@ -72,18 +72,18 @@
  #opening .siege-cartouche { width:100%; object-fit:contain; }
 }
 @media(max-height:620px) {
- #opening { --piece:min(140px,var(--column)); --piece-y:145px; }
+ #opening { --play-y:clamp(150px,38dvh,42%); }
  #opening .gate-title-canopy { top:-12px; }
 }
 @media(max-height:440px) and (min-width:600px) {
- #opening { --piece:120px; --piece-y:105px; }
+ #opening { --piece:96px; --play-y:110px; --piece-y:calc(var(--play-y) + 108px); }
  #opening .gate-title-canopy { top:0; width:230px; height:90px; }
  #opening .gate-title-plate { height:90px; padding-top:25px; }
  #opening .siege-cartouche { width:230px; height:90px; }
  #opening h1 { font-size:18px; }
  #opening h1 span { font-size:24px; }
- #opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options) { height:52px; }
- #opening :is(#opening-history,#opening-options) { top:calc(var(--play-y) + 56px); }
+ #opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options) { height:48px; }
+ #opening :is(#opening-history,#opening-options) { top:calc(var(--play-y) + 50px); }
 }
 @media(prefers-reduced-motion:reduce) {
  #opening *, #opening *::before, #opening *::after { animation:none!important; transition:none!important; }
