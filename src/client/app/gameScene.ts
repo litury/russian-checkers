@@ -852,16 +852,17 @@ export class GameScene extends Phaser.Scene {
 				this.botTimer = this.time.delayedCall(400, () => this.playBot());
 			}
 		};
-		const startPanels = () => {
+		// Vs bot: board is already painted — open both HUD bays now, do not wait for title.depart.
+		hud.setVisible(true);
+		hud.startReveal(ready);
+		const afterTitle = () => {
 			if (!this.countingIn) return;
 			this.title.beginMatch();
 			board.startOpeningHint(this.position, this.humanSide);
 			this.title.hintWave();
-			hud.startReveal(ready);
-			hud.setVisible(true);
 		};
-		if (fromOpening) this.title.depart(startPanels);
-		else startPanels();
+		if (fromOpening) this.title.depart(afterTitle);
+		else afterTitle();
 	}
 
 	private layout(width: number, height: number): void {
