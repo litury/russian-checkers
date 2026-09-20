@@ -123,18 +123,25 @@ export function createMenuAudio(sdk:IYandexSdk) {
   if(!event.isTrusted)return;
   const target=event.target as HTMLElement;
   // Toggle intent is known on click, not pointerdown/keydown: no disable blip.
-  if(target.closest('#opening-sound'))return;
+  // Mute toggle intent is click-only; pointerdown while already audible would blip.
+  // Unmute must resume in this trusted gesture so later source.start is not deferred.
+  if(target.closest('#opening-sound')){
+   if(!settings().muted)return;
+   prepare();if(!ctx)return;
+   void ctx.resume().then(()=>{unlocked=ctx!.state==='running';sync();}).catch(()=>{});
+   return;
+  }
   if(target.closest('#opening-play'))policy.departing=true; // No first-Play music blip.
   prepare();if(!ctx)return;
   void ctx.resume().then(()=>{unlocked=ctx!.state==='running';sync();}).catch(()=>{});
- };
+};
  const click=(event:Event)=>{
   if(!event.isTrusted)return;
   // Every newer click supersedes pending feedback, even outside these controls.
   const serial=++clickSerial,target=event.target as HTMLElement;
   if(target.closest('#opening-sound')){
-   // HTML owns persisted mute; resume synchronously in this trusted enabling
-   // activation, before its target handler changes settings. Never auto-unmute.
+   // HTML owns persisted mute; resume in this trusted enabling activation,
+   // before its target handler changes settings. Never auto-unmute.
    if(settings().muted){
     prepare();
     void ctx?.resume().then(()=>{unlocked=ctx?.state==='running';sync();}).catch(()=>{});

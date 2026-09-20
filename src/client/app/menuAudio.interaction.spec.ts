@@ -66,6 +66,31 @@ it('does not unlock on sound-disable pointerdown or synthetic enable',()=>{
  fire('click','opening-sound',false);
  expect(context.resume).not.toHaveBeenCalled();
 });
+it('resumes on muted sound pointerdown so unmute can start sources',async()=>{
+ settings.muted=true;settings.music=1;await load('menu_music_source');
+ fire('pointerdown','opening-sound');
+ expect(context.resume).toHaveBeenCalledTimes(1);
+ settings.muted=false;fire('checkers-settings-change');
+ activation.resolve();await flush();
+ expect(starts).toEqual(['menu_music_source']);
+});
+it('starts menu music after trusted unmute click once the context is running',async()=>{
+ settings.muted=true;settings.music=1;await load('menu_music_source');
+ fire('click','opening-sound');
+ settings.muted=false;fire('checkers-settings-change');
+ expect(starts).toEqual([]);
+ activation.resolve();await flush();
+ expect(starts).toEqual(['menu_music_source']);
+});
+it('starts play-b on first Play against a still-suspended AudioContext',async()=>{
+ await load('play-b');
+ expect(context.state).toBe('suspended');
+ fire('pointerdown');fire('click');
+ expect(starts).toEqual([]);
+ activation.resolve();await flush();
+ expect(context.state).toBe('running');
+ expect(starts).toEqual(['play-b']);
+});
 it('ordinary gestures preserve explicit mute',async()=>{
  settings.muted=true;await load('play-b');activation.resolve();
  fire('pointerdown');fire('click');await flush();
