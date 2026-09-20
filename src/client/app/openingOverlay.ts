@@ -1,3 +1,5 @@
+import { animateSiegeGates } from './siegeGateTransition';
+import { setSiegeSide, siegeSide } from './siegeSelection';
 import type Phaser from 'phaser';
 import {createMenuAudio} from './menuAudio';
 import {bindMatchHistory} from './matchHistoryUi';
@@ -5,7 +7,7 @@ import {ensureGuest, loadColorStats, loadPresence, beatPresence} from '@/online/
 import {colorStatLabel} from '@/online/colorStats';
 import {guestTag} from '@/online/guestTag';
 import {presenceLit, HEARTBEAT_MS, PRESENCE_CACHE_MS} from '@/online/presence';
-import {gatePose, OpeningGates} from './openingGates';
+import {OpeningGates} from './openingGates';
 import {gateDurationMs as preparationMs} from './openingGates';
 import {searchCopy, type SearchPhase} from './matchmakingSearch';
 
@@ -51,7 +53,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  const ebony = root.querySelector('.gate-piece-black') as HTMLElement | null;
  const whiteGuest = document.getElementById('opening-guest-white');
  const blackGuest = document.getElementById('opening-guest-black');
- let side: 'white' | 'black' = ivory?.classList.contains('is-chosen') ? 'white' : 'white';
+ let side: 'white' | 'black' = siegeSide(root);
  const paintGuest = () => {
   void ensureGuest().then((g) => {
    const tag = g ? guestTag(g.id) : '';
@@ -66,32 +68,34 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  };
  const paintSide = (next: 'white' | 'black') => {
   side = next;
-  ivory?.classList.toggle('is-chosen', next === 'white');
-  ebony?.classList.toggle('is-chosen', next === 'black');
+  setSiegeSide(root, next);
   paintGuest();
  };
- paintSide('white');
+ paintSide(siegeSide(root));
  const pick = (next: 'white' | 'black') => (event: Event) => {
   event.preventDefault();
   event.stopPropagation();
   if (root.hidden || gates.active || root.inert) return;
   paintSide(next);
  };
+ const sideChanged = () => { side = siegeSide(root); paintGuest(); };
+ root.addEventListener('siege-side', sideChanged);
  const retry = document.getElementById('opening-retry')!;
  const motion = matchMedia('(prefers-reduced-motion: reduce)');
  const gates = new OpeningGates();
  const audio=createMenuAudio(scene.registry.get('sdk'));
- let sampledAt: number | null = null, firstShow = true;
- const paint = (ms: number) => {
-  if(gates.active)audio.gate(ms,motion.matches);
-  const p=gatePose(ms);
-  root.style.setProperty('--gate-open',String(p.doors));
-  root.style.setProperty('--gate-slide',String(p.slide));
-  root.style.setProperty('--gate-title',String(p.title));
-  root.style.setProperty('--gate-press',String(p.press));
+ let firstShow = true;
+ let visual: ReturnType<typeof animateSiegeGates> = null;
+ let scenePaused = false;
+ const cancelVisual = () => { visual?.cancel(); visual=null; };
+ const syncPause = () => visual?.pause(document.hidden || scenePaused || !!handlers.isPaused?.());
+ const pauseScene = () => { scenePaused=true; syncPause(); };
+ const resumeScene = () => { scenePaused=false; syncPause(); };
+ const motionChange = () => {
+  if (motion.matches && gates.active) { audio.gate(preparationMs,true); gates.advance(preparationMs); }
  };
  const closeDialogs = () => {
-  for (const id of ['opening-help-dialog','opening-settings-dialog']) {
+  for (const id of ['opening-options-dialog','opening-help-dialog','opening-settings-dialog']) {
    const dialog=document.getElementById(id) as HTMLDialogElement;
    if(dialog.open) dialog.close();
   }
@@ -103,22 +107,23 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  clearSearch();
   audio.hide(completed,motion.matches);
   gates.cancel(); closeDialogs(); root.hidden=true; root.inert=false;
+  cancelVisual();
   root.classList.remove('is-departing');
   document.getElementById('game')!.inert=false;
   scene.game.canvas.focus({preventScroll:true});
  };
  const visibilityChange = () => {
-  sampledAt=null;
+  syncPause();
   if (document.hidden) { void beatPresence(false); stopBeat(); }
   else startBeat();
  };
  const pageHide = () => { void beatPresence(false); stopBeat(); };
  const update = () => {
-  const now=scene.time.now, delta=sampledAt===null?0:now-sampledAt;
-  sampledAt=now;
-  if(!gates.active || document.hidden || handlers.isPaused?.()) return;
-  gates.advance(motion.matches ? preparationMs : delta);
-  if(gates.active) paint(gates.elapsed);
+  syncPause();
+  if(!gates.active || document.hidden || scenePaused || handlers.isPaused?.()) return;
+  const elapsed = motion.matches ? preparationMs : visual?.elapsed ?? preparationMs;
+  audio.gate(elapsed,motion.matches);
+  gates.advance(elapsed - gates.elapsed);
  };
  const invoke = () => {
   // Allow invoke while waitPlay disabled the button (early click / residual load).
@@ -215,17 +220,24 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  document.addEventListener('visibilitychange',visibilityChange);
  document.addEventListener('pagehide', pageHide);
  scene.events.on('update',update);
+ scene.events.on('pause',pauseScene);
+ scene.events.on('resume',resumeScene);
+ motion.addEventListener?.('change',motionChange);
  scene.events.once('shutdown',()=>{
  stopBeat();
   void beatPresence(false);
   gates.cancel();audio.dispose();play.onclick=null;
+  root.removeEventListener('siege-side', sideChanged);
   ivory?.removeEventListener('click', pickWhite);
   ebony?.removeEventListener('click', pickBlack);
   if(window.checkersStartup.playIntent===invoke) window.checkersStartup.playIntent=null;
   scene.events.off('update',update);
+  scene.events.off('pause',pauseScene);
+  scene.events.off('resume',resumeScene);
+  motion.removeEventListener?.('change',motionChange);
   document.removeEventListener('visibilitychange',visibilityChange);
   document.removeEventListener('pagehide', pageHide);
-  root.inert=false;root.classList.remove('is-departing');paint(0);
+  root.inert=false;root.classList.remove('is-departing');cancelVisual();
  });
  return {
   layout: (_width:number,_height:number)=>undefined,
@@ -239,13 +251,13 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   },
   show:()=>{
    audio.show();
-   gates.cancel();sampledAt=null;paint(0);root.inert=false;root.classList.remove('is-departing');
+   gates.cancel();cancelVisual();root.inert=false;root.classList.remove('is-departing');
    window.checkersFlavor?.setState('loading');
    // Treat playCommitted like pending — never clear committed / unlock to calm «Играть».
    if(window.checkersStartup.pendingPlay || window.checkersStartup.playCommitted) window.checkersStartup.waitPlay();
    else window.checkersStartup.unlock();
    root.hidden=false;document.getElementById('game')!.inert=true;
-   paintSide('white');
+   paintSide(siegeSide(root));
    if(!firstShow)play.focus({preventScroll:true});firstShow=false;
    paintColorStats();
    startPresence();
@@ -254,14 +266,21 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   setSearch,
   clearSearch,
   depart:(done:()=>void)=>{
+   if (root.hidden || gates.active || root.inert) return;
    audio.depart();
    closeDialogs();root.inert=true;play.disabled=true;root.classList.add('is-departing');
-   sampledAt=scene.time.now;
-   gates.start(()=>{paint(preparationMs);hide(true);done();});
-   paint(0);
+   // Decoration failure cannot block a ready game; normal decoded art always slides.
+   const leaves = [...root.querySelectorAll<HTMLImageElement>('.siege-left,.siege-right')];
+   const artReady = leaves.length === 2 && leaves.every(image => image.classList.contains('is-decoded'));
+   if (motion.matches || !artReady) { hide(true); done(); return; }
+   visual=animateSiegeGates(root);
+   if (!visual) { hide(true); done(); return; }
+   gates.start(()=>{hide(true);done();});
+   syncPause();
+   audio.gate(0,false);
   },
   beginMatch:()=>audio.beginMatch(),
-  humanSide:()=>side,
+  humanSide:()=>siegeSide(root),
   hintWave:()=>audio.hintWave(),
   arenaVoice:(humanSide:'white'|'black'='white')=>audio.arenaVoice(humanSide),
   speakOrcTurn:(name:string,humanSide:'white'|'black'='white')=>audio.speakOrcTurn(name,humanSide),

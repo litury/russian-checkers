@@ -18,7 +18,10 @@ it('lists own matches outside settings, board only with plies', () => {
  expect(html).toContain('Партии');
  expect(html).toContain('id="opening-history"');
  expect(html).toContain('Пока нет партий');
- expect(html).not.toMatch(/opening-settings-dialog[\s\S]{0,800}opening-history/);
+ // Scope to the dialog element: aria-controls on the sibling Settings button is not its contents.
+ const settingsDialog = html.match(/<dialog\b[^>]*id="opening-settings-dialog"[^>]*>[\s\S]*?<\/dialog>/)?.[0];
+ expect(settingsDialog).toBeDefined();
+ expect(settingsDialog).not.toContain('id="opening-history"');
  expect(overlay).toContain('bindMatchHistory');
  expect(ui).toContain('mh-best');
  expect(ui).toContain('Пример разбора');

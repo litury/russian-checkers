@@ -79,18 +79,32 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 <main id="opening" aria-labelledby="opening-title">
  <div class="opening-sheet">
 
-  <div class="gate-title-canopy"><div class="gate-title-clip"><div class="gate-title-plate">
+  <div class="gate-title-canopy" data-siege-mount="left"><div class="gate-title-clip"><div class="gate-title-plate">
+   <img class="siege-cartouche" src="/src/client/app/ui/siege/cartouche.png" width="1456" height="570" alt="" decoding="async" />
    <h1 id="opening-title">РУССКИЕ <span>ШАШКИ</span></h1>
-   <p class="opening-slogan" aria-hidden="true"><span class="opening-flavor"><span id="opening-flavor-size"></span><span class="opening-flavor-ink"><span id="opening-flavor-text"></span><span id="opening-flavor-cursor" hidden>▌</span></span></span></p>
   </div></div></div>
-  <div class="opening-art" aria-hidden="true">
-   <div class="gate-door gate-left"><div class="gate-crossbars"><i></i><i></i><i></i><i></i></div><div class="gate-piece-slot gate-piece-ivory is-chosen"><img class="gate-piece" src="/src/client/app/ui/opening/ivory_disk.webp" width="440" height="440" alt="" decoding="async" /><span id="opening-color-white" class="opening-color-stat" aria-hidden="true"></span><span id="opening-guest-white" class="opening-guest-tag" hidden></span></div></div>
-   <div class="gate-door gate-right"><div class="gate-crossbars"><i></i><i></i><i></i><i></i></div><div class="gate-piece-slot gate-piece-black"><img class="gate-piece" src="/src/client/app/ui/opening/black_disk.webp" width="440" height="440" alt="" decoding="async" /><span id="opening-color-black" class="opening-color-stat" aria-hidden="true"></span><span id="opening-guest-black" class="opening-guest-tag" hidden></span></div></div>
+  <div class="opening-art" role="group" aria-label="Ваша сторона">
+   <div class="siege-housing" aria-hidden="true">
+   <img class="siege-gate" src="/src/client/app/ui/siege/gate.png" width="1536" height="1024" alt="" decoding="async" />
+    <img class="siege-layer siege-left" src="/src/client/app/ui/siege/gate.png" width="1536" height="1024" alt="" decoding="async" />
+    <img class="siege-layer siege-right" src="/src/client/app/ui/siege/gate.png" width="1536" height="1024" alt="" decoding="async" />
+    <img class="siege-layer siege-frame" src="/src/client/app/ui/siege/gate-frame.png" width="1536" height="1024" alt="" decoding="async" />
+   </div>
+   <button type="button" class="gate-piece-slot gate-piece-ivory is-chosen" data-siege-mount="left" data-side="white" aria-pressed="true" aria-label="Играть белыми">
+    <img class="gate-piece" src="/src/client/modules/board/selection-v2/frames/white/white-55.webp" width="724" height="724" alt="" decoding="async" />
+    <canvas width="724" height="724" aria-hidden="true" hidden></canvas>
+    <span id="opening-color-white" class="opening-color-stat" aria-hidden="true"></span><span id="opening-guest-white" class="opening-guest-tag" hidden></span>
+   </button>
+   <button type="button" class="gate-piece-slot gate-piece-black" data-siege-mount="right" data-side="black" aria-pressed="false" aria-label="Играть чёрными">
+    <img class="gate-piece" src="/src/client/modules/board/selection-v2/frames/black/black-00.webp" width="724" height="724" alt="" decoding="async" />
+    <canvas width="724" height="724" aria-hidden="true" hidden></canvas>
+    <span id="opening-color-black" class="opening-color-stat" aria-hidden="true"></span><span id="opening-guest-black" class="opening-guest-tag" hidden></span>
+   </button>
   </div>
   <nav class="opening-actions" aria-label="Главное меню">
-   <button id="opening-play" class="opening-button opening-primary" aria-label="Загрузка игры" aria-busy="true" disabled><span class="opening-activity" aria-hidden="true"><i style="--segment:0"></i><i style="--segment:1"></i><i style="--segment:2"></i><i style="--segment:3"></i><i style="--segment:4"></i></span></button>
-   <button id="opening-online" class="opening-button" type="button">Онлайн<span id="opening-live-dot" hidden></span><span id="opening-live-count" class="opening-live-badge" hidden></span></button>
-   <div id="opening-search" hidden>
+   <button id="opening-play" data-siege-mount="left" class="opening-button opening-primary" aria-label="С машиной" aria-busy="true" disabled>С машиной</button>
+   <button id="opening-online" data-siege-mount="right" class="opening-button" type="button">С человеком<span id="opening-live-dot" hidden></span><span id="opening-live-count" class="opening-live-badge" hidden></span></button>
+   <div id="opening-search" data-siege-mount="right" hidden>
     <p id="opening-search-copy">Ищем соперника</p>
     <div id="opening-search-actions">
      <button type="button" id="opening-search-cancel">Отмена</button>
@@ -103,15 +117,14 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
      <button type="button" id="opening-search-bot" hidden>Играть с ботом</button>
     </div>
    </div>
-   <button id="opening-retry" class="opening-button opening-primary" hidden>Повторить загрузку</button>
+   <button id="opening-retry" data-siege-mount="left" class="opening-button opening-primary" hidden>Повторить загрузку</button>
    <div class="opening-utilities">
-    <button id="opening-help" class="opening-utility" aria-haspopup="dialog" aria-controls="opening-help-dialog">Правила</button>
-    <button id="opening-history" class="opening-utility" type="button">Партии</button>
-    <button id="opening-settings" class="opening-utility" aria-label="Настройки" title="Настройки" aria-haspopup="dialog" aria-controls="opening-settings-dialog">Настройки</button>
+    <button id="opening-history" data-siege-mount="left" class="opening-utility" type="button">Партии</button>
+    <button id="opening-options" data-siege-mount="right" class="opening-utility" type="button" aria-haspopup="dialog" aria-controls="opening-options-dialog">Опции</button>
    </div>
   </nav>
   <p id="opening-loading-status" class="opening-sr-only" role="status" aria-live="polite" aria-atomic="true">Загрузка игры</p>
-  <p id="opening-status" class="opening-status" aria-live="off" hidden><span id="opening-error" hidden></span></p>
+  <p id="opening-status" data-siege-mount="left" class="opening-status" aria-live="off" hidden><span id="opening-error" hidden></span></p>
   <noscript><p>Для игры нужен JavaScript. Включите его в настройках браузера и обновите страницу.</p></noscript>
  </div>
 </main>
@@ -127,6 +140,12 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   <i id="match-history-eval" hidden></i>
  </div>
 </div>
+<dialog id="opening-options-dialog" aria-labelledby="opening-options-title">
+<h2 id="opening-options-title">Опции</h2>
+<button id="opening-help" class="opening-button" type="button" aria-haspopup="dialog" aria-controls="opening-help-dialog">Правила игры</button>
+<button id="opening-settings" class="opening-button" type="button" aria-haspopup="dialog" aria-controls="opening-settings-dialog">Настройки</button>
+<form method="dialog"><button class="opening-button">Закрыть</button></form>
+</dialog>
 <dialog id="opening-help-dialog" aria-labelledby="opening-help-title">
 <h2 id="opening-help-title" tabindex="-1" autofocus>Как играть</h2>
 <section class="rules-row" aria-labelledby="rules-goal"><figure data-rules-figure="goal" style="aspect-ratio:3/3"><template><img src="/src/client/app/ui/rules/goal.webp" width="528" height="528" alt="Чёрная шашка заперта у края двумя белыми: ходов нет, белые победили." decoding="async" /></template></figure><div><h3 id="rules-goal">Цель игры</h3><p>Заберите все шашки соперника или лишите его ходов. Первыми ходят белые, затем по очереди.</p></div></section>
@@ -161,57 +180,12 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 </section>
 <form method="dialog"><button class="opening-button opening-primary">Готово</button></form>
 </dialog>
-<script id="opening-flavor">
-(() => {
- const root = document.getElementById('opening');
- const text = document.getElementById('opening-flavor-text');
- const size = document.getElementById('opening-flavor-size');
- const cursor = document.getElementById('opening-flavor-cursor');
- const phrases = ['Пленных не будет...', 'Жертвы неизбежны...', 'Пощады не предусмотрено...', 'Ваш план переживут не все...', 'Слабый ход стоит головы...'];
- const motion = matchMedia('(prefers-reduced-motion: reduce)');
- let index = Math.floor(Math.random() * phrases.length);
- let state = 'loading', phase = 'type', length = 0, timer;
- const active = () => state === 'loading' && !document.hidden && !root.hidden && !motion.matches;
- const paint = () => { size.textContent = phrases[index]; text.textContent = phrases[index].slice(0, length); cursor.dataset.phase = phase; };
- const stop = () => { clearTimeout(timer); timer = undefined; cursor.hidden = true; };
- const schedule = delay => { timer = setTimeout(tick, delay); };
- function tick() {
-  timer = undefined;
-  if (!active()) { sync(); return; }
-  if (phase === 'hold') phase = 'erase';
-  if (phase === 'erase') {
-   length--;
-   if (length === 0) {
-    index = (index + 1 + Math.floor(Math.random() * (phrases.length - 1))) % phrases.length;
-    phase = 'type';
-   }
-   paint();
-   schedule(phase === 'type' ? 60 : 30);
-  } else {
-   length++;
-   if (length === phrases[index].length) { phase = 'hold'; schedule(2500); }
-   else schedule(60);
-   paint();
-  }
- }
- function sync() {
-  stop();
-  if (!active()) { length = phrases[index].length; phase = 'hold'; paint(); return; }
-  cursor.hidden = false;
-  paint();
-  schedule(phase === 'hold' ? 2500 : phase === 'erase' ? 30 : 60);
- }
- window.checkersFlavor = { setState(next) { state = next; sync(); } };
- document.addEventListener('visibilitychange', sync);
- motion.addEventListener('change', sync);
- new MutationObserver(sync).observe(root, {attributes:true, attributeFilter:['hidden']});
- sync();
-})();
-</script>
+<script type="module" src="/src/client/app/siegeOpening.ts"></script>
+<script id="opening-flavor">window.checkersFlavor = { setState() {} };</script>
 <script>
 (() => {
  const byId = id => document.getElementById(id);
- // Flavor has its own HTML-first lifecycle; technical status never types.
+ // Technical loading status stays separate from menu labels.
  // Commit the title once: a late font must never replace a visible fallback.
  // Opacity leaves the live heading and its accessible name in the tree.
  const titleDeadline = setTimeout(() => finishTitle(false), 1800);
@@ -222,8 +196,8 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
  }
  if (document.fonts?.load) document.fonts.load('600 42px Literata', 'РУССКИЕ ШАШКИ').then(faces => finishTitle(faces.length > 0), () => finishTitle(false));
  else finishTitle(false);
- // A composition, not two entrances. At the deadline show decoded survivors
- // and omit failed/stalled members for this visit; never gate scene readiness.
+ // Each decoded decoration becomes ready independently; unrelated art must not
+ // mask ready leaves on an early Play click. Decoration never gates the game.
  const art = document.querySelector('.opening-art');
  const prepareImage = image => new Promise(resolve => {
   let settled = false;
@@ -241,14 +215,15 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   if (image.complete) decode();
   else { image.addEventListener('load', decode, {once:true}); image.addEventListener('error', failed, {once:true}); }
  });
- const artImages = [...art.querySelectorAll('img')];
+ const artImages = [...art.querySelectorAll('img'), document.querySelector('.siege-cartouche')];
  // Picture sources may change on rotation; never expose a replacement before decode.
  artImages.forEach(image => image.addEventListener('load', () => {
   image.classList.remove('is-decoded');
   prepareImage(image).then(decoded => decoded?.classList.add('is-decoded'));
  }));
- Promise.all(artImages.map(prepareImage)).then(images => {
-  images.forEach(image => image?.classList.add('is-decoded'));
+ Promise.all(artImages.map(image => prepareImage(image).then(decoded => {
+  decoded?.classList.add('is-decoded');
+ }))).then(() => {
   art.classList.add('is-prepared');
  });
  for (const name of ['help', 'settings']) byId('opening-' + name).onclick = () => {
@@ -333,7 +308,6 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
  });
  sync();
- const activity = '<span class="opening-activity" aria-hidden="true"><i style="--segment:0"></i><i style="--segment:1"></i><i style="--segment:2"></i><i style="--segment:3"></i><i style="--segment:4"></i></span>';
  const play = byId('opening-play');
  window.checkersStartup = {
   pendingPlay: false,
@@ -363,7 +337,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
     return;
    }
    play.disabled = false;
-   play.textContent = 'Играть';
+   play.textContent = 'С машиной';
    play.removeAttribute('aria-label');
    play.setAttribute('aria-busy', 'false');
    play.hidden = false;
@@ -374,12 +348,12 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
    window.checkersStartup.playCommitted = true;
    play.disabled = true;
    play.setAttribute('aria-busy', 'true');
-   play.setAttribute('aria-label', 'Загрузка игры');
-   play.innerHTML = activity;
+   play.setAttribute('aria-label', 'С машиной');
+   play.textContent = 'С машиной';
    window.checkersStartup.status('Загружаем доску и шашки…');
   },
   ready() {
-   // Do not settle flavor here — slogan typewriter keeps cycling on the title.
+   // Loading status remains separate from the action label.
    byId('opening-status').hidden = true;
    byId('opening-error').hidden = true;
    window.checkersStartup.status('Всё готово. Первый ход ваш.');
@@ -398,6 +372,33 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 </script>
 <script type="module">
 import('/src/client/app/main.ts').catch(() => window.checkersStartup.fail('Не удалось запустить игру. Проверьте соединение и повторите загрузку.'));
+</script>
+<script id="opening-options-navigation">
+(() => {
+ const byId = id => document.getElementById(id);
+ const root = byId('opening'), options = byId('opening-options-dialog'), trigger = byId('opening-options');
+ let child = null;
+ trigger.onclick = () => { if (!options.open) options.showModal(); };
+ options.addEventListener('close', () => {
+  if (!child && !options.open && !root.hidden && !root.inert) trigger.focus({preventScroll:true});
+ });
+ for (const name of ['help', 'settings']) {
+  const button = byId('opening-' + name), dialog = byId('opening-' + name + '-dialog');
+  const open = button.onclick;
+  button.onclick = event => {
+   child = dialog;
+   options.close();
+   open.call(button, event);
+  };
+  dialog.addEventListener('close', () => {
+   if (child !== dialog) return;
+   child = null;
+   if (root.hidden || root.inert) return;
+   options.showModal();
+   button.focus({preventScroll:true});
+  });
+ }
+})();
 </script>
 </body>
 </html>
