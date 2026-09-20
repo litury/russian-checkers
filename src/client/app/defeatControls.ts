@@ -12,6 +12,8 @@ export function createDefeatControls(scene: Phaser.Scene, actions: [() => void, 
  let keyboard = false;
  let pointer: number | null = null;
  let restoreInert: Array<[HTMLElement, boolean]> = [];
+ let undo: HTMLButtonElement | null = null;
+ let undoSlot: Comment | null = null;
  const focusPaint = () => buttons.forEach(b => { b.dataset.keyboardFocus = String(keyboard && b === document.activeElement); });
  const press = createDefeatPress((i,down) => {
   pressed(i,down);
@@ -23,6 +25,8 @@ export function createDefeatControls(scene: Phaser.Scene, actions: [() => void, 
 
   cancel();
   if(typeof window !== 'undefined') { window.removeEventListener('blur',cancel); document.removeEventListener('visibilitychange',onVisibility); }
+  if (undo && undoSlot) undoSlot.replaceWith(undo);
+  undo=null; undoSlot=null;
   modal?.remove(); modal=undefined; buttons=[];
   for (const [element,inert] of restoreInert) element.inert=inert;
   restoreInert=[];
@@ -46,11 +50,17 @@ export function createDefeatControls(scene: Phaser.Scene, actions: [() => void, 
   modal.setAttribute('role','dialog'); modal.setAttribute('aria-modal','true'); modal.setAttribute('aria-label','Вы проиграли');
   Object.assign(modal.style,{position:'fixed',inset:'0',zIndex:'10000'});
   const style=document.createElement('style');
-  style.textContent=`.defeat-controls button{position:fixed;background:transparent;color:transparent;border:0;padding:0;cursor:pointer;outline:none;touch-action:manipulation}
+  style.textContent=`.defeat-controls button:not(#match-undo){position:fixed;background:transparent;color:transparent;border:0;padding:0;cursor:pointer;outline:none;touch-action:manipulation}
 .defeat-controls button::after{content:'';position:absolute;inset:4px;pointer-events:none}
 .defeat-controls button[data-keyboard-focus="true"]::after{background:linear-gradient(#A1B5A6,#A1B5A6) left top/10px 2px no-repeat,linear-gradient(#A1B5A6,#A1B5A6) left top/2px 10px no-repeat,linear-gradient(#A1B5A6,#A1B5A6) right top/10px 2px no-repeat,linear-gradient(#A1B5A6,#A1B5A6) right top/2px 10px no-repeat,linear-gradient(#A1B5A6,#A1B5A6) left bottom/10px 2px no-repeat,linear-gradient(#A1B5A6,#A1B5A6) left bottom/2px 10px no-repeat,linear-gradient(#A1B5A6,#A1B5A6) right bottom/10px 2px no-repeat,linear-gradient(#A1B5A6,#A1B5A6) right bottom/2px 10px no-repeat}
 `;
   modal.append(style);
+  // Keep the existing bot-only action inside the dialog's inert/focus boundary.
+  const candidate=document.getElementById('match-undo') as HTMLButtonElement | null;
+  if(candidate && !candidate.hidden && !candidate.disabled && !candidate.closest('[inert]')) {
+   undo=candidate; undoSlot=document.createComment('match-undo');
+   undo.before(undoSlot); modal.append(undo);
+  }
   for(const child of Array.from(document.body.children)) {
    if(child instanceof HTMLElement && child.tagName!=='SCRIPT') { restoreInert.push([child,child.inert]); child.inert=true; }
   }
@@ -75,12 +85,15 @@ export function createDefeatControls(scene: Phaser.Scene, actions: [() => void, 
   modal.addEventListener('pointerdown',() => { keyboard=false; focusPaint(); });
   modal.addEventListener('keydown',e => {
    e.stopPropagation(); keyboard=true; focusPaint();
-   if(e.key==='Tab') { e.preventDefault(); cancel(); const i=buttons.indexOf(document.activeElement as HTMLButtonElement); buttons[(i+(e.shiftKey ? -1 : 1)+2)%2].focus(); }
+   const focusable=undo ? [...buttons,undo] : buttons;
+   if(e.key==='Tab') { e.preventDefault(); cancel(); const i=focusable.indexOf(document.activeElement as HTMLButtonElement); focusable[(i+(e.shiftKey ? -1 : 1)+focusable.length)%focusable.length].focus(); }
+   if(e.target===undo) return;
    if(e.key===' ' || e.key==='Enter') { e.preventDefault(); if(!e.repeat) press.down(buttons.indexOf(document.activeElement as HTMLButtonElement)); }
    if(e.key==='Escape') cancel();
   });
   modal.addEventListener('keyup',e => {
    e.stopPropagation();
+   if(e.target===undo) return;
    if(e.key===' ' || e.key==='Enter') { e.preventDefault(); press.up(buttons.indexOf(document.activeElement as HTMLButtonElement)); }
   });
   window.addEventListener('blur',cancel); document.addEventListener('visibilitychange',onVisibility);

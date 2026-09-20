@@ -1,6 +1,6 @@
-import { beforeEach, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 vi.mock('phaser', () => ({ default: { Scene: class {} } }));
-vi.mock('./settings', () => ({ getAutoMove: () => auto }));
+vi.mock('./settings', () => ({ getAutoMove: () => auto, getBotSkill: () => 'normal' }));
 import { GameScene } from './gameScene';
 import { apply, legalMoves, type IPosition } from '@/rules';
 let auto = false;
@@ -37,7 +37,12 @@ function setup(pieces: Record<string, string>, turn = 'white') {
 }
 beforeEach(() => {
 	auto = false;
+	const undoButton = { hidden: true, disabled: true };
+	vi.stubGlobal('document', {
+		getElementById: (id: string) => id === 'match-undo' ? undoButton : null,
+	});
 });
+afterEach(() => vi.unstubAllGlobals());
 it('clicks a shared first hop, locks selection, then settles exactly one full human turn', () => {
 	const s = setup({ c3: 'w', a1: 'w', d4: 'b', f4: 'b', f6: 'b', h8: 'b' });
 	const origin = structuredClone(s.position);

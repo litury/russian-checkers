@@ -64,6 +64,8 @@ export class GameScene extends Phaser.Scene {
 	private hud?: ReturnType<typeof createHud>;
 	private overlay?: ReturnType<typeof createResultOverlay>;
 	private resultGen = 0;
+	private botUndoGen = 0;
+	private restoringBotUndo = false;
 	private title!: ReturnType<typeof createOpeningOverlay>;
 	private sdk!: IYandexSdk;
 	private position: IPosition = createInitialPosition();
@@ -184,7 +186,7 @@ export class GameScene extends Phaser.Scene {
 			onSearchStay: () => this.stayInSearch(),
 			onSearchBot: () => this.searchPlayBot(),
 		});
-		document.getElementById('match-undo')?.addEventListener('click', () => this.undoBot());
+		this.bindUndoButton();
 		this.sdk.onPause(() => {
 			this.setPaused(true);
 		});
@@ -963,6 +965,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private maybeAutoMove(): void {
+		if (this.restoringBotUndo) return;
 		if (!this.canSelect()) {
 			return;
 		}
@@ -1051,10 +1054,13 @@ export class GameScene extends Phaser.Scene {
 
 		const chosen = chain.choose(square);
 		if (!chosen) return false;
+		if (!this.humanChain) this.saveBotUndo();
 		this.humanChain = chain;
 		this.moving = true;
 
+		const undoGen = this.online ? null : this.botUndoGen;
 		this.board?.playMove(chosen.hop, () => {
+			if (undoGen !== null && undoGen !== this.botUndoGen) return;
 			this.moving = false;
 			this.selected = chain.selected;
 			// Time runs through hops and branch decisions; a final tap cannot rescue a flag.
@@ -1078,14 +1084,20 @@ export class GameScene extends Phaser.Scene {
 		this.moving = true;
 		this.selected = null;
 
+		const undoGen = this.online ? null : this.botUndoGen;
 		this.board?.playMove(
 			move,
 			() => {
+				if (undoGen !== null && undoGen !== this.botUndoGen) return;
 				this.moving = false;
 				after();
 				this.drainInbound();
 			},
 		);
+	}
+
+	private bindUndoButton(): void {
+		document.getElementById('match-undo')?.addEventListener('click', () => this.undoBot());
 	}
 
 	private paintUndo(): void {
@@ -1101,7 +1113,11 @@ export class GameScene extends Phaser.Scene {
 		if (!canUndoBot(this.online, this.botUndoStack.length)) return;
 		const snap = this.botUndoStack.pop();
 		if (!snap) return;
+		this.botUndoGen += 1;
 		this.botTimer?.remove(false);
+		this.botTimer = undefined;
+		this.pendingBot = false;
+		this.board?.reset();
 		this.moving = false;
 		this.position = snap.position;
 		this.clocks = { ...snap.clocks };
@@ -1114,11 +1130,11 @@ export class GameScene extends Phaser.Scene {
 		this.overlay?.hide(true);
 		this.phase = this.position.turn === this.humanSide ? 'human' : 'bot';
 		this.clockStartedAt = this.time.now;
-		this.refresh();
-		if (this.phase === 'bot') this.botTimer = this.time.delayedCall(400, () => this.playBot());
+		this.restoringBotUndo = true;
+		try { this.refresh(); } finally { this.restoringBotUndo = false; }
 	}
 
-	private playHuman(move: IMove): void {
+	private saveBotUndo(): void {
 		if (!this.online) {
 			this.botUndoStack.push({
 				position: structuredClone(this.position),
@@ -1126,7 +1142,12 @@ export class GameScene extends Phaser.Scene {
 				plies: this.matchPlies.slice(),
 				keys: this.posKeys.slice(),
 			});
+			this.paintUndo();
 		}
+	}
+
+	private playHuman(move: IMove): void {
+		this.saveBotUndo();
 		this.animateMove(move, () => {
 			if (this.online) this.live?.move(move);
 			else this.completeHumanMove(move);
@@ -1166,7 +1187,10 @@ export class GameScene extends Phaser.Scene {
 			return;
 		}
 		this.botTimer?.remove(false);
-		this.botTimer = this.time.delayedCall(400, () => this.playBot());
+		const undoGen = this.botUndoGen;
+		this.botTimer = this.time.delayedCall(400, () => {
+			if (undoGen === this.botUndoGen) this.playBot();
+		});
 	}
 
 	private playRemote(move: IMove): void {
@@ -1233,7 +1257,11 @@ export class GameScene extends Phaser.Scene {
 			winner: this.humanSide === 'white' ? 'black' : 'white',
 			plies: this.matchPlies,
 		});
-		void this.ensureResultOverlay().then((overlay) => overlay?.show('black', this.humanSide));
+		const undoGen = this.online ? null : this.botUndoGen;
+		void this.ensureResultOverlay().then((overlay) => {
+			if (undoGen !== null && undoGen !== this.botUndoGen) return;
+			overlay?.show('black', this.humanSide);
+		});
 		this.board.clearOpeningHint();
 	}
 

@@ -91,7 +91,7 @@ export function createResultOverlay(
 ): {
 	layout: (width: number, height: number) => void;
 	show: (winner: Side, humanSide: Side) => void;
-	hide: () => void;
+	hide: (force?: boolean) => void;
 } {
 	for (const key of [
 		'resultMonitor',
