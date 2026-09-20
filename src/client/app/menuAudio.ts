@@ -50,7 +50,7 @@ export function createMenuAudio(sdk:IYandexSdk) {
  };
  const sync=()=>{
   policy.muted=settings().muted;policy.hidden=document.hidden;
-  if(!policy.audible){epoch++;stopEffects();}
+  if(!policy.audible||!settings().effects||!settings().master){epoch++;stopEffects();}
   if(menuMusicShouldPlay(policy,unlocked,settings().music)){
    const level=settings().master*settings().music*menuOrganLevel;
    if(musicGain&&music&&ctx){
@@ -122,24 +122,38 @@ export function createMenuAudio(sdk:IYandexSdk) {
  const gesture=(event:Event)=>{
   if(!event.isTrusted)return;
   const target=event.target as HTMLElement;
+  // Toggle intent is known on click, not pointerdown/keydown: no disable blip.
+  if(target.closest('#opening-sound'))return;
   if(target.closest('#opening-play'))policy.departing=true; // No first-Play music blip.
   prepare();if(!ctx)return;
   void ctx.resume().then(()=>{unlocked=ctx!.state==='running';sync();}).catch(()=>{});
  };
  const click=(event:Event)=>{
   if(!event.isTrusted)return;
-  const target=event.target as HTMLElement;
-  if(target.closest('#opening-play'))sound('play-b');
-  else if(target.closest('#opening-help,#opening-settings')){
-   // Wait only for this current gesture, bounded; never replay after hide/pause/mute.
-   const serial=++clickSerial,run=epoch,at=performance.now();
-   if(ctx?.state==='running'&&buffers.has('ui_click')){unlocked=true;sound('ui_click',menuClickLevel);return;}
-   prepare();
-   void Promise.all([ctx?.resume(),loading.get('ui_click')]).then(()=>{
-    if(serial!==clickSerial||run!==epoch||performance.now()-at>350||policy.departing)return;
-    unlocked=ctx?.state==='running';sound('ui_click',menuClickLevel);
-   }).catch(()=>{});
+  // Every newer click supersedes pending feedback, even outside these controls.
+  const serial=++clickSerial,target=event.target as HTMLElement;
+  if(target.closest('#opening-sound')){
+   // HTML owns persisted mute; resume synchronously in this trusted enabling
+   // activation, before its target handler changes settings. Never auto-unmute.
+   if(settings().muted){
+    prepare();
+    void ctx?.resume().then(()=>{unlocked=ctx?.state==='running';sync();}).catch(()=>{});
+   }
+   return;
   }
+  const play=Boolean(target.closest('#opening-play'));
+  if(!play&&!target.closest('#opening-help,#opening-settings'))return;
+  sync();if(!policy.audible||!policy.menu||!settings().effects||!settings().master)return;
+  if(play)policy.departing=true; // Also cover trusted click-only activation.
+  const name=play?'play-b':'ui_click',run=epoch,at=performance.now();
+  const emit=()=>{if(play)sound('play-b');else sound('ui_click',menuClickLevel);};
+  if(ctx?.state==='running'&&buffers.has(name)){unlocked=true;emit();return;}
+  prepare();
+  // Only this cue and this trusted activation; music never gates game startup.
+  void Promise.all([ctx?.resume(),loading.get(name)]).then(()=>{
+   if(serial!==clickSerial||run!==epoch||performance.now()-at>350||(!play&&policy.departing))return;
+   unlocked=ctx?.state==='running';emit();
+  }).catch(()=>{});
  };
  document.addEventListener('pointerdown',gesture,true);document.addEventListener('keydown',gesture,true);
  document.addEventListener('click',click,true);
@@ -154,8 +168,9 @@ export function createMenuAudio(sdk:IYandexSdk) {
  return {
   show(){epoch++;mechanisms.clear();policy.menu=true;policy.match=false;policy.departing=false;musicEnded=false;stopEffects();stopMatch();sync();},
   hide(completed=false,reduced=false){epoch++;stopEffects();if(completed&&!reduced)sound('gate_stop');policy.menu=false;policy.departing=false;if(completed)policy.match=true;mechanisms.clear();sync();},
-  depart(){epoch++;mechanisms.clear();policy.departing=true;sync();},
-  beginMatch(){policy.match=true;policy.menu=false;policy.departing=false;mechanisms.clear();sync();},
+  // Normal departure belongs to the Play intent; hide/show still invalidate it.
+  depart(){mechanisms.clear();policy.departing=true;sync();},
+  beginMatch(){epoch++;policy.match=true;policy.menu=false;policy.departing=false;mechanisms.clear();sync();},
   hintWave(){sound('availability-wave',.85);},
   arenaVoice(humanSide:'white'|'black'='white'){say(announcerCue(humanSide,orcArenaLine));},
   speakOrcTurn(name:string,humanSide:'white'|'black'='white'){say(announcerCue(humanSide,name));},

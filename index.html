@@ -105,6 +105,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
    </div>
    <button id="opening-retry" class="opening-button opening-primary" hidden>Повторить загрузку</button>
    <div class="opening-utilities">
+    <button id="opening-sound" class="opening-utility" type="button" aria-pressed="true" aria-label="Выключить звук" title="Выключить звук"><span id="opening-sound-icon" aria-hidden="true">🔊</span> Звук</button>
     <button id="opening-help" class="opening-utility" aria-haspopup="dialog" aria-controls="opening-help-dialog">Правила</button>
     <button id="opening-history" class="opening-utility" type="button">Партии</button>
     <button id="opening-settings" class="opening-utility" aria-label="Настройки" title="Настройки" aria-haspopup="dialog" aria-controls="opening-settings-dialog">Настройки</button>
@@ -277,6 +278,11 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   byId('settings-auto').checked = state.autoMove;
   byId('settings-music').value = state.music; byId('settings-effects').value = state.effects;
   byId('settings-muted').checked = state.muted;
+  const sound = byId('opening-sound');
+  sound.setAttribute('aria-pressed', String(!state.muted));
+  sound.title = state.muted ? 'Включить звук' : 'Выключить звук';
+  sound.setAttribute('aria-label', sound.title);
+  byId('opening-sound-icon').textContent = state.muted ? '🔇' : '🔊';
   for (const skill of ['easy','normal','hard']) byId('settings-bot-' + skill).checked = state.botSkill === skill;
  };
  window.checkersSettings = {
@@ -305,6 +311,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
  byId('settings-auto').onchange = event => window.checkersSettings.set({autoMove:event.target.checked});
  for (const skill of ['easy','normal','hard']) byId('settings-bot-' + skill).onchange = event => { if (event.target.checked) window.checkersSettings.set({botSkill:skill}); };
  byId('settings-muted').onchange = event => window.checkersSettings.set({muted:event.target.checked});
+ byId('opening-sound').onclick = () => window.checkersSettings.set({muted:!state.muted});
  byId('settings-email-send').onclick = () => {
   const token = (() => { try { return localStorage.getItem('checkers.playerToken'); } catch { return null; } })();
   const email = byId('settings-email').value;

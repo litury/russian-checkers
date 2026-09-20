@@ -51,6 +51,8 @@
 #opening-error{font-size:11px;line-height:1.2}
 #opening:has(#opening-error:not([hidden])) #opening-status{width:min(334px,calc(100vw - 40px));left:50%;transform:translateX(-50%);height:auto;padding:8px 12px}
 #opening .opening-utilities{display:contents}
+/* Independent utility: keep the approved Play/help/settings composition intact. */
+#opening-sound{position:absolute;z-index:4;top:16px;right:20px;min-height:44px;padding:8px 12px;border:2px solid #8b8878;background:linear-gradient(#444946,#252b2b);box-shadow:inset 0 0 0 3px #12191a;color:#e2d9c0;font-size:16px;transform:translateX(calc(50vw * var(--gate-open)))}
 #opening-help,#opening-settings{position:absolute;z-index:3;top:var(--utility-y);height:44px;min-height:44px;width:150px;border:2px solid #8b8878;background:linear-gradient(#444946,#252b2b);box-shadow:inset 0 0 0 3px #12191a,0 3px 5px #0009;font-size:16px}
 #opening-help{right:calc(50% + 20px);transform:translateX(calc(-50vw * var(--gate-open)))}
 #opening-settings{left:calc(50% + 20px);transform:translateX(calc(50vw * var(--gate-open)))}
