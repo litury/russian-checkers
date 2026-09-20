@@ -116,5 +116,9 @@
 #match-history-eval{display:block;width:min(360px,90vw);height:4px;margin-top:8px;background:#5a5144}
 #match-history-eval.mh-ok{background:#9ecf8a}
 #match-history-eval.mh-alt{background:#8b8878}
-#match-undo{position:fixed;z-index:10000;left:50%;bottom:16px;transform:translateX(-50%);min-height:44px;min-width:160px;padding:8px 16px;border:2px solid #8b8878;background:linear-gradient(#444946,#252b2b);color:#e2d9c0;font:600 16px/1 "Golos Text",sans-serif;pointer-events:auto}
+/* Reserve a utility rail outside the canvas, including while Undo is in the modal. */
+body:has(#match-undo:not([hidden])) #game{height:calc(100% - 64px - env(safe-area-inset-bottom))}
+#match-undo{position:fixed;z-index:10000;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));transform:translateX(-50%);min-height:44px;min-width:132px;padding:8px 12px;gap:6px;border:1px solid #62635b;background:#202526;box-shadow:none;color:#d0c9bb;font:400 16px/1 "Golos Text",sans-serif;pointer-events:auto;touch-action:manipulation}
+#match-undo:disabled{opacity:.45;cursor:default}
+#match-undo:focus-visible{outline:3px solid #bed9ec;outline-offset:3px}
 
