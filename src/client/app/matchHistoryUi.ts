@@ -50,44 +50,78 @@ export function bindMatchHistory() {
  if (!open || !root || !list) return;
  const title = document.getElementById('opening');
  let plies: RecordedPly[] = [];
+ const loading = document.createElement('p');
+ loading.id = 'match-history-loading';
+ loading.hidden = true;
+ loading.textContent = 'Загрузка…';
+ const errorBox = document.createElement('div');
+ errorBox.id = 'match-history-error';
+ errorBox.hidden = true;
+ const errorText = document.createElement('p');
+ errorText.textContent = 'Не удалось загрузить партии. Проверьте сеть и повторите.';
+ const retry = document.createElement('button');
+ retry.type = 'button';
+ retry.className = 'mh-row';
+ retry.textContent = 'Повторить';
+ errorBox.append(errorText, retry);
+ (empty ?? list).before(loading, errorBox);
  const cover = (on: boolean) => {
   root.hidden = !on;
   if (title) title.inert = on;
  };
+ const setPane = (pane: 'loading' | 'empty' | 'error' | 'list') => {
+  loading.hidden = pane !== 'loading';
+  errorBox.hidden = pane !== 'error';
+  if (empty) empty.hidden = pane !== 'empty';
+  list.hidden = pane !== 'list' && pane !== 'empty';
+ };
  const showList = () => {
   boardWrap?.setAttribute('hidden', '');
+  const hasRows = [...list.querySelectorAll('.mh-row')].some((el) => el.textContent !== 'Пример разбора');
+  const hasDemo = list.querySelector('.mh-row') !== null;
+  if (errorBox.hidden === false) setPane('error');
+  else if (!hasRows && hasDemo) setPane('empty');
+  else if (hasRows) setPane('list');
+  else setPane('empty');
   list.hidden = false;
-  if (empty) empty.hidden = list.childElementCount > 0;
+ };
+ const openDemo = () => {
+  const start = createInitialPosition();
+  const move = legalMoves(start)[0];
+  if (!move || !board || !scrub) return;
+  plies = [{ side: 'white', from: squareAlg(move.from), path: move.path.map(squareAlg) }];
+  list.hidden = true;
+  if (empty) empty.hidden = true;
+  loading.hidden = true;
+  errorBox.hidden = true;
+  boardWrap?.removeAttribute('hidden');
+  if (none) none.hidden = true;
+  board.hidden = false;
+  scrub.hidden = false;
+  scrub.min = '0';
+  scrub.max = '1';
+  scrub.value = '0';
+  paintBoard(board, plies, 0);
  };
  const openRoot = async () => {
   cover(true);
   list.replaceChildren();
-  if (empty) empty.hidden = true;
-  const rows = (await loadMatches()) ?? [];
+  boardWrap?.setAttribute('hidden', '');
+  setPane('loading');
+  const rows = await loadMatches();
+  if (rows === null) {
+   setPane('error');
+   return;
+  }
   if (!rows.length) {
-   if (empty) empty.hidden = false;
    const demo = document.createElement('button');
    demo.type = 'button';
    demo.className = 'mh-row';
    demo.textContent = 'Пример разбора';
-   demo.addEventListener('click', () => {
-    const start = createInitialPosition();
-    const move = legalMoves(start)[0];
-    if (!move || !board || !scrub) return;
-    plies = [{ side: 'white', from: squareAlg(move.from), path: move.path.map(squareAlg) }];
-    list.hidden = true;
-    if (empty) empty.hidden = true;
-    boardWrap?.removeAttribute('hidden');
-    if (none) none.hidden = true;
-    board.hidden = false;
-    scrub.hidden = false;
-    scrub.min = '0';
-    scrub.max = '1';
-    scrub.value = '0';
-    paintBoard(board, plies, 0);
-   });
+   demo.addEventListener('click', openDemo);
    list.append(demo);
-   showList();
+   setPane('empty');
+   list.hidden = false;
    return;
   }
   for (const row of rows) {
@@ -100,11 +134,13 @@ export function bindMatchHistory() {
    if (!cut) li.addEventListener('click', () => void openMatch(row));
    list.append(li);
   }
-  showList();
+  setPane('list');
  };
  const openMatch = async (row: MatchRow) => {
   list.hidden = true;
   if (empty) empty.hidden = true;
+  loading.hidden = true;
+  errorBox.hidden = true;
   boardWrap?.removeAttribute('hidden');
   if (!canOpenBoard(row) || !board || !scrub) {
    if (none) none.hidden = false;
@@ -132,6 +168,7 @@ export function bindMatchHistory() {
   if (!board) return;
   paintBoard(board, plies, Number(scrub.value));
  });
+ retry.addEventListener('click', () => { void openRoot(); });
  open.addEventListener('click', () => { void openRoot(); });
  back?.addEventListener('click', () => {
   if (boardWrap && !boardWrap.hasAttribute('hidden')) {

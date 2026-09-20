@@ -25,6 +25,9 @@ it('lists own matches outside settings, board only with plies', () => {
  expect(overlay).toContain('bindMatchHistory');
  expect(ui).toContain('mh-best');
  expect(ui).toContain('Пример разбора');
+ expect(ui).toContain('Загрузка…');
+ expect(ui).toContain('Не удалось загрузить партии');
+ expect(ui).toContain("rows === null");
  expect(ui).toContain('title.inert');
  expect(settings).not.toContain('match-history');
 });
