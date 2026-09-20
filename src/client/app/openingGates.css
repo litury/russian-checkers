@@ -32,7 +32,7 @@
 #opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options) {
  position:absolute; z-index:3; top:var(--play-y); left:calc(50% - 186px); width:184px; height:74px; min-height:44px;
  display:flex; align-items:center; justify-content:center; margin:0; padding:0 12px 0 24px;
- border:0; border-radius:0; box-shadow:none; background:transparent url('./ui/siege/button-steel-rest.png') center/100% 100% no-repeat;
+ border:0; border-radius:0; box-shadow:none; background:transparent url('./ui/siege/button-steel-rest.webp') center/100% 100% no-repeat;
  color:#e9e0ce; font:600 16px/1.15 'Golos Text',sans-serif; text-shadow:0 1px 2px #000; transition:none; transform:none;
 }
 #opening :is(#opening-play,#opening-retry) { width:186px; font-size:18px; }
@@ -42,7 +42,7 @@
 #opening button:focus-visible { outline:3px solid #bed9ec; outline-offset:0; }
 #opening .opening-actions button:hover { filter:brightness(1.06); }
 #opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options):active {
- filter:none; background-image:url('./ui/siege/button-steel-pressed.png'); transform:translateY(2px);
+ filter:none; background-image:url('./ui/siege/button-steel-pressed.webp'); transform:translateY(2px);
 }
 #opening .opening-actions button:disabled { filter:saturate(.35); cursor:wait; }
 #opening-live-dot { width:7px; height:7px; margin-left:5px; border-radius:50%; background:#9ecf8a; }
