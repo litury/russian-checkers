@@ -121,6 +121,8 @@ export function createHud(
 				paint();
 				done();
 			});
+			// Board/table already ready: open both bays together, no delayed lift.
+			reveal.advance(preparationMs);
 			paint();
 		},
 		stopReveal() {
