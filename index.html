@@ -8,6 +8,7 @@
 <!-- Only the two UI weights are preloaded: keep discovery early and bounded. -->
 <link rel="preload" href="/src/client/fonts/GolosText-400-cyrillic.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="preload" href="/src/client/fonts/GolosText-600-cyrillic.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/src/client/app/ui/siege/gate.webp" as="image" type="image/webp" fetchpriority="high" />
 <script>document.documentElement.dataset.titleFont = 'pending';</script>
 <style>
 @font-face{font-family:Literata;src:url('/src/client/fonts/Literata-600-cyrillic.woff2') format('woff2');font-weight:600;font-display:swap}
@@ -80,15 +81,14 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
  <div class="opening-sheet">
 
   <div class="gate-title-canopy" data-siege-mount="left"><div class="gate-title-clip"><div class="gate-title-plate">
-   <img class="siege-cartouche" src="/src/client/app/ui/siege/cartouche.png" width="1456" height="570" alt="" decoding="async" />
+   <img class="siege-cartouche" src="/src/client/app/ui/siege/cartouche.webp" width="1456" height="570" alt="" decoding="async" />
    <h1 id="opening-title">РУССКИЕ <span>ШАШКИ</span></h1>
   </div></div></div>
   <div class="opening-art" role="group" aria-label="Ваша сторона">
    <div class="siege-housing" aria-hidden="true">
-   <img class="siege-gate" src="/src/client/app/ui/siege/gate.png" width="1536" height="1024" alt="" decoding="async" />
-    <img class="siege-layer siege-left" src="/src/client/app/ui/siege/gate.png" width="1536" height="1024" alt="" decoding="async" />
-    <img class="siege-layer siege-right" src="/src/client/app/ui/siege/gate.png" width="1536" height="1024" alt="" decoding="async" />
-    <img class="siege-layer siege-frame" src="/src/client/app/ui/siege/gate-frame.png" width="1536" height="1024" alt="" decoding="async" />
+   <img class="siege-gate" src="/src/client/app/ui/siege/gate.webp" width="1536" height="1024" alt="" fetchpriority="high" decoding="sync" />
+    <img class="siege-layer siege-left" src="/src/client/app/ui/siege/gate.webp" width="1536" height="1024" alt="" decoding="async" />
+    <img class="siege-layer siege-right" src="/src/client/app/ui/siege/gate.webp" width="1536" height="1024" alt="" decoding="async" />
    </div>
    <button type="button" class="gate-piece-slot gate-piece-ivory is-chosen" data-siege-mount="left" data-side="white" aria-pressed="true" aria-label="Играть белыми">
     <img class="gate-piece" src="/src/client/modules/board/selection-v2/frames/white/white-55.webp" width="724" height="724" alt="" decoding="async" />
@@ -217,6 +217,8 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   else { image.addEventListener('load', decode, {once:true}); image.addEventListener('error', failed, {once:true}); }
  });
  const artImages = [...art.querySelectorAll('img'), document.querySelector('.siege-cartouche')];
+ const gate = art.querySelector('.siege-gate');
+ const markGateReady = () => document.getElementById('opening')?.classList.add('is-gate-ready');
  // Picture sources may change on rotation; never expose a replacement before decode.
  artImages.forEach(image => image.addEventListener('load', () => {
   image.classList.remove('is-decoded');
@@ -226,6 +228,10 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   decoded?.classList.add('is-decoded');
  }))).then(() => {
   art.classList.add('is-prepared');
+ });
+ prepareImage(gate).then(decoded => {
+  decoded?.classList.add('is-decoded');
+  markGateReady();
  });
  for (const name of ['help', 'settings']) byId('opening-' + name).onclick = () => {
   const dialog = byId('opening-' + name + '-dialog');

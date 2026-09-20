@@ -71,6 +71,12 @@
       "front"
     ]
   },
-  "gate": "Toothed horizontal opening: unchanged gate.png closed master; deterministic full-canvas left/right/frame extraction. See gate-masks.json and extract-gates.py. No generated art or hidden surface synthesis.",
+  "runtime_webp": [
+    {"file": "gate.webp", "from": "gate.png", "size": [1536, 1024], "cwebp": "-q 82 -m 6", "bytes": 303864},
+    {"file": "cartouche.webp", "from": "cartouche.png", "cwebp": "-q 82 -m 6", "bytes": 218518},
+    {"file": "button-primary.webp", "from": "button-primary.png", "cwebp": "-q 82 -m 6"},
+    {"file": "button-secondary.webp", "from": "button-secondary.png", "cwebp": "-q 82 -m 6"}
+  ],
+  "gate": "Toothed horizontal opening: unchanged gate.png closed master; runtime LCP uses same-size gate.webp. Deterministic full-canvas left/right/frame extraction remains on PNG masters. See gate-masks.json and extract-gates.py. No generated art or hidden surface synthesis.",
   "buttons": "Static only: new preview assets empty; generated masters not registered."
 }
