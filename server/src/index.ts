@@ -113,7 +113,7 @@ const endRoom = async (room: Room, win: Side | 'draw', reason: string, loserId?:
  }
 };
 
-const otherOf = (room: Room, id: string) => (id === room.white ? room.black : room.white);
+const otherOf = (room: Room, id: string): Side => (id === room.white ? 'black' : 'white');
 
 const pushState = (room: Room, sock: TextSock | undefined, color?: Side) => {
  const snap = snapshotOf(room.id, room.position, room.ply, room.begun);
@@ -128,10 +128,11 @@ const flagRoom = (room: Room) => {
 
 const armFlag = (room: Room) => {
  if (room.flagTimer) clearTimeout(room.flagTimer);
+ if (!room.begun || room.drop.size) return;
  const side = room.position.turn;
  const left = turnLeft(room.banks[side], room.turnStarted, Date.now());
  room.flagTimer = setTimeout(() => {
-  if (!rooms.has(room.id) || !room.begun) return;
+  if (!rooms.has(room.id) || !room.begun || room.drop.size) return;
   flagRoom(room);
  }, left);
 };
@@ -160,12 +161,16 @@ const attach = (room: Room, id: string, sock: TextSock) => {
  send(sock, {type: 'start', matchId: room.id, color, turn: snap.turn, ply: snap.ply, hash: snap.hash, begun: snap.begun, pieces: snap.pieces});
  pushState(room, sock, color);
  if (room.begun && room.drop.size === 0) {
-  room.turnStarted = Date.now();
+  if (pending) room.turnStarted = Date.now();
   armFlag(room);
  }
 };
 
 const dropPlayer = (room: Room, id: string) => {
+ if (room.begun && room.drop.size === 0) {
+  const side = room.position.turn;
+  room.banks[side] = turnLeft(room.banks[side], room.turnStarted, Date.now());
+ }
  room.socks.delete(id);
  bumpPresence();
  const pending = room.drop.get(id);
@@ -174,7 +179,7 @@ const dropPlayer = (room: Room, id: string) => {
  room.drop.set(id, setTimeout(() => {
   room.drop.delete(id);
   if (!rooms.has(room.id) || room.socks.has(id)) return;
-  void endRoom(room, otherOf(room, id) as Side, 'timeout', id);
+  void endRoom(room, otherOf(room, id), 'timeout', id);
  }, DROP_MS));
 };
 
@@ -183,7 +188,7 @@ const armReady = (room: Room) => {
  room.readyTimer = setTimeout(() => {
   if (room.begun || !rooms.has(room.id)) return;
   const missing = [room.white, room.black].filter((pid) => pid && !room.ready.has(pid));
-  if (missing.length === 1) void endRoom(room, otherOf(room, missing[0]) as Side, 'timeout', missing[0]);
+  if (missing.length === 1) void endRoom(room, otherOf(room, missing[0]), 'timeout', missing[0]);
   else void endRoom(room, 'draw', 'timeout');
  }, READY_MS);
 };
@@ -327,7 +332,7 @@ const handleWs = async (sock: TextSock, raw: string, ctx: {player?: string}) => 
   const rid = playerRoom.get(player);
   const room = rid ? rooms.get(rid) : undefined;
   if (!room) { send(sock, {type: 'error', error: 'no_match'}); return; }
-  if (!room.begun) { send(sock, {type: 'error', error: 'illegal'}); return; }
+  if (!room.begun || room.drop.size) { send(sock, {type: 'error', error: 'illegal'}); return; }
   const side: Side = player === room.white ? 'white' : 'black';
   if (side !== room.position.turn) { send(sock, {type: 'error', error: 'illegal'}); return; }
   if (turnLeft(room.banks[side], room.turnStarted, Date.now()) <= 0) { flagRoom(room); return; }
@@ -355,13 +360,13 @@ const handleWs = async (sock: TextSock, raw: string, ctx: {player?: string}) => 
   const rid = playerRoom.get(player);
   const room = rid ? rooms.get(rid) : undefined;
   if (!room) return;
-  await endRoom(room, otherOf(room, player) as Side, 'resign', player);
+  await endRoom(room, otherOf(room, player), 'resign', player);
   return;
  }
  if (msg.type === 'flag') {
   const rid = playerRoom.get(player);
   const room = rid ? rooms.get(rid) : undefined;
-  if (!room || !room.begun) return;
+  if (!room || !room.begun || room.drop.size) return;
   const side = room.position.turn;
   if (!flagDue(room.banks[side], room.turnStarted, Date.now())) return;
   flagRoom(room);
