@@ -32,16 +32,18 @@
 #opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options) {
  position:absolute; z-index:3; top:var(--play-y); left:calc(50% - 186px); width:184px; height:74px; min-height:44px;
  display:flex; align-items:center; justify-content:center; margin:0; padding:0 12px 0 24px;
- border:0; border-radius:0; box-shadow:none; background:transparent url('./ui/siege/button-secondary.webp') center/184px 73.75px no-repeat;
- color:#e9e0ce; font:600 16px/1.15 'Golos Text',sans-serif; text-shadow:0 1px 2px #000; transition:filter 100ms; transform:none;
+ border:0; border-radius:0; box-shadow:none; background:transparent url('./ui/siege/button-steel-rest.png') center/100% 100% no-repeat;
+ color:#e9e0ce; font:600 16px/1.15 'Golos Text',sans-serif; text-shadow:0 1px 2px #000; transition:none; transform:none;
 }
-#opening :is(#opening-play,#opening-retry) { width:186px; background-image:url('./ui/siege/button-primary.webp'); background-size:186px 73.75px; color:#29251b; text-shadow:none; font-size:18px; }
+#opening :is(#opening-play,#opening-retry) { width:186px; font-size:18px; }
 #opening #opening-online { left:calc(50% + 2px); }
 #opening #opening-history { top:calc(var(--play-y) + 174px); left:calc(50% - 92px); }
 #opening #opening-retry { font-size:14px; }
 #opening button:focus-visible { outline:3px solid #bed9ec; outline-offset:0; }
-#opening .opening-actions button:hover { filter:brightness(1.15); }
-#opening .opening-actions button:active { filter:brightness(.85); }
+#opening .opening-actions button:hover { filter:brightness(1.06); }
+#opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options):active {
+ filter:none; background-image:url('./ui/siege/button-steel-pressed.png'); transform:translateY(2px);
+}
 #opening .opening-actions button:disabled { filter:saturate(.35); cursor:wait; }
 #opening-live-dot { width:7px; height:7px; margin-left:5px; border-radius:50%; background:#9ecf8a; }
 .opening-live-badge { position:absolute; right:16px; top:8px; font-size:11px; }
