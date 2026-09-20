@@ -31,25 +31,47 @@ const asSnap = (msg: Record<string, unknown>, fallbackId = ''): MatchSnapshot =>
 
 export function openLive(handlers: LiveHandlers) {
  let ws: WebSocket | null = null;
+ let generation = 0;
+ let cancelPending: (() => void) | undefined;
+ const close = () => {
+  generation++;
+  cancelPending?.();
+  cancelPending = undefined;
+  const socket = ws;
+  ws = null;
+  try { socket?.close(); } catch {}
+ };
  const send = (msg: unknown) => { if (ws?.readyState === 1) ws.send(JSON.stringify(msg)); };
  return {
   async connect(): Promise<boolean> {
+   close();
+   const attempt = generation;
    const guest = await ensureGuest();
-   if (!guest) return false;
+   if (!guest || attempt !== generation) return false;
    return await new Promise((resolve) => {
-    try { ws = new WebSocket(wsUrl()); } catch { resolve(false); return; }
+    let socket: WebSocket;
+    try { socket = new WebSocket(wsUrl()); ws = socket; } catch { resolve(false); return; }
+    const current = () => attempt === generation && ws === socket;
     let settled = false;
     const finish = (ok: boolean) => {
      if (settled) return;
      settled = true;
      clearTimeout(timer);
-     if (!ok) try { ws?.close(); } catch {}
+     if (cancelPending === cancel) cancelPending = undefined;
+     if (!ok) {
+      if (ws === socket) ws = null;
+      try { socket.close(); } catch {}
+     }
      resolve(ok);
     };
-    const timer = setTimeout(() => finish(false), CONNECT_BUDGET_MS);
-    ws.onopen = () => send({ type: 'auth', token: guest.token });
-    ws.onerror = () => finish(false);
-    ws.onmessage = (ev) => {
+    const cancel = () => finish(false);
+    cancelPending = cancel;
+    const timer = setTimeout(cancel, CONNECT_BUDGET_MS);
+    socket.onopen = () => { if (current()) socket.send(JSON.stringify({ type: 'auth', token: guest.token })); };
+    socket.onerror = () => finish(false);
+    socket.onclose = () => { finish(false); if (ws === socket) ws = null; };
+    socket.onmessage = (ev) => {
+     if (!current()) return;
      let msg: Record<string, unknown> = {};
      try { msg = JSON.parse(String(ev.data)); } catch { return; }
      const type = String(msg.type ?? '');
@@ -91,6 +113,6 @@ export function openLive(handlers: LiveHandlers) {
   resign() { send({ type: 'resign' }); },
   flag() { send({ type: 'flag' }); },
   isOpen() { return ws?.readyState === 1; },
-  close() { try { ws?.close(); } catch {} ws = null; },
+  close,
  };
 }
