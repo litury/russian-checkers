@@ -12,7 +12,12 @@ function setup() {
   hidden: true, disabled: true,
   click(this: EventTarget & { disabled: boolean }) { if (!this.disabled) this.dispatchEvent(new Event('click')); },
  });
- vi.stubGlobal('document', { getElementById: () => button });
+ const resign = Object.assign(new EventTarget(), {
+  hidden: true, disabled: false,
+  click(this: EventTarget & { disabled: boolean }) { if (!this.disabled) this.dispatchEvent(new Event('click')); },
+ });
+ const rail = { hidden: true };
+ vi.stubGlobal('document', { getElementById: (id: string) => id === 'match-undo' ? button : id === 'match-resign' ? resign : id === 'match-rail' ? rail : null });
  s.position = createInitialPosition(); s.phase = 'human';
  const tasks: (() => void)[] = [];
  s.time = { now: 1000, delayedCall: vi.fn((_ms, cb) => { tasks.push(cb); return { remove: vi.fn() }; }) };
@@ -21,7 +26,7 @@ function setup() {
  s.board = { reset: vi.fn(), sync: vi.fn(), clearOpeningHint: vi.fn(), setWaitingIdle: vi.fn(), notePly: vi.fn(), playMove: vi.fn((_m, done) => done()) };
  s.overlay = { hide: vi.fn(), show: vi.fn() };
  s.sdk = { showFullscreenAdv: vi.fn() };
- return { s, tasks, button };
+ return { s, tasks, button, resign, rail };
 }
 afterEach(() => { auto = false; vi.unstubAllGlobals(); });
 function human(s: any) { s.onSquare(sq('c3')); s.onSquare(sq('d4')); }
@@ -116,6 +121,18 @@ it('button cancels first manual animation and rejects its late completion', () =
  expect(s.position).toEqual(origin); expect(s.matchPlies).toEqual([]);
  expect(s.humanChain).toBeNull(); expect(s.phase).toBe('human'); expect(tasks).toEqual([]);
  button.click(); expect(s.board.reset).toHaveBeenCalledTimes(1);
+});
+it('online resign sends live resign; undo stays hidden', () => {
+ const { s, button, resign, rail } = setup();
+ s.online = true; s.live = { resign: vi.fn() };
+ s.paintUndo();
+ expect(rail.hidden).toBe(false);
+ expect(button.hidden).toBe(true);
+ expect(resign.hidden).toBe(false);
+ s.resignMatch();
+ expect(s.live.resign).toHaveBeenCalledTimes(1);
+ expect(s.phase).toBe('human');
+ expect(s.board.reset).not.toHaveBeenCalled();
 });
 it('empty history undo is a no-op', () => {
  const { s } = setup(); const origin = structuredClone(s.position);

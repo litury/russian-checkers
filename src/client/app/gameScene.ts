@@ -1146,14 +1146,23 @@ export class GameScene extends Phaser.Scene {
 
 	private bindUndoButton(): void {
 		document.getElementById('match-undo')?.addEventListener('click', () => this.undoBot());
+		document.getElementById('match-resign')?.addEventListener('click', () => this.resignMatch());
 	}
 
 	private paintUndo(): void {
-		const el = document.getElementById('match-undo') as HTMLButtonElement | null;
-		if (!el) return;
-		const on = !this.online && this.phase !== 'title';
-		el.hidden = !on;
-		el.disabled = !canUndoBot(this.online, this.botUndoStack.length);
+		const rail = document.getElementById('match-rail');
+		const undo = document.getElementById('match-undo') as HTMLButtonElement | null;
+		const resign = document.getElementById('match-resign') as HTMLButtonElement | null;
+		const inMatch = this.phase !== 'title';
+		if (rail) rail.hidden = !inMatch;
+		if (undo) {
+			undo.hidden = !inMatch || this.online;
+			undo.disabled = !canUndoBot(this.online, this.botUndoStack.length);
+		}
+		if (resign) {
+			resign.hidden = !inMatch;
+			resign.disabled = this.phase === 'over' || this.paused || this.flagLock;
+		}
 	}
 
 	private undoBot(): void {
@@ -1292,9 +1301,12 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	resignMatch(): void {
-		if (this.paused || this.moving || this.flagLock || this.phase !== 'human' || !this.board) {
+		if (this.phase === 'title' || this.phase === 'over' || this.flagLock) return;
+		if (this.online) {
+			this.live?.resign();
 			return;
 		}
+		if (this.paused || !this.board) return;
 		this.board.reset();
 		this.phase = 'over';
 		this.selected = null;

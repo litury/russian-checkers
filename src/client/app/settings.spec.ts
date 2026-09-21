@@ -11,7 +11,7 @@ describe('shared settings', () => {
 	it('keeps settings on the opening only', () => {
 		expect(hud).not.toMatch(/createSfxPanel|match-settings-entry|hudMenu/);
 		expect(html).not.toContain('match-settings-entry');
-		expect(html).not.toContain('Сдаться');
+		expect(html).toContain('id="match-resign"');
 		for (const id of ['settings-muted','settings-effects','settings-music']) expect(html).toContain(`id="${id}"`);
 	});
 	it('retains default sole-move automation and supports changing the preference', () => {
