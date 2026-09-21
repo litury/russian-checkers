@@ -172,6 +172,10 @@ const attach = (room: Room, id: string, sock: TextSock) => {
  if (room.begun && room.drop.size === 0) {
   if (pending) room.turnStarted = Date.now();
   armFlag(room);
+  for (const [pid, s] of room.socks) {
+   if (pid === id) continue;
+   pushState(room, s, pid === room.white ? 'white' : 'black');
+  }
  }
 };
 
@@ -190,6 +194,9 @@ const dropPlayer = (room: Room, id: string) => {
   if (!rooms.has(room.id) || room.socks.has(id)) return;
   void endRoom(room, otherOf(room, id), 'timeout', id);
  }, DROP_MS));
+ for (const [pid, s] of room.socks) {
+  pushState(room, s, pid === room.white ? 'white' : 'black');
+ }
 };
 
 const armReady = (room: Room) => {

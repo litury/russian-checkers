@@ -58,6 +58,19 @@ it('move during grace with time left is rejected before rules',async()=>{
  expect(h.send).toHaveBeenCalledWith({}, {type:'error',error:'illegal'});
  expect(h.room.ply).toBe(0); expect(h.endRoom).not.toHaveBeenCalled();
 });
+it('drop pauses remaining clocks over the live socket',()=>{
+ const h=harness(); const white={};
+ h.room.socks.set(h.room.white,white);
+ h.dropPlayer(h.room,h.room.black);
+ expect(h.send).toHaveBeenCalledWith(white, expect.objectContaining({type:'state',paused:true}));
+});
+it('last attach resumes remaining clocks over the live socket',()=>{
+ const h=harness(); const white={};
+ h.room.socks.set(h.room.white,white);
+ h.dropPlayer(h.room,h.room.black); h.send.mockClear();
+ h.attach(h.room,h.room.black,{});
+ expect(h.send).toHaveBeenCalledWith(white, expect.objectContaining({type:'state',paused:false}));
+});
 it('drop expiry reports the opponent color',()=>{
  const h=harness(); h.dropPlayer(h.room,h.room.white); vi.advanceTimersByTime(60000);
  expect(h.endRoom).toHaveBeenCalledWith(h.room,'black','timeout',h.room.white);

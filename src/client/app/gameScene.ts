@@ -615,6 +615,7 @@ export class GameScene extends Phaser.Scene {
 		if (!snap.clocks) return;
 		this.clocks = { white: snap.clocks.banks.white, black: snap.clocks.banks.black };
 		this.remoteClockPaused = snap.clocks.paused;
+		if (this.remoteClockPaused) this.flagLock = false;
 		const elapsed = Math.max(0, snap.clocks.serverNow - snap.clocks.turnStarted);
 		this.clockStartedAt = this.remoteClockPaused ? this.time.now : this.time.now - elapsed;
 		this.paintClock();
