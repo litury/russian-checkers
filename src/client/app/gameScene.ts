@@ -83,6 +83,8 @@ export class GameScene extends Phaser.Scene {
 	private flagLock = false;
 	private remoteClockPaused = false;
 	private dropUntil = 0;
+	private dropServerNow = 0;
+	private dropReceivedAt = 0;
 
 	private countingIn = false;
 	private timeLowSaid = false;
@@ -618,6 +620,8 @@ export class GameScene extends Phaser.Scene {
 		this.clocks = { white: snap.clocks.banks.white, black: snap.clocks.banks.black };
 		this.remoteClockPaused = snap.clocks.paused;
 		this.dropUntil = snap.clocks.dropUntil ?? 0;
+		this.dropServerNow = snap.clocks.serverNow ?? 0;
+		this.dropReceivedAt = Date.now();
 		if (this.remoteClockPaused) this.flagLock = false;
 		const elapsed = Math.max(0, snap.clocks.serverNow - snap.clocks.turnStarted);
 		this.clockStartedAt = this.remoteClockPaused ? this.time.now : this.time.now - elapsed;
@@ -908,7 +912,7 @@ export class GameScene extends Phaser.Scene {
 			Math.ceil(this.sideRemainingMs('black') / 1000),
 			this.countingIn || this.flagLock || this.phase === 'over' ? null : this.clockTurn(),
 		);
-		const drop = dropNoticeLine(this.dropUntil || undefined, Date.now());
+		const drop = dropNoticeLine(this.dropUntil || undefined, Date.now(), this.dropServerNow, this.dropReceivedAt);
 		if (drop) this.hud?.setTurn(drop);
 	}
 
@@ -995,7 +999,7 @@ export class GameScene extends Phaser.Scene {
 		this.board.setWaitingIdle(
 			!this.canSelect() && (this.phase === 'bot' || this.countingIn || this.paused || (this.online && !this.onlineBegun) || (this.online && !this.onlineHumanTurn())),
 		);
-		const drop = dropNoticeLine(this.dropUntil || undefined, Date.now());
+		const drop = dropNoticeLine(this.dropUntil || undefined, Date.now(), this.dropServerNow, this.dropReceivedAt);
 		this.hud.setTurn(drop || matchStatus(
 			this.countingIn || (this.online && !this.onlineBegun),
 			this.phase === 'over'
