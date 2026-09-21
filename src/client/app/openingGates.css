@@ -119,10 +119,9 @@
 #match-history-eval{display:block;width:min(360px,90vw);height:4px;margin-top:8px;background:#5a5144}
 #match-history-eval.mh-ok{background:#9ecf8a}
 #match-history-eval.mh-alt{background:#8b8878}
-html body:has(#match-undo:not([hidden])) #game{height:calc(100% - 72px - env(safe-area-inset-bottom))}
 #match-undo{position:fixed;z-index:10000;left:50%;bottom:calc(12px + env(safe-area-inset-bottom));transform:translateX(-50%);min-height:44px;min-width:132px;padding:8px 12px;gap:6px;border:1px solid #62635b;background:#202526;box-shadow:none;color:#d0c9bb;font:400 16px/1 "Golos Text",sans-serif;pointer-events:auto;touch-action:manipulation}
 @media (orientation:landscape) and (max-height:500px){
-html body:has(#match-undo:not([hidden])) #game{height:calc(100% - 56px - env(safe-area-inset-bottom))}
+#match-undo{left:auto;right:calc(12px + env(safe-area-inset-right));transform:none}
 }
 #match-undo:disabled{opacity:.45;cursor:default}
 #match-undo:focus-visible{outline:3px solid #bed9ec;outline-offset:3px}
