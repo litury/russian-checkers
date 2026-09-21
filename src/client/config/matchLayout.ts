@@ -6,6 +6,15 @@ export type SafeInsets = {
 	right: number;
 };
 const zero = { top: 0, bottom: 0, left: 0, right: 0 };
+export const matchRailReservePx = 64;
+
+export function matchRailBottom(): number {
+	if (typeof document === 'undefined') return 0;
+	const rail = document.getElementById('match-rail');
+	if (!rail || rail.hidden) return 0;
+	return matchRailReservePx;
+}
+
 export function readSafeInsets(): SafeInsets {
 	if (typeof document === 'undefined') return zero;
 	const el = document.createElement('div');
@@ -15,7 +24,7 @@ export function readSafeInsets(): SafeInsets {
 	const css = getComputedStyle(el);
 	const result = {
 		top: parseFloat(css.paddingTop) || 0,
-		bottom: parseFloat(css.paddingBottom) || 0,
+		bottom: (parseFloat(css.paddingBottom) || 0) + matchRailBottom(),
 		left: parseFloat(css.paddingLeft) || 0,
 		right: parseFloat(css.paddingRight) || 0,
 	};
@@ -63,6 +72,15 @@ export function matchLayout(
 			native,
 			Math.floor(((h - 24 - 256 * panelScale - 2 * gap) * 352) / 418),
 		);
+		if (fieldSize < 352) {
+			const budget = h - 24 - 2 * gap;
+			const need = Math.ceil((352 * 418) / 352);
+			panelScale = Math.min(panelScale, Math.max(0.45, (budget - need) / 256));
+			fieldSize = Math.min(
+				native,
+				Math.floor(((h - 24 - 256 * panelScale - 2 * gap) * 352) / 418),
+			);
+		}
 	}
 	fieldSize = Math.max(8, fieldSize);
 	const scale = fieldSize / 352,

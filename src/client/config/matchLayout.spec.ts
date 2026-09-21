@@ -33,4 +33,9 @@ it('fits centered safe-area phone, wide sides and bounded tablet fallback withou
 	const s = matchLayout(390, 844, { top: 44, bottom: 34, left: 0, right: 0 });
 	expect(s.foe.y).toBeGreaterThanOrEqual(44);
 	expect(s.you.y + 128 * s.panelScale).toBeLessThanOrEqual(810);
+	const r = matchLayout(390, 844, { top: 0, bottom: 64, left: 0, right: 0 });
+	expect(r.fieldSize).toBe(352);
+	expect(r.cell).toBe(44);
+	expect(r.originY + r.fieldSize).toBeLessThanOrEqual(780);
+	expect(r.you.y + 128 * r.panelScale).toBeLessThanOrEqual(780);
 });

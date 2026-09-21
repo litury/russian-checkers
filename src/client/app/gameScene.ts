@@ -1154,6 +1154,7 @@ export class GameScene extends Phaser.Scene {
 		const undo = document.getElementById('match-undo') as HTMLButtonElement | null;
 		const resign = document.getElementById('match-resign') as HTMLButtonElement | null;
 		const inMatch = this.phase !== 'title';
+		const railWasHidden = rail?.hidden ?? true;
 		if (rail) rail.hidden = !inMatch;
 		if (undo) {
 			undo.hidden = !inMatch || this.online;
@@ -1162,6 +1163,10 @@ export class GameScene extends Phaser.Scene {
 		if (resign) {
 			resign.hidden = !inMatch;
 			resign.disabled = this.phase === 'over' || this.paused || this.flagLock;
+		}
+		if (this.board && rail && railWasHidden !== rail.hidden && this.scale) {
+			const { width, height } = logicalSize(this);
+			this.layout(width, height);
 		}
 	}
 
