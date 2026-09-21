@@ -28,6 +28,7 @@ const asSnap = (msg: Record<string, unknown>, fallbackId = ''): MatchSnapshot =>
      turnStarted: Number(msg.turnStarted ?? 0),
      paused: Boolean(msg.paused),
      serverNow: Number(msg.serverNow ?? 0),
+     dropUntil: Number(msg.dropUntil ?? 0),
     }
   : undefined;
  return {

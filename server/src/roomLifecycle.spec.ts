@@ -62,14 +62,14 @@ it('drop pauses remaining clocks over the live socket',()=>{
  const h=harness(); const white={};
  h.room.socks.set(h.room.white,white);
  h.dropPlayer(h.room,h.room.black);
- expect(h.send).toHaveBeenCalledWith(white, expect.objectContaining({type:'state',paused:true}));
+ expect(h.send).toHaveBeenCalledWith(white, expect.objectContaining({type:'state',paused:true,dropUntil:70000}));
 });
 it('last attach resumes remaining clocks over the live socket',()=>{
  const h=harness(); const white={};
  h.room.socks.set(h.room.white,white);
  h.dropPlayer(h.room,h.room.black); h.send.mockClear();
  h.attach(h.room,h.room.black,{});
- expect(h.send).toHaveBeenCalledWith(white, expect.objectContaining({type:'state',paused:false}));
+ expect(h.send).toHaveBeenCalledWith(white, expect.objectContaining({type:'state',paused:false,dropUntil:0}));
 });
 it('drop expiry reports the opponent color',()=>{
  const h=harness(); h.dropPlayer(h.room,h.room.white); vi.advanceTimersByTime(60000);

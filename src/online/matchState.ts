@@ -9,6 +9,7 @@ export type ClockSnap = {
 	turnStarted: number;
 	paused: boolean;
 	serverNow: number;
+	dropUntil?: number;
 };
 
 export type MatchSnapshot = {

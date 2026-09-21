@@ -32,6 +32,7 @@ import {
 	winner,
 } from '@/rules';
 import { createHud, matchStatus } from './createHud';
+import { dropNoticeLine } from './dropNotice';
 import { preloadBunkerPanels } from './bunkerPanel';
 import { remainingForHud } from './matchClock';
 import { createOpeningOverlay } from './openingOverlay';
@@ -81,6 +82,7 @@ export class GameScene extends Phaser.Scene {
 	private clockStartedAt = 0;
 	private flagLock = false;
 	private remoteClockPaused = false;
+	private dropUntil = 0;
 
 	private countingIn = false;
 	private timeLowSaid = false;
@@ -615,6 +617,7 @@ export class GameScene extends Phaser.Scene {
 		if (!snap.clocks) return;
 		this.clocks = { white: snap.clocks.banks.white, black: snap.clocks.banks.black };
 		this.remoteClockPaused = snap.clocks.paused;
+		this.dropUntil = snap.clocks.dropUntil ?? 0;
 		if (this.remoteClockPaused) this.flagLock = false;
 		const elapsed = Math.max(0, snap.clocks.serverNow - snap.clocks.turnStarted);
 		this.clockStartedAt = this.remoteClockPaused ? this.time.now : this.time.now - elapsed;
@@ -905,6 +908,8 @@ export class GameScene extends Phaser.Scene {
 			Math.ceil(this.sideRemainingMs('black') / 1000),
 			this.countingIn || this.flagLock || this.phase === 'over' ? null : this.clockTurn(),
 		);
+		const drop = dropNoticeLine(this.dropUntil || undefined, Date.now());
+		if (drop) this.hud?.setTurn(drop);
 	}
 
 	private settleClock(mover: Side): void {
@@ -990,7 +995,8 @@ export class GameScene extends Phaser.Scene {
 		this.board.setWaitingIdle(
 			!this.canSelect() && (this.phase === 'bot' || this.countingIn || this.paused || (this.online && !this.onlineBegun) || (this.online && !this.onlineHumanTurn())),
 		);
-		this.hud.setTurn(matchStatus(
+		const drop = dropNoticeLine(this.dropUntil || undefined, Date.now());
+		this.hud.setTurn(drop || matchStatus(
 			this.countingIn || (this.online && !this.onlineBegun),
 			this.phase === 'over'
 				? 'over'

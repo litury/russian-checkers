@@ -76,6 +76,7 @@ type Room = {
  turnStarted: number;
  socks: Map<string, TextSock>;
  drop: Map<string, ReturnType<typeof setTimeout>>;
+ dropUntil?: number;
  friend: boolean;
 };
 const queue: {id: string; sock: TextSock}[] = [];
@@ -120,6 +121,7 @@ const clockFields = (room: Room) => ({
  turnStarted: room.turnStarted,
  paused: room.drop.size > 0,
  serverNow: Date.now(),
+ dropUntil: room.drop.size > 0 ? (room.dropUntil ?? 0) : 0,
 });
 
 const pushState = (room: Room, sock: TextSock | undefined, color?: Side) => {
@@ -171,6 +173,7 @@ const attach = (room: Room, id: string, sock: TextSock) => {
  pushState(room, sock, color);
  if (room.begun && room.drop.size === 0) {
   if (pending) room.turnStarted = Date.now();
+  room.dropUntil = 0;
   armFlag(room);
   for (const [pid, s] of room.socks) {
    if (pid === id) continue;
@@ -194,6 +197,7 @@ const dropPlayer = (room: Room, id: string) => {
   if (!rooms.has(room.id) || room.socks.has(id)) return;
   void endRoom(room, otherOf(room, id), 'timeout', id);
  }, DROP_MS));
+ room.dropUntil = Date.now() + DROP_MS;
  for (const [pid, s] of room.socks) {
   pushState(room, s, pid === room.white ? 'white' : 'black');
  }
