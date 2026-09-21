@@ -1,4 +1,5 @@
 import type Phaser from 'phaser';
+import { clockFrame, clockFrameAlphas, clockFrameStep, clockFrameWanted } from './clockFrame';
 import { revealPose } from './panelReveal';
 
 export function preloadBunkerPanels(scene: Phaser.Scene) {
@@ -16,6 +17,15 @@ export function preloadBunkerPanels(scene: Phaser.Scene) {
 			});
 		else if (name !== 'opening-mask')
 			scene.load.image(`bunker-${name}`, url as string);
+	}
+	const frames = import.meta.glob('./ui/clock-frame/*.png', {
+		eager: true,
+		query: '?url',
+		import: 'default',
+	});
+	for (const [path, url] of Object.entries(frames)) {
+		const name = path.split('/').pop()!.replace('.png', '');
+		scene.load.image(`clock-${name}`, url as string);
 	}
 }
 /** One reusable bay. All coordinates and pixels come from approved V2, not the movie.
@@ -72,6 +82,16 @@ export function createBunkerPanel(scene: Phaser.Scene, own: boolean) {
 	image('thick-frame');
 	image('front-lip');
 	image('side-vents');
+	const frameMetal = scene.add.image(clockFrame.x, clockFrame.y, 'clock-frame-c').setOrigin(0);
+	const frameActive = scene.add
+		.image(clockFrame.x, clockFrame.y, 'clock-frame-c-active')
+		.setOrigin(0);
+	const frameLights = scene.add
+	.image(clockFrame.x, clockFrame.y, 'clock-frame-c-lights')
+	.setOrigin(0);
+	root.add(frameMetal);
+	root.add(frameActive);
+	root.add(frameLights);
 	const jets = [4, 316].map((x, i) => {
 		const go = scene.add
 			.sprite(x, -8, 'bunker-steam', 0)
@@ -88,7 +108,9 @@ export function createBunkerPanel(scene: Phaser.Scene, own: boolean) {
 		reduced = false,
 		active = false,
 		preparing = false,
-		disposed = false;
+		disposed = false,
+		frameAmt = 0,
+		sampledAt: number | null = null;
 	type Croppable = Phaser.GameObjects.Image | Phaser.GameObjects.Text;
 	function clip(go: Croppable, resolution = 1) {
 		const x = Math.max(0, 10 - go.x),
@@ -126,18 +148,45 @@ export function createBunkerPanel(scene: Phaser.Scene, own: boolean) {
 		right.x = 187 + p.doors;
 		clip(left);
 		clip(right);
+		const open = clockFrameWanted(p.doors, p.lift, active, preparing);
+		const y = clockFrame.y + p.lift;
+		const pulse = open ? 0.72 + 0.28 * Math.sin(scene.time.now / 380) : 1;
+		const a = clockFrameAlphas(frameAmt, reduced, pulse);
+		const layers: [Phaser.GameObjects.Image, number][] = [
+			[frameMetal, a.metal],
+			[frameActive, a.amber],
+			[frameLights, a.lights],
+		];
+		for (const [go, alpha] of layers) {
+			go.setPosition(clockFrame.x, y);
+			go.setAlpha(alpha);
+			clip(go);
+			if (alpha <= 0) go.setVisible(false);
+		}
 		jets.forEach((go) => {
 			go.setVisible(false); // Opening v4: no smoke, including the overlapping panel reveal.
 		});
 	}
+	const tickFrame = () => {
+		if (disposed) return;
+		const now = scene.time.now;
+		const dt = sampledAt === null ? 0 : now - sampledAt;
+		sampledAt = now;
+		const p = revealPose(elapsed, reduced);
+		const want = clockFrameWanted(p.doors, p.lift, active, preparing);
+		frameAmt = clockFrameStep(frameAmt, want, dt, reduced);
+		paint();
+	};
 	// Font arrival updates actual canvas text, but never reveals a hidden root or restarts motion.
 	void document.fonts?.load('600 21px "Golos Text"').then(() => {
 		if (disposed) return;
 		movingText.forEach((go) => go.setFontFamily('"Golos Text", sans-serif'));
 		paint();
 	});
+	scene.events.on('update', tickFrame);
 	scene.events.once('shutdown', () => {
 		disposed = true;
+		scene.events.off('update', tickFrame);
 	});
 	return {
 		root,
