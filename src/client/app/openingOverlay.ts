@@ -159,14 +159,17 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  void ensureGuest();
  const whiteStat = document.getElementById('opening-color-white');
  const blackStat = document.getElementById('opening-color-black');
+ const statsUnavailable = document.getElementById('opening-stats-unavailable');
  const paintColorStats = () => {
   void loadColorStats().then((stats) => {
    if (whiteStat) whiteStat.textContent = colorStatLabel(stats, 'white');
    if (blackStat) blackStat.textContent = colorStatLabel(stats, 'black');
+   if (statsUnavailable) statsUnavailable.hidden = !!stats;
    for (const element of [whiteStat, blackStat]) {
     if (element?.parentElement) element.parentElement.hidden = !element.textContent;
    }
   }).catch(() => {
+   if (statsUnavailable) statsUnavailable.hidden = false;
    if (whiteStat) whiteStat.textContent = '';
    if (blackStat) blackStat.textContent = '';
    for (const element of [whiteStat, blackStat]) {

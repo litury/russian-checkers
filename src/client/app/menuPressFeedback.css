@@ -1,0 +1,15 @@
+/* A local stacking/transform layer; button hitbox, gate mounts and labels stay intact. */
+#opening .menu-press-visual {
+ position:absolute; inset:0; pointer-events:none;
+ transform:translateY(0);
+ filter:brightness(1) drop-shadow(0 2px 1.5px #0005);
+ transition:transform 110ms cubic-bezier(.2,.7,.3,1),filter 110ms ease-out;
+}
+#opening .menu-press-visual.is-menu-pressed {
+ transform:translateY(1.5px);
+ filter:brightness(.96) drop-shadow(0 .5px .5px #0009);
+ transition:none;
+}
+@media(prefers-reduced-motion:reduce) {
+ #opening .menu-press-visual { transition:none; }
+}

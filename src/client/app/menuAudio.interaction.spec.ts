@@ -82,6 +82,21 @@ it('starts menu music after trusted unmute click once the context is running',as
  activation.resolve();await flush();
  expect(starts).toEqual(['menu_music_source']);
 });
+it('plays a quiet contact once after trusted down, with no selection click duplicate',async()=>{
+ await load('menu-contact');activation.resolve();
+ audio.menuContact({isTrusted:true} as Event,()=>true);await flush();
+ fire('click','gate-piece');await flush();
+ expect(starts).toEqual(['menu-contact']);
+});
+it.each(['mute','hidden','pause','cancel','depart','synthetic'])('does not leak contact on %s',async(reason)=>{
+ await load('menu-contact');
+ if(reason==='mute')settings.muted=true;
+ if(reason==='hidden')hidden=true;
+ if(reason==='pause')pause();
+ audio.menuContact({isTrusted:reason!=='synthetic'} as Event,()=>reason!=='cancel');
+ if(reason==='depart')audio.depart();
+ activation.resolve();await flush();expect(starts).toEqual([]);
+});
 it('starts play-b on first Play against a still-suspended AudioContext',async()=>{
  await load('play-b');
  expect(context.state).toBe('suspended');

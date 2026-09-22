@@ -26,7 +26,7 @@ export function mountSiegeOpening(root: HTMLElement) {
   drawMenuFire(context, fire[0], elapsed, burst, media.matches);
  };
  const loadFire = () => {
-  if (media.matches || fire.length || fireLoading) return;
+  if (fire.length || fireLoading) return;
   fireLoading = true;
   void Promise.all(fireUrls.map(decode)).then(images => {
    if (disposed) return;
@@ -99,12 +99,15 @@ export function mountSiegeOpening(root: HTMLElement) {
    const context = canvas.getContext('2d');
    if (!context) return;
    painters[side] = displacement => {
-    context.clearRect(0, 0, 724, 724);
+    context.clearRect(0, 0, MENU_FIRE.canvasWidth, MENU_FIRE.canvasHeight);
+    context.save();
+    context.translate(MENU_FIRE.sidePadding, MENU_FIRE.topPadding);
     drawFire(context, side);
     context.drawImage(images[0], 0, 0);
     context.drawImage(images[1], 141, 160 - displacement);
     context.drawImage(images[2], 0, 0);
-
+    if (side === state.side && fire.length && !root.hidden && !document.hidden) drawMenuFire(context, fire[0], elapsed, burst, media.matches, 'front');
+    context.restore();
     canvas.dataset.displacement = String(displacement);
    };
    painters[side]!(state.displacement(side));

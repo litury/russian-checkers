@@ -2,6 +2,7 @@ import type {IYandexSdk} from './IYandexSdk';
 import {MenuAudioPolicy,menuMusicShouldPlay,menuMusicStopsInstantly,menuMusicFadeSec,matchMusicShouldPlay} from './menuAudioPolicy';
 import {matchMusicDuck,matchMusicLevel,menuOrganLevel,sfxBus,voiceBus} from './audioMix';
 import {menuClickLevel,menuBackSound} from './menuClickLevel';
+import {bindMenuPressSound} from './menuPressSound';
 import {previewLoop,mechanismEnvelope} from './menuAudioPreview';
 import {startPanelWindows,startTimerLock,startTimerSlide} from './startAudio';
 import {orcArenaLine} from './orcTurn';
@@ -162,6 +163,17 @@ export function createMenuAudio(sdk:IYandexSdk) {
    unlocked=ctx?.state==='running';emit();
   }).catch(()=>{});
  };
+ let contactSerial=0;
+ const menuContact=(event:Event,current:()=>boolean)=>{
+  if(!event.isTrusted)return;
+  sync();if(!policy.audible||!policy.menu||policy.departing||!settings().master||!settings().effects)return;
+  const serial=++contactSerial,run=epoch,at=performance.now();
+  const emit=()=>{if(serial===contactSerial&&run===epoch&&current()&&policy.menu&&!policy.departing&&performance.now()-at<90)sound('menu-contact',.45);};
+  if(ctx?.state==='running'&&buffers.has('menu-contact')){unlocked=true;emit();return;}
+  prepare();
+  void Promise.all([ctx?.resume(),loading.get('menu-contact')]).then(()=>{unlocked=ctx?.state==='running';emit();}).catch(()=>{});
+ };
+ bindMenuPressSound(menuContact);
  document.addEventListener('pointerdown',gesture,true);document.addEventListener('keydown',gesture,true);
  document.addEventListener('click',click,true);
  document.addEventListener('visibilitychange',sync);
@@ -173,6 +185,7 @@ export function createMenuAudio(sdk:IYandexSdk) {
  bindPieceSfx(sound);
  bindPieceVoice(say,cutBark);
  return {
+  menuContact,
   show(){epoch++;mechanisms.clear();policy.menu=true;policy.match=false;policy.departing=false;musicEnded=false;stopEffects();stopMatch();sync();},
   hide(completed=false,reduced=false){epoch++;stopEffects();if(completed&&!reduced)sound('gate_stop');policy.menu=false;policy.departing=false;if(completed)policy.match=true;mechanisms.clear();sync();},
   // Normal departure belongs to the Play intent; hide/show still invalidate it.
@@ -213,6 +226,6 @@ export function createMenuAudio(sdk:IYandexSdk) {
     }
    }
   },
-  dispose(){bindKingFireSfx(()=>{});bindPieceSfx(()=>{});bindPieceVoice(()=>{});policy.menu=false;stopEffects();stopMusic();stopMatch();document.removeEventListener('pointerdown',gesture,true);document.removeEventListener('keydown',gesture,true);document.removeEventListener('click',click,true);document.removeEventListener('visibilitychange',sync);window.removeEventListener('checkers-settings-change',sync);void ctx?.close();},
+  dispose(){bindMenuPressSound(()=>{});bindKingFireSfx(()=>{});bindPieceSfx(()=>{});bindPieceVoice(()=>{});policy.menu=false;stopEffects();stopMusic();stopMatch();document.removeEventListener('pointerdown',gesture,true);document.removeEventListener('keydown',gesture,true);document.removeEventListener('click',click,true);document.removeEventListener('visibilitychange',sync);window.removeEventListener('checkers-settings-change',sync);void ctx?.close();},
  };
 }

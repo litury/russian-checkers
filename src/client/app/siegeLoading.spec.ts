@@ -7,7 +7,7 @@ class Button extends EventTarget {
  attributes: Record<string, string>;
  classList = { toggle: vi.fn() };
  image = { hidden: false, src: '', classList: { add: vi.fn() } };
- context = { clearRect: vi.fn(), drawImage: vi.fn() };
+ context = { clearRect: vi.fn(), drawImage: vi.fn(), save: vi.fn(), restore: vi.fn(), translate: vi.fn(), beginPath: vi.fn(), moveTo: vi.fn(), quadraticCurveTo: vi.fn(), lineTo: vi.fn(), closePath: vi.fn(), clip: vi.fn() };
  canvas = { hidden: true, dataset: {} as Record<string, string>, getContext: () => this.context };
  constructor(side: string) {
   super(); this.dataset = { side }; this.attributes = { 'aria-pressed': String(side === 'white') };
@@ -45,7 +45,8 @@ describe('Siege delayed/failed decoration', () => {
   const { mountSiegeOpening } = await import('./siegeOpening');
   const root = new Root();
   const dispose = mountSiegeOpening(root as unknown as HTMLElement);
-  expect(pending).toHaveLength(6);
+  expect(pending.filter(load => /-(base|moving|front)\.png/.test(load.src))).toHaveLength(6);
+  expect(pending.filter(load => load.src.includes('menu-selection-fire'))).toHaveLength(1);
   pending[0].resolve(); pending[1].resolve();
   await flush();
   expect(root.buttons[0].canvas.hidden).toBe(true);
@@ -56,6 +57,11 @@ describe('Siege delayed/failed decoration', () => {
   await flush();
   expect(root.buttons.map(button => button.canvas.hidden)).toEqual([false, false]);
   expect(root.buttons.map(button => button.canvas.dataset.displacement)).toEqual(['0', '55']);
+  for (const button of root.buttons) {
+   expect(button.context.translate).toHaveBeenCalledWith(64, 256);
+   expect(button.context.clearRect).toHaveBeenCalledWith(0, 0, 852, 980);
+   expect(button.context.save.mock.calls.length).toBe(button.context.restore.mock.calls.length);
+  }
   expect(root.buttons[1].context.drawImage.mock.calls[1].slice(1)).toEqual([141, 105]);
   dispose();
  });
@@ -100,7 +106,7 @@ it('animates bounded fire while selected, stops in background and reduced motion
  setSiegeSide(root as unknown as HTMLElement, 'black'); step(250);
  const stamps = root.buttons[1].context.drawImage.mock.calls.filter(call => call.length === 9);
  expect(stamps.length).toBeGreaterThan(0);
- expect((stamps[0][0] as unknown as {src:string}).src).toContain('ignite-back');
+ expect((stamps[0][0] as unknown as {src:string}).src).toContain('menu-selection-fire.webp');
  expect(root.buttons[0].context.drawImage.mock.calls.some(call => call.length === 9)).toBe(false);
  Object.defineProperty(document,'hidden',{value:true,configurable:true});
  document.dispatchEvent(new Event('visibilitychange'));
