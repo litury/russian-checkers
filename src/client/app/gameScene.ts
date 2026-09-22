@@ -639,6 +639,7 @@ export class GameScene extends Phaser.Scene {
 		this.moving = false;
 		this.humanChain = null;
 		this.selected = null;
+		if (snap.begun) this.finishOnlineOpening();
 		if (!this.countingIn && snap.begun) {
 			this.phase = this.serverTurn === this.humanSide ? 'human' : 'bot';
 		}
@@ -647,17 +648,22 @@ export class GameScene extends Phaser.Scene {
 		this.drainInbound();
 	}
 
+	private finishOnlineOpening(): void {
+		if (!this.countingIn) return;
+		this.stopCountdown();
+		this.title.hide(true);
+		this.title.beginMatch();
+		this.hud?.finishReveal();
+	}
+
 	private applyBegin(snap: MatchSnapshot): void {
 		this.onlineBegun = true;
 		this.lastPly = snap.ply;
 		this.serverTurn = snap.turn;
 		if (snap.pieces.length) this.position = positionFromSnapshot(snap);
 		this.phase = this.serverTurn === this.humanSide ? 'human' : 'bot';
+		this.finishOnlineOpening();
 		this.applyAuthoritativeClocks(snap);
-		if (this.countingIn) {
-			this.clockStartedAt = this.time.now;
-			this.countingIn = false;
-		}
 		this.paintClock();
 		this.refresh();
 		this.drainInbound();
@@ -672,6 +678,7 @@ export class GameScene extends Phaser.Scene {
 		this.moving = false;
 		this.humanChain = null;
 		this.selected = null;
+		if (snap.begun) this.finishOnlineOpening();
 		if (!this.countingIn) {
 			this.phase = !snap.begun ? this.phase : this.serverTurn === this.humanSide ? 'human' : 'bot';
 		}
@@ -836,6 +843,12 @@ export class GameScene extends Phaser.Scene {
 		if (!board || !hud) return;
 		this.stopCountdown();
 		this.countingIn = true;
+		if (this.online && this.onlineBegun) {
+			// Re-seating an already running match has no decorative timeline.
+			this.finishOnlineOpening();
+			this.live?.requestState();
+			return;
+		}
 		const ready = () => {
 			if (!this.countingIn) return;
 			if (this.online && !this.onlineBegun) {
@@ -855,14 +868,15 @@ export class GameScene extends Phaser.Scene {
 				this.botTimer = this.time.delayedCall(400, () => this.playBot());
 			}
 		};
-		// Vs bot: board is already painted — open both HUD bays now, do not wait for title.depart.
+		// Keep closed housings behind the gates. Only their completed departure
+		// starts the shared HUD timeline; ready owns input and local bank start.
 		hud.setVisible(true);
-		hud.startReveal(ready);
 		const afterTitle = () => {
 			if (!this.countingIn) return;
 			this.title.beginMatch();
 			board.startOpeningHint(this.position, this.humanSide);
 			this.title.hintWave();
+			hud.startReveal(ready);
 		};
 		if (fromOpening) this.title.depart(afterTitle);
 		else afterTitle();

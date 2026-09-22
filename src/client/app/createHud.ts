@@ -121,8 +121,15 @@ export function createHud(
 				paint();
 				done();
 			});
-			// Board/table already ready: open both bays together, no delayed lift.
-			reveal.advance(preparationMs);
+			// Normal motion is advanced by scene updates, never completed at start.
+			if (reduced) reveal.advance(preparationMs);
+			paint();
+		},
+		finishReveal() {
+			// Authoritative online begin/resume cannot wait behind decoration.
+			reveal.cancel();
+			reveal.elapsed = preparationMs;
+			staticRun = reduced;
 			paint();
 		},
 		stopReveal() {

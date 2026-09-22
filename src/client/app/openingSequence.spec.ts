@@ -8,10 +8,12 @@ it('finishes gates at 2000ms with all moving parts outside', () => {
  gates.advance(1); expect(ready).toBe(true);
  expect(gatePose(2000)).toEqual({press:1,slide:1,title:1,doors:1});
 });
-it('opens HUD bays as soon as the board is ready, without waiting for title.depart', () => {
+it('starts closed HUD bays only inside completed title/gates callback', () => {
  expect(scene).toContain('hud.startReveal(ready)');
  expect(scene).toContain('this.title.depart(afterTitle)');
  expect(scene).toContain('this.hud.prepareClosed()');
  expect(scene).not.toContain('this.hud.setVisible(!fromOpening)');
- expect(scene).not.toContain('this.title.depart(startPanels)');
+ const sequence = scene.slice(scene.indexOf('private beginCountdown'), scene.indexOf('private layout'));
+ expect(sequence.indexOf('const afterTitle')).toBeLessThan(sequence.indexOf('hud.startReveal(ready)'));
+ expect(sequence.indexOf('hud.startReveal(ready)')).toBeLessThan(sequence.indexOf('this.title.depart(afterTitle)'));
 });

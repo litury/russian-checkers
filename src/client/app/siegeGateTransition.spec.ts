@@ -18,7 +18,7 @@ class Element extends EventTarget {
  focus=vi.fn(); close(){this.open=false;}
  children=new Map<string,Element>();
  querySelector(selector:string){if(!this.children.has(selector))this.children.set(selector,new Element());return this.children.get(selector)!;}
- getBoundingClientRect(){return {left:0,right:1440};}
+ getBoundingClientRect(){return {left:0,right:1440,top:0,bottom:220};}
  layers: Element[]=[];
  querySelectorAll(selector:string){return selector === '.siege-layer' ? this.layers : selector === '.siege-left,.siege-right' ? this.layers.slice(0,2) : [this.querySelector(selector)];}
 }
@@ -107,6 +107,12 @@ it('hands transforms to browser once: sparse scene updates cannot seek the leave
  expect(mount.options).toEqual(a.options);
  expect(mount.startTime).toBe(a.startTime);
  expect(a.startTime).toBe(123);
+ expect(a.options.delay).toBe(350);
+ expect(a.options.duration).toBe(1650);
+ const canopy=root.querySelector('.gate-title-canopy').animations[0];
+ expect(canopy.options.duration).toBe(a.options.delay);
+ expect(canopy.frames).toEqual([{transform:'translateY(0px)'},{transform:'translateY(-222px)'}]);
+ expect(canopy.startTime).toBe(a.startTime);
  const right=root.querySelector('.siege-right').animations[0];
  const rightMount=root.querySelector('[data-siege-mount="right"]').animations[0];
  expect(rightMount.frames).toEqual(right.frames);

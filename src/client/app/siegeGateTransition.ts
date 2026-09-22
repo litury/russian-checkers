@@ -1,4 +1,5 @@
 import { gateDurationMs } from './openingGates';
+export const titleDepartureMs = 350;
 
 /** Conservative bounds include transparent image extents and every attached control. */
 export function siegeTravel(viewport: {left: number; right: number}, bounds: readonly {left: number; right: number}[], side: 'left' | 'right') {
@@ -27,9 +28,14 @@ export function animateSiegeGates(root: HTMLElement) {
   for (const {nodes, x} of groups) for (const node of nodes) {
    animations.push(node.animate(
     [{transform:'translateX(0px)'}, {transform:`translateX(${x}px)`}],
-    {duration:gateDurationMs, easing:'cubic-bezier(0.3333333333,0,0.6666666667,1)', fill:'both'},
+    {delay:titleDepartureMs, duration:gateDurationMs-titleDepartureMs, easing:'cubic-bezier(0.3333333333,0,0.6666666667,1)', fill:'both'},
    ));
   }
+  const canopy = root.querySelector<HTMLElement>('.gate-title-canopy');
+  if (canopy) animations.push(canopy.animate(
+   [{transform:'translateY(0px)'}, {transform:`translateY(-${Math.ceil(canopy.getBoundingClientRect().bottom - viewport.top) + 2}px)`}],
+   {duration:titleDepartureMs, easing:'ease-in', fill:'both'},
+  ));
   const start = document.timeline.currentTime;
   if (start !== null) for (const animation of animations) animation.startTime = start;
  } catch {
