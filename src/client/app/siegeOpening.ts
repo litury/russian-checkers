@@ -1,5 +1,6 @@
 import { SiegeSelection, setSiegeSide, siegeSide, type SiegeSide } from './siegeSelection';
 import { drawMenuFire, MENU_FIRE } from './menuSelectionFire';
+import { MenuTouchMotion } from './menuTouchMotion';
 
 const layers = import.meta.glob('./ui/siege/{white,black}-{base,moving,front}.png', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
 const fireUrls = [
@@ -17,6 +18,8 @@ async function decode(src: string) {
 export function mountSiegeOpening(root: HTMLElement) {
  const media = matchMedia('(prefers-reduced-motion: reduce)');
  const state = new SiegeSelection(siegeSide(root));
+ const touch = { white: new MenuTouchMotion(), black: new MenuTouchMotion() };
+ const touchMoving = () => touch.white.moving || touch.black.moving;
  const buttons = [...root.querySelectorAll<HTMLButtonElement>('.gate-piece-slot')];
  const painters: Partial<Record<SiegeSide, (displacement: number) => void>> = {};
  let frame = 0, previous = 0, disposed = false;
@@ -41,11 +44,13 @@ export function mountSiegeOpening(root: HTMLElement) {
   frame = 0;
   if (disposed || root.hidden || document.hidden) { previous = 0; return; }
   const delta = previous ? Math.min(50, now - previous) : 0;
+  const wasMoving = !state.settled || touchMoving();
   state.advance(delta, media.matches);
+  touch.white.advance(delta, media.matches); touch.black.advance(delta, media.matches);
   elapsed += delta; burst = Math.max(0, burst - delta);
   previous = now;
-  if (!state.settled || now - lastPaint >= 1000 / 30) { paint(); lastPaint = now; }
-  if (!state.settled || (!media.matches && fire.length && painters[state.side])) frame = requestAnimationFrame(tick);
+  if (wasMoving || !state.settled || touchMoving() || now - lastPaint >= 1000 / 30) { paint(); lastPaint = now; }
+  if (!state.settled || touchMoving() || (!media.matches && fire.length && painters[state.side])) frame = requestAnimationFrame(tick);
   else previous = 0;
  };
  const wake = () => {
@@ -104,11 +109,14 @@ export function mountSiegeOpening(root: HTMLElement) {
     context.translate(MENU_FIRE.sidePadding, MENU_FIRE.topPadding);
     drawFire(context, side);
     context.drawImage(images[0], 0, 0);
-    context.drawImage(images[1], 141, 160 - displacement);
+    // Base/contact shadow and front rim remain fixed: rigid disk travel, no scaling.
+    context.drawImage(images[1], 141, 160 - displacement + touch[side].offset);
     context.drawImage(images[2], 0, 0);
     if (side === state.side && fire.length && !root.hidden && !document.hidden) drawMenuFire(context, fire[0], elapsed, burst, media.matches, 'front');
     context.restore();
     canvas.dataset.displacement = String(displacement);
+    canvas.dataset.touchOffset = String(touch[side].offset);
+    canvas.dataset.ignition = String(burst);
    };
    painters[side]!(state.displacement(side));
    canvas.hidden = false;
@@ -118,6 +126,13 @@ export function mountSiegeOpening(root: HTMLElement) {
  }
  loadFire();
  root.addEventListener('siege-side', update);
+ const contact = (event: Event) => {
+  const { side, held } = (event as CustomEvent<{side: SiegeSide; held: boolean}>).detail;
+  if (!touch[side]) return;
+  if (held) touch[side].press(); else touch[side].release(media.matches);
+  paint(); wake();
+ };
+ root.addEventListener('menu-touch', contact);
  media.addEventListener('change', update);
  document.addEventListener('visibilitychange', wake);
  const observer = new MutationObserver(wake);
@@ -129,6 +144,7 @@ export function mountSiegeOpening(root: HTMLElement) {
   cancelAnimationFrame(frame);
   observer.disconnect();
   root.removeEventListener('siege-side', update);
+  root.removeEventListener('menu-touch', contact);
   media.removeEventListener('change', update);
   document.removeEventListener('visibilitychange', wake);
   for (const button of buttons) {

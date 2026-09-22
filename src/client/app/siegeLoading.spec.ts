@@ -89,6 +89,22 @@ describe('Siege delayed/failed decoration', () => {
  });
 });
 
+it('depresses only the moving disk, preserving fixed base and rim, and returns on cancel', async () => {
+ const {mountSiegeOpening} = await import('./siegeOpening');
+ const root = new Root(); const dispose = mountSiegeOpening(root as unknown as HTMLElement);
+ for (const load of pending) load.resolve(); await flush();
+ const black=root.buttons[1]; black.context.drawImage.mockClear();
+ root.dispatchEvent(new CustomEvent('menu-touch',{detail:{side:'black',held:true}}));
+ expect(black.getAttribute('aria-pressed')).toBe('false');
+ expect(black.canvas.dataset.touchOffset).toBe('34');
+ expect(black.context.drawImage.mock.calls.map(call=>call.slice(1))).toEqual([[0,0],[141,194],[0,0]]);
+ black.context.drawImage.mockClear();
+ root.dispatchEvent(new CustomEvent('menu-touch',{detail:{side:'black',held:false}}));
+ expect(black.context.drawImage.mock.calls.map(call=>call.slice(1))).toEqual([[0,0],[141,160],[0,0]]);
+ expect(black.getAttribute('aria-pressed')).toBe('false');
+ dispose();
+});
+
 it('animates bounded fire while selected, stops in background and reduced motion, disposes', async () => {
  media.matches = false;
  const callbacks = new Map<number, FrameRequestCallback>(); let serial = 0;

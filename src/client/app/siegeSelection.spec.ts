@@ -9,7 +9,8 @@ describe('Siege selection progress', () => {
   expect([state.displacement('white'), state.displacement('black')]).toEqual([0, 55]);
   state.advance(5000, false);
   expect(state.settled).toBe(true);
-  expect(runtime).toContain('context.drawImage(images[1], 141, 160 - displacement)');
+  expect(runtime).toContain('context.drawImage(images[1], 141, 160 - displacement + touch[side].offset)');
+  expect(runtime).toContain('context.drawImage(images[0], 0, 0)');
   expect(runtime).toContain('context.drawImage(images[2], 0, 0)');
  });
  it('reverses both pieces from their current progress on rapid changes', () => {
