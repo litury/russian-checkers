@@ -100,25 +100,7 @@
  #opening *, #opening *::before, #opening *::after { animation:none!important; transition:none!important; }
  #opening .gate-piece-slot[aria-pressed="true"]::after { content:''; position:absolute; left:25%; right:25%; bottom:0; height:4px; background:#ffe0a0; box-shadow:0 0 0 2px #20190e; }
 }
-#match-history{position:fixed;inset:0;z-index:110;background:#161a1b;color:#e2d9c0;padding:16px;overflow:auto;font-family:"Golos Text",sans-serif}
-#match-history[hidden]{display:none}
-#match-history h2{margin:8px 0 16px;font:600 22px Literata,serif}
-#match-history-back{min-height:44px;margin-bottom:8px}
-.mh-row{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;margin:0 0 8px;padding:8px 12px;border:2px solid #8b8878;background:#252b2b;color:#e2d9c0}
-.mh-disk{width:22px;height:22px;border-radius:50%}
-.mh-white{background:#e8dcc0}
-.mh-black{background:#2a2e2c;box-shadow:inset 0 0 0 2px #c5b28e}
-.mh-grid{width:min(360px,90vw);aspect-ratio:1;display:grid;grid-template-columns:repeat(8,1fr);border:2px solid #8b8878;margin:12px 0}
-.mh-grid i{aspect-ratio:1}
-.mh-light{background:#c4b496}
-.mh-dark{background:#5a5144}
-.mh-grid i[data-side=white]{background:radial-gradient(circle at 50% 45%,#f3ead2 55%,#5a5144 56%)}
-.mh-grid i[data-side=black]{background:radial-gradient(circle at 50% 45%,#2c322f 55%,#5a5144 56%)}
-#match-history-scrub{width:min(360px,90vw);display:block}
-.mh-best{outline:2px solid #9ecf8a;outline-offset:-2px}
-#match-history-eval{display:block;width:min(360px,90vw);height:4px;margin-top:8px;background:#5a5144}
-#match-history-eval.mh-ok{background:#9ecf8a}
-#match-history-eval.mh-alt{background:#8b8878}
+
 #match-rail{position:fixed;z-index:10000;left:50%;bottom:calc(12px + env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;gap:8px;pointer-events:none}
 #match-rail .opening-utility{min-height:44px;min-width:132px;padding:8px 12px;gap:6px;border:1px solid #62635b;background:#202526;box-shadow:none;color:#d0c9bb;font:400 16px/1 "Golos Text",sans-serif;pointer-events:auto;touch-action:manipulation}
 @media (orientation:landscape) and (max-height:500px){
