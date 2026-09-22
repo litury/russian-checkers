@@ -281,6 +281,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   },
   beginMatch:()=>audio.beginMatch(),
   humanSide:()=>siegeSide(root),
+  turnHandoff:()=>audio.turnHandoff(),
   hintWave:()=>audio.hintWave(),
   arenaVoice:(humanSide:'white'|'black'='white')=>audio.arenaVoice(humanSide),
   speakOrcTurn:(name:string,humanSide:'white'|'black'='white')=>audio.speakOrcTurn(name,humanSide),

@@ -178,6 +178,8 @@ export function createMenuAudio(sdk:IYandexSdk) {
   // Normal departure belongs to the Play intent; hide/show still invalidate it.
   depart(){mechanisms.clear();policy.departing=true;sync();},
   beginMatch(){epoch++;policy.match=true;policy.menu=false;policy.departing=false;mechanisms.clear();sync();},
+  // Explicit completed-ply event only; sound() owns mute/hidden/SDK/autoplay policy.
+  turnHandoff(){if(policy.match&&!policy.menu&&settings().master>0)sound('turn-handoff',.45);},
   hintWave(){sound('availability-wave',.85);},
   arenaVoice(humanSide:'white'|'black'='white'){say(announcerCue(humanSide,orcArenaLine));},
   speakOrcTurn(name:string,humanSide:'white'|'black'='white'){say(announcerCue(humanSide,name));},

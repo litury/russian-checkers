@@ -1,5 +1,5 @@
 import type Phaser from 'phaser';
-import { clockFrame, clockFrameAlphas, clockFrameStep, clockFrameWanted } from './clockFrame';
+import { clockFrame, clockFramePose, clockFrameStep, clockFrameWanted } from './clockFrame';
 import { revealPose } from './panelReveal';
 
 export function preloadBunkerPanels(scene: Phaser.Scene) {
@@ -82,16 +82,16 @@ export function createBunkerPanel(scene: Phaser.Scene, own: boolean) {
 	image('thick-frame');
 	image('front-lip');
 	image('side-vents');
-	const frameMetal = scene.add.image(clockFrame.x, clockFrame.y, 'clock-frame-c').setOrigin(0);
-	const frameActive = scene.add
-		.image(clockFrame.x, clockFrame.y, 'clock-frame-c-active')
-		.setOrigin(0);
-	const frameLights = scene.add
-	.image(clockFrame.x, clockFrame.y, 'clock-frame-c-lights')
-	.setOrigin(0);
-	root.add(frameMetal);
-	root.add(frameActive);
-	root.add(frameLights);
+	// Non-overlapping source quarters: the approved pixels move rigidly, never scale.
+	const frameParts = ['frame-c', 'frame-c-active', 'frame-c-lights'].flatMap((key, layer) =>
+		[[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([sx, sy]) => {
+			const go = scene.add.image(clockFrame.x, clockFrame.y, `clock-${key}`).setOrigin(0);
+			const splitY = Math.floor(clockFrame.height / 2);
+			go.setCrop(sx < 0 ? 0 : 70, sy < 0 ? 0 : splitY, 70, sy < 0 ? splitY : clockFrame.height - splitY);
+			root.add(go);
+			return { go, layer, sx, sy };
+		}),
+	);
 	const jets = [4, 316].map((x, i) => {
 		const go = scene.add
 			.sprite(x, -8, 'bunker-steam', 0)
@@ -150,18 +150,12 @@ export function createBunkerPanel(scene: Phaser.Scene, own: boolean) {
 		clip(right);
 		const open = clockFrameWanted(p.doors, p.lift, active, preparing);
 		const y = clockFrame.y + p.lift;
-		const pulse = open ? 0.72 + 0.28 * Math.sin(scene.time.now / 380) : 1;
-		const a = clockFrameAlphas(frameAmt, reduced, pulse);
-		const layers: [Phaser.GameObjects.Image, number][] = [
-			[frameMetal, a.metal],
-			[frameActive, a.amber],
-			[frameLights, a.lights],
-		];
-		for (const [go, alpha] of layers) {
-			go.setPosition(clockFrame.x, y);
-			go.setAlpha(alpha);
-			clip(go);
-			if (alpha <= 0) go.setVisible(false);
+		const a = clockFramePose(frameAmt, open, reduced);
+		const alphas = [a.metal, a.amber, a.lights];
+		for (const { go, layer, sx, sy } of frameParts) {
+			const alpha = alphas[layer];
+			go.setPosition(clockFrame.x + sx * a.spreadX, y + sy * a.spreadY);
+			go.setAlpha(alpha).setVisible(alpha > 0 && p.lift <= 0 && p.doors >= 181);
 		}
 		jets.forEach((go) => {
 			go.setVisible(false); // Opening v4: no smoke, including the overlapping panel reveal.

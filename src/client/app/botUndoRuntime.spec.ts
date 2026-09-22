@@ -134,6 +134,26 @@ it('online resign sends live resign; undo stays hidden', () => {
  expect(s.phase).toBe('human');
  expect(s.board.reset).not.toHaveBeenCalled();
 });
+it('handoff emits only after a whole nonterminal ply; never refresh, tick, undo or resign', () => {
+ const { s } = setup(); s.title = { turnHandoff: vi.fn(), resultSting: vi.fn() };
+ human(s); expect(s.title.turnHandoff).toHaveBeenCalledTimes(1);
+ expect(s.hud.setClock.mock.lastCall?.[2]).toBe('black');
+ s.refresh(); s.tickClock(); expect(s.title.turnHandoff).toHaveBeenCalledTimes(1);
+ s.playBot(); expect(s.title.turnHandoff).toHaveBeenCalledTimes(2);
+ s.undoBot(); expect(s.title.turnHandoff).toHaveBeenCalledTimes(2);
+ s.ensureResultOverlay = async () => s.overlay;
+ s.resignMatch(); s.tickClock(); expect(s.title.turnHandoff).toHaveBeenCalledTimes(2);
+});
+it('handoff is silent between capture hops and on a winning final capture', () => {
+ const { s } = setup(); s.title = { turnHandoff: vi.fn(), resultSting: vi.fn() }; chainPosition(s);
+ s.onSquare(sq('c3')); s.onSquare(sq('e5'));
+ expect(s.position.turn).toBe('white'); expect(s.title.turnHandoff).not.toHaveBeenCalled();
+ s.onSquare(sq('g7')); expect(s.title.turnHandoff).toHaveBeenCalledTimes(1);
+ s.undoBot(); s.position.squares[7][7] = null;
+ s.onSquare(sq('c3')); s.onSquare(sq('e5')); s.onSquare(sq('g7'));
+ expect(s.phase).toBe('over'); expect(s.title.turnHandoff).toHaveBeenCalledTimes(1);
+});
+
 it('empty history undo is a no-op', () => {
  const { s } = setup(); const origin = structuredClone(s.position);
  s.undoBot(); expect(s.position).toEqual(origin); expect(s.board.reset).not.toHaveBeenCalled();

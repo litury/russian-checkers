@@ -167,6 +167,27 @@ it('drops rejected resume without retrying later',async()=>{
  fire('pointerdown');fire('click');activation.reject(Error('blocked'));await load('play-b');
  expect(starts).toEqual([]);
 });
+it('turn handoff never unlocks audio and uses one short cue per explicit event', async()=>{
+ audio.turnHandoff(); expect(context.resume).not.toHaveBeenCalled(); expect(starts).toEqual([]);
+ await load('turn-handoff'); activation.resolve(); fire('pointerdown','elsewhere'); await flush();
+ audio.beginMatch(); audio.turnHandoff();
+ expect(starts).toEqual(['turn-handoff']);
+ await flush(); fire('checkers-settings-change');
+ expect(starts).toEqual(['turn-handoff']);
+});
+it.each(['mute','hidden','pause','effects','master'])('drops handoff under %s without deferred replay',async(reason)=>{
+ await load('turn-handoff'); activation.resolve(); fire('pointerdown','elsewhere'); await flush(); audio.beginMatch();
+ if(reason==='mute')settings.muted=true;
+ if(reason==='hidden')hidden=true;
+ if(reason==='pause')pause();
+ if(reason==='effects')settings.effects=0;
+ if(reason==='master')settings.master=0;
+ audio.turnHandoff(); expect(starts).toEqual([]);
+ settings.muted=false;hidden=false;settings.effects=1;settings.master=1;resume();fire('checkers-settings-change');await flush();
+ expect(starts).toEqual([]);
+ audio.turnHandoff(); expect(starts).toEqual(['turn-handoff']);
+});
+
 it('drops failed Play fetch without blocking or playing other assets',async()=>{
  fire('click');activation.resolve();
  [...requests].find(([url])=>url.includes('/play-b.'))![1].reject(Error('offline'));

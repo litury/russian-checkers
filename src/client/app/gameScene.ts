@@ -987,6 +987,8 @@ export class GameScene extends Phaser.Scene {
 			return;
 		}
 		if (!this.board || !this.hud) return;
+		// Paint the activity edge with the position/status, not the next clock tick.
+		this.paintClock();
 		this.board.sync(
 			this.humanChain?.visualPosition ?? this.position,
 			this.humanHighlights(),
@@ -1241,6 +1243,7 @@ export class GameScene extends Phaser.Scene {
 		this.phase = this.online
 			? (this.onlineHumanTurn() ? 'human' : 'bot')
 			: this.position.turn === this.humanSide ? 'human' : 'bot';
+		if (!this.paused && !this.remoteClockPaused) this.title?.turnHandoff();
 		this.refresh();
 		if (this.online) {
 			if (!this.applyingNet && mover === this.humanSide) this.lastPly += 1;
@@ -1301,6 +1304,7 @@ export class GameScene extends Phaser.Scene {
 				return;
 			}
 			this.phase = 'human';
+			if (!this.paused) this.title?.turnHandoff();
 			this.refresh();
 		});
 	}
