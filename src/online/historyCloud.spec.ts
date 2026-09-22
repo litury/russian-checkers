@@ -1,0 +1,31 @@
+import { afterEach, expect, it, vi } from 'vitest';
+import { loadMatch, loadMatches } from './cloud';
+const row = { id: 'test', color: 'white', mode: 'bot', winner: null, startedAt: '', plies: 0 };
+vi.stubGlobal('localStorage', { getItem: () => 'fixture' });
+afterEach(() => vi.restoreAllMocks());
+it('distinguishes empty list, server failure, malformed JSON and invalid envelope', async () => {
+ const fetch = vi.spyOn(globalThis, 'fetch');
+ fetch.mockResolvedValueOnce(new Response('{"matches":[]}'));
+ expect(await loadMatches()).toEqual([]);
+ fetch.mockResolvedValueOnce(new Response('', { status: 500 }));
+ expect(await loadMatches()).toBeNull();
+ fetch.mockResolvedValueOnce(new Response('invalid'));
+ expect(await loadMatches()).toBeNull();
+ fetch.mockResolvedValueOnce(new Response('{}'));
+ expect(await loadMatches()).toBeNull();
+ fetch.mockResolvedValueOnce(new Response(JSON.stringify({ matches: [row] })));
+ expect(await loadMatches()).toEqual([row]);
+});
+it('distinguishes missing detail, empty recording and retryable error', async () => {
+ const fetch = vi.spyOn(globalThis, 'fetch');
+ fetch.mockResolvedValueOnce(new Response('', { status: 404 }));
+ expect(await loadMatch('test')).toEqual({ status: 'missing' });
+ fetch.mockRejectedValueOnce(new Error('offline'));
+ expect(await loadMatch('test')).toEqual({ status: 'error' });
+ fetch.mockResolvedValueOnce(new Response('invalid'));
+ expect(await loadMatch('test')).toEqual({ status: 'error' });
+ fetch.mockResolvedValueOnce(new Response(JSON.stringify({ ...row, pliesList: [] })));
+ expect((await loadMatch('test')).status).toBe('ok');
+ fetch.mockResolvedValueOnce(new Response(JSON.stringify({ ...row, id: 'wrong', pliesList: [] })));
+ expect(await loadMatch('test')).toEqual({ status: 'error' });
+});

@@ -17,17 +17,18 @@ it('lists own matches outside settings, board only with plies', () => {
  expect(src).toContain('not_found');
  expect(html).toContain('Партии');
  expect(html).toContain('id="opening-history"');
- expect(html).toContain('Пока нет партий');
+ expect(ui).toContain('Пока нет партий');
  // Scope to the dialog element: aria-controls on the sibling Settings button is not its contents.
  const settingsDialog = html.match(/<dialog\b[^>]*id="opening-settings-dialog"[^>]*>[\s\S]*?<\/dialog>/)?.[0];
  expect(settingsDialog).toBeDefined();
  expect(settingsDialog).not.toContain('id="opening-history"');
  expect(overlay).toContain('bindMatchHistory');
- expect(ui).toContain('mh-best');
- expect(ui).toContain('Пример разбора');
+ expect(ui).not.toContain('pickBotMove');
+ expect(ui).not.toContain('Пример разбора');
+ expect(ui).toContain('Смотреть');
  expect(ui).toContain('Загрузка…');
  expect(ui).toContain('Не удалось загрузить партии');
- expect(ui).toContain("rows === null");
+ expect(ui).toContain("result === null");
  expect(ui).toContain('title.inert');
  expect(settings).not.toContain('match-history');
 });

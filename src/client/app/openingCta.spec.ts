@@ -28,5 +28,6 @@ it('guest tag is 4 hex, empty matches stay closed', () => {
  expect(guestTag('a3f2c91d-1111-4000-8000-aaaaaaaaaaaa')).toBe('· a3f2');
  expect(guestTag('')).toBe('');
  expect(canOpenBoard({ plies: 0 })).toBe(false);
- expect(ui).toContain('обрыв');
+ expect(ui).toContain('Ходы не записаны');
+ expect(ui).not.toContain('обрыв');
 });

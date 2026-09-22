@@ -145,18 +145,48 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   <noscript><p>Для игры нужен JavaScript. Включите его в настройках браузера и обновите страницу.</p></noscript>
  </div>
 </main>
-<div id="match-history" hidden>
- <button type="button" id="match-history-back">Назад</button>
- <h2>Партии</h2>
- <p id="match-history-empty" hidden>Пока нет партий</p>
- <div id="match-history-list"></div>
- <div id="match-history-board" hidden>
-  <div id="match-history-grid" class="mh-grid"></div>
-  <p id="match-history-none" hidden>нет записи</p>
-  <input id="match-history-scrub" type="range" min="0" max="0" value="0" />
-  <i id="match-history-eval" hidden></i>
+<dialog id="match-history" aria-labelledby="match-history-title">
+ <div class="mh-panel">
+  <header class="mh-header">
+   <div><p class="mh-eyebrow">Архив игры</p><h2 id="match-history-title" tabindex="-1">Мои партии</h2></div>
+   <button type="button" id="match-history-back" class="mh-button">В меню</button>
+  </header>
+  <div id="match-history-scroll" class="mh-scroll">
+   <section id="match-history-archive" aria-label="Список партий">
+    <div class="mh-toolbar"><p id="match-history-summary">Последние записанные партии</p>
+     <label id="match-history-filter-label" hidden>Соперник <select id="match-history-filter"><option value="all">Все</option><option value="online">Онлайн</option><option value="bot">Компьютер</option></select></label>
+    </div>
+    <div id="match-history-list"></div>
+    <p id="match-history-limit" class="mh-muted" hidden>Показаны последние 50 партий. Более ранние записи пока недоступны в этом списке.</p>
+   </section>
+   <section id="match-history-state" class="mh-state" role="status" aria-live="polite" hidden>
+    <h3 id="match-history-state-title"></h3><p id="match-history-state-copy"></p>
+    <button type="button" id="match-history-retry" class="mh-button" hidden>Повторить</button>
+   </section>
+   <section id="match-history-board" hidden aria-label="Просмотр записи">
+    <div class="mh-replay-layout">
+     <div class="mh-board-column">
+      <div class="mh-board-frame"><div id="match-history-grid" role="img" aria-label="Позиция на доске"></div><div class="mh-files" aria-hidden="true"><span>a</span><span>b</span><span>c</span><span>d</span><span>e</span><span>f</span><span>g</span><span>h</span></div><div class="mh-ranks" aria-hidden="true"><span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span></div></div>
+      <div class="mh-transport" role="group" aria-label="Навигация по записи">
+       <button type="button" class="mh-button" id="mh-first" aria-label="В начало записи">|‹</button>
+       <button type="button" class="mh-button" id="mh-prev" aria-label="Предыдущий полуход">‹</button>
+       <button type="button" class="mh-button" id="mh-next" aria-label="Следующий полуход">›</button>
+       <button type="button" class="mh-button" id="mh-end" aria-label="В конец записи">›|</button>
+      </div>
+      <p id="match-history-ply" role="status" aria-live="polite"></p>
+     </div>
+     <aside class="mh-record">
+      <h3 id="match-history-result"></h3><p id="match-history-meta"></p>
+      <p id="match-history-warning" class="mh-warning" hidden></p>
+      <h4>Ходы партии</h4><p class="mh-muted">Один полуход — ход одной стороны.</p>
+      <div id="match-history-notation" aria-label="Записанные ходы"></div>
+      <p class="mh-key-hint">← → по ходам · Home / End · Esc назад</p>
+     </aside>
+    </div>
+   </section>
+  </div>
  </div>
-</div>
+</dialog>
 <dialog id="opening-options-dialog" aria-labelledby="opening-options-title">
 <h2 id="opening-options-title">Опции</h2>
 <button id="opening-sound" class="opening-button" type="button" aria-pressed="true" aria-label="Выключить звук" title="Выключить звук"><span id="opening-sound-icon" aria-hidden="true">🔊</span> Звук</button>

@@ -1,5 +1,6 @@
 import type { Side } from '@/rules';
 import { squareAlg } from './notation';
+import { isMatchRow } from './historyReplay';
 import type { IMove } from '@/rules';
 import { runtimeApiOrigin } from './apiOrigin';
 import { CONNECT_BUDGET_MS } from '@/client/app/matchmakingSearch';
@@ -134,20 +135,30 @@ export async function loadStats(): Promise<{ games: number; white_wins: number; 
 }
 
 export async function loadMatches(): Promise<import('./matchHistory').MatchRow[] | null> {
- const guest = await ensureGuest();
- if (!guest) return null;
- const res = await request('/matches', { headers: { authorization: `Bearer ${guest.token}` } });
- if (!res?.ok) return null;
- const body = (await res.json()) as { matches?: import('./matchHistory').MatchRow[] };
- return Array.isArray(body.matches) ? body.matches : [];
+ try {
+  const guest = await ensureGuest();
+  if (!guest) return null;
+  const res = await request('/matches', { headers: { authorization: `Bearer ${guest.token}` } });
+  if (!res?.ok) return null;
+  const body = await res.json();
+  return Array.isArray(body?.matches) && body.matches.every(isMatchRow) ? body.matches : null;
+ } catch { return null; }
 }
 
-export async function loadMatch(id: string): Promise<import('./matchHistory').MatchDetail | null> {
- const guest = await ensureGuest();
- if (!guest) return null;
- const res = await request(`/matches/${id}`, { headers: { authorization: `Bearer ${guest.token}` } });
- if (!res) return null;
- if (res.status === 404) return null;
- if (!res.ok) return null;
- return res.json();
+export type HistoryDetailResult =
+ | { status: 'ok'; detail: import('./matchHistory').MatchDetail }
+ | { status: 'missing' }
+ | { status: 'error' };
+
+export async function loadMatch(id: string): Promise<HistoryDetailResult> {
+ try {
+  const guest = await ensureGuest();
+  if (!guest) return { status: 'error' };
+  const res = await request(`/matches/${encodeURIComponent(id)}`, { headers: { authorization: `Bearer ${guest.token}` } });
+  if (res?.status === 404) return { status: 'missing' };
+  if (!res?.ok) return { status: 'error' };
+  const body = await res.json();
+  if (!isMatchRow(body) || body.id !== id || !Array.isArray((body as import('./matchHistory').MatchDetail).pliesList)) return { status: 'error' };
+  return { status: 'ok', detail: body as import('./matchHistory').MatchDetail };
+ } catch { return { status: 'error' }; }
 }
