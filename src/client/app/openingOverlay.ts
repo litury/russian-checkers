@@ -5,7 +5,7 @@ import {createMenuAudio} from './menuAudio';
 import {bindMatchHistory} from './matchHistoryUi';
 import {ensureGuest, loadColorStats, loadPresence, beatPresence} from '@/online/cloud';
 import {colorStatLabel} from '@/online/colorStats';
-import {guestTag} from '@/online/guestTag';
+
 import {presenceLit, HEARTBEAT_MS, PRESENCE_CACHE_MS} from '@/online/presence';
 import {OpeningGates} from './openingGates';
 import {gateDurationMs as preparationMs} from './openingGates';
@@ -51,25 +51,9 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  const searchBot = document.getElementById('opening-search-bot') as HTMLButtonElement | null;
  const ivory = root.querySelector('.gate-piece-ivory') as HTMLElement | null;
  const ebony = root.querySelector('.gate-piece-black') as HTMLElement | null;
- const whiteGuest = document.getElementById('opening-guest-white');
- const blackGuest = document.getElementById('opening-guest-black');
- let side: 'white' | 'black' = siegeSide(root);
- const paintGuest = () => {
-  void ensureGuest().then((g) => {
-   const tag = g ? guestTag(g.id) : '';
-   const showW = side === 'white' && !!tag;
-   const showB = side === 'black' && !!tag;
-   if (whiteGuest) { whiteGuest.hidden = !showW; whiteGuest.textContent = showW ? tag : ''; }
-   if (blackGuest) { blackGuest.hidden = !showB; blackGuest.textContent = showB ? tag : ''; }
-  }).catch(() => {
-   if (whiteGuest) whiteGuest.hidden = true;
-   if (blackGuest) blackGuest.hidden = true;
-  });
- };
  const paintSide = (next: 'white' | 'black') => {
-  side = next;
   setSiegeSide(root, next);
-  paintGuest();
+
  };
  paintSide(siegeSide(root));
  const pick = (next: 'white' | 'black') => (event: Event) => {
@@ -78,8 +62,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   if (root.hidden || gates.active || root.inert) return;
   paintSide(next);
  };
- const sideChanged = () => { side = siegeSide(root); paintGuest(); };
- root.addEventListener('siege-side', sideChanged);
+
  const retry = document.getElementById('opening-retry')!;
  const motion = matchMedia('(prefers-reduced-motion: reduce)');
  const gates = new OpeningGates();
@@ -180,9 +163,15 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   void loadColorStats().then((stats) => {
    if (whiteStat) whiteStat.textContent = colorStatLabel(stats, 'white');
    if (blackStat) blackStat.textContent = colorStatLabel(stats, 'black');
+   for (const element of [whiteStat, blackStat]) {
+    if (element?.parentElement) element.parentElement.hidden = !element.textContent;
+   }
   }).catch(() => {
    if (whiteStat) whiteStat.textContent = '';
    if (blackStat) blackStat.textContent = '';
+   for (const element of [whiteStat, blackStat]) {
+    if (element?.parentElement) element.parentElement.hidden = true;
+   }
   });
  };
  const liveDot = document.getElementById('opening-live-dot');
@@ -227,7 +216,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  stopBeat();
   void beatPresence(false);
   gates.cancel();audio.dispose();play.onclick=null;
-  root.removeEventListener('siege-side', sideChanged);
+
   ivory?.removeEventListener('click', pickWhite);
   ebony?.removeEventListener('click', pickBlack);
   if(window.checkersStartup.playIntent===invoke) window.checkersStartup.playIntent=null;

@@ -1,9 +1,9 @@
 import { SiegeSelection, setSiegeSide, siegeSide, type SiegeSide } from './siegeSelection';
+import { drawMenuFire, MENU_FIRE } from './menuSelectionFire';
 
 const layers = import.meta.glob('./ui/siege/{white,black}-{base,moving,front}.png', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
 const fireUrls = [
- new URL('../modules/board/king-fire-polish/idle-back.webp', import.meta.url).href,
- new URL('../modules/board/king-fire-polish/ignite-back.webp', import.meta.url).href,
+ new URL('./ui/siege/menu-selection-fire.webp', import.meta.url).href,
 ];
 const endpoints = import.meta.glob('../modules/board/selection-v2/frames/*/*-{00,55}.webp', { query: '?url', import: 'default' });
 
@@ -21,19 +21,9 @@ export function mountSiegeOpening(root: HTMLElement) {
  const painters: Partial<Record<SiegeSide, (displacement: number) => void>> = {};
  let frame = 0, previous = 0, disposed = false;
  let fire: HTMLImageElement[] = [], elapsed = 0, burst = 0, lastPaint = -Infinity;
- const drawFire = (context: CanvasRenderingContext2D, side: SiegeSide, front: boolean) => {
-  if (media.matches || root.hidden || document.hidden || side !== state.side || !fire.length) return;
-  const igniting = burst > 0;
-  const sheet = fire[igniting ? 1 : 0];
-  const sprite = igniting ? Math.min(11, Math.floor((600 - burst) / 50)) : Math.floor(elapsed / 100) % 20;
-  // Reuse the sheet's upper flame tongues around the elliptical ring seam.
-  // Twelve fixed stamps total, no particles, allocations, filters or new artwork.
-  for (let i = front ? 0 : 6; i < (front ? 6 : 12); i++) {
-   const angle = (i + .5) * Math.PI / 6;
-   const x = 365 + Math.cos(angle) * 238;
-   const y = 370 + Math.sin(angle) * 153;
-   context.drawImage(sheet, sprite * 64 + 8, 8, 48, 28, x - 78, y - 100, 156, 110);
-  }
+ const drawFire = (context: CanvasRenderingContext2D, side: SiegeSide) => {
+  if (root.hidden || document.hidden || side !== state.side || !fire.length) return;
+  drawMenuFire(context, fire[0], elapsed, burst, media.matches);
  };
  const loadFire = () => {
   if (media.matches || fire.length || fireLoading) return;
@@ -66,7 +56,7 @@ export function mountSiegeOpening(root: HTMLElement) {
  };
  const update = () => {
   const next = siegeSide(root);
-  if (next !== state.side && !media.matches) burst = 600;
+  if (next !== state.side && !media.matches) burst = MENU_FIRE.ignitionMs;
   if (media.matches) burst = 0;
   state.select(next, media.matches);
   loadFire();
@@ -110,11 +100,11 @@ export function mountSiegeOpening(root: HTMLElement) {
    if (!context) return;
    painters[side] = displacement => {
     context.clearRect(0, 0, 724, 724);
+    drawFire(context, side);
     context.drawImage(images[0], 0, 0);
-    drawFire(context, side, false);
     context.drawImage(images[1], 141, 160 - displacement);
     context.drawImage(images[2], 0, 0);
-    drawFire(context, side, true);
+
     canvas.dataset.displacement = String(displacement);
    };
    painters[side]!(state.displacement(side));

@@ -1,0 +1,28 @@
+{
+  "source_sha256": "b00c5ef7be2a4dc796d0439d984ec7106299eac15a1020fd728e613260aa76e5",
+  "sha256": "1aea2e3f09f51e92e3d93499e043c89a7c6facd83ee5cc2c94dfc26f8d60a955",
+  "bytes": 125176,
+  "size": [
+    1024,
+    512
+  ],
+  "mode": "RGBA",
+  "alpha": [
+    0,
+    255
+  ],
+  "frames": 8,
+  "columns": 4,
+  "cell": [
+    256,
+    256
+  ],
+  "pivot": [
+    128,
+    200
+  ],
+  "loop_ms": 1600,
+  "alpha_convention": "straight",
+  "export": "uniform whole-sheet resample, no per-frame normalization",
+  "provenance": "Codex built-in image_gen output exec-8451d3f7-644a-42d7-afd8-1be67c1cb69e"
+}

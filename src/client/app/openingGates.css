@@ -25,9 +25,13 @@
 #opening .gate-piece-ivory { left:calc(50% - 164px); top:284px; }
 #opening .gate-piece-black { left:50%; top:224px; }
 #opening .gate-piece-slot img, #opening .gate-piece-slot canvas { position:absolute; width:210px; height:210px; left:-23px; top:0; pointer-events:none; }
-.opening-color-stat { position:absolute; top:65%; left:0; width:100%; pointer-events:none; font:600 24px/1 'Golos Text',sans-serif; }
-.gate-piece-ivory .opening-color-stat { color:#292b28; }
-.opening-guest-tag { position:absolute; top:calc(100% + 20px); left:0; width:100%; font-size:11px; text-shadow:0 1px 3px #000; }
+.opening-color-stat { position:absolute; top:43%; left:50%; translate:-50% -50%; pointer-events:none; display:flex; flex-direction:column; align-items:center; gap:2px; font:700 clamp(16px,2.7dvh,26px)/1 'Golos Text',sans-serif; color:#fff0d2; text-shadow:0 1px 2px #000; }
+.opening-color-stat[hidden] { display:none; }
+.opening-color-stat small { font:500 10px/1 'Golos Text',sans-serif; }
+.gate-piece-ivory .opening-color-stat { color:#29251d; text-shadow:0 1px 1px #fff4da; }
+.opening-your-color { position:absolute; top:90%; left:0; width:100%; font:600 10px/1.2 'Golos Text',sans-serif; letter-spacing:.08em; color:#f0c381; text-shadow:0 1px 3px #000; visibility:hidden; }
+.gate-piece-slot[aria-pressed="true"] .opening-your-color { visibility:visible; }
+#opening .gate-piece-slot[aria-pressed="true"] canvas { filter:drop-shadow(0 2px 2px #a6522166); }
 #opening .opening-actions { position:static; display:block; margin:0; }
 #opening .opening-utilities { display:contents; }
 #opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options) {
@@ -66,7 +70,7 @@
 #opening :is(#opening-play,#opening-retry,#opening-history) { left:calc(50% - var(--column) - 6px); }
 #opening :is(#opening-online,#opening-options) { left:calc(50% + 6px); right:auto; }
 #opening :is(#opening-history,#opening-options) { top:calc(var(--play-y) + 64px); }
-#opening .opening-guest-tag { top:auto; bottom:0; }
+
 #opening-status { top:auto; bottom:env(safe-area-inset-bottom,0px); }
 #opening-search { left:50%; right:auto; top:var(--play-y); transform:translateX(-50%); max-height:calc(100% - var(--play-y) - 8px); overflow:auto; }
 #opening-options-dialog { width:320px; }

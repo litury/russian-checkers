@@ -92,15 +92,15 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
     <img class="siege-layer siege-left" src="/src/client/app/ui/siege/gate.webp" width="1536" height="1024" alt="" decoding="async" fetchpriority="low" loading="lazy" />
     <img class="siege-layer siege-right" src="/src/client/app/ui/siege/gate.webp" width="1536" height="1024" alt="" decoding="async" fetchpriority="low" loading="lazy" />
    </div>
-   <button type="button" class="gate-piece-slot gate-piece-ivory is-chosen" data-siege-mount="left" data-side="white" aria-pressed="true" aria-label="Играть белыми">
+   <button type="button" class="gate-piece-slot gate-piece-ivory is-chosen" data-siege-mount="left" data-side="white" aria-pressed="true" aria-label="Играть белыми" aria-describedby="opening-wins-white">
     <img class="gate-piece" src="/src/client/modules/board/selection-v2/frames/white/white-55.webp" width="724" height="724" alt="" decoding="async" />
     <canvas width="724" height="724" aria-hidden="true" hidden></canvas>
-    <span id="opening-color-white" class="opening-color-stat" aria-hidden="true"></span><span id="opening-guest-white" class="opening-guest-tag" hidden></span>
+    <span id="opening-wins-white" class="opening-color-stat" hidden><span id="opening-color-white" class="opening-win-count"></span><small>побед</small></span><span class="opening-your-color" aria-hidden="true">ТВОЙ ЦВЕТ</span>
    </button>
-   <button type="button" class="gate-piece-slot gate-piece-black" data-siege-mount="right" data-side="black" aria-pressed="false" aria-label="Играть чёрными">
+   <button type="button" class="gate-piece-slot gate-piece-black" data-siege-mount="right" data-side="black" aria-pressed="false" aria-label="Играть чёрными" aria-describedby="opening-wins-black">
     <img class="gate-piece" src="/src/client/modules/board/selection-v2/frames/black/black-00.webp" width="724" height="724" alt="" decoding="async" />
     <canvas width="724" height="724" aria-hidden="true" hidden></canvas>
-    <span id="opening-color-black" class="opening-color-stat" aria-hidden="true"></span><span id="opening-guest-black" class="opening-guest-tag" hidden></span>
+    <span id="opening-wins-black" class="opening-color-stat" hidden><span id="opening-color-black" class="opening-win-count"></span><small>побед</small></span><span class="opening-your-color" aria-hidden="true">ТВОЙ ЦВЕТ</span>
    </button>
   </div>
   <nav class="opening-actions" aria-label="Главное меню">
