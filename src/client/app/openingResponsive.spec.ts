@@ -16,8 +16,12 @@ it('attaches every primary/utility and selection control without changing logica
  for(const [id,side] of Object.entries({'opening-play':'left','opening-retry':'left','opening-history':'left','opening-online':'right','opening-options':'right','opening-search':'right','opening-status':'left'})) {
   expect(html).toContain(`id="${id}" data-siege-mount="${side}"`);
  }
- expect(html).toContain('data-siege-mount="left" data-side="white"');
- expect(html).toContain('data-siege-mount="right" data-side="black"');
+ expect(html).toContain('data-chronicle-mount="left"');
+ expect(html).toContain('data-chronicle-mount="right"');
+ expect(html).toContain('data-side="white"');
+ expect(html).toContain('data-side="black"');
+ expect(html).not.toContain('data-siege-mount="left" data-side="white"');
+ expect(html).not.toContain('data-siege-mount="right" data-side="black"');
  expect(html).toContain('/selection-v2/frames/white/white-55.webp');
  expect(html).toContain('/selection-v2/frames/black/black-00.webp');
  expect(html.indexOf('id="opening-play"')).toBeLessThan(html.indexOf('id="opening-online"'));

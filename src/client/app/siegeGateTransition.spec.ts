@@ -9,7 +9,7 @@ vi.mock('@/online/cloud', () => ({ensureGuest:async()=>null,loadColorStats:async
 vi.mock('./siegeSelection', () => ({siegeSide:()=> 'white',setSiegeSide:vi.fn()}));
 import { createOpeningOverlay } from './openingOverlay';
 class Element extends EventTarget {
- hidden=false; inert=false; disabled=false; open=false; textContent=''; onclick:(()=>void)|null=null;
+ hidden=false; inert=false; disabled=false; open=false; textContent=''; onclick:(()=>void)|null=null; scrollTop=0; parentElement: Element | null=null;
  values = new Map<string,string>(); classes=new Set<string>();
  animations: any[]=[];
  animate=vi.fn((frames: unknown, options: any)=>{const a={frames,options,currentTime:0,playState:'running',onfinish:null as null|(()=>void),pause:vi.fn(()=>{a.playState='paused';}),play:vi.fn(()=>{a.playState='running';}),cancel:vi.fn(()=>{a.playState='idle';})};this.animations.push(a);return a;});
@@ -31,14 +31,15 @@ function setup(reduced=false, decoded=true) {
  vi.stubGlobal('document',doc);
  const media=Object.assign(new EventTarget(),{matches:reduced});
  vi.stubGlobal('matchMedia',()=>media);
- vi.stubGlobal('window',{checkersStartup:{unlock:vi.fn(),ready:vi.fn(),waitPlay:vi.fn(),status:vi.fn()},setInterval:vi.fn(),clearInterval:vi.fn()});
+ const resizeListeners: Array<() => void> = [];
+ vi.stubGlobal('window',{checkersStartup:{unlock:vi.fn(),ready:vi.fn(),waitPlay:vi.fn(),status:vi.fn()},setInterval:vi.fn(),clearInterval:vi.fn(),addEventListener:(type:string,fn:()=>void)=>{if(type==='resize')resizeListeners.push(fn);},removeEventListener:(type:string,fn:()=>void)=>{if(type!=='resize')return;const i=resizeListeners.indexOf(fn);if(i>=0)resizeListeners.splice(i,1);}});
  let tick=()=>{};
  const events=new Map<string,()=>void>();
  const paused={value:false};
  const scene={registry:{get:()=>null},game:{canvas:{focus:vi.fn()}},time:{now:0},events:{on:(s:string,cb:()=>void)=>{events.set(s,cb);if(s==='update')tick=cb;},once:(s:string,cb:()=>void)=>events.set(s,cb),off:(s:string)=>events.delete(s)}};
  const onPlayBot=vi.fn();
  const overlay=createOpeningOverlay(scene as unknown as Phaser.Scene,{onPlayBot,isPaused:()=>paused.value});
- return {root,overlay,scene,get,onPlayBot,media,doc,events,paused,visual:(ms:number)=>{for(const node of [root,...root.children.values()])for(const a of node.animations)if(a.playState==='running')a.currentTime+=ms;},advance:(ms:number)=>{scene.time.now+=ms;tick();}};
+ return {root,overlay,scene,get,onPlayBot,media,doc,events,paused,resizeListeners,visual:(ms:number)=>{for(const node of [root,...root.children.values()])for(const a of node.animations)if(a.playState==='running')a.currentTime+=ms;},advance:(ms:number)=>{scene.time.now+=ms;tick();}};
 }
 afterEach(()=>{vi.unstubAllGlobals();vi.clearAllMocks();});
 it('keeps the original complementary tooth path and samples arbitrary travel',()=>{
@@ -147,6 +148,50 @@ it.each(['hide','shutdown'] as const)('cancels %s without completing or retainin
  for(const node of [root,...root.children.values(),...root.layers])for(const a of node.animations)expect(a.cancel).toHaveBeenCalledTimes(1);
  visual(3000);advance(3000);media.matches=true;media.dispatchEvent(new Event('change'));
  expect(done).not.toHaveBeenCalled();expect(root.inert).toBe(false);
+});
+it('clears chronicle halves concurrently with title before background gates',()=>{
+ const {root,overlay}=setup(); overlay.depart(vi.fn());
+ const half=root.querySelector('[data-chronicle-mount="left"]');
+ expect(half.animate).toHaveBeenCalledTimes(1);
+ expect(half.animations[0].options.delay).toBe(0);
+ expect(half.animations[0].options.duration).toBe(350);
+ expect(root.querySelector('.siege-left').animations[0].options.delay).toBe(350);
+ expect(half.animations[0].startTime).toBe(root.querySelector('.gate-title-canopy').animations[0].startTime);
+});
+it('freezes opening scroll through departure and resize',()=>{
+ const {root,overlay,resizeListeners}=setup();
+ root.scrollTop=244;
+ const add=root.classList.add.bind(root.classList);
+ root.classList.add=(name:string)=>{ const added=add(name); if(name==='is-departing') root.scrollTop=0; return added; };
+ overlay.depart(vi.fn());
+ expect(root.scrollTop).toBe(244);
+ expect(root.classes.has('is-departing')).toBe(true);
+ root.scrollTop=12;
+ for (const fn of resizeListeners) fn();
+ expect(root.scrollTop).toBe(244);
+});
+it('keeps chronicle labels and refuses a fake zero or sample online count', async ()=>{
+ const {overlay,get}=setup();
+ const white=get('opening-color-white');
+ const parent=get('opening-wins-white');
+ white.parentElement=parent;
+ parent.hidden=false;
+ white.textContent='…';
+ const unavailable=get('opening-stats-unavailable');
+ unavailable.hidden=true;
+ const live=get('opening-live-count');
+ live.hidden=false;
+ live.textContent='Онлайн: 12 · пример';
+ overlay.show();
+ await Promise.resolve();
+ await Promise.resolve();
+ expect(parent.hidden).toBe(false);
+ expect(white.textContent).toBe('—');
+ expect(white.textContent).not.toBe('0');
+ expect(unavailable.hidden).toBe(false);
+ expect(live.hidden).toBe(true);
+ expect(live.textContent).not.toContain('12');
+ expect(live.textContent).not.toContain('пример');
 });
 it('falls back immediately if animation creation fails, cleaning partial effects',()=>{
  const {root,overlay}=setup();const done=vi.fn();

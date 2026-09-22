@@ -1,0 +1,46 @@
+/* Approved R3: independently mounted leaf controls, unobstructed original bolt. */
+#opening{--piece:135px;--column:174px;--play-y:214px;overflow:auto;overflow-x:hidden;overscroll-behavior:contain}
+#opening .opening-sheet{height:max(844px,100%);min-height:844px;padding:0}
+#opening .gate-title-canopy{top:55px;width:366px;max-width:100%}
+#opening h1{font-size:27px;line-height:1.08}#opening h1 span{font-size:37px}
+#opening .siege-housing img{height:100%;width:auto;aspect-ratio:3/2;object-fit:contain;top:0;left:50%;translate:-50% 0}
+#opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options){width:174px;height:66px;top:214px;padding:7px 5px;font-size:17px;left:calc(50% - 183px)}
+#opening :is(#opening-online,#opening-options){left:calc(50% + 9px)}
+#opening :is(#opening-history,#opening-options){top:288px;height:46px;font-size:16px}
+#opening #opening-online{flex-direction:column;gap:2px}
+#opening .opening-live-badge{position:static;font-size:10px;line-height:16px;color:#d3c4a5}
+#opening #opening-live-dot{display:none}
+#opening :is(#opening-play,#opening-online,#opening-history,#opening-options)::before,#opening :is(#opening-play,#opening-online,#opening-history,#opening-options)::after{content:'';position:absolute;top:50%;width:5px;height:5px;border-radius:50%;background:#a29b81;box-shadow:0 1px 2px #000}
+#opening :is(#opening-play,#opening-online,#opening-history,#opening-options)::before{left:7px}#opening :is(#opening-play,#opening-online,#opening-history,#opening-options)::after{right:7px}
+#opening .chronicle-half{position:absolute;z-index:4;top:59%;left:calc(50% - 183px);width:181px;height:294px;padding:18px 5px 12px;text-align:center;border:4px ridge #74786b;background:linear-gradient(#1b2225c9,#22292dcc),url('./ui/siege/gate.webp') 24% 56%/auto 700px;box-shadow:inset 0 0 0 3px #101718,inset 0 0 0 6px #4f5751,inset 0 12px 15px #aab09822,inset 0 -12px 12px #0009,0 7px 9px #000b}
+#opening .chronicle-right{left:calc(50% + 2px);background-position:center,76% 56%}
+#opening .chronicle-half h2{font:600 20px/28px Literata,Georgia,serif;letter-spacing:.015em;color:#ead9b6;margin:0;text-shadow:0 2px 2px #000}
+#opening .chronicle-total{margin:8px 0 0;font-size:14px;line-height:21px;letter-spacing:.06em}
+#opening .chronicle-total strong{display:block;font:600 30px/36px Literata,Georgia,serif;letter-spacing:0;color:#fff2d0}
+#opening .chronicle-half .gate-piece-slot{top:115px;left:50%;translate:-50% 0;width:135px;height:135px}
+#opening .opening-side-label{display:none}
+#opening .opening-your-color{top:calc(100% + 8px)}
+#opening .chronicle-chain{position:absolute;display:flex;align-items:center;top:69px;width:44px;height:15px;right:calc(100% - 4px);filter:drop-shadow(0 3px 2px #000)}
+#opening .chronicle-right .chronicle-chain{right:auto;left:calc(100% - 4px)}
+#opening .chronicle-chain.second{top:226px}
+#opening .chronicle-chain i{display:block;flex:none;width:16px;height:10px;border:3px ridge #9b9b85;border-radius:5px;margin-left:-5px;background:#202522}#opening .chronicle-chain i:nth-child(even){height:6px}
+#opening.is-departing{overflow:hidden;overscroll-behavior:none}
+#opening .chronicle-error{position:absolute;z-index:6;top:calc(59% + 82px);left:50%;translate:-50% 0;width:max-content;max-width:min(280px,calc(100% - 28px));margin:0;padding:2px 8px;text-align:center;color:#f1e6d0;background:#12171ae8;border:1px solid #6d6758;font-size:12px;line-height:16px;pointer-events:none;text-shadow:0 1px 1px #000}
+/* Rail must not leak above the foreground menu during preparation. */
+body:has(#opening:not([hidden])) #match-rail{visibility:hidden}
+@media(min-width:700px){
+ #opening{--piece:170px;--column:243px;--play-y:238px}
+ #opening .opening-sheet{height:max(900px,100%);min-height:900px}
+ #opening .gate-title-canopy{top:18px;width:510px}#opening h1{font-size:37px}#opening h1 span{font-size:51px}
+ #opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options){width:243px;left:calc(50% - 255px);top:238px;font-size:20px}
+ #opening :is(#opening-online,#opening-options){left:calc(50% + 12px)}
+ #opening :is(#opening-history,#opening-options){top:312px;height:48px;font-size:18px}
+ #opening .opening-live-badge{font-size:12px}
+ #opening .chronicle-half{width:253px;height:352px;left:calc(50% - 255px);padding-top:24px}
+ #opening .chronicle-right{left:calc(50% + 2px)}
+ #opening .chronicle-half h2{font-size:25px;line-height:34px}
+ #opening .chronicle-total{font-size:16px}#opening .chronicle-total strong{font-size:34px;line-height:40px}
+ #opening .chronicle-half .gate-piece-slot{width:170px;height:170px;top:135px}
+ #opening .chronicle-chain.second{top:272px}
+ #opening .chronicle-error{top:calc(59% + 100px);font-size:13px;line-height:18px}
+}

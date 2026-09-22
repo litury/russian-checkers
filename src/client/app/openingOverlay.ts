@@ -69,6 +69,13 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  const audio=createMenuAudio(scene.registry.get('sdk'));
  let firstShow = true;
  let visual: ReturnType<typeof animateSiegeGates> = null;
+ let frozenScroll: number | null = null;
+ const holdScroll = () => { if (frozenScroll !== null) root.scrollTop = frozenScroll; };
+ const releaseScroll = () => { frozenScroll = null; };
+ const blockScroll = (event: Event) => { if (frozenScroll !== null) event.preventDefault(); };
+ window.addEventListener?.('resize', holdScroll);
+ root.addEventListener('wheel', blockScroll, {passive: false});
+ root.addEventListener('touchmove', blockScroll, {passive: false});
  let scenePaused = false;
  const cancelVisual = () => { visual?.cancel(); visual=null; };
  const syncPause = () => visual?.pause(document.hidden || scenePaused || !!handlers.isPaused?.());
@@ -91,6 +98,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   audio.hide(completed,motion.matches);
   gates.cancel(); closeDialogs(); root.hidden=true; root.inert=false;
   cancelVisual();
+  releaseScroll();
   root.classList.remove('is-departing');
   document.getElementById('game')!.inert=false;
   scene.game.canvas.focus({preventScroll:true});
@@ -160,22 +168,18 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  const whiteStat = document.getElementById('opening-color-white');
  const blackStat = document.getElementById('opening-color-black');
  const statsUnavailable = document.getElementById('opening-stats-unavailable');
+ const paintTotals = (white: string, black: string, unavailable: boolean) => {
+  // Keep БЕЛЫЕ/ЧЁРНЫЕ visible. Empty or missing API data is not a zero and must not hide the halves.
+  if (whiteStat) whiteStat.textContent = white;
+  if (blackStat) blackStat.textContent = black;
+  if (statsUnavailable) statsUnavailable.hidden = !unavailable;
+  root.classList.toggle('is-stats-error', unavailable);
+ };
  const paintColorStats = () => {
   void loadColorStats().then((stats) => {
-   if (whiteStat) whiteStat.textContent = colorStatLabel(stats, 'white');
-   if (blackStat) blackStat.textContent = colorStatLabel(stats, 'black');
-   if (statsUnavailable) statsUnavailable.hidden = !!stats;
-   for (const element of [whiteStat, blackStat]) {
-    if (element?.parentElement) element.parentElement.hidden = !element.textContent;
-   }
-  }).catch(() => {
-   if (statsUnavailable) statsUnavailable.hidden = false;
-   if (whiteStat) whiteStat.textContent = '';
-   if (blackStat) blackStat.textContent = '';
-   for (const element of [whiteStat, blackStat]) {
-    if (element?.parentElement) element.parentElement.hidden = true;
-   }
-  });
+   if (!stats) { paintTotals('—', '—', true); return; }
+   paintTotals(colorStatLabel(stats, 'white'), colorStatLabel(stats, 'black'), false);
+  }).catch(() => paintTotals('—', '—', true));
  };
  const liveDot = document.getElementById('opening-live-dot');
  const liveCount = document.getElementById('opening-live-count');
@@ -188,7 +192,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   if (liveDot) liveDot.hidden = !on;
   if (liveCount) {
    liveCount.hidden = !on;
-   liveCount.textContent = on ? String(n) : '';
+   liveCount.textContent = on ? `Онлайн: ${n}` : '';
   }
  };
  const paintPresence = () => {
@@ -229,7 +233,8 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   motion.removeEventListener?.('change',motionChange);
   document.removeEventListener('visibilitychange',visibilityChange);
   document.removeEventListener('pagehide', pageHide);
-  root.inert=false;root.classList.remove('is-departing');cancelVisual();
+  window.removeEventListener?.('resize', holdScroll);
+  root.inert=false;releaseScroll();root.classList.remove('is-departing');cancelVisual();
  });
  return {
   layout: (_width:number,_height:number)=>undefined,
@@ -243,7 +248,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   },
   show:()=>{
    audio.show();
-   gates.cancel();cancelVisual();root.inert=false;root.classList.remove('is-departing');
+   gates.cancel();cancelVisual();root.inert=false;releaseScroll();root.classList.remove('is-departing');
    window.checkersFlavor?.setState('loading');
    // Treat playCommitted like pending — never clear committed / unlock to calm «Играть».
    if(window.checkersStartup.pendingPlay || window.checkersStartup.playCommitted) window.checkersStartup.waitPlay();
@@ -260,7 +265,10 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   depart:(done:()=>void)=>{
    if (root.hidden || gates.active || root.inert) return;
    audio.depart();
-   closeDialogs();root.inert=true;play.disabled=true;root.classList.add('is-departing');
+   closeDialogs();root.inert=true;play.disabled=true;
+   frozenScroll = root.scrollTop;
+   root.classList.add('is-departing');
+   root.scrollTop = frozenScroll;
    // Decoration failure cannot block a ready game; normal decoded art always slides.
    const leaves = [...root.querySelectorAll<HTMLImageElement>('.siege-left,.siege-right')];
    const artReady = leaves.length === 2 && leaves.every(image => image.classList.contains('is-decoded'));

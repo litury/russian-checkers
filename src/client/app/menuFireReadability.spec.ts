@@ -19,7 +19,9 @@ it('keeps selection identity outside the future press visual and numbers outside
   expect(button).toContain('✓ ВЫБРАНО');
   expect(button).not.toContain('opening-win-count');
  }
- expect(html).toContain('<h2>ЛЕТОПИСЬ БИТВЫ</h2>');
+ expect(html).toContain('<h2>ЛЕТОПИСЬ</h2>');
+ expect(html).toContain('<h2>БИТВЫ</h2>');
+ expect(html).not.toContain('<h2>ЛЕТОПИСЬ БИТВЫ</h2>');
  expect(html).not.toContain('ПОБЕДЫ ВСЕХ ИГРОКОВ · ОНЛАЙН');
  expect(html).toContain('Статистика недоступна');
 });

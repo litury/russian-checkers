@@ -73,6 +73,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 </style>
 <link rel="stylesheet" href="/src/client/app/openingGates.css" />
 <link rel="stylesheet" href="/src/client/app/menuFireReadability.css" />
+<link rel="stylesheet" href="/src/client/app/hangingChronicle.css" />
 </head>
 <body>
 <div id="game"></div>
@@ -93,7 +94,10 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
     <img class="siege-layer siege-left" src="/src/client/app/ui/siege/gate.webp" width="1536" height="1024" alt="" decoding="async" fetchpriority="low" loading="lazy" />
     <img class="siege-layer siege-right" src="/src/client/app/ui/siege/gate.webp" width="1536" height="1024" alt="" decoding="async" fetchpriority="low" loading="lazy" />
    </div>
-   <button type="button" class="gate-piece-slot gate-piece-ivory is-chosen" data-siege-mount="left" data-side="white" aria-pressed="true" aria-label="Играть белыми" aria-describedby="opening-wins-white">
+   <section class="chronicle-half chronicle-left" data-chronicle-mount="left" aria-label="Летопись: победы белых в онлайне">
+    <span class="chronicle-chain" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="chronicle-chain second" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+    <h2>ЛЕТОПИСЬ</h2><p id="opening-wins-white" class="chronicle-total">БЕЛЫЕ<strong id="opening-color-white" class="opening-win-count">…</strong></p>
+   <button type="button" class="gate-piece-slot gate-piece-ivory is-chosen" data-side="white" aria-pressed="true" aria-label="Играть белыми" aria-describedby="opening-wins-white">
     <span class="gate-piece-visual" aria-hidden="true">
      <img class="gate-piece" src="/src/client/modules/board/selection-v2/frames/white/white-55.webp" width="724" height="724" alt="" decoding="async" />
      <canvas width="852" height="980" aria-hidden="true" hidden></canvas>
@@ -101,7 +105,11 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
     <span class="opening-side-label" aria-hidden="true">БЕЛЫЕ</span>
     <span class="opening-your-color" aria-hidden="true"><span class="opening-sr-only">ТВОЙ ЦВЕТ: </span>✓ ВЫБРАНО</span>
    </button>
-   <button type="button" class="gate-piece-slot gate-piece-black" data-siege-mount="right" data-side="black" aria-pressed="false" aria-label="Играть чёрными" aria-describedby="opening-wins-black">
+   </section>
+   <section class="chronicle-half chronicle-right" data-chronicle-mount="right" aria-label="Битвы: победы чёрных в онлайне">
+    <span class="chronicle-chain" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="chronicle-chain second" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+    <h2>БИТВЫ</h2><p id="opening-wins-black" class="chronicle-total">ЧЁРНЫЕ<strong id="opening-color-black" class="opening-win-count">…</strong></p>
+   <button type="button" class="gate-piece-slot gate-piece-black" data-side="black" aria-pressed="false" aria-label="Играть чёрными" aria-describedby="opening-wins-black">
     <span class="gate-piece-visual" aria-hidden="true">
      <img class="gate-piece" src="/src/client/modules/board/selection-v2/frames/black/black-00.webp" width="724" height="724" alt="" decoding="async" />
      <canvas width="852" height="980" aria-hidden="true" hidden></canvas>
@@ -109,18 +117,12 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
     <span class="opening-side-label" aria-hidden="true">ЧЁРНЫЕ</span>
     <span class="opening-your-color" aria-hidden="true"><span class="opening-sr-only">ТВОЙ ЦВЕТ: </span>✓ ВЫБРАНО</span>
    </button>
+   </section>
   </div>
-  <section class="opening-global-stats" data-siege-mount="left" aria-label="Глобальные победы в онлайне">
-   <h2>ЛЕТОПИСЬ БИТВЫ</h2>
-   <div class="opening-stats-values">
-    <span id="opening-wins-white" class="opening-stat-value" hidden>БЕЛЫЕ <strong id="opening-color-white" class="opening-win-count"></strong></span>
-    <span id="opening-wins-black" class="opening-stat-value" hidden>ЧЁРНЫЕ <strong id="opening-color-black" class="opening-win-count"></strong></span>
-    <span id="opening-stats-unavailable">Статистика недоступна</span>
-   </div>
-  </section>
+  <p id="opening-stats-unavailable" class="chronicle-error" hidden>Статистика недоступна</p>
   <nav class="opening-actions" aria-label="Главное меню">
    <button id="opening-play" data-siege-mount="left" class="opening-button opening-primary" aria-label="С машиной" aria-busy="true" disabled>С машиной</button>
-   <button id="opening-online" data-siege-mount="right" class="opening-button" type="button">С человеком<span id="opening-live-dot" hidden></span><span id="opening-live-count" class="opening-live-badge" hidden></span></button>
+   <button id="opening-online" data-siege-mount="right" class="opening-button" type="button">С человеком<span id="opening-live-dot" hidden></span><span id="opening-live-count" class="opening-live-badge" hidden>Онлайн</span></button>
    <div id="opening-search" data-siege-mount="right" hidden>
     <p id="opening-search-copy">Ищем соперника</p>
     <div id="opening-search-actions">
