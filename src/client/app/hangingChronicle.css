@@ -26,6 +26,7 @@
 #opening .chronicle-chain i{display:block;flex:none;width:16px;height:10px;border:3px ridge #9b9b85;border-radius:5px;margin-left:-5px;background:#202522}#opening .chronicle-chain i:nth-child(even){height:6px}
 #opening.is-departing{overflow:hidden;overscroll-behavior:none}
 #opening .chronicle-error{position:absolute;z-index:6;top:calc(59% + 82px);left:50%;translate:-50% 0;width:max-content;max-width:min(280px,calc(100% - 28px));margin:0;padding:2px 8px;text-align:center;color:#f1e6d0;background:#12171ae8;border:1px solid #6d6758;font-size:12px;line-height:16px;pointer-events:none;text-shadow:0 1px 1px #000}
+#opening #opening-stats-retry{position:absolute;z-index:7;top:calc(59% + 108px);left:50%;translate:-50% 0;min-height:44px;pointer-events:auto}
 /* Rail must not leak above the foreground menu during preparation. */
 body:has(#opening:not([hidden])) #match-rail{visibility:hidden}
 @media(min-width:700px){
@@ -43,4 +44,5 @@ body:has(#opening:not([hidden])) #match-rail{visibility:hidden}
  #opening .chronicle-half .gate-piece-slot{width:170px;height:170px;top:135px}
  #opening .chronicle-chain.second{top:272px}
  #opening .chronicle-error{top:calc(59% + 100px);font-size:13px;line-height:18px}
+ #opening #opening-stats-retry{top:calc(59% + 128px)}
 }

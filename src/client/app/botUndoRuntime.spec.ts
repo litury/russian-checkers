@@ -16,7 +16,7 @@ function setup() {
   hidden: true, disabled: false,
   click(this: EventTarget & { disabled: boolean }) { if (!this.disabled) this.dispatchEvent(new Event('click')); },
  });
- const rail = { hidden: true };
+ const rail = { hidden: true, inert: false, style: { visibility: '' }, setAttribute: vi.fn() };
  vi.stubGlobal('document', { getElementById: (id: string) => id === 'match-undo' ? button : id === 'match-resign' ? resign : id === 'match-rail' ? rail : null });
  s.position = createInitialPosition(); s.phase = 'human';
  const tasks: (() => void)[] = [];
@@ -29,6 +29,24 @@ function setup() {
  return { s, tasks, button, resign, rail };
 }
 afterEach(() => { auto = false; vi.unstubAllGlobals(); });
+it.each(['white','black'])('resignation shows loss relative to human %s',async(side)=>{
+ const {s}=setup();s.humanSide=side;s.ensureResultOverlay=vi.fn(async()=>s.overlay);
+ s.resignMatch();await Promise.resolve();
+ expect(s.overlay.show).toHaveBeenCalledWith(side==='white'?'black':'white',side);
+});
+it('draw terminates with a neutral result and no victory voice',async()=>{
+ const {s}=setup();s.title={resultSting:vi.fn(),speakOrcTurn:vi.fn()};
+ s.ensureResultOverlay=vi.fn(async()=>s.overlay);
+ s.endMatch('draw');
+ s.sdk.showFullscreenAdv.mock.calls[0][0].onClose();await Promise.resolve();
+ expect(s.phase).toBe('over');expect(s.overlay.show).toHaveBeenCalledWith('draw','white');
+ expect(s.title.resultSting).not.toHaveBeenCalled();expect(s.title.speakOrcTurn).not.toHaveBeenCalled();
+});
+it('late result loader cannot reopen after leaving result phase',async()=>{
+ const {s}=setup();let loaded:(v:any)=>void=()=>{};
+ s.ensureResultOverlay=()=>new Promise(resolve=>loaded=resolve);s.resignMatch();
+ s.phase='title';loaded(s.overlay);await Promise.resolve();expect(s.overlay.show).not.toHaveBeenCalled();
+});
 function human(s: any) { s.onSquare(sq('c3')); s.onSquare(sq('d4')); }
 it('manual move plus bot reply undo restores position, clocks and history', () => {
  const { s } = setup(); const origin = structuredClone(s.position);
@@ -152,6 +170,30 @@ it('handoff is silent between capture hops and on a winning final capture', () =
  s.undoBot(); s.position.squares[7][7] = null;
  s.onSquare(sq('c3')); s.onSquare(sq('e5')); s.onSquare(sq('g7'));
  expect(s.phase).toBe('over'); expect(s.title.turnHandoff).toHaveBeenCalledTimes(1);
+});
+
+it('GT-01 reserves rail geometry but conceals actions until input/clock readiness', () => {
+ const { s, rail, button, resign } = setup();
+ Object.assign(button, { style: { visibility: '' } });
+ Object.assign(resign, { style: { visibility: '' } });
+ s.countingIn = true;
+ s.paintUndo();
+ expect(rail.hidden).toBe(false); // preserve existing layout budget
+ expect(rail.style.visibility).toBe('hidden');
+ expect(rail.inert).toBe(true);
+ expect(rail.setAttribute).toHaveBeenCalledWith('aria-hidden', 'true');
+ expect((button as any).style.visibility).toBe('hidden');
+ expect((resign as any).style.visibility).toBe('hidden');
+ expect(button.disabled).toBe(true);
+ expect(resign.disabled).toBe(true);
+ s.countingIn = false;
+ s.paintUndo();
+ expect(rail.style.visibility).toBe('');
+ expect(rail.inert).toBe(false);
+ expect((button as any).style.visibility).toBe('');
+ expect((resign as any).style.visibility).toBe('');
+ expect(resign.disabled).toBe(false);
+ s.phase = 'title'; s.paintUndo(); expect(rail.hidden).toBe(true);
 });
 
 it('empty history undo is a no-op', () => {

@@ -184,7 +184,11 @@ export function createMenuAudio(sdk:IYandexSdk) {
  bindKingFireSfx(sound);
  bindPieceSfx(sound);
  bindPieceVoice(say,cutBark);
+ let resultSource:AudioBufferSourceNode|undefined;
+ const stopResultCeremonySound=()=>{try{resultSource?.stop();}catch{}resultSource=undefined;};
  return {
+  stopResultCeremonySound,
+  resultCeremonySound(win:boolean){stopResultCeremonySound();resultSource=sound(win?'result-ascension':'result-disposal',.7)?.source;},
   menuContact,
   show(){epoch++;mechanisms.clear();policy.menu=true;policy.match=false;policy.departing=false;musicEnded=false;stopEffects();stopMatch();sync();},
   hide(completed=false,reduced=false){epoch++;stopEffects();if(completed&&!reduced)sound('gate_stop');policy.menu=false;policy.departing=false;if(completed)policy.match=true;mechanisms.clear();sync();},
@@ -196,7 +200,7 @@ export function createMenuAudio(sdk:IYandexSdk) {
   hintWave(){sound('availability-wave',.85);},
   arenaVoice(humanSide:'white'|'black'='white'){say(announcerCue(humanSide,orcArenaLine));},
   speakOrcTurn(name:string,humanSide:'white'|'black'='white'){say(announcerCue(humanSide,name));},
-  resultSting(win:boolean,line:string,humanSide:'white'|'black'='white'){sound(win?'win':'lose');say(announcerCue(humanSide,line));},
+  resultSting(_win:boolean,line:string,humanSide:'white'|'black'='white'){say(announcerCue(humanSide,line));},
   reveal(ms:number,reduced:boolean){
    for(const [id,start,end,name,level] of [
     ['timer-slide',startTimerSlide[0],startTimerSlide[1],'timer-slide',.9],

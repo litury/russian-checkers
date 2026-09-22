@@ -73,11 +73,9 @@ export async function loadColorStats(): Promise<{ white: number; black: number; 
  if (!res?.ok) return null;
  try {
   const body = (await res.json()) as { white?: unknown; black?: unknown; games?: unknown };
-  const white = Number(body.white);
-  const black = Number(body.black);
-  const games = Number(body.games);
-  if (![white, black, games].every((n) => Number.isFinite(n))) return null;
-  return { white, black, games };
+  const { white, black, games } = body;
+  if (![white, black, games].every((n) => typeof n === 'number' && Number.isSafeInteger(n) && n >= 0)) return null;
+  return { white: white as number, black: black as number, games: games as number };
  } catch {
   return null;
  }

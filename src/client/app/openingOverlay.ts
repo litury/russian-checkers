@@ -3,8 +3,7 @@ import { setSiegeSide, siegeSide } from './siegeSelection';
 import type Phaser from 'phaser';
 import {createMenuAudio} from './menuAudio';
 import {bindMatchHistory} from './matchHistoryUi';
-import {ensureGuest, loadColorStats, loadPresence, beatPresence} from '@/online/cloud';
-import {colorStatLabel} from '@/online/colorStats';
+import {ensureGuest, loadPresence, beatPresence} from '@/online/cloud';
 
 import {presenceLit, HEARTBEAT_MS, PRESENCE_CACHE_MS} from '@/online/presence';
 import {OpeningGates} from './openingGates';
@@ -152,7 +151,8 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   if (searchEnter) searchEnter.hidden = !view.showEnter;
   if (friendCode) friendCode.hidden = !view.showCode;
   if (searchGo) searchGo.hidden = !view.showCode;
-  window.checkersStartup.status(view.title || 'Всё готово. Первый ход ваш.');
+  if (view.title) window.checkersStartup.status(view.title);
+  else window.checkersStartup.ready();
  };
  const clearSearch = () => setSearch('idle', 0);
  ivory?.addEventListener('click', pickWhite);
@@ -165,22 +165,6 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  if(window.checkersStartup.pendingPlay || window.checkersStartup.playCommitted) window.checkersStartup.waitPlay();
  else { window.checkersStartup.unlock(); window.checkersStartup.ready(); }
  void ensureGuest();
- const whiteStat = document.getElementById('opening-color-white');
- const blackStat = document.getElementById('opening-color-black');
- const statsUnavailable = document.getElementById('opening-stats-unavailable');
- const paintTotals = (white: string, black: string, unavailable: boolean) => {
-  // Keep БЕЛЫЕ/ЧЁРНЫЕ visible. Empty or missing API data is not a zero and must not hide the halves.
-  if (whiteStat) whiteStat.textContent = white;
-  if (blackStat) blackStat.textContent = black;
-  if (statsUnavailable) statsUnavailable.hidden = !unavailable;
-  root.classList.toggle('is-stats-error', unavailable);
- };
- const paintColorStats = () => {
-  void loadColorStats().then((stats) => {
-   if (!stats) { paintTotals('—', '—', true); return; }
-   paintTotals(colorStatLabel(stats, 'white'), colorStatLabel(stats, 'black'), false);
-  }).catch(() => paintTotals('—', '—', true));
- };
  const liveDot = document.getElementById('opening-live-dot');
  const liveCount = document.getElementById('opening-live-count');
  let presenceTimer: number | undefined;
@@ -256,7 +240,6 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
    root.hidden=false;document.getElementById('game')!.inert=true;
    paintSide(siegeSide(root));
    if(!firstShow)play.focus({preventScroll:true});firstShow=false;
-   paintColorStats();
    startPresence();
   },
   hide,
@@ -286,6 +269,8 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   arenaVoice:(humanSide:'white'|'black'='white')=>audio.arenaVoice(humanSide),
   speakOrcTurn:(name:string,humanSide:'white'|'black'='white')=>audio.speakOrcTurn(name,humanSide),
   resultSting:(win:boolean,line:string,humanSide:'white'|'black'='white')=>audio.resultSting(win,line,humanSide),
+  resultCeremonySound:(win:boolean)=>audio.resultCeremonySound(win),
+  stopResultCeremonySound:()=>audio.stopResultCeremonySound(),
   revealAudio:(ms:number,reduced:boolean)=>audio.reveal(ms,reduced),
  };
 }

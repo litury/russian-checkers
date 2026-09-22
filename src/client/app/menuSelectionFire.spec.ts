@@ -3,6 +3,7 @@ import { menuFireFrame, MENU_FIRE } from './menuSelectionFire';
 import runtime from './siegeOpening.ts?raw';
 import html from '../../../index.html?raw';
 import overlay from './openingOverlay.ts?raw';
+import statsEntry from './openingStats.ts?raw';
 
 describe('menu selection release', () => {
  it('has a stable cyclic frame and reduced motion endpoint', () => {
@@ -22,6 +23,7 @@ describe('menu selection release', () => {
   expect(html).toContain('ТВОЙ ЦВЕТ');
   expect(html).not.toContain('opening-guest-');
   expect(overlay).not.toContain('guestTag');
-  expect(overlay).toContain("colorStatLabel(stats, 'white')");
+  expect(statsEntry).toContain("colorStatLabel(stats, 'white')");
+  expect(statsEntry).toContain("colorStatLabel(stats, 'black')");
  });
 });

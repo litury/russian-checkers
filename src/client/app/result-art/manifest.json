@@ -1,0 +1,92 @@
+{
+  "rear": {
+    "crop": [
+      100,
+      30,
+      750,
+      245
+    ],
+    "sha256": "16eaca79bdaa239a78e83998db13928d76bffd9406be4da2dccd21f66214216e"
+  },
+  "lip": {
+    "crop": [
+      820,
+      130,
+      1425,
+      350
+    ],
+    "sha256": "d359f4d68adf22171bc2b3d15295e097e511462067235c6826ba6e511bfd3c8b"
+  },
+  "door-left": {
+    "crop": [
+      20,
+      375,
+      310,
+      675
+    ],
+    "sha256": "cc4274dbd18a0d2e9b6562dd3172b2b905628e71d861de8fcf255762792d2774"
+  },
+  "door-right": {
+    "crop": [
+      330,
+      375,
+      610,
+      675
+    ],
+    "sha256": "2c869b4a9634a41df44bc4418043a5e5c628c52a740bdddddb380f7c3ee70815"
+  },
+  "grip-left": {
+    "crop": [
+      615,
+      425,
+      775,
+      620
+    ],
+    "sha256": "31b37df75d24d48a8ad210c3322e1fc5cb05c0d2e45cf47bc4f2595fce064f90"
+  },
+  "grip-right": {
+    "crop": [
+      810,
+      425,
+      975,
+      620
+    ],
+    "sha256": "9e6b535003bdfbef6ef4bb9025f74024f7f18a41f022d215ff809867cd9d164e"
+  },
+  "pedestal": {
+    "crop": [
+      995,
+      380,
+      1510,
+      685
+    ],
+    "sha256": "12d4422d3ee1dc9a4c7bfc6b25db52ab6c7d1ac127925b0d5cd54db56f2d1039"
+  },
+  "mantle-0": {
+    "crop": [
+      10,
+      695,
+      530,
+      945
+    ],
+    "sha256": "1e527bdc7a8ebaef5edc57c655a12947ad40fd715283307cec73b63c53de5e02"
+  },
+  "mantle-1": {
+    "crop": [
+      530,
+      695,
+      1010,
+      945
+    ],
+    "sha256": "6579421fd6f0a0401b616f966ba16adcb87c161cc5f42243b312e1d332a07be3"
+  },
+  "mantle-2": {
+    "crop": [
+      1005,
+      695,
+      1525,
+      945
+    ],
+    "sha256": "afffc0924fe705c51a75fad124ce72bf1a812669278daa417eb5b030ca25f733"
+  }
+}

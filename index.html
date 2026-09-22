@@ -119,7 +119,8 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
    </button>
    </section>
   </div>
-  <p id="opening-stats-unavailable" class="chronicle-error" hidden>Статистика недоступна</p>
+  <p id="opening-stats-unavailable" class="chronicle-error" role="status" data-error="Статистика недоступна">Загружаем статистику…</p>
+  <button id="opening-stats-retry" class="opening-utility" type="button" aria-label="Повторить загрузку статистики" hidden>Повторить</button>
   <nav class="opening-actions" aria-label="Главное меню">
    <button id="opening-play" data-siege-mount="left" class="opening-button opening-primary" aria-label="С машиной" aria-busy="true" disabled>С машиной</button>
    <button id="opening-online" data-siege-mount="right" class="opening-button" type="button">С человеком<span id="opening-live-dot" hidden></span><span id="opening-live-count" class="opening-live-badge" hidden>Онлайн</span></button>
@@ -231,6 +232,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 </section>
 <form method="dialog"><button class="opening-button opening-primary">Готово</button></form>
 </dialog>
+<script type="module" src="/src/client/app/openingStats.ts"></script>
 <script type="module" src="/src/client/app/siegeOpening.ts"></script>
 <script type="module" src="/src/client/app/menuPressFeedback.ts"></script>
 <script id="opening-flavor">window.checkersFlavor = { setState() {} };</script>
@@ -414,15 +416,28 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
    play.setAttribute('aria-busy', 'true');
    play.setAttribute('aria-label', 'С машиной');
    play.textContent = 'С машиной';
-   window.checkersStartup.status('Загружаем доску и шашки…');
+   window.checkersStartup.progress('Загружаем доску и шашки…');
   },
   ready() {
-   // Loading status remains separate from the action label.
+   // Engine module is present. Hide the load banner; do not announce a finished match.
+   window.checkersStartup.status('Выберите сторону и начните игру.');
    byId('opening-status').hidden = true;
    byId('opening-error').hidden = true;
-   window.checkersStartup.status('Всё готово. Первый ход ваш.');
   },
-  status(message) { byId('opening-loading-status').textContent = message; }
+  slow() {
+   window.checkersStartup.progress('Загрузка продолжается. Можно подождать или повторить загрузку.');
+   byId('opening-retry').hidden = false;
+  },
+  progress(message) {
+   window.checkersStartup.status(message);
+   byId('opening-status').hidden = false;
+   byId('opening-error').hidden = false;
+   byId('opening-error').textContent = message;
+  },
+  // Search and other callers must not turn ordinary copy into a load error.
+  status(message) {
+   byId('opening-loading-status').textContent = message;
+  }
  };
  play.onclick = () => {
   if (play.hidden || play.disabled) return;
@@ -430,8 +445,9 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   else { window.checkersStartup.pendingPlay = true; window.checkersStartup.waitPlay(); }
  };
  window.checkersStartup.unlock();
- window.checkersStartup.ready();
- window.checkersStartup.watchdog = setTimeout(() => window.checkersStartup.fail('Загрузка затянулась. Проверьте соединение и повторите попытку.'), 30000);
+ window.checkersStartup.progress('Загружаем игру… Можно выбрать сторону и нажать «С машиной».');
+ // Slow transfer is not an import failure: preserve the queued start for eventual completion.
+ window.checkersStartup.watchdog = setTimeout(() => window.checkersStartup.slow(), 12000);
 })();
 </script>
 <script type="module">

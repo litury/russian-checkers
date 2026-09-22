@@ -39,7 +39,7 @@ import { createOpeningOverlay } from './openingOverlay';
 import type { IYandexSdk } from './IYandexSdk';
 import { getAutoMove, getBotSkill } from './settings';
 import { canUndoBot } from './botUndo';
-import { createResultOverlay } from './resultOverlay';
+import { createResultOverlay } from './resultCeremony';
 import mascotIdle0Url from './ui/result/mascot_idle_00.webp';
 import mascotIdle1Url from './ui/result/mascot_idle_01.webp';
 import mascotIdle2Url from './ui/result/mascot_idle_02.webp';
@@ -351,7 +351,11 @@ export class GameScene extends Phaser.Scene {
 		}
 		if (!this.overlay) {
 			this.overlay = createResultOverlay(this, {
+				isOnline: () => this.online,
+				onSound: (won) => this.title?.resultCeremonySound(won),
+				onStopSound: () => this.title?.stopResultCeremonySound(),
 				onPlayAgain: () => {
+					if (this.online) this.showTitle();
 					void this.startMatch();
 				},
 				onMenu: () => {
@@ -359,6 +363,16 @@ export class GameScene extends Phaser.Scene {
 				},
 			});
 			this.overlay.layout(logicalSize(this).width, logicalSize(this).height);
+			// Local review seam only; stripped from production and opt-in by URL.
+			if (import.meta.env.DEV && new URLSearchParams(location.search).has('resultReview')) {
+				const review = (event: Event) => {
+					if (this.phase === 'title' || this.phase === 'over' || this.online) return;
+					const outcome = (event as CustomEvent).detail;
+					this.endMatch(outcome === 'draw' ? 'draw' : outcome === 'win' ? this.humanSide : this.humanSide === 'white' ? 'black' : 'white');
+				};
+				window.addEventListener('result-review', review);
+				this.events.once('shutdown', () => window.removeEventListener('result-review', review));
+			}
 		}
 	}
 
@@ -480,7 +494,7 @@ export class GameScene extends Phaser.Scene {
 					this.endMatch(side, 'flag');
 					return;
 				}
-				const side = youWin === true ? this.humanSide : youWin === false ? (this.humanSide === 'white' ? 'black' : 'white') : winner === 'draw' ? this.humanSide : winner;
+				const side = winner === 'draw' ? 'draw' : youWin === true ? this.humanSide : youWin === false ? (this.humanSide === 'white' ? 'black' : 'white') : winner;
 				this.endMatch(side);
 			},
 		});
@@ -575,15 +589,13 @@ export class GameScene extends Phaser.Scene {
 					return;
 				}
 				const side =
-					youWin === true
+					winner === 'draw' ? 'draw' : youWin === true
 						? this.humanSide
 						: youWin === false
 							? this.humanSide === 'white'
 								? 'black'
 								: 'white'
-							: winner === 'draw'
-								? this.humanSide
-								: winner;
+							: winner;
 				this.endMatch(side);
 			},
 			onError: (error) => {
@@ -757,6 +769,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private showTitle(): void {
+		this.resultGen += 1;
 		this.humanChain = null;
 		this.botTimer?.remove(false);
 		this.tweens.killAll();
@@ -786,6 +799,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private async startMatch(fromOpening = false): Promise<void> {
+		this.resultGen += 1;
 		if (fromOpening && this.phase !== 'title') return;
 		await this.playfieldReady;
 		if (this.startupFailed) return;
@@ -1171,14 +1185,23 @@ export class GameScene extends Phaser.Scene {
 		const resign = document.getElementById('match-resign') as HTMLButtonElement | null;
 		const inMatch = this.phase !== 'title';
 		const railWasHidden = rail?.hidden ?? true;
-		if (rail) rail.hidden = !inMatch;
+		if (rail) {
+			rail.hidden = !inMatch;
+			// Reserve the same layout budget throughout reveal; only lifecycle visibility changes.
+			const conceal = this.countingIn;
+			if (rail.style) rail.style.visibility = conceal ? 'hidden' : '';
+			rail.inert = conceal;
+			rail.setAttribute('aria-hidden', conceal ? 'true' : 'false');
+		}
 		if (undo) {
 			undo.hidden = !inMatch || this.online;
-			undo.disabled = !canUndoBot(this.online, this.botUndoStack.length);
+			undo.disabled = this.countingIn || !canUndoBot(this.online, this.botUndoStack.length);
+			if (undo.style) undo.style.visibility = this.countingIn ? 'hidden' : '';
 		}
 		if (resign) {
 			resign.hidden = !inMatch;
-			resign.disabled = this.phase === 'over' || this.paused || this.flagLock;
+			resign.disabled = this.countingIn || this.phase === 'over' || this.paused || this.flagLock;
+			if (resign.style) resign.style.visibility = this.countingIn ? 'hidden' : '';
 		}
 		if (this.board && rail && railWasHidden !== rail.hidden && this.scale) {
 			const { width, height } = logicalSize(this);
@@ -1245,9 +1268,7 @@ export class GameScene extends Phaser.Scene {
 		this.posKeys.push(hashPosition(this.position));
 		const outcome = resultSide(this.position, this.posKeys);
 		if (outcome === 'draw') {
-			this.phase = 'over';
-			this.refresh();
-			if (!this.online) void recordBotMatch({ humanSide: this.humanSide, winner: 'draw', plies: this.matchPlies });
+			this.endMatch('draw');
 			return;
 		}
 		if (outcome) {
@@ -1308,9 +1329,7 @@ export class GameScene extends Phaser.Scene {
 			this.posKeys.push(hashPosition(this.position));
 			const outcome = resultSide(this.position, this.posKeys);
 			if (outcome === 'draw') {
-				this.phase = 'over';
-				this.refresh();
-				void recordBotMatch({ humanSide: this.humanSide, winner: 'draw', plies: this.matchPlies });
+				this.endMatch('draw');
 				return;
 			}
 			if (outcome) {
@@ -1341,14 +1360,16 @@ export class GameScene extends Phaser.Scene {
 			plies: this.matchPlies,
 		});
 		const undoGen = this.online ? null : this.botUndoGen;
+		const resultGen = ++this.resultGen;
 		void this.ensureResultOverlay().then((overlay) => {
+			if (resultGen !== this.resultGen || this.phase !== 'over') return;
 			if (undoGen !== null && undoGen !== this.botUndoGen) return;
-			overlay?.show('black', this.humanSide);
+			overlay?.show(this.humanSide === 'white' ? 'black' : 'white', this.humanSide);
 		});
 		this.board.clearOpeningHint();
 	}
 
-	private endMatch(side: Side, kind: 'flag' | 'rules' = 'rules'): void {
+	private endMatch(side: Side | 'draw', kind: 'flag' | 'rules' = 'rules'): void {
 		if (!this.board) return;
 		this.board.reset();
 		this.moving = false;
@@ -1357,7 +1378,7 @@ export class GameScene extends Phaser.Scene {
 		this.phase = 'over';
 		this.selected = null;
 		this.refresh();
-		{
+		if (side !== 'draw') {
 			const line = orcOutcomeLine(kind, side === this.humanSide);
 			if (line === 'time-up') this.title?.speakOrcTurn(line, this.humanSide);
 			else this.title?.resultSting(line === 'victory', line === 'victory' ? line : defeatTauntCue(this.humanSide), this.humanSide);
@@ -1372,7 +1393,7 @@ export class GameScene extends Phaser.Scene {
 		const gen = ++this.resultGen;
 		const show = () => {
 			void this.ensureResultOverlay().then((overlay) => {
-				if (gen !== this.resultGen) return;
+				if (gen !== this.resultGen || this.phase !== 'over') return;
 				overlay?.show(side, this.humanSide);
 			});
 		};

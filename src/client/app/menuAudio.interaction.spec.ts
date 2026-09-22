@@ -55,6 +55,33 @@ it.each(['mute','hidden','pause'])('stops active menu music immediately on %s',a
  expect(stops).toEqual(['menu_music_source']);
 });
 
+it('plays one ceremony layer without the retired result sting',async()=>{
+ for(const name of ['result-ascension','result-disposal','win','lose','victory'])await load(name);
+ activation.resolve();fire('pointerdown','elsewhere');await flush();audio.beginMatch();
+ audio.resultSting(true,'victory','black');audio.resultCeremonySound(true);
+ expect(starts).toEqual(['victory','result-ascension']);
+ audio.stopResultCeremonySound();expect(stops).toContain('result-ascension');
+});
+it.each(['mute','hidden','pause','show','dispose'])('cancels active ceremony on %s, without replay',async(reason)=>{
+ await load('result-disposal');activation.resolve();fire('pointerdown','elsewhere');await flush();audio.beginMatch();
+ audio.resultCeremonySound(false);expect(starts).toEqual(['result-disposal']);
+ if(reason==='mute'){settings.muted=true;fire('checkers-settings-change');settings.muted=false;fire('checkers-settings-change');}
+ if(reason==='hidden'){hidden=true;fire('visibilitychange');hidden=false;fire('visibilitychange');}
+ if(reason==='pause'){pause();resume();}
+ if(reason==='show')audio.show();if(reason==='dispose')audio.dispose();
+ expect(stops).toContain('result-disposal');expect(starts).toEqual(['result-disposal']);
+});
+it('never queues a cold or muted ceremony',async()=>{
+ activation.resolve();fire('pointerdown','elsewhere');await flush();audio.beginMatch();
+ audio.resultCeremonySound(true);await load('result-ascension');expect(starts).toEqual([]);
+ settings.muted=true;audio.resultCeremonySound(true);expect(starts).toEqual([]);
+});
+it('replaces an active ceremony without concurrent duplicates',async()=>{
+ await load('result-ascension');await load('result-disposal');activation.resolve();fire('pointerdown','elsewhere');await flush();audio.beginMatch();
+ audio.resultCeremonySound(true);audio.resultCeremonySound(false);
+ expect(stops).toEqual(['result-ascension']);expect(starts).toEqual(['result-ascension','result-disposal']);
+});
+
 it('resumes within trusted sound enabling click, but never clears mute itself',async()=>{
  settings.muted=true;
  fire('click','opening-sound');
