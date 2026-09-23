@@ -1,0 +1,95 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { randomUUID, randomBytes, createHash } from 'node:crypto';
+import { runSeed } from '../runner.ts';
+import { seedConfig, targetSql, verifyTarget } from '../config.ts';
+import { buildFixture } from '../fixture.ts';
+import { revokeLegacySeed } from '../remediation/revoke.ts';
+
+const pg = createRequire(new URL('../../../package.json', import.meta.url))('pg') as typeof import('pg');
+const env = { ...process.env, SEED_ONLINE_GAMES: '2', SEED_BOT_GAMES: '2' };
+const config = seedConfig(env);
+const pool = new pg.Pool({ connectionString: config.url, max: 4, connectionTimeoutMillis: 5000 });
+const summary: string[] = [];
+try {
+ verifyTarget((await pool.query(targetSql)).rows[0], config);
+ assert.equal((await pool.query("SELECT to_regclass('public.players') AS t")).rows[0].t, null, 'Requires fresh disposable schema; refuses existing data');
+ await assert.rejects(runSeed(env, () => pool));
+ summary.push('missing schema refused');
+ await pool.query(readFileSync(new URL('../../../sql/migrations/001_init.sql', import.meta.url), 'utf8'));
+ const snapshot = async () => {
+  const data = [];
+  for (const table of ['players','auth_identities','matches','match_plies']) data.push((await pool.query(`SELECT * FROM public.${table} ORDER BY 1,2`)).rows);
+  return JSON.stringify(data);
+ };
+ const empty = await snapshot();
+ let writes = 0;
+ await assert.rejects(runSeed(env, () => pool, () => { if (++writes === 5) throw new Error('injected failure'); }), /injected/);
+ assert.equal(await snapshot(), empty);
+ assert.equal((await pool.query("SELECT to_regclass('damka_dev_seed.objects') AS t")).rows[0].t, null);
+ summary.push('injected mid-replay failure rolls back all data and ledger');
+ const sentinel = randomUUID();
+ await pool.query('INSERT INTO players(id,display_name) VALUES($1,$2)', [sentinel,'unrelated test user']);
+ await runSeed(env, () => pool);
+ const first = await snapshot();
+ await runSeed(env, () => pool);
+ assert.equal(await snapshot(), first);
+ assert.equal((await pool.query('SELECT count(*)::int AS n FROM auth_identities')).rows[0].n, 0);
+ summary.push('clean schema seed twice: identical rows, no authentication credentials');
+ await Promise.all([runSeed(env, () => pool), runSeed(env, () => pool)]);
+ assert.equal(await snapshot(), first);
+ summary.push('concurrent connections: identical rows, no duplicates');
+ const fixture = buildFixture({ online:2, bot:2 });
+ await pool.query('DELETE FROM match_plies WHERE match_id=$1 AND ply=1',[fixture.matches[0].id]);
+ await runSeed(env, () => pool);
+ assert.equal(await snapshot(), first);
+ summary.push('partial owned replay recovered exactly');
+ await pool.query("UPDATE match_plies SET from_sq='invalid' WHERE match_id=$1 AND ply=1",[fixture.matches[0].id]);
+ const damaged = await snapshot();
+ await assert.rejects(runSeed(env, () => pool), /replay changed/);
+ assert.equal(await snapshot(), damaged);
+ await pool.query('UPDATE match_plies SET from_sq=$2 WHERE match_id=$1 AND ply=1',[fixture.matches[0].id,fixture.matches[0].plies[0].from]);
+ summary.push('changed owned replay rejected without overwriting data');
+ await pool.query('DELETE FROM damka_dev_seed.objects WHERE id=$1',[fixture.matches[0].id]);
+ await assert.rejects(runSeed(env, () => pool), /Unowned/);
+ // Restore ledger only from its original canonical fingerprint in this synthetic fixture.
+ await pool.query('INSERT INTO damka_dev_seed.objects VALUES($1,$2,$3,$4)', ['damka-demo-v2','match',fixture.matches[0].id,createHash('sha256').update(JSON.stringify(fixture.matches[0])).digest('hex')]);
+ summary.push('unowned ID collision rejected');
+ const botsOnly = { ...env, SEED_ONLINE_GAMES:'0', SEED_BOT_GAMES:'3' };
+ await runSeed(botsOnly, () => pool);
+ const botSnapshot = await snapshot();
+ await runSeed(botsOnly, () => pool);
+ assert.equal(await snapshot(), botSnapshot);
+ await runSeed({ ...env, SEED_ONLINE_GAMES:'0', SEED_BOT_GAMES:'0' }, () => pool);
+ assert.equal(await snapshot(), botSnapshot);
+ assert.equal((await pool.query('SELECT id FROM players WHERE id=$1',[sentinel])).rowCount,1);
+ summary.push('bot-only repeats and zero counts preserve existing and unrelated records');
+ // Synthetic legacy fixture: random non-production hashes; no legacy token is printed or copied.
+ const legacy = randomUUID();
+ const hash = createHash('sha256').update(randomBytes(32)).digest('hex');
+ const safeHash = createHash('sha256').update(randomBytes(32)).digest('hex');
+ await pool.query('INSERT INTO players(id,token_hash,display_name) VALUES($1,$2,$3)',[legacy,hash,'synthetic legacy seed']);
+ await pool.query("INSERT INTO auth_identities(player_id,kind,token_hash) VALUES($1,'device',$2),($1,'device',$3)",[legacy,hash,safeHash]);
+ const match = randomUUID();
+ await pool.query("INSERT INTO matches(id,mode,white_id,black_id,winner) VALUES($1,'online',$2,$3,'white')",[match,legacy,sentinel]);
+ const before = await snapshot();
+ const client = await pool.connect();
+ try {
+  const entries = [{ playerId:legacy,tokenHash:hash }];
+  assert.deepEqual(await revokeLegacySeed(client, entries), { mode:'dry-run',confirmedPlayers:1,legacyFields:1,deviceIdentities:1 });
+  assert.equal(await snapshot(),before);
+  await assert.rejects(revokeLegacySeed(client,entries,true), /confirmation/);
+  assert.equal(await snapshot(),before);
+  await revokeLegacySeed(client,entries,true,'REVOKE_CONFIRMED_LEGACY_SEED_ONLY');
+  assert.equal((await pool.query('SELECT token_hash FROM players WHERE id=$1',[legacy])).rows[0].token_hash,null);
+  assert.equal((await pool.query('SELECT count(*)::int AS n FROM auth_identities WHERE token_hash=$1',[hash])).rows[0].n,0);
+  assert.equal((await pool.query('SELECT count(*)::int AS n FROM auth_identities WHERE token_hash=$1',[safeHash])).rows[0].n,1);
+  assert.equal((await pool.query('SELECT id FROM matches WHERE id=$1',[match])).rowCount,1);
+  const after = await snapshot();
+  await revokeLegacySeed(client,entries,true,'REVOKE_CONFIRMED_LEGACY_SEED_ONLY');
+  assert.equal(await snapshot(),after);
+  summary.push('remediation: dry-run, confirmation refusal, exact revocation, idempotence; other login/player/match retained');
+ } finally { client.release(); }
+ console.log(JSON.stringify({status:'PASS',checks:summary},null,2));
+} finally { await pool.end(); }

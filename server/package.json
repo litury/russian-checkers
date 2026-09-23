@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "cd .. && DATABASE_URL=${DATABASE_URL:-postgres://checkers:checkers@127.0.0.1:5433/checkers} PORT=${PORT:-8787} ./node_modules/.bin/vite-node server/src/index.ts",
-    "start": "cd .. && DATABASE_URL=${DATABASE_URL:-postgres://checkers:checkers@127.0.0.1:5433/checkers} PORT=${PORT:-8787} ./node_modules/.bin/vite-node server/src/index.ts"
+    "start": "cd .. && DATABASE_URL=${DATABASE_URL:-postgres://checkers:checkers@127.0.0.1:5433/checkers} PORT=${PORT:-8787} ./node_modules/.bin/vite-node server/src/index.ts",
+    "seed": "cd .. && ./node_modules/.bin/vite-node server/src/seed.ts"
   },
   "dependencies": {
     "pg": "^8.23.0"
