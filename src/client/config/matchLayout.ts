@@ -7,11 +7,16 @@ export type SafeInsets = {
 };
 const zero = { top: 0, bottom: 0, left: 0, right: 0 };
 export const matchRailReservePx = 64;
+export const compactHudHeight = 136;
+export const compactHudGap = 8;
+/** Portrait is width-bound, so spare height must not become a void above the board. */
+export const compactPortraitTopInset = 12;
 
 export function matchRailBottom(): number {
 	if (typeof document === 'undefined') return 0;
 	const rail = document.getElementById('match-rail');
 	if (!rail || rail.hidden) return 0;
+	if (window.innerWidth < 760 || window.innerHeight <= 500) return 0;
 	return matchRailReservePx;
 }
 
@@ -39,6 +44,27 @@ export function matchLayout(
 ) {
 	const w = width - safe.left - safe.right,
 		h = height - safe.top - safe.bottom;
+	// Mobile: one bottom strip, never side bays that consume board width.
+	if (width < 760 || height <= 500) {
+		const fieldSize = Math.max(8, Math.min(w - 38, Math.floor((w * 352) / 380), Math.floor((h - compactHudHeight - compactHudGap - 16) * 352 / 418)));
+		const scale = fieldSize / 352;
+		const boardHeight = 418 * scale;
+		const spare = Math.max(0, h - boardHeight - compactHudGap - compactHudHeight);
+		const portrait = h > w;
+		// Keep the HUD against the board. Portrait pins the group under a small
+		// inset; leftover height sits below, not as a void above the squares.
+		const topInset = portrait ? Math.min(compactPortraitTopInset, spare) : spare / 2;
+		const boardY = safe.top + topInset;
+		const stripY = boardY + boardHeight + compactHudGap;
+		return {
+			portrait: h > w, fieldSize, scale, cell: fieldSize / 8,
+			originX: safe.left + (w - fieldSize) / 2,
+			originY: boardY + 33 * scale,
+			foe: { x: safe.left + 8, y: stripY },
+			you: { x: safe.left + 8, y: stripY + 52 },
+			panelScale: 1, mode: 'compact' as const,
+		};
+	}
 	const original = computeFieldLayout(w, h);
 	const native = Math.max(
 		8,

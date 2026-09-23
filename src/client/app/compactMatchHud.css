@@ -1,0 +1,12 @@
+/* Active match only. Clock display remains non-interactive on the canvas. */
+@media (max-width:759px), (max-height:500px) {
+  #match-rail {
+    left:auto; right:calc(8px + env(safe-area-inset-right));
+    top:var(--compact-hud-top); bottom:auto;
+    transform:none; flex-direction:column; gap:8px;
+  }
+  #match-rail .opening-utility {
+    min-width:104px; width:104px; min-height:44px;
+    padding:8px 4px; font-size:14px;
+  }
+}

@@ -104,6 +104,19 @@ export function createBunkerPanel(scene: Phaser.Scene, own: boolean) {
 	});
 	const movingText = [label, name, ...digits, ...(status ? [status] : [])];
 	const textY = movingText.map((go) => go.y);
+	const normalChildren = [...root.list] as (Phaser.GameObjects.Image | Phaser.GameObjects.Text)[];
+	const small = scene.add.container(0, 0);
+	root.add(small);
+	const frame = scene.add.image(0, 0, 'clock-frame-c').setOrigin(0).setScale(0.6);
+	const glow = scene.add.image(0, 0, 'clock-frame-c-active').setOrigin(0).setScale(0.6);
+	const smallClock = scene.add.text(42, 23, '01:00', { fontFamily: '"Golos Text", sans-serif', fontSize: '20px', fontStyle: '600', color: '#eee4cf', resolution: 2 }).setOrigin(0.5);
+	const smallName = scene.add.text(92, 5, '', { fontFamily: '"Golos Text", sans-serif', fontSize: '14px', color: '#eee4cf', resolution: 2 });
+	const smallRole = scene.add.text(92, 25, own ? 'Ваша сторона' : 'Соперник', { fontFamily: '"Golos Text", sans-serif', fontSize: '12px', color: '#bcb39e', resolution: 2 });
+	// Status sits below BOTH columns, not squeezed between names and actions.
+	const smallStatus = scene.add.text(0, 50, '', { fontFamily: '"Golos Text", sans-serif', fontSize: '13px', color: '#eee4cf', resolution: 2, wordWrap: { width: 304 } });
+	small.add([frame, glow, smallClock, smallName, smallRole, smallStatus]);
+	let compact = false;
+	let compactWidth = 304;
 	let elapsed = 2800,
 		reduced = false,
 		active = false,
@@ -160,6 +173,20 @@ export function createBunkerPanel(scene: Phaser.Scene, own: boolean) {
 		jets.forEach((go) => {
 			go.setVisible(false); // Opening v4: no smoke, including the overlapping panel reveal.
 		});
+		small.setVisible(compact);
+		if (compact) {
+			normalChildren.forEach(go => go.setVisible(false));
+			smallClock.setText(digits.map(go => go.text).join(''));
+			smallName.setText(name.text);
+			const nameWidth = Math.max(24, compactWidth - 112 - 92);
+			while (smallName.width > nameWidth && Array.from(smallName.text).length > 2)
+				smallName.setText(Array.from(smallName.text).slice(0, -2).join('') + '…');
+			smallRole.setText(active && !preparing ? '▶ Ходит' : own ? 'Ваша сторона' : 'Соперник');
+			if (smallRole.width > nameWidth && own && !(active && !preparing))
+				smallRole.setText('Вы');
+			smallStatus.setText(status?.text ?? '');
+			glow.setVisible(active && !preparing);
+		}
 	}
 	const tickFrame = () => {
 		if (disposed) return;
@@ -175,6 +202,7 @@ export function createBunkerPanel(scene: Phaser.Scene, own: boolean) {
 	void document.fonts?.load('600 21px "Golos Text"').then(() => {
 		if (disposed) return;
 		movingText.forEach((go) => go.setFontFamily('"Golos Text", sans-serif'));
+		[smallClock, smallName, smallRole, smallStatus].forEach((go) => go.setFontFamily('"Golos Text", sans-serif'));
 		paint();
 	});
 	scene.events.on('update', tickFrame);
@@ -184,8 +212,13 @@ export function createBunkerPanel(scene: Phaser.Scene, own: boolean) {
 	});
 	return {
 		root,
-		layout(x: number, y: number, scale: number) {
+		layout(x: number, y: number, scale: number, isCompact = false, availableWidth = 304) {
+			compact = isCompact;
+			compactWidth = availableWidth;
+			smallStatus.setWordWrapWidth(compactWidth);
+			normalChildren.forEach(go => go.setVisible(true));
 			root.setPosition(x, y).setScale(scale);
+			paint();
 		},
 		pose(ms: number, reduce: boolean) {
 			elapsed = ms;
