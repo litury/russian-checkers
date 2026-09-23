@@ -1,9 +1,8 @@
-/* Approved R3: independently mounted leaf controls, unobstructed original bolt. */
-#opening{--piece:135px;--column:174px;--play-y:214px;overflow:auto;overflow-x:hidden;overscroll-behavior:contain}
+/* Review candidate: real image_gen hardware; separate RGBA frame, eyelet and fixed-pitch links. */
+#opening{--piece:135px;--column:174px;--play-y:214px;--chain-reach:52px;--frame-corner:24px;overflow:auto;overflow-x:hidden;overscroll-behavior:contain}
 #opening .opening-sheet{height:max(844px,100%);min-height:844px;padding:0}
 #opening .gate-title-canopy{top:55px;width:366px;max-width:100%}
 #opening h1{font-size:27px;line-height:1.08}#opening h1 span{font-size:37px}
-#opening .siege-housing img{height:100%;width:auto;aspect-ratio:3/2;object-fit:contain;top:0;left:50%;translate:-50% 0}
 #opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options){width:174px;height:66px;top:214px;padding:7px 5px;font-size:17px;left:calc(50% - 183px)}
 #opening :is(#opening-online,#opening-options){left:calc(50% + 9px)}
 #opening :is(#opening-history,#opening-options){top:288px;height:46px;font-size:16px}
@@ -12,37 +11,78 @@
 #opening #opening-live-dot{display:none}
 #opening :is(#opening-play,#opening-online,#opening-history,#opening-options)::before,#opening :is(#opening-play,#opening-online,#opening-history,#opening-options)::after{content:'';position:absolute;top:50%;width:5px;height:5px;border-radius:50%;background:#a29b81;box-shadow:0 1px 2px #000}
 #opening :is(#opening-play,#opening-online,#opening-history,#opening-options)::before{left:7px}#opening :is(#opening-play,#opening-online,#opening-history,#opening-options)::after{right:7px}
-#opening .chronicle-half{position:absolute;z-index:4;top:59%;left:calc(50% - 183px);width:181px;height:294px;padding:18px 5px 12px;text-align:center;border:4px ridge #74786b;background:linear-gradient(#1b2225c9,#22292dcc),url('./ui/siege/gate.webp') 24% 56%/auto 700px;box-shadow:inset 0 0 0 3px #101718,inset 0 0 0 6px #4f5751,inset 0 12px 15px #aab09822,inset 0 -12px 12px #0009,0 7px 9px #000b}
-#opening .chronicle-right{left:calc(50% + 2px);background-position:center,76% 56%}
-#opening .chronicle-half h2{font:600 20px/28px Literata,Georgia,serif;letter-spacing:.015em;color:#ead9b6;margin:0;text-shadow:0 2px 2px #000}
+#opening .chronicle-half{position:absolute;z-index:4;top:59%;left:44px;width:calc(50% - 50px);height:294px;padding:22px 5px 12px;text-align:center;border:0;background:none;box-shadow:none;isolation:isolate}
+/* Backplate remains existing gate material. The generated frame is independently nine-sliced. */
+#opening .chronicle-half::before{content:'';position:absolute;inset:8px;z-index:-2;background:linear-gradient(#141b20cc,#1a2226db),url('./ui/siege/gate.webp') 24% 56%/auto 700px;box-shadow:0 6px 8px #0009}
+#opening .chronicle-half::after{content:'';position:absolute;inset:0;z-index:-1;border:var(--frame-corner) solid transparent;border-image:url('./ui/siege/panel-revision2/frame.png') 180 / var(--frame-corner) / 0 stretch;pointer-events:none}
+#opening .chronicle-right{left:calc(50% + 6px)}
+#opening .chronicle-right::after{transform:scaleX(-1)}
+#opening .chronicle-right::before{background-position:center,76% 56%}
+#opening .chronicle-half h2{font:600 17px/28px Literata,Georgia,serif;letter-spacing:.015em;color:#ead9b6;margin:0;text-shadow:0 2px 2px #000}
 #opening .chronicle-total{margin:8px 0 0;font-size:14px;line-height:21px;letter-spacing:.06em}
 #opening .chronicle-total strong{display:block;font:600 30px/36px Literata,Georgia,serif;letter-spacing:0;color:#fff2d0}
 #opening .chronicle-half .gate-piece-slot{top:115px;left:50%;translate:-50% 0;width:135px;height:135px}
 #opening .opening-side-label{display:none}
 #opening .opening-your-color{top:calc(100% + 8px)}
-#opening .chronicle-chain{position:absolute;display:flex;align-items:center;top:69px;width:44px;height:15px;right:calc(100% - 4px);filter:drop-shadow(0 3px 2px #000)}
-#opening .chronicle-right .chronicle-chain{right:auto;left:calc(100% - 4px)}
+/* Reach is viewport-to-panel, NOT nearest-ring distance. Link size never depends on reach.
+   Chains and eyelets are descendants, inheriting exactly the panel/leaf WAAPI translation. */
+#opening .chronicle-chain{position:absolute;display:block;top:69px;width:var(--chain-reach);height:20px;right:calc(100% - 8px);background:url('./ui/siege/panel-revision2/chain-tile.png') right center / auto 20px repeat-x;filter:drop-shadow(0 3px 2px #000);pointer-events:none}
+#opening .chronicle-right .chronicle-chain{right:auto;left:calc(100% - 8px);background-position:left center}
 #opening .chronicle-chain.second{top:226px}
-#opening .chronicle-chain i{display:block;flex:none;width:16px;height:10px;border:3px ridge #9b9b85;border-radius:5px;margin-left:-5px;background:#202522}#opening .chronicle-chain i:nth-child(even){height:6px}
+#opening .chronicle-chain i{display:none}
+#opening .chronicle-chain::after{content:'';position:absolute;width:30px;height:34px;right:-10px;top:-7px;background:url('./ui/siege/panel-revision2/eyelet.png') center / contain no-repeat;transform:scaleX(-1)}
+#opening .chronicle-right .chronicle-chain::after{right:auto;left:-10px;transform:none}
 #opening.is-departing{overflow:hidden;overscroll-behavior:none}
-#opening .chronicle-error{position:absolute;z-index:6;top:calc(59% + 82px);left:50%;translate:-50% 0;width:max-content;max-width:min(280px,calc(100% - 28px));margin:0;padding:2px 8px;text-align:center;color:#f1e6d0;background:#12171ae8;border:1px solid #6d6758;font-size:12px;line-height:16px;pointer-events:none;text-shadow:0 1px 1px #000}
-#opening #opening-stats-retry{position:absolute;z-index:7;top:calc(59% + 108px);left:50%;translate:-50% 0;min-height:44px;pointer-events:auto}
+#opening #opening-stats-retry{display:none}
 /* Rail must not leak above the foreground menu during preparation. */
 body:has(#opening:not([hidden])) #match-rail{visibility:hidden}
+/* Match raster and clipping geometry even on wide desktops. No empty side strips. */
+#opening .siege-housing img{width:max(100vw,150vh);height:auto;aspect-ratio:3/2;object-fit:contain;top:50%;left:50%;translate:-50% -50%}
 @media(min-width:700px){
- #opening{--piece:170px;--column:243px;--play-y:238px}
+ #opening{--piece:170px;--column:243px;--play-y:238px;--chain-reach:calc(50vw - 247px);--frame-corner:30px}
  #opening .opening-sheet{height:max(900px,100%);min-height:900px}
  #opening .gate-title-canopy{top:18px;width:510px}#opening h1{font-size:37px}#opening h1 span{font-size:51px}
  #opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options){width:243px;left:calc(50% - 255px);top:238px;font-size:20px}
  #opening :is(#opening-online,#opening-options){left:calc(50% + 12px)}
  #opening :is(#opening-history,#opening-options){top:312px;height:48px;font-size:18px}
  #opening .opening-live-badge{font-size:12px}
- #opening .chronicle-half{width:253px;height:352px;left:calc(50% - 255px);padding-top:24px}
+ #opening .chronicle-half{width:253px;height:352px;left:calc(50% - 255px);padding-top:28px}
  #opening .chronicle-right{left:calc(50% + 2px)}
  #opening .chronicle-half h2{font-size:25px;line-height:34px}
  #opening .chronicle-total{font-size:16px}#opening .chronicle-total strong{font-size:34px;line-height:40px}
  #opening .chronicle-half .gate-piece-slot{width:170px;height:170px;top:135px}
  #opening .chronicle-chain.second{top:272px}
- #opening .chronicle-error{top:calc(59% + 100px);font-size:13px;line-height:18px}
- #opening #opening-stats-retry{top:calc(59% + 128px)}
+}
+/* Content budget, not clipping: compact portrait still keeps 44px controls.
+   Below supported normal sizes the sheet scrolls as an accessibility fallback. */
+#opening{--column:min(243px,calc((100vw - 36px)/2));--panel-w:min(253px,calc((100vw - 48px)/2));--piece:clamp(104px,16dvh,170px);--play-y:clamp(142px,26dvh,238px);--chain-reach:calc((100vw - 2 * var(--panel-w) - 12px)/2 + 8px)}
+#opening .opening-sheet{height:100%;min-height:568px}
+#opening .gate-title-canopy{top:12px;width:clamp(300px,52dvh,510px);max-width:100%}
+#opening h1{font-size:clamp(25px,4.1dvh,37px)}
+#opening h1 span{font-size:clamp(34px,5.6dvh,51px)}
+#opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options){width:var(--column);left:calc(50% - var(--column) - 6px);top:var(--play-y);height:56px;font-size:clamp(15px,2.2dvh,20px)}
+#opening :is(#opening-online,#opening-options){left:calc(50% + 6px)}
+#opening :is(#opening-history,#opening-options){top:calc(var(--play-y) + 60px);height:44px;font-size:16px}
+#opening .chronicle-half{width:var(--panel-w);left:calc(50% - var(--panel-w) - 6px);top:auto;bottom:24px;height:calc(var(--piece) + 150px);padding:22px 5px 12px}
+#opening .chronicle-right{left:calc(50% + 6px)}
+#opening .chronicle-half h2{font-size:clamp(16px,2.4dvh,25px);line-height:28px}
+#opening .chronicle-total{margin-top:4px;font-size:14px;line-height:20px}
+#opening .chronicle-total strong{font-size:28px;line-height:32px}
+#opening .chronicle-half .gate-piece-slot{top:106px;width:var(--piece);height:var(--piece)}
+#opening .chronicle-chain.second{top:auto;bottom:48px}
+#opening #opening-status{top:calc(var(--play-y) + 108px);bottom:auto;padding:0 4px;font-size:12px;line-height:16px}
+/* Keep the two-line loading/error status clear of the frame on short portrait. */
+@media(max-width:599px) and (max-height:620px){
+ #opening .chronicle-half{bottom:8px}
+}
+/* Short landscape: title/actions occupy the centre, panels flank them. */
+@media(min-width:600px) and (max-height:500px){
+ #opening{--panel-w:clamp(140px,22vw,200px);--piece:104px;--column:132px;--play-y:142px;--chain-reach:24px;--frame-corner:24px}
+ #opening .opening-sheet{min-height:360px}
+ #opening .gate-title-canopy{width:280px;top:8px}
+ #opening h1{font-size:24px}#opening h1 span{font-size:33px}
+ #opening .chronicle-half{left:16px;bottom:48px;height:254px}
+ #opening .chronicle-right{left:auto;right:16px}
+ #opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options){height:52px;font-size:14px}
+ #opening :is(#opening-history,#opening-options){height:44px;top:202px}
 }

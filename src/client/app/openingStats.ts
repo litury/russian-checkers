@@ -15,12 +15,14 @@ export function paintOpeningStats(state: State, stats: Stats | null, nodes: {
 }) {
  nodes.label.hidden = state === 'ready';
  nodes.label.textContent = state === 'error' ? (nodes.label.dataset.error || 'Статистика недоступна') : 'Загружаем статистику…';
- nodes.retry.hidden = state !== 'error';
+ // Main-menu recovery is automatic; keep diagnostics in the sr-only status.
+ nodes.retry.hidden = true;
  nodes.retry.disabled = state === 'loading';
  nodes.root.classList.toggle('is-stats-error', state === 'error');
  const missing = state === 'loading' ? '…' : '—';
- const whiteText = stats ? colorStatLabel(stats, 'white') : missing;
- const blackText = stats ? colorStatLabel(stats, 'black') : missing;
+ const current = state === 'ready' ? stats : null;
+ const whiteText = current ? colorStatLabel(current, 'white') : missing;
+ const blackText = current ? colorStatLabel(current, 'black') : missing;
  if (nodes.white) {
   nodes.white.textContent = whiteText;
   if (nodes.white.parentElement) nodes.white.parentElement.hidden = false;

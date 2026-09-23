@@ -1,0 +1,68 @@
+{
+  "master": "hardware-atlas-raw.png",
+  "processing": "Rectangular crops only; native RGBA preserved; no alpha masking or generated substitute. Chain crop spans one link pitch, centre to centre.",
+  "nine_slice": {
+    "source_slice": 180,
+    "css_corner_mobile": 24,
+    "css_corner_desktop": 30
+  },
+  "chain": {
+    "css_height": 20,
+    "css_pitch": 26.476190476190474,
+    "repeat": "repeat-x, fixed scale, clipped at viewport"
+  },
+  "assembly": "frame mirrored on right; eyelet mirrored on left; all inherit panel/leaf translation",
+  "files": {
+    "frame": {
+      "crop": [
+        8,
+        145,
+        675,
+        1242
+      ],
+      "size": [
+        667,
+        1097
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "25fd294e311102d1c60f5614961be65a521fe6755a436056e920f2274862d5cb"
+    },
+    "chain-tile": {
+      "crop": [
+        740,
+        438,
+        879,
+        543
+      ],
+      "size": [
+        139,
+        105
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "88d81516a77a8445fca6dc6f50aea2fbf03963b83bdb8501ca7574784fdd07f9"
+    },
+    "eyelet": {
+      "crop": [
+        735,
+        721,
+        1038,
+        1060
+      ],
+      "size": [
+        303,
+        339
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "e0ae32655bd77d9c70d1409666e1b2be7068f3bd7389a4effa25934d0c9814ad"
+    }
+  }
+}

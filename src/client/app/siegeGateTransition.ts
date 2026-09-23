@@ -21,24 +21,16 @@ export function animateSiegeGates(root: HTMLElement) {
   const viewport = root.getBoundingClientRect();
   const groups = (['left', 'right'] as const).map(side => {
    const nodes = [root.querySelector<HTMLElement>(`.siege-${side}`)!,
-    ...root.querySelectorAll<HTMLElement>(`[data-siege-mount="${side}"]`)];
-   const distance = siegeTravel(viewport, nodes.map(node => node.getBoundingClientRect()), side);
+    ...root.querySelectorAll<HTMLElement>(`[data-siege-mount="${side}"]`),
+    ...root.querySelectorAll<HTMLElement>(`[data-chronicle-mount="${side}"]`)];
+   const bounds = nodes.flatMap(node => [node, ...node.querySelectorAll<HTMLElement>('.chronicle-chain')]);
+   const distance = siegeTravel(viewport, bounds.map(node => node.getBoundingClientRect()), side);
    return { nodes, x: side === 'left' ? -distance : distance };
   });
   for (const {nodes, x} of groups) for (const node of nodes) {
    animations.push(node.animate(
     [{transform:'translateX(0px)'}, {transform:`translateX(${x}px)`}],
     {delay:titleDepartureMs, duration:gateDurationMs-titleDepartureMs, easing:'cubic-bezier(0.3333333333,0,0.6666666667,1)', fill:'both'},
-   ));
-  }
-  for (const side of ['left', 'right'] as const) {
-   const nodes = [...root.querySelectorAll<HTMLElement>(`[data-chronicle-mount="${side}"]`)];
-   // Include side attachments beyond the panel border in the clearance distance.
-   const bounds = nodes.flatMap(node => [node, ...node.querySelectorAll<HTMLElement>('.chronicle-chain')]).map(node => node.getBoundingClientRect());
-   const distance = siegeTravel(viewport, bounds, side);
-   for (const node of nodes) animations.push(node.animate(
-    [{transform:'translateX(0px)'}, {transform:`translateX(${side === 'left' ? -distance : distance}px)`}],
-    {delay:0, duration:titleDepartureMs, easing:'ease-in', fill:'both'},
    ));
   }
   const canopy = root.querySelector<HTMLElement>('.gate-title-canopy');

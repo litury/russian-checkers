@@ -150,14 +150,18 @@ it.each(['hide','shutdown'] as const)('cancels %s without completing or retainin
  visual(3000);advance(3000);media.matches=true;media.dispatchEvent(new Event('change'));
  expect(done).not.toHaveBeenCalled();expect(root.inert).toBe(false);
 });
-it('clears chronicle halves concurrently with title before background gates',()=>{
+it('keeps both chronicle halves rigidly synchronized with their respective leaves',()=>{
  const {root,overlay}=setup(); overlay.depart(vi.fn());
- const half=root.querySelector('[data-chronicle-mount="left"]');
- expect(half.animate).toHaveBeenCalledTimes(1);
- expect(half.animations[0].options.delay).toBe(0);
- expect(half.animations[0].options.duration).toBe(350);
- expect(root.querySelector('.siege-left').animations[0].options.delay).toBe(350);
- expect(half.animations[0].startTime).toBe(root.querySelector('.gate-title-canopy').animations[0].startTime);
+ for(const side of ['left','right']) {
+  const half=root.querySelector(`[data-chronicle-mount="${side}"]`);
+  const leaf=root.querySelector(`.siege-${side}`).animations[0];
+  expect(half.animate).toHaveBeenCalledTimes(1);
+  expect(half.animations[0].frames).toEqual(leaf.frames);
+  expect(half.animations[0].options).toEqual(leaf.options);
+  expect(half.animations[0].options.delay).toBe(350);
+  expect(half.animations[0].options.duration).toBe(1650);
+  expect(half.animations[0].startTime).toBe(leaf.startTime);
+ }
 });
 it('freezes opening scroll through departure and resize',()=>{
  const {root,overlay,resizeListeners}=setup();
