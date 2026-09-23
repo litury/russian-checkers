@@ -2,6 +2,7 @@ import {writeFileSync} from 'node:fs';
 import {createHash, randomBytes, randomInt} from 'node:crypto';
 import {createRequire} from 'node:module';
 import {createServer} from 'node:http';
+import {bindHost, bindMessage} from './dev/bind.ts';
 import {applyPly, replayPlies, type RecordedPly} from '../../src/online/replay.ts';
 import {bothReady, hashPosition, READY_MS, snapshotOf} from '../../src/online/matchState.ts';
 import {createInitialPosition, winner, afterMoveBank, blitzStartMs, resultSide, type IPosition, type Side} from '../../src/rules/index.ts';
@@ -16,6 +17,7 @@ const require = createRequire(new URL('../package.json', import.meta.url));
 const pg = require('pg') as typeof import('pg');
 const url = process.env.DATABASE_URL ?? 'postgres://checkers:checkers@127.0.0.1:5433/checkers';
 const port = Number(process.env.PORT ?? 8787);
+const host = bindHost(process.env.HOST);
 const pool = new pg.Pool({connectionString: url});
 const DROP_MS = 60_000;
 
@@ -645,6 +647,6 @@ process.on('uncaughtException', (err) => {
 process.on('unhandledRejection', (err) => {
  process.stderr.write(`unhandled ${err}\n`);
 });
-server.listen(port, '::', () => {
- process.stdout.write(`checkers-server http://127.0.0.1:${port} http://localhost:${port} ws://localhost:${port}/ws\n`);
+server.listen(port, host, () => {
+ process.stdout.write(`${bindMessage(server.address())}\n`);
 });

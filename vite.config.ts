@@ -1,9 +1,9 @@
+import { loadEnv } from 'vite';
 import { defineConfig } from 'vitest/config';
+import { devProxyConfig } from './src/dev/proxyConfig';
 
-export default defineConfig({
-	server: {
-		allowedHosts: true,
-	},
+export default defineConfig(({ mode }) => ({
+	server: devProxyConfig(loadEnv(mode, '.', 'DAMKA_DEV_')),
 	base: './',
 	resolve: {
 		alias: {
@@ -22,4 +22,4 @@ export default defineConfig({
 		css: { include: [/openingGates\.css/] },
 		include: ['src/**/*.spec.ts', 'server/src/**/*.spec.ts'],
 	},
-});
+}));
