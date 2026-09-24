@@ -1,5 +1,6 @@
 export const sfxBus = .65;
-export const voiceBus = 1.15;
+/** Announcer only. Below mechanisms; piece «ах» stays on the SFX path. */
+export const voiceBus = .45;
 export const menuOrganLevel = .45;
 export const matchMusicLevel = .16;
 export const matchMusicDuck = .12;
