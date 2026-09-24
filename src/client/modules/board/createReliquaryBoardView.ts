@@ -8,8 +8,17 @@ import './boardCoords.css';
 import { sameSquare } from '@/client/shared/sameSquare';
 import { type IMove, type IPosition, type ISquare, type Side, legalMoves } from '@/rules';
 import type { IBoardView } from './IBoardView';
-import { markerDestinations, markerMoves } from './reliquaryHints';
-import { drawReliquaryMarker, type Marker } from './reliquaryMarkers';
+import { markerMoves } from './reliquaryHints';
+import {
+	ARROW_CELL,
+	ARROW_CORNER,
+	ARROW_TEXTURE,
+	arrowRotation,
+	drawReliquaryMarker,
+	MARKER_ARROW,
+	MARKER_STAPLES,
+	screenStep,
+} from './reliquaryMarkers';
 import { MarkerMotion } from './reliquaryMotion';
 import { OpeningMoveHint } from '@/client/app/openingMoveHint';
 import { SelectionMotion } from './selectionMotion';
@@ -48,6 +57,8 @@ export function createBoardView(
 		'selection_king-seal',
 		...Object.keys(kingFireAssets).map(name => `king-fire_${name}`),
 		...['white', 'black'].flatMap(side => Array.from({ length: 56 }, (_, i) => `selection_${side}-${String(i).padStart(2, '0')}`)),
+		MARKER_STAPLES,
+		MARKER_ARROW,
 	]) {
 		if (!scene.textures?.exists?.(texture)) continue;
 		scene.textures.get(texture)?.setFilter(Phaser.Textures.FilterMode.LINEAR);
@@ -102,15 +113,53 @@ export function createBoardView(
 		w: field.cell,
 		h: field.cell,
 	});
-	const paint = (square: ISquare, state: Marker): void =>
-		drawReliquaryMarker(marks, cellBox(square), state, hintMotion.elapsed);
+	type MarkerImage = Phaser.GameObjects.Image;
+	const pools = {
+		intro: [] as MarkerImage[],
+		marks: [] as MarkerImage[],
+	};
+	const used = { intro: 0, marks: 0 };
+	const release = (which: 'intro' | 'marks'): void => {
+		for (const img of pools[which]) img.setVisible(false);
+		used[which] = 0;
+	};
+	const take = (which: 'intro' | 'marks', texture: string, depth: number): MarkerImage => {
+		let img = pools[which][used[which]];
+		if (!img) {
+			img = scene.add.image(0, 0, texture);
+			pools[which].push(img);
+		}
+		used[which] += 1;
+		return img.setTexture(texture).setName(texture).setDepth(depth).setVisible(true).setAlpha(1).setRotation(0);
+	};
+	const placeStaple = (square: ISquare, alpha: number, depth: number, which: 'intro' | 'marks'): void => {
+		if (alpha <= 0 || !hasTexture(MARKER_STAPLES)) return;
+		const box = cellBox(square);
+		take(which, MARKER_STAPLES, depth)
+			.setPosition(box.x, box.y)
+			.setOrigin(0.5, 0.5)
+			.setDisplaySize(box.w, box.h)
+			.setAlpha(alpha);
+	};
+	const placeArrow = (from: ISquare, to: ISquare): void => {
+		if (!hasTexture(MARKER_ARROW)) return;
+		const step = screenStep(from, to, facing);
+		if (!step.dx || !step.dy) return;
+		const box = cellBox(from);
+		const long = Math.max(box.w, box.h) * ARROW_CELL;
+		const scale = long / Math.max(ARROW_TEXTURE.w, ARROW_TEXTURE.h);
+		take('marks', MARKER_ARROW, 8.2)
+			.setOrigin(0.5, 0.5)
+			.setDisplaySize(ARROW_TEXTURE.w * scale, ARROW_TEXTURE.h * scale)
+			.setRotation(arrowRotation(step.dx, step.dy))
+			.setPosition(box.x + step.dx * box.w * ARROW_CORNER, box.y + step.dy * box.h * ARROW_CORNER);
+	};
 	const drawIntro = () => {
 		introMarks.clear();
+		release('intro');
 		if (!visible || moving || isInputBlocked()) return;
-		for (const {square, alpha} of intro.sample(introProgress, introReduced, selected)) {
-			const b = cellBox(square);
-			drawReliquaryMarker(introMarks, b, 'available', 720, alpha);
-		}
+		for (const {square, alpha} of intro.sample(introProgress, introReduced, selected))
+			placeStaple(square, alpha, 7.9, 'intro');
 	};
 	const label = (): void => {
 		canvas.setAttribute(
@@ -145,30 +194,29 @@ export function createBoardView(
 	};
 	const draw = (): void => {
 		marks.clear();
+		release('marks');
 		drawIntro();
 
 		if (!visible) return;
-		if (selected) paint(selected, 'selected');
+		if (selected) placeStaple(selected, 1, 8, 'marks');
 		const seen = new Set<string>();
+		const arrows = new Set<string>();
 
 		const routes = markerMoves(choices, selected);
 		for (const move of routes) {
 			const victims = targets(move);
 			for (const sq of victims) {
 				const id = `target:${key(sq)}`;
-				if (!seen.has(id)) paint(sq, 'target');
+				if (!seen.has(id)) placeStaple(sq, 1, 8, 'marks');
 				seen.add(id);
 			}
-			for (const land of markerDestinations([move])) {
-				const state = victims.length ? 'landing' : 'move';
-				const id = `${state}:${key(land)}`;
-				if (!seen.has(id)) paint(land, state);
-				seen.add(id);
-			}
+			const land = move.path[0];
+			if (!land) continue;
+			const step = screenStep(move.from, land, facing);
+			const id = `${step.dx},${step.dy}`;
+			if (!arrows.has(id)) placeArrow(move.from, land);
+			arrows.add(id);
 		}
-		// Union all future cells across compatible routes, never dim a current cell.
-		// Draw above pieces too: a legal continuation may return to the selected origin.
-		for (const land of markerDestinations(routes, true)) paint(land, 'futureLanding');
 		drawInteraction();
 	};
 	const hasTexture = (key: string): boolean =>
@@ -399,6 +447,8 @@ export function createBoardView(
 		kingFire.clear();
 		intro.clear();
 		introMarks.clear();
+		release('intro');
+		release('marks');
 
 		hintMotion.cancel();
 		generation++;
@@ -475,10 +525,10 @@ export function createBoardView(
 					Math.abs(s.row - from.row) < Math.abs(land.row - from.row),
 			);
 			marks.clear();
-
-			paint(from, 'selected');
-			paint(land, victim ? 'landing' : 'move');
-			if (victim) paint(victim, 'target');
+			release('marks');
+			placeStaple(from, 1, 8, 'marks');
+			placeArrow(from, land);
+			if (victim) placeStaple(victim, 1, 8, 'marks');
 			kingFire.takeoff(view, view.kind === 'king', cellBox(from), field.cell, reduced());
 			pieceStepSfx(view.kind === 'king', Boolean(victim), view.side, victim ? pieces.get(key(victim))?.side : undefined);
 			onTakeoff?.(Boolean(victim));
@@ -551,7 +601,7 @@ export function createBoardView(
 	});
 	layout(logicalSize(scene).width, logicalSize(scene).height);
 	return {
-		clearOpeningHint: () => { intro.clear(); introMarks.clear(); },
+		clearOpeningHint: () => { intro.clear(); introMarks.clear(); release('intro'); },
 		startOpeningHint: (position, local) => { intro.start(position, local); introProgress = 0; introReduced = reduced(); drawIntro(); },
 		paintOpeningHint: (progress, motionReduced) => { introProgress = progress; introReduced = motionReduced; drawIntro(); },
 		sync,

@@ -1,5 +1,5 @@
 import type Phaser from 'phaser';
-import { markerPhase } from './reliquaryMotion';
+import type { ISquare, Side } from '@/rules';
 
 export type Marker =
 	| 'available'
@@ -11,141 +11,90 @@ export type Marker =
 	| 'focus'
 	| 'hover';
 
-const mix = (a: number, b: number, t: number): number => {
-	let color = 0;
-	for (const shift of [16, 8, 0])
-		color |=
-			Math.round(((a >> shift) & 255) * (1 - t) + ((b >> shift) & 255) * t) <<
-			shift;
-	return color;
-};
+/** Cropped parent staple sheet: four corners in a 176px cell, shown at the live cell size. */
+export const MARKER_STAPLES = 'marker_staples';
+export const MARKER_ARROW = 'marker_arrow';
+export const STAPLE_SOURCE_PX = 176;
+/** arrow.png size. Long side is drawn at ARROW_CELL of the live cell. */
+export const ARROW_TEXTURE = { w: 194, h: 183 } as const;
+export const ARROW_CELL = 0.38;
+/** Center sits just outside the cell corner so the tip does not cover the face. */
+export const ARROW_CORNER = 0.55;
+/**
+ * Direction of the ivory tip in arrow.png, measured from the image center.
+ * Screen y grows downward. The authored arrow points down-right.
+ */
+export const ARROW_NATURAL = Math.atan2(132 - 91.5, 160 - 97);
 
-/** Approved coloured Б / motion-v2 geometry, expressed in 44px cell units. */
+/** Screen step of a rules diagonal. Columns do not flip; only the vertical does. */
+export function screenStep(
+	from: ISquare,
+	to: ISquare,
+	facing: Side,
+): { dx: number; dy: number } {
+	const dx = Math.sign(to.col - from.col);
+	const dr = Math.sign(to.row - from.row);
+	return { dx, dy: facing === 'black' ? dr : -dr };
+}
+
+/** Rotation that aims the one authored arrow along a screen diagonal. */
+export function arrowRotation(dx: number, dy: number): number {
+	return Math.atan2(dy, dx) - ARROW_NATURAL;
+}
+
+/**
+ * Keyboard focus only. Staples and the move arrow are sprites, not a second
+ * vector layer. Destination circles are not drawn.
+ */
 export function drawReliquaryMarker(
 	g: Phaser.GameObjects.Graphics,
 	box: { x: number; y: number; w: number; h: number },
 	state: Marker,
-	elapsed = 720,
-	opacity = 1,
+	_elapsed = 720,
+	_opacity = 1,
 ): void {
-	const phase = markerPhase(elapsed);
+	if (state !== 'focus') return;
 	const u = Math.min(box.w, box.h) / 44;
-	const path = (points: number[][], width: number, color: number): void => {
-		g.lineStyle(width * u, color, state === 'available' ? opacity : 1);
+	const stroke = (points: number[][]): void => {
+		g.lineStyle((1.7 + 1.8) * u, 0x101619, 1);
 		g.beginPath();
 		points.forEach(([x, y], i) => {
-			const px = box.x - box.w / 2 + x * u,
-				py = box.y - box.h / 2 + y * u;
+			const px = box.x - box.w / 2 + x * u;
+			const py = box.y - box.h / 2 + y * u;
+			if (i === 0) g.moveTo(px, py);
+			else g.lineTo(px, py);
+		});
+		g.strokePath();
+		g.lineStyle(1.7 * u, 0xeee4ca, 1);
+		g.beginPath();
+		points.forEach(([x, y], i) => {
+			const px = box.x - box.w / 2 + x * u;
+			const py = box.y - box.h / 2 + y * u;
 			if (i === 0) g.moveTo(px, py);
 			else g.lineTo(px, py);
 		});
 		g.strokePath();
 	};
-	const stroke = (
-		points: number[][],
-		color: number,
-		width = 1.7,
-		bevel = false,
-	): void => {
-		path(points, width + 1.8, 0x101619);
-		if (bevel) path(points, width + 0.7, mix(color, 0xe1d3ac, 0.4));
-		path(points, width, color);
-	};
-	if (state === 'available') {
-		// Opaque light core with dark backing; fixed geometry, no pulse.
-		for (const [sx, sy] of [[1,1], [-1,1], [1,-1], [-1,-1]]) {
-			const pts = [[22+sx*12,22+sy*19], [22+sx*19,22+sy*19], [22+sx*19,22+sy*12]];
-			path(pts, 4.5, 0x101619);
-			path(pts, 2.25, 0xf4f1df);
-		}
-	} else if (state === 'selected' || state === 'target') {
-		const r = phase.radius;
-		for (const [sx, sy] of [
-			[1, 1],
-			[-1, 1],
-			[1, -1],
-			[-1, -1],
-		]) {
-			const pts = [
-				[22 + sx * (r - 8), 22 + sy * r],
-				[22 + sx * r, 22 + sy * r],
-				[22 + sx * r, 22 + sy * (r - 8)],
-			];
-			stroke(
-				pts,
-				state === 'selected'
-					? mix(0xc9974f, 0xe4ba75, phase.amber)
-					: mix(0xc86643, 0xf6c99b, phase.pulse * 0.28),
-				2,
-				true,
-			);
-			if (state === 'target' && phase.glint > 0) {
-				const lo = phase.progress * 23 - 7,
-					hi = phase.progress * 23;
-				for (let i = 0; i < 2; i++) {
-					const a = pts[i],
-						b = pts[i + 1],
-						start = Math.max(0, (lo - i * 8) / 8),
-						end = Math.min(1, (hi - i * 8) / 8);
-					if (end > start)
-						path(
-							[start, end].map((t) => [
-								a[0] + (b[0] - a[0]) * t,
-								a[1] + (b[1] - a[1]) * t,
-							]),
-							2,
-							mix(0xc86643, 0xf6c99b, phase.glint),
-						);
-				}
-			}
-		}
-	} else if (state === 'move' || state === 'landing' || state === 'futureLanding') {
-		const future = state === 'futureLanding';
-		// Soft local slate imprint (not a ring/ghost); layered vector falloff avoids an FBO.
-		for (let i = 6; i >= 0; i--) {
-			g.fillStyle(0x86a6b8, (27 / 255 / 7) * (1 + phase.blue / 0.75) * (future ? 0.5 : 1));
-			g.fillEllipse(box.x, box.y + u, (18 + i * 2) * u, (12 + i * 2) * u);
-		}
-
-		for (const [vx, vy] of [
-			[0, -1],
-			[1, 0],
-			[0, 1],
-			[-1, 0],
+	for (let a = 3; a < 40; a += 7) {
+		const b = Math.min(a + 3, 41);
+		for (const pts of [
+			[
+				[a, 2],
+				[b, 2],
+			],
+			[
+				[a, 42],
+				[b, 42],
+			],
+			[
+				[2, a],
+				[2, b],
+			],
+			[
+				[42, a],
+				[42, b],
+			],
 		])
-			stroke(
-				[
-					[22 + vx * (11.5 + phase.opening), 22 + vy * (11.5 + phase.opening)],
-					[22 + vx * (16.5 + phase.opening), 22 + vy * (16.5 + phase.opening)],
-				],
-				mix(
-					future ? 0x55758a : 0x779db8,
-					future ? 0x7793a5 : 0xaac1cf,
-					phase.blue + (state === 'landing' ? phase.pulse * 0.14 : 0),
-				),
-			);
-	} else if (state === 'focus') {
-		for (let a = 3; a < 40; a += 7) {
-			const b = Math.min(a + 3, 41);
-			for (const pts of [
-				[
-					[a, 2],
-					[b, 2],
-				],
-				[
-					[a, 42],
-					[b, 42],
-				],
-				[
-					[2, a],
-					[2, b],
-				],
-				[
-					[42, a],
-					[42, b],
-				],
-			])
-				stroke(pts, 0xeee4ca, 1.7);
-		}
+			stroke(pts);
 	}
 }

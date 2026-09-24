@@ -1,11 +1,13 @@
 import type Phaser from 'phaser';
 import { describe, expect, it } from 'vitest';
-import { drawReliquaryMarker } from './reliquaryMarkers';
+import {
+	ARROW_NATURAL,
+	arrowRotation,
+	drawReliquaryMarker,
+	screenStep,
+} from './reliquaryMarkers';
 
-function strokes(
-	state: Parameters<typeof drawReliquaryMarker>[2],
-	elapsed = 720,
-) {
+function strokes(state: Parameters<typeof drawReliquaryMarker>[2]) {
 	const result: { color: number; points: number[][] }[] = [];
 	let color = 0;
 	let points: number[][] = [];
@@ -18,65 +20,42 @@ function strokes(
 		},
 		moveTo: (x: number, y: number) => points.push([x, y]),
 		lineTo: (x: number, y: number) => points.push([x, y]),
-		fillStyle: (c: number) => {
-			color = c;
+		fillStyle: () => {},
+		fillEllipse: () => {
+			throw new Error('destination circle');
 		},
-		fillEllipse: (x: number, y: number, w: number, h: number) =>
-			result.push({
-				color,
-				points: [
-					[x, y],
-					[w, h],
-				],
-			}),
 		strokePath: () => result.push({ color, points }),
 	} as unknown as Phaser.GameObjects.Graphics;
-	drawReliquaryMarker(g, { x: 22, y: 22, w: 44, h: 44 }, state, elapsed);
+	drawReliquaryMarker(g, { x: 22, y: 22, w: 44, h: 44 }, state);
 	return result;
 }
-describe('approved coloured B v2', () => {
-	it('keeps future continuation ticks visible with identical geometry but dimmer steel', () => {
-		const future = strokes('futureLanding').filter(s => s.color === 0x55758a);
-		const current = strokes('landing').filter(s => s.color === 0x779db8);
-		expect(future).toHaveLength(4);
-		expect(future.map(s => s.points)).toEqual(current.map(s => s.points));
-		expect(strokes('futureLanding', 0).length).toBeGreaterThan(0);
+
+describe('sprite markers replace vector staples and circles', () => {
+	it('draws no vector staple, circle, or hover', () => {
+		for (const state of ['available', 'selected', 'target', 'move', 'landing', 'futureLanding', 'hover'] as const)
+			expect(strokes(state)).toEqual([]);
 	});
-	it('keeps the small slate imprint only at destinations, never under a victim', () => {
-		expect(strokes('landing').some((s) => s.color === 0x86a6b8)).toBe(true);
-		expect(strokes('target').some((s) => s.color === 0x86a6b8)).toBe(false);
+	it('keeps the keyboard focus dashes, not a ring', () => {
+		const focus = strokes('focus');
+		expect(focus.length).toBeGreaterThan(8);
+		expect(focus.every(s => s.points.length === 2)).toBe(true);
+		expect(focus.some(s => s.color === 0xeee4ca)).toBe(true);
 	});
-	it('draws immediate marks then pulses material only, leaving own bracket stable', () => {
-		expect(strokes('target', 0)).not.toEqual(strokes('target', 720));
-		expect(strokes('target', 300).length).toBeGreaterThan(12);
-		expect(strokes('target', 720)).not.toEqual(strokes('target', 1920));
-		expect(strokes('landing', 720)).not.toEqual(strokes('landing', 1920));
-		expect(strokes('selected', 720)).toEqual(strokes('selected', 1920));
-		expect(strokes('target', 720).map((s) => s.points)).toEqual(
-			strokes('target', 1920).map((s) => s.points),
-		);
-		expect(strokes('landing', 0)).not.toEqual(strokes('landing', 720));
+	it('rotates the one arrow by a right angle on each legal screen diagonal', () => {
+		const dirs = [[1, 1], [-1, 1], [-1, -1], [1, -1]] as const;
+		const angles = dirs.map(([dx, dy]) => arrowRotation(dx, dy));
+		expect(new Set(angles.map(a => Math.round(a * 1e6))).size).toBe(4);
+		for (let i = 0; i < 4; i++) {
+			const turn = angles[(i + 1) % 4] - angles[i];
+			const wrapped = Math.atan2(Math.sin(turn), Math.cos(turn));
+			expect(Math.abs(Math.abs(wrapped) - Math.PI / 2)).toBeLessThan(1e-9);
+		}
+		expect(arrowRotation(1, 1)).toBeCloseTo(Math.atan2(1, 1) - ARROW_NATURAL);
 	});
-	it('uses identical whole-piece brackets in amber and copper, without victim arcs', () => {
-		const selected = strokes('selected').filter((s) => s.color === 0xc9974f);
-		const target = strokes('target').filter((s) => s.color === 0xc86643);
-		expect(selected).toHaveLength(4);
-		expect(target.map((s) => s.points)).toEqual(selected.map((s) => s.points));
-		expect(selected[0].points).toEqual([
-			[31.4, 39.4],
-			[39.4, 39.4],
-			[39.4, 31.4],
-		]);
-		expect(strokes('target')).toHaveLength(12);
-	});
-	it('uses four steel-blue ticks for ordinary and capture destinations; no hover', () => {
-		const move = strokes('move').filter((s) => s.color === 0x779db8);
-		expect(move).toHaveLength(4);
-		expect(strokes('landing')).toEqual(strokes('move'));
-		expect(move[0].points).toEqual([
-			[22, 9],
-			[22, 4],
-		]);
-		expect(strokes('hover')).toEqual([]);
+	it('flips only the vertical when the player faces black', () => {
+		const from = { row: 2, col: 2 };
+		const to = { row: 3, col: 3 };
+		expect(screenStep(from, to, 'white')).toEqual({ dx: 1, dy: -1 });
+		expect(screenStep(from, to, 'black')).toEqual({ dx: 1, dy: 1 });
 	});
 });

@@ -304,4 +304,32 @@ it('renders exact individually delivered frames at a fixed body pivot, holds sel
  expect(h.sprite().texture.key).toBe('selection_white-55');
  expect(h.sprite().y).toBe(y);
  expect(h.sprite().displayWidth).toBe(w);
-});
+ });
+ it('shows one rotated arrow only after selection, and staples instead of a circle', () => {
+ const h = harness();
+ const arrows = () => h.objects.filter(o => o.visible && !o.destroyed && o.name === 'marker_arrow');
+ const staples = () => h.objects.filter(o => o.visible && !o.destroyed && o.name === 'marker_staples');
+ h.board.sync(position(), [from], null);
+ expect(arrows()).toHaveLength(0);
+ h.board.sync(position(), [from], from, [{ from, path: [land] }]);
+ expect(staples()).toHaveLength(1);
+ expect(staples()[0].displayWidth).toBe(44);
+ expect(staples()[0].x).toBe(22);
+ expect(arrows()).toHaveLength(1);
+ expect(arrows()[0].x).toBeCloseTo(22 + 44 * 0.55);
+ expect(arrows()[0].y).toBeLessThan(242);
+ expect(arrows()[0].rotation).toBeCloseTo(Math.atan2(-1, 1) - Math.atan2(132 - 91.5, 160 - 97));
+ const mid = { row: 2, col: 2 };
+ const squares = Array.from({ length: 8 }, () => Array(8).fill(null));
+ squares[2][2] = { kind: 'man', side: 'white' };
+ h.board.sync({ squares, turn: 'white' }, [mid], mid, [
+ 	{ from: mid, path: [{ row: 3, col: 1 }] },
+ 	{ from: mid, path: [{ row: 3, col: 3 }] },
+ ]);
+ expect(arrows()).toHaveLength(2);
+ expect(new Set(arrows().map(a => a.rotation)).size).toBe(2);
+ h.board.setFacing('black');
+ h.board.sync(position(), [from], from, [{ from, path: [land] }]);
+ expect(arrows()).toHaveLength(1);
+ expect(arrows()[0].y).toBeCloseTo((2 + 0.5) * 44 + 44 * 0.55);
+ });
