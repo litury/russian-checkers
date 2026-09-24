@@ -1,6 +1,18 @@
 import { expect, it } from 'vitest';
-import { clockFrameWidthPx, matchLayout } from './matchLayout';
 import { computeFieldLayout } from './fieldLayout';
+import {
+	clockFrameWidthPx,
+	matchLayout,
+	mobileEdgeInsetPx,
+} from './matchLayout';
+
+const frameLeft = (l: ReturnType<typeof matchLayout>, safeLeft = 0) =>
+	l.originX - 14 * l.scale - safeLeft;
+const frameRightGap = (
+	l: ReturnType<typeof matchLayout>,
+	width: number,
+	safeRight = 0,
+) => width - safeRight - (l.originX + l.fieldSize + 14 * l.scale);
 
 const boardOf = (l: ReturnType<typeof matchLayout>) => ({
 	x: l.originX - 14 * l.scale,
@@ -51,7 +63,12 @@ it('fits centered safe-area phone, wide sides and bounded tablet fallback withou
 			expect(l.panelScale).toBeGreaterThanOrEqual(0.85);
 			expect(l.fieldSize).toBe(506);
 		}
-		if (w === 390) expect(l.fieldSize).toBe(352);
+		if (w === 390) {
+			expect(l.fieldSize).toBeGreaterThan(352);
+			expect(l.cell).toBeCloseTo(l.fieldSize / 8, 5);
+			expect(frameLeft(l)).toBeCloseTo(mobileEdgeInsetPx, 1);
+			expect(frameRightGap(l, w)).toBeCloseTo(mobileEdgeInsetPx, 1);
+		}
 		const board = boardOf(l);
 		const pw = 374 * l.panelScale;
 		const ph = 128 * l.panelScale;
@@ -72,13 +89,15 @@ it('fits centered safe-area phone, wide sides and bounded tablet fallback withou
 	expect(s.foe.y).toBeGreaterThanOrEqual(44);
 	expect(s.you.y + 128 * s.panelScale).toBeLessThanOrEqual(810);
 	const r = matchLayout(390, 844, { top: 0, bottom: 64, left: 0, right: 0 });
-	expect(r.fieldSize).toBe(352);
-	expect(r.cell).toBe(44);
+	expect(r.fieldSize).toBeGreaterThan(352);
+	expect(r.fieldSize).toBeCloseTo(matchLayout(390, 844).fieldSize, 5);
+	expect(r.cell).toBeCloseTo(r.fieldSize / 8, 5);
+	expect(r.cell).toBeGreaterThan(44);
 	expect(r.originY + r.fieldSize).toBeLessThanOrEqual(780);
 	expect(r.you.y + 128 * r.panelScale).toBeLessThanOrEqual(780);
 });
 
-it('keeps the pre-compact field and parks timers above and below without a side column', () => {
+it('presses the phone frame to a thin inset and parks timers above and below', () => {
 	for (const [w, h] of [
 		[390, 844],
 		[360, 740],
@@ -90,8 +109,7 @@ it('keeps the pre-compact field and parks timers above and below without a side 
 		const pw = 374 * l.panelScale;
 		const ph = 128 * l.panelScale;
 		expect(l.mode).toBe('top-bottom');
-		expect(l.fieldSize).toBeGreaterThanOrEqual(baselineField(w, h));
-		expect(l.fieldSize).toBe(baselineField(w, h));
+		expect(l.cell).toBeCloseTo(l.fieldSize / 8, 5);
 		expect(l.foe.y + ph).toBeLessThanOrEqual(board.y + 0.01);
 		expect(l.you.y).toBeGreaterThanOrEqual(board.y + board.h - 0.01);
 		expect(l.you.x).toBeCloseTo(l.foe.x);
@@ -100,13 +118,19 @@ it('keeps the pre-compact field and parks timers above and below without a side 
 		expect(l.foe.x + pw).toBeLessThanOrEqual(w + 0.01);
 		expect(l.you.y + ph).toBeLessThanOrEqual(h + 0.01);
 		expect(clockFrameWidthPx * l.panelScale).toBeLessThanOrEqual(w - 16);
-		if (h > w) {
+		if (w < 760 && h > w) {
+			expect(l.fieldSize).toBeGreaterThan(baselineField(w, h));
+			expect(l.fieldSize).toBeGreaterThan(w - 38);
 			expect(l.foe.y).toBeLessThanOrEqual(12);
-			expect(l.fieldSize).toBe(w - 38);
+			expect(frameLeft(l)).toBeCloseTo(mobileEdgeInsetPx, 1);
+			expect(frameRightGap(l, w)).toBeCloseTo(mobileEdgeInsetPx, 1);
+			expect(frameLeft(l)).toBeGreaterThanOrEqual(0);
+		} else {
+			expect(l.fieldSize).toBe(baselineField(w, h));
 		}
 	}
-	expect(matchLayout(390, 844).fieldSize).toBe(352);
-	expect(matchLayout(360, 740).fieldSize).toBe(322);
+	expect(matchLayout(390, 844).fieldSize).toBeGreaterThan(352);
+	expect(matchLayout(360, 740).fieldSize).toBeGreaterThan(322);
 	expect(matchLayout(844, 390).fieldSize).toBe(baselineField(844, 390));
 });
 
@@ -124,7 +148,9 @@ it('fits the button lip and safe areas by shrinking timers, not the board', () =
 		const board = boardOf(l);
 		const pw = 374 * l.panelScale;
 		const ph = 128 * l.panelScale;
-		expect(l.fieldSize).toBeGreaterThanOrEqual(baselineField(contentW, contentH));
+		expect(l.fieldSize).toBeGreaterThanOrEqual(
+			baselineField(contentW, contentH),
+		);
 		expect(l.originY - 33 * l.scale).toBeGreaterThanOrEqual(safe.top);
 		expect(l.you.y + ph).toBeLessThanOrEqual(h - safe.bottom + 0.01);
 		expect(l.originX - 14 * l.scale).toBeGreaterThanOrEqual(safe.left - 0.01);
@@ -136,9 +162,14 @@ it('fits the button lip and safe areas by shrinking timers, not the board', () =
 		expect(l.foe.y + ph).toBeLessThanOrEqual(board.y + 0.01);
 		expect(l.you.y).toBeGreaterThanOrEqual(board.y + board.h - 0.01);
 		expect(clockFrameWidthPx * l.panelScale).toBeLessThanOrEqual(contentW);
-		if (h > w) expect(l.fieldSize).toBe(contentW - 38);
+		if (w < 760 && h > w) {
+			expect(l.fieldSize).toBeGreaterThan(contentW - 38);
+			expect(frameLeft(l, safe.left)).toBeCloseTo(mobileEdgeInsetPx, 1);
+			expect(frameRightGap(l, w, safe.right)).toBeCloseTo(mobileEdgeInsetPx, 1);
+		}
 	}
 	const lip = matchLayout(360, 740, { top: 0, bottom: 64, left: 0, right: 0 });
-	expect(lip.fieldSize).toBe(baselineField(360, 676));
+	expect(lip.fieldSize).toBeCloseTo(matchLayout(360, 740).fieldSize, 5);
+	expect(lip.fieldSize).toBeGreaterThan(baselineField(360, 676));
 	expect(lip.you.y + 128 * lip.panelScale).toBeLessThanOrEqual(740 - 64 + 0.01);
 });

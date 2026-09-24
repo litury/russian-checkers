@@ -13,6 +13,12 @@ const panelNativeW = 374;
 const panelNativeH = 128;
 const gap = 20;
 const mobileTopInsetPx = 12;
+/** Ornament box around the 352 field. Not a width cap. */
+const boardFrameUnits = 380;
+const boardFrameHeightUnits = 418;
+const fieldUnits = 352;
+/** Thin bezel inside the safe area. Not w-38 and not a zero-inset width cap. */
+export const mobileEdgeInsetPx = 2;
 
 export function matchRailBottom(): number {
 	if (typeof document === 'undefined') return 0;
@@ -102,6 +108,18 @@ function placeTopBottom(
 	};
 }
 
+/** Phone field from the content width. Timers shrink; the field does not. */
+function mobileEdgeField(contentW: number, contentH: number) {
+	const byWidth =
+		((contentW - mobileEdgeInsetPx * 2) * fieldUnits) / boardFrameUnits;
+	// Last resort only: the frame itself must stay on screen after timers collapse.
+	const minPanel = 0.36;
+	const boardBudget = contentH - 8 - panelNativeH * 2 * minPanel - 2 * gap;
+	const byHeight =
+		(Math.max(8, boardBudget) * fieldUnits) / boardFrameHeightUnits;
+	return Math.max(8, Math.min(byWidth, byHeight));
+}
+
 /** Keep existing field scale whenever side bays fit; otherwise maximize field after readable bays. */
 export function matchLayout(
 	width: number,
@@ -110,8 +128,18 @@ export function matchLayout(
 ) {
 	const w = width - safe.left - safe.right,
 		h = height - safe.top - safe.bottom;
-	// Phone and short landscape: foe above, you below. Buttons stay in CSS.
-	if (width < 760 || height <= 500) {
+	// Phone: frame pressed to a thin inset. Buttons stay in CSS.
+	if (width < 760) {
+		return placeTopBottom(
+			safe,
+			w,
+			h,
+			mobileEdgeField(w, h),
+			Math.min(1, (w - 16) / panelNativeW),
+		);
+	}
+	// Short landscape keeps the pre-compact top-bottom budget.
+	if (height <= 500) {
 		const base = baselineTopBottom(w, h);
 		return placeTopBottom(safe, w, h, base.fieldSize, base.panelScale);
 	}

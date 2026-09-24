@@ -3,7 +3,7 @@ import { defineConfig } from 'vitest/config';
 import { devProxyConfig } from './src/dev/proxyConfig';
 
 export default defineConfig(({ mode }) => ({
-	server: devProxyConfig(loadEnv(mode, '.', 'DAMKA_DEV_')),
+	server: { ...devProxyConfig(loadEnv(mode, '.', 'DAMKA_DEV_')), allowedHosts: true },
 	base: './',
 	resolve: {
 		alias: {
