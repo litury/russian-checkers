@@ -50,14 +50,32 @@ it('pressed human CTA waits on itself and does not arm the machine button', () =
  expect(play.disabled).toBe(false);
  expect(play.textContent).toBe(playText);
 });
-it('CS-01 slow download preserves one-tap intent and offers reload, rather than discarding it', () => {
+it('CS-01 slow download preserves one-tap intent and does not cover Play', () => {
  vi.useFakeTimers(); const { startup, byId } = boot();
  byId('opening-play').onclick();
  vi.advanceTimersByTime(30001);
  expect(startup.pendingPlay).toBe(true);
  expect(startup.playCommitted).toBe(true);
+ expect(byId('opening-play').hidden).toBe(false);
+ expect(byId('opening-retry').hidden).toBe(true);
+ expect(byId('opening-loading-status').textContent).toBe('Загрузка продолжается. Можно подождать.');
+});
+it('idle watchdog does not reveal Retry over an already available Play CTA', () => {
+ vi.useFakeTimers(); const { byId } = boot();
+ expect(byId('opening-play').disabled).toBe(false);
+ expect(byId('opening-play').hidden).toBe(false);
+ vi.advanceTimersByTime(12000);
+ expect(byId('opening-retry').hidden).toBe(true);
+ expect(byId('opening-play').hidden).toBe(false);
+ expect(byId('opening-play').disabled).toBe(false);
+ expect(byId('opening-loading-status').textContent).toBe('Загрузка продолжается. Можно подождать или начать игру.');
+});
+it('import failure still hides Play and shows Retry in that slot', () => {
+ vi.useFakeTimers(); const { startup, byId } = boot();
+ startup.fail('Не удалось запустить игру.');
+ expect(byId('opening-play').hidden).toBe(true);
  expect(byId('opening-retry').hidden).toBe(false);
- expect(byId('opening-loading-status').textContent).toContain('продолжается');
+ expect(byId('opening-error').hidden).toBe(false);
 });
 it('search copy does not reopen the load-error banner', () => {
  vi.useFakeTimers(); const { startup, byId } = boot();

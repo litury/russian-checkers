@@ -459,8 +459,18 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
    byId('opening-error').hidden = true;
   },
   slow() {
-   window.checkersStartup.status('Загрузка продолжается. Можно подождать или повторить загрузку.');
+   // Slow transfer is not an import failure and must not take the HTML-first CTA.
+   // Retry shares Play's steel slot; unhiding it steals pointer events. fail() is
+   // the only path that hides Play and then shows Retry.
+   const playAvailable = !play.hidden;
+   window.checkersStartup.status(playAvailable
+    ? (play.disabled ? 'Загрузка продолжается. Можно подождать.' : 'Загрузка продолжается. Можно подождать или начать игру.')
+    : 'Загрузка продолжается. Можно подождать или повторить загрузку.');
    byId('opening-status').hidden = true;
+   if (playAvailable) {
+    byId('opening-retry').hidden = true;
+    return;
+   }
    byId('opening-retry').hidden = false;
   },
   progress(message) {
@@ -488,7 +498,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
  };
  window.checkersStartup.unlock();
  window.checkersStartup.progress('Загружаем игру… Можно выбрать сторону и нажать «С машиной».');
- // Slow transfer is not an import failure: preserve the queued start for eventual completion.
+ // Slow transfer is not an import failure: keep a queued start, and do not cover Play.
  window.checkersStartup.watchdog = setTimeout(() => window.checkersStartup.slow(), 12000);
 })();
 </script>

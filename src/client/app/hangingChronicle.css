@@ -92,3 +92,6 @@ body:has(#opening:not([hidden])) #match-rail{visibility:hidden}
  #opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options){height:52px;font-size:14px}
  #opening :is(#opening-history,#opening-options){height:44px;top:202px}
 }
+/* Retry shares Play's steel slot. It is the failure CTA only — never a cover over a visible Play. */
+#opening #opening-retry[hidden] { display:none !important; pointer-events:none !important; }
+#opening:has(#opening-play:not([hidden])) #opening-retry { display:none !important; pointer-events:none !important; }
