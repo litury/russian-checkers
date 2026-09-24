@@ -1,5 +1,5 @@
 import {describe,it,expect} from 'vitest';
-import {ceremonyPose} from './resultCeremony';
+import {ceremonyPose,lossLayout} from './resultCeremony';
 describe('rigid result ceremony timeline',()=>{
  it('contacts before descending and closes only after removal',()=>{
   expect(ceremonyPose(false,450)).toMatchObject({descent:0,doors:1,grip:0});
@@ -14,5 +14,18 @@ describe('rigid result ceremony timeline',()=>{
  });
  it('reduced motion is the exact static endpoint for both outcomes',()=>{
   for(const win of [true,false])expect(ceremonyPose(win,0,true)).toEqual(ceremonyPose(win,3200));
+ });
+ it('squashes the piece and rides a shadow under it, with fire only in the open hatch',()=>{
+  const early=lossLayout(1118), mid=lossLayout(1818), heat=lossLayout(2342), end=lossLayout(3200);
+  expect(early.scaleY).toBeLessThan(0.6);
+  expect(early.scaleX).toBeGreaterThan(1.25);
+  expect(mid.scaleY).toBeLessThan(early.scaleY);
+  expect(early.shadowY-early.pieceBottom).toBe(10);
+  expect(early.mouthY-early.pieceBottom).toBeGreaterThan(8);
+  expect(mid.shadowY-early.shadowY).toBeCloseTo(mid.descent-early.descent,5);
+  expect(heat.fire).toBe(true);
+  expect(heat.heat).toBeGreaterThan(0.9);
+  expect(end.fire).toBe(false);
+  expect(lossLayout(0,true)).toEqual(end);
  });
 });
