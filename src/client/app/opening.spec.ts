@@ -17,7 +17,7 @@ describe('HTML-first opening', () => {
  });
  it('uses an accessible indeterminate loading indicator, without a duplicate kicker', () => {
   expect(html).toMatch(/id="opening-play"[^>]*aria-label="С машиной"[^>]*aria-busy="true"[^>]*disabled>/);
-  expect(html).toContain('disabled>С машиной</button>');
+  expect(html).toContain('disabled><span class="opening-cta-label">С машиной</span></button>');
   expect(html).toContain('@keyframes opening-segment');
   expect(html).not.toContain('disabled>Загрузка…');
   expect(html).not.toContain('opening-kicker');

@@ -34,6 +34,12 @@
 #opening .chronicle-right .chronicle-chain::after{right:auto;left:-10px;transform:none}
 #opening.is-departing{overflow:hidden;overscroll-behavior:none}
 #opening #opening-stats-retry{display:none}
+/* Score wait sits on the digit, never a separate plaque. */
+#opening .opening-win-count.is-stat-pending{color:transparent;font-size:0;line-height:0}
+#opening .opening-win-count.is-stat-pending::after{content:'';display:block;width:42px;height:12px;margin:10px auto 8px;border-radius:2px;background:linear-gradient(90deg,#3a3428 0%,#8d7d5c 50%,#3a3428 100%);background-size:200% 100%;animation:opening-stat-skeleton 1.1s ease-in-out infinite}
+@keyframes opening-stat-skeleton{from{background-position:100% 0}to{background-position:-100% 0}}
+#opening :is(#opening-play,#opening-online)[aria-busy="true"]{box-shadow:inset 0 -3px #c5b28e}
+#opening :is(#opening-play,#opening-online)[aria-busy="true"] :is(#opening-live-dot,#opening-live-count){display:none}
 /* Rail must not leak above the foreground menu during preparation. */
 body:has(#opening:not([hidden])) #match-rail{visibility:hidden}
 /* Match raster and clipping geometry even on wide desktops. No empty side strips. */

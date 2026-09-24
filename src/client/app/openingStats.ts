@@ -10,27 +10,26 @@ export function paintOpeningStats(state: State, stats: Stats | null, nodes: {
  root: { classList: { toggle: (name: string, force: boolean) => void } };
  label: { hidden: boolean | string; textContent: string | null; dataset: { error?: string } };
  retry: { hidden: boolean | string; disabled: boolean };
- white: { textContent: string | null; parentElement?: { hidden: boolean | string } | null } | null;
- black: { textContent: string | null; parentElement?: { hidden: boolean | string } | null } | null;
+ white: { textContent: string | null; parentElement?: { hidden: boolean | string } | null; classList?: { toggle: (name: string, force: boolean) => void }; setAttribute?: (name: string, value: string) => void } | null;
+ black: { textContent: string | null; parentElement?: { hidden: boolean | string } | null; classList?: { toggle: (name: string, force: boolean) => void }; setAttribute?: (name: string, value: string) => void } | null;
 }) {
  nodes.label.hidden = state === 'ready';
  nodes.label.textContent = state === 'error' ? (nodes.label.dataset.error || 'Статистика недоступна') : 'Загружаем статистику…';
- // Main-menu recovery is automatic; keep diagnostics in the sr-only status.
+ // Main-menu recovery is automatic; keep diagnostics in the sr-only status. No visible plaque or retry.
  nodes.retry.hidden = true;
  nodes.retry.disabled = state === 'loading';
  nodes.root.classList.toggle('is-stats-error', state === 'error');
- const missing = state === 'loading' ? '…' : '—';
- const current = state === 'ready' ? stats : null;
- const whiteText = current ? colorStatLabel(current, 'white') : missing;
- const blackText = current ? colorStatLabel(current, 'black') : missing;
- if (nodes.white) {
-  nodes.white.textContent = whiteText;
-  if (nodes.white.parentElement) nodes.white.parentElement.hidden = false;
- }
- if (nodes.black) {
-  nodes.black.textContent = blackText;
-  if (nodes.black.parentElement) nodes.black.parentElement.hidden = false;
- }
+ const textFor = (side: 'white' | 'black') => state === 'ready' && stats ? colorStatLabel(stats, side) : '—';
+ const paintDigit = (node: typeof nodes.white, side: 'white' | 'black') => {
+  if (!node) return;
+  const loading = state === 'loading';
+  node.textContent = loading ? '' : textFor(side);
+  node.classList?.toggle('is-stat-pending', loading);
+  node.setAttribute?.('aria-busy', loading ? 'true' : 'false');
+  if (node.parentElement) node.parentElement.hidden = false;
+ };
+ paintDigit(nodes.white, 'white');
+ paintDigit(nodes.black, 'black');
 }
 
 const root = globalThis.document?.getElementById?.('opening');

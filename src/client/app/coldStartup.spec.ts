@@ -13,11 +13,42 @@ function boot() {
  return { startup: window.checkersStartup, byId };
 }
 afterEach(() => vi.useRealTimers());
-it('CS-01 early HTML allows queued play but never announces loaded engine', () => {
+it('CS-01 early HTML allows queued play but never announces loaded engine or a load plaque', () => {
  vi.useFakeTimers(); const { byId } = boot();
  expect(byId('opening-play').disabled).toBe(false);
+ expect(byId('opening-play').hidden).toBe(false);
  expect(byId('opening-loading-status').textContent).toContain('Загружаем');
- expect(byId('opening-status').hidden).toBe(false);
+ expect(byId('opening-status').hidden).toBe(true);
+ expect(byId('opening-error').textContent).not.toContain('Загружаем');
+});
+it('pressed machine CTA waits on itself and leaves the other button alone', () => {
+ vi.useFakeTimers(); const { startup, byId } = boot();
+ const online = byId('opening-online');
+ online.textContent = 'С человеком';
+ online.disabled = false;
+ byId('opening-play').onclick();
+ expect(startup.playCommitted).toBe(true);
+ expect(startup.source).toBe('play');
+ expect(byId('opening-play').disabled).toBe(true);
+ expect(byId('opening-play').textContent).toBe('Загрузка…');
+ expect(byId('opening-play').setAttribute).toHaveBeenCalledWith('aria-busy', 'true');
+ expect(byId('opening-status').hidden).toBe(true);
+ expect(online.disabled).toBe(false);
+ expect(online.textContent).toBe('С человеком');
+});
+it('pressed human CTA waits on itself and does not arm the machine button', () => {
+ vi.useFakeTimers(); const { startup, byId } = boot();
+ const play = byId('opening-play');
+ const playText = play.textContent;
+ byId('opening-online').onclick();
+ expect(startup.pendingOnline).toBe(true);
+ expect(startup.playCommitted).toBe(false);
+ expect(startup.source).toBe('online');
+ expect(byId('opening-online').disabled).toBe(true);
+ expect(byId('opening-online').textContent).toBe('Загрузка…');
+ expect(byId('opening-status').hidden).toBe(true);
+ expect(play.disabled).toBe(false);
+ expect(play.textContent).toBe(playText);
 });
 it('CS-01 slow download preserves one-tap intent and offers reload, rather than discarding it', () => {
  vi.useFakeTimers(); const { startup, byId } = boot();

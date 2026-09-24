@@ -219,6 +219,7 @@ export class GameScene extends Phaser.Scene {
 		}
 		// One-tap: early «Играть» before Phaser must auto-start once assets are wired.
 		this.title.flushPendingPlay();
+		this.title.flushPendingOnline();
 		this.sdk.ready();
 	}
 
@@ -518,6 +519,7 @@ export class GameScene extends Phaser.Scene {
 		this.title.clearSearch();
 		this.online = false;
 		this.humanSide = this.title.humanSide();
+		if (window.checkersStartup) window.checkersStartup.source = 'play';
 		void this.requestStartFromOpening();
 	}
 

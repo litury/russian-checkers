@@ -96,7 +96,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
    </div>
    <section class="chronicle-half chronicle-left" data-chronicle-mount="left" aria-label="Летопись: победы белых в онлайне">
     <span class="chronicle-chain" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="chronicle-chain second" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-    <h2>ЛЕТОПИСЬ</h2><p id="opening-wins-white" class="chronicle-total">БЕЛЫЕ<strong id="opening-color-white" class="opening-win-count">…</strong></p>
+    <h2>ЛЕТОПИСЬ</h2><p id="opening-wins-white" class="chronicle-total">БЕЛЫЕ<strong id="opening-color-white" class="opening-win-count is-stat-pending" aria-busy="true"></strong></p>
    <button type="button" class="gate-piece-slot gate-piece-ivory is-chosen" data-side="white" aria-pressed="true" aria-label="Играть белыми" aria-describedby="opening-wins-white">
     <span class="gate-piece-visual" aria-hidden="true">
      <img class="gate-piece" src="/src/client/modules/board/selection-v2/frames/white/white-55.webp" width="724" height="724" alt="" decoding="async" />
@@ -108,7 +108,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
    </section>
    <section class="chronicle-half chronicle-right" data-chronicle-mount="right" aria-label="Битвы: победы чёрных в онлайне">
     <span class="chronicle-chain" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="chronicle-chain second" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-    <h2>БИТВЫ</h2><p id="opening-wins-black" class="chronicle-total">ЧЁРНЫЕ<strong id="opening-color-black" class="opening-win-count">…</strong></p>
+    <h2>БИТВЫ</h2><p id="opening-wins-black" class="chronicle-total">ЧЁРНЫЕ<strong id="opening-color-black" class="opening-win-count is-stat-pending" aria-busy="true"></strong></p>
    <button type="button" class="gate-piece-slot gate-piece-black" data-side="black" aria-pressed="false" aria-label="Играть чёрными" aria-describedby="opening-wins-black">
     <span class="gate-piece-visual" aria-hidden="true">
      <img class="gate-piece" src="/src/client/modules/board/selection-v2/frames/black/black-00.webp" width="724" height="724" alt="" decoding="async" />
@@ -122,8 +122,8 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   <p id="opening-stats-unavailable" class="opening-sr-only" role="status" data-error="Статистика недоступна">Загружаем статистику…</p>
   <button id="opening-stats-retry" class="opening-utility" type="button" aria-label="Повторить загрузку статистики" hidden>Повторить</button>
   <nav class="opening-actions" aria-label="Главное меню">
-   <button id="opening-play" data-siege-mount="left" class="opening-button opening-primary" aria-label="С машиной" aria-busy="true" disabled>С машиной</button>
-   <button id="opening-online" data-siege-mount="right" class="opening-button" type="button">С человеком<span id="opening-live-dot" hidden></span><span id="opening-live-count" class="opening-live-badge" hidden>Онлайн</span></button>
+   <button id="opening-play" data-siege-mount="left" class="opening-button opening-primary" aria-label="С машиной" aria-busy="true" disabled><span class="opening-cta-label">С машиной</span></button>
+   <button id="opening-online" data-siege-mount="right" class="opening-button" type="button"><span class="opening-cta-label">С человеком</span><span id="opening-live-dot" hidden></span><span id="opening-live-count" class="opening-live-badge" hidden>Онлайн</span></button>
    <div id="opening-search" data-siege-mount="right" hidden>
     <p id="opening-search-copy">Ищем соперника</p>
     <div id="opening-search-actions">
@@ -375,24 +375,41 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
  });
  sync();
  const play = byId('opening-play');
+ const online = byId('opening-online');
+ const setCta = (button, name, busy) => {
+  const label = button.querySelector && button.querySelector('.opening-cta-label');
+  const text = busy ? 'Загрузка…' : name;
+  if (label) label.textContent = text;
+  else if (button === play && text === 'С машиной') play.textContent = 'С машиной';
+  else button.textContent = text;
+  button.disabled = busy;
+  button.setAttribute('aria-busy', busy ? 'true' : 'false');
+  if (busy) button.setAttribute('aria-label', name);
+  else button.removeAttribute('aria-label');
+ };
  window.checkersStartup = {
   pendingPlay: false,
+  pendingOnline: false,
   playCommitted: false,
   playIntent: null,
+  onlineIntent: null,
+  source: 'play',
   fail(message) {
    clearTimeout(window.checkersStartup.watchdog);
    window.checkersStartup.pendingPlay = false;
+   window.checkersStartup.pendingOnline = false;
    window.checkersStartup.playCommitted = false;
    window.checkersStartup.playIntent = null;
+   window.checkersStartup.onlineIntent = null;
    window.checkersFlavor.setState('error');
    byId('opening-status').hidden = false;
    byId('opening-error').hidden = false;
    byId('opening-error').textContent = message;
    byId('opening-loading-status').textContent = message;
-   play.setAttribute('aria-busy', 'false');
-   byId('opening-retry').hidden = false;
+   setCta(play, 'С машиной', false);
    play.disabled = true;
    play.hidden = true;
+   byId('opening-retry').hidden = false;
   },
   // HTML-first: enable Play before Phaser/modules; residual loads wait after click.
   unlock() {
@@ -402,21 +419,38 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
     window.checkersStartup.waitPlay();
     return;
    }
-   play.disabled = false;
-   play.textContent = 'С машиной';
-   play.removeAttribute('aria-label');
-   play.setAttribute('aria-busy', 'false');
+   setCta(play, 'С машиной', false);
    play.hidden = false;
    byId('opening-retry').hidden = true;
+   if (window.checkersStartup.pendingOnline) window.checkersStartup.waitOnline();
   },
   waitPlay() {
-   if (play.hidden) return;
+   const armed = window.checkersStartup.source === 'online' ? online : play;
+   const name = armed === online ? 'С человеком' : 'С машиной';
+   if (armed.hidden) return;
    window.checkersStartup.playCommitted = true;
-   play.disabled = true;
-   play.setAttribute('aria-busy', 'true');
-   play.setAttribute('aria-label', 'С машиной');
-   play.textContent = 'С машиной';
-   window.checkersStartup.progress('Загружаем доску и шашки…');
+   setCta(armed, name, true);
+   // Loading copy stays on the pressed button and the sr-only status. No plaque.
+   window.checkersStartup.status('Загружаем доску и шашки…');
+   byId('opening-status').hidden = true;
+   byId('opening-error').hidden = true;
+  },
+  waitOnline() {
+   if (online.hidden) return;
+   window.checkersStartup.source = 'online';
+   window.checkersStartup.pendingOnline = true;
+   setCta(online, 'С человеком', true);
+   window.checkersStartup.status('Загружаем доску и шашки…');
+   byId('opening-status').hidden = true;
+   byId('opening-error').hidden = true;
+  },
+  idlePlay() {
+   if (play.hidden || window.checkersStartup.pendingPlay || (window.checkersStartup.playCommitted && window.checkersStartup.source !== 'online')) return;
+   setCta(play, 'С машиной', false);
+  },
+  idleOnline() {
+   if (window.checkersStartup.pendingOnline || (window.checkersStartup.playCommitted && window.checkersStartup.source === 'online')) return;
+   setCta(online, 'С человеком', false);
   },
   ready() {
    // Engine module is present. Hide the load banner; do not announce a finished match.
@@ -425,14 +459,14 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
    byId('opening-error').hidden = true;
   },
   slow() {
-   window.checkersStartup.progress('Загрузка продолжается. Можно подождать или повторить загрузку.');
+   window.checkersStartup.status('Загрузка продолжается. Можно подождать или повторить загрузку.');
+   byId('opening-status').hidden = true;
    byId('opening-retry').hidden = false;
   },
   progress(message) {
    window.checkersStartup.status(message);
-   byId('opening-status').hidden = false;
-   byId('opening-error').hidden = false;
-   byId('opening-error').textContent = message;
+   byId('opening-status').hidden = true;
+   byId('opening-error').hidden = true;
   },
   // Search and other callers must not turn ordinary copy into a load error.
   status(message) {
@@ -441,8 +475,16 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
  };
  play.onclick = () => {
   if (play.hidden || play.disabled) return;
+  window.checkersStartup.source = 'play';
   if (typeof window.checkersStartup.playIntent === 'function') window.checkersStartup.playIntent();
   else { window.checkersStartup.pendingPlay = true; window.checkersStartup.waitPlay(); }
+ };
+ online.disabled = false;
+ online.onclick = () => {
+  if (online.hidden || online.disabled) return;
+  window.checkersStartup.source = 'online';
+  if (typeof window.checkersStartup.onlineIntent === 'function') window.checkersStartup.onlineIntent();
+  else { window.checkersStartup.pendingOnline = true; window.checkersStartup.waitOnline(); }
  };
  window.checkersStartup.unlock();
  window.checkersStartup.progress('Загружаем игру… Можно выбрать сторону и нажать «С машиной».');
