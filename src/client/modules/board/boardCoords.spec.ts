@@ -1,6 +1,7 @@
-import { readFileSync } from 'node:fs';
 import { expect, it } from 'vitest';
 import { squareAlg } from '@/online/notation';
+import history from '../../app/matchHistory.css?raw';
+import html from '../../../../index.html?raw';
 import {
 	boardFrame,
 	boardFrameRect,
@@ -9,6 +10,7 @@ import {
 	rankLabel,
 	visualRankLabels,
 } from './boardCoords';
+import cssSource from './boardCoords.css?raw';
 
 it('names files and ranks with squareAlg, not a second alphabet', () => {
 	expect(fileLabels.join('')).toBe(
@@ -58,18 +60,7 @@ it('keeps the label box on the existing frame, not a new column', () => {
 });
 
 it('shares the history frame insets and does not replace the move list', () => {
-	const css = readFileSync(
-		new URL('./boardCoords.css', import.meta.url),
-		'utf8',
-	).replace(/\s+/g, '');
-	const html = readFileSync(
-		new URL('../../../../index.html', import.meta.url),
-		'utf8',
-	);
-	const history = readFileSync(
-		new URL('../../app/matchHistory.css', import.meta.url),
-		'utf8',
-	);
+	const css = cssSource.replace(/\s+/g, '');
 	const pct = (part: number, whole: number) =>
 		((part / whole) * 100).toFixed(5);
 	expect(css).toContain(`left:${pct(boardFrame.padX, boardFrame.width)}%`);
