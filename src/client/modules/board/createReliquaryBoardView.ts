@@ -1,8 +1,10 @@
 import Phaser from 'phaser';
 import { logicalSize } from '@/client/app/displayDensity';
 import { pieceSprites } from '@/client/config/layout';
-import { boardCellY, visualRowStep } from './boardFacing';
 import { reliquaryLayout } from '@/client/config/reliquaryLayout';
+import { boardFrame, syncBoardCoords } from './boardCoords';
+import { boardCellY, visualRowStep } from './boardFacing';
+import './boardCoords.css';
 import { sameSquare } from '@/client/shared/sameSquare';
 import { type IMove, type IPosition, type ISquare, type Side, legalMoves } from '@/rules';
 import type { IBoardView } from './IBoardView';
@@ -363,10 +365,14 @@ export function createBoardView(
 
 		board
 			.setPosition(
-				field.originX - 14 * field.scale,
-				field.originY - 33 * field.scale,
+				field.originX - boardFrame.padX * field.scale,
+				field.originY - boardFrame.padTop * field.scale,
 			)
-			.setDisplaySize(380 * field.scale, 418 * field.scale);
+			.setDisplaySize(
+				boardFrame.width * field.scale,
+				boardFrame.height * field.scale,
+			);
+		syncBoardCoords(canvas.parentElement, field, facing, visible);
 		shadow
 			.setPosition(
 				field.originX - 46 * field.scale,
@@ -540,6 +546,8 @@ export function createBoardView(
 		else canvas.setAttribute('tabindex', oldTabIndex);
 		if (oldLabel === null) canvas.removeAttribute('aria-label');
 		else canvas.setAttribute('aria-label', oldLabel);
+		if (typeof document !== 'undefined' && document.getElementById)
+			document.getElementById('board-coords')?.remove();
 	});
 	layout(logicalSize(scene).width, logicalSize(scene).height);
 	return {
@@ -565,6 +573,7 @@ export function createBoardView(
 			visible = on;
 			board.setVisible(on);
 			shadow.setVisible(on);
+			syncBoardCoords(canvas.parentElement, field, facing, visible);
 			for (const { rect } of cells) {
 				if (on) rect.setInteractive();
 				else rect.disableInteractive();

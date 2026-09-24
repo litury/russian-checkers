@@ -1,0 +1,63 @@
+/* One coordinate layer for the live board and the history frame.
+   Percents are boardFrame in boardCoords.ts: 14/380, 33/418, 352/380, 352/418.
+   Do not add a side column. */
+#board-coords,
+#match-history .mh-board-frame {
+	container-type: inline-size;
+}
+#board-coords {
+	position: fixed;
+	z-index: 4;
+	pointer-events: none;
+}
+.board-coords-files,
+.board-coords-ranks {
+	position: absolute;
+	display: grid;
+	pointer-events: none;
+	color: #f1e8d4;
+	font-family: "Golos Text", Arial, sans-serif;
+	font-weight: 600;
+	font-size: clamp(8px, 2.6cqw, 13px);
+	font-variant-numeric: tabular-nums;
+	line-height: 1;
+}
+/* Opaque plate stays inside the existing bezel. Do not grow the rail. */
+.board-coords-files span,
+.board-coords-ranks span {
+	place-self: center;
+	display: grid;
+	place-items: center;
+	box-sizing: border-box;
+	background: #120f0c;
+	color: #f1e8d4;
+	border-radius: 2px;
+}
+.board-coords-files {
+	bottom: 1.8%;
+	left: 3.68421%;
+	width: 92.63158%;
+	grid-template-columns: repeat(8, 1fr);
+	justify-items: center;
+	text-align: center;
+}
+.board-coords-files span {
+	width: 1.45em;
+	max-width: 72%;
+	height: 1.25em;
+}
+.board-coords-ranks {
+	top: 7.89474%;
+	left: 0;
+	width: 3.68421%;
+	height: 84.21053%;
+	grid-template-rows: repeat(8, 1fr);
+	align-items: center;
+	justify-items: center;
+	text-align: center;
+}
+.board-coords-ranks span {
+	width: 84%;
+	height: 1.2em;
+	max-height: 62%;
+}
