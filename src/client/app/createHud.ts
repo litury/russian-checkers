@@ -1,4 +1,3 @@
-import './compactMatchHud.css';
 import type Phaser from 'phaser';
 import type { Side } from '@/rules';
 import { matchLayout, readSafeInsets } from '@/client/config/matchLayout';
@@ -82,13 +81,9 @@ export function createHud(
 	return {
 		isMenuOpen: () => false,
 		layout(width: number, height: number) {
-			const safe = readSafeInsets();
-			const l = matchLayout(width, height, safe);
-			const compactWidth = width - safe.left - safe.right - 16;
-			foe.layout(l.foe.x, l.foe.y, l.panelScale, l.mode === 'compact', compactWidth);
-			you.layout(l.you.x, l.you.y, l.panelScale, l.mode === 'compact', compactWidth);
-			const rail = document.getElementById('match-rail');
-			rail?.style.setProperty('--compact-hud-top', `${l.foe.y}px`);
+			const l = matchLayout(width, height, readSafeInsets());
+			foe.layout(l.foe.x, l.foe.y, l.panelScale);
+			you.layout(l.you.x, l.you.y, l.panelScale);
 		},
 		setTurn(copy: string) {
 			you.setStatus(copy);
