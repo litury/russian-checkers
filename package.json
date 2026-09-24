@@ -10,6 +10,7 @@
 		"check": "biome check ."
 	},
 	"dependencies": {
+		"@rolldown/binding-linux-x64-gnu": "1.2.6",
 		"phaser": "^4.2.1"
 	},
 	"devDependencies": {
