@@ -1,9 +1,9 @@
 import {expect,it} from 'vitest';
 import {menuClickLevel,menuBackSound} from './menuClickLevel';
-it('matches the existing back reference RMS with headroom, not master gain',()=>{
- expect(.016581077066241526*menuClickLevel).toBeCloseTo(.03470765258445707,5);
- expect(.0612475611269474*menuClickLevel).toBeLessThan(.15);
+it('plays the accepted click at unity so the listened file is not boosted',()=>{
+ expect(menuClickLevel).toBe(1);
+ expect(0.901*menuClickLevel).toBeLessThan(1);
 });
-it('uses click as provisional back without changing original asset',()=>{
+it('uses the accepted click as back, one file per event',()=>{
  expect(menuBackSound).toBe('ui_click');
 });

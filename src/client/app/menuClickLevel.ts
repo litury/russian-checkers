@@ -1,4 +1,4 @@
-// Local A/B preview: match decoded click RMS to the previous back reference.
-// No asset edits/master boost. Final contextual loudness/timbre needs listening.
-export const menuClickLevel = .03470765258445707 / .016581077066241526;
+// Accepted click is already near full scale and is also the back cue.
+// The old back-reference boost would clip it. Shared sfx bus still applies.
+export const menuClickLevel = 1;
 export const menuBackSound = 'ui_click';
