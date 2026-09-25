@@ -9,43 +9,45 @@ const css = (text: string) => text.replace(/\s+/g, ' ');
 
 describe('touch focus ring', () => {
 	it('keeps the outline for the keyboard only', () => {
-		expect(html).toContain(
-			"addEventListener('keydown', () => setInputMode('keyboard'), true)",
-		);
-		expect(html).toContain(
-			"addEventListener('pointerdown', () => setInputMode('pointer'), true)",
-		);
-		expect(css(html)).toContain('html[data-input-mode=pointer] :focus-visible');
-		expect(css(html)).toContain('html[data-input-mode=pointer] :focus');
-		// The ring itself must survive: only the pointer branch removes it.
+		// The ring itself must survive: only the marked (pointer-focused)
+		// element loses it.
 		expect(css(html)).toContain(
 			'button:focus-visible,input:focus-visible{outline:3px solid #bed9ec',
 		);
-		// No pointer-gated rule may retire the visible keyboard ring.
-		expect(html).not.toMatch(
-			/data-input-mode=keyboard[^{]*\{[^}]*outline:none/,
+		expect(css(html)).toContain(
+			'[data-pointer-focus]:focus-visible,[data-pointer-focus]:focus{outline:none}',
 		);
+		// A global last-input flag used to suppress every later focus, including
+		// screen-reader and scripted focus. It must stay gone.
+		expect(html).not.toContain('data-input-mode');
 	});
 
 	it('cancels the ring on every surface that draws one', () => {
 		for (const sheet of [opening, history, result]) {
-			expect(css(sheet)).toContain('html[data-input-mode=pointer]');
+			expect(css(sheet)).toContain('[data-pointer-focus]');
 			expect(css(sheet)).toContain('outline:none');
+			expect(css(sheet)).not.toContain('data-input-mode');
 		}
 		expect(css(opening)).toContain(
 			'#opening button:focus-visible { outline:3px solid #bed9ec',
 		);
 		expect(css(opening)).toContain(
-			'html[data-input-mode=pointer] #opening button:focus-visible { outline:none; }',
+			'#opening button[data-pointer-focus]:focus-visible { outline:none; }',
 		);
 		expect(css(opening)).toContain(
-			'html[data-input-mode=pointer] #match-undo:focus-visible,html[data-input-mode=pointer] #match-resign:focus-visible{outline:none}',
+			'#match-undo[data-pointer-focus]:focus-visible,#match-resign[data-pointer-focus]:focus-visible{outline:none}',
 		);
 		expect(css(history)).toContain(
-			'html[data-input-mode=pointer] #match-history :focus-visible { outline:none; }',
+			'#match-history [data-pointer-focus]:focus-visible { outline:none; }',
 		);
 		expect(css(result)).toContain(
-			'html[data-input-mode=pointer] .result-actions button:focus-visible{outline:none}',
+			'.result-actions button[data-pointer-focus]:focus-visible{outline:none}',
+		);
+	});
+
+	it('loads the tracker that owns the mark', () => {
+		expect(html).toContain(
+			'<script type="module" src="/src/client/app/pointerFocusRing.ts">',
 		);
 	});
 
@@ -56,9 +58,7 @@ describe('touch focus ring', () => {
 	});
 
 	it('does not draw the board keyboard highlight after a tap', () => {
-		expect(board).toContain(
-			"document.documentElement.dataset.inputMode !== 'pointer'",
-		);
+		expect(board).toContain('!canvas.hasAttribute(POINTER_FOCUS_ATTR)');
 		expect(board).toContain("canvas.matches(':focus-visible')");
 	});
 });

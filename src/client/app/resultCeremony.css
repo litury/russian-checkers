@@ -12,7 +12,7 @@
 .result-actions button{min-height:52px;aspect-ratio:1765/400;border:0;border-radius:0;color:#f4efe4;background:transparent url('./ui/result/defeat-button-rest.webp') center/contain no-repeat;box-shadow:none;font:600 16px/1.15 'Golos Text',sans-serif;padding:8px 18%;cursor:pointer;text-shadow:0 1px 2px #000}
 .result-actions button:active{background-image:url('./ui/result/defeat-button-pressed.webp');padding-top:11px;transform:none}
 .result-actions button:focus-visible{outline:3px solid #efcf7f;outline-offset:2px}
-html[data-input-mode=pointer] .result-actions button:focus-visible{outline:none}
+.result-actions button[data-pointer-focus]:focus-visible{outline:none}
 @media (min-width:720px){
  .result-actions{grid-template-columns:1fr 1fr;gap:10px}
  .result-actions button{font-size:15px;padding-inline:14%}

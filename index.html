@@ -13,7 +13,7 @@
 @font-face{font-family:Literata;src:url('/src/client/fonts/Literata-600-cyrillic.woff2') format('woff2');font-weight:600;font-display:swap}
 @font-face{font-family:'Golos Text';src:url('/src/client/fonts/GolosText-400-cyrillic.woff2') format('woff2');font-weight:400;font-display:optional}
 @font-face{font-family:'Golos Text';src:url('/src/client/fonts/GolosText-600-cyrillic.woff2') format('woff2');font-weight:600;font-display:optional}
-*{box-sizing:border-box;-webkit-tap-highlight-color:rgba(0,0,0,.3)}html,body{margin:0;width:100%;height:100%;background:#161a1b;overflow:hidden}#game{width:100%;height:100%;touch-action:none}button,input{font:inherit}button{cursor:pointer}button:disabled{cursor:wait}button:focus-visible,input:focus-visible{outline:3px solid #bed9ec;outline-offset:4px}html[data-input-mode=pointer] :focus-visible,html[data-input-mode=pointer] :focus{outline:none}[hidden]{display:none!important}
+*{box-sizing:border-box;-webkit-tap-highlight-color:rgba(0,0,0,.3)}html,body{margin:0;width:100%;height:100%;background:#161a1b;overflow:hidden}#game{width:100%;height:100%;touch-action:none}button,input{font:inherit}button{cursor:pointer}button:disabled{cursor:wait}button:focus-visible,input:focus-visible{outline:3px solid #bed9ec;outline-offset:4px}[data-pointer-focus]:focus-visible,[data-pointer-focus]:focus{outline:none}[hidden]{display:none!important}
 #opening{position:fixed;inset:0;z-index:100;color:#e9e0ce;font:400 16px/1.45 'Golos Text',Arial,sans-serif;overflow:auto;background:#161a1b}
 #opening::before{content:'';position:fixed;inset:0;background:linear-gradient(#15191a70,#15191a70),url('/src/client/modules/board/reliquary/slate_tile.webp') center/cover;filter:brightness(.65);pointer-events:none}
 .opening-sheet{position:relative;max-width:390px;min-height:844px;margin:auto;padding:34px 28px 18px;isolation:isolate}
@@ -235,19 +235,13 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 <script type="module" src="/src/client/app/openingStats.ts"></script>
 <script type="module" src="/src/client/app/siegeOpening.ts"></script>
 <script type="module" src="/src/client/app/menuPressFeedback.ts"></script>
+<!-- Tap focus keeps no ring; the mark belongs to the one element a pointer
+     focused, so keyboard and screen-reader focus still draw theirs. -->
+<script type="module" src="/src/client/app/pointerFocusRing.ts"></script>
 <script id="opening-flavor">window.checkersFlavor = { setState() {} };</script>
 <script>
 (() => {
  const byId = id => document.getElementById(id);
- // Visible focus belongs to the keyboard only. A tap leaves focus on the
- // button, and some mobile engines keep :focus-visible afterwards, which drew
- // a blue ring on phones (including over the empty part of a wide button).
- // Gate the outline on the last input modality; keyboard and screen-reader
- // focus keep their ring.
- const inputRoot = document.documentElement;
- const setInputMode = mode => { if (inputRoot.dataset.inputMode !== mode) inputRoot.dataset.inputMode = mode; };
- addEventListener('keydown', () => setInputMode('keyboard'), true);
- addEventListener('pointerdown', () => setInputMode('pointer'), true);
  // Technical loading status stays separate from menu labels.
  // Commit the title once: a late font must never replace a visible fallback.
  // Opacity leaves the live heading and its accessible name in the tree.
