@@ -6,7 +6,7 @@ function boot(storage=new Map<string,string>()) {
  const nodes=new Map<string,any>();
  const byId=(id:string)=>{if(!nodes.has(id))nodes.set(id,{checked:false,value:'',textContent:'',setAttribute(k:string,v:string){this[k]=v;},addEventListener(){}});return nodes.get(id);};
  const window:any={dispatchEvent(){}};
- const source=html.slice(html.indexOf(' const keys ='),html.indexOf(' const activity ='));
+ const source=html.slice(html.indexOf(' const keys ='),html.indexOf(" const play = byId('opening-play');"));
  new Function('byId','window','localStorage','CustomEvent',source)(byId,window,{getItem:(k:string)=>storage.get(k)??null,setItem:(k:string,v:string)=>storage.set(k,v)},class {});
  return {window,byId,storage};
 }

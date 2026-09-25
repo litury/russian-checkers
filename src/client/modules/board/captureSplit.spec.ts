@@ -130,7 +130,11 @@ function harness(reduced = false) {
 	const scene = {
 		textures: {
 			exists: () => true,
+			// Faithful frame sheet: ensureBoardFrames() probes has()/add() for the
+			// colour strips. Missing frames are added, so has() starts false.
 			get: () => ({
+				has: () => false,
+				add: () => {},
 				setFilter() {},
 				getSourceImage: () => ({ width: 64, height: 64 }),
 			}),

@@ -19,8 +19,12 @@ it('marks decoded required leaves ready before unrelated art resolves (early-cli
  const end = html.indexOf(" for (const name of ['help', 'settings'])", start);
  expect(start).toBeGreaterThan(0); expect(end).toBeGreaterThan(start);
  const pending: (() => void)[] = [];
- const images = Array.from({length:4}, () => ({complete:true,naturalWidth:1536,classList:{add:vi.fn(),remove:vi.fn()},addEventListener:vi.fn(),removeEventListener:vi.fn(),decode:() => new Promise<void>(resolve => pending.push(resolve))}));
- const art = {querySelectorAll:() => images.slice(0,3),classList:{add:vi.fn()}};
+ const image = () => ({complete:true,naturalWidth:1536,classList:{add:vi.fn(),remove:vi.fn()},addEventListener:vi.fn(),removeEventListener:vi.fn(),decode:() => new Promise<void>(resolve => pending.push(resolve))});
+ const images = Array.from({length:4}, image);
+ // The gate is a separate leaf under .opening-art; it must stay pending so the
+ // ready-marking of decoded images stays observable independently of gate art.
+ const gate = image();
+ const art = {querySelectorAll:() => images.slice(0,3),querySelector:(selector:string) => selector === '.siege-gate' ? gate : null,classList:{add:vi.fn()}};
  const timers: unknown[] = [];
  new Function('document','setTimeout','clearTimeout',html.slice(start,end))({querySelector:(s:string) => s === '.opening-art' ? art : images[3]},(fn:unknown) => {timers.push(fn); return timers.length;},vi.fn());
  pending[0](); pending[1]();

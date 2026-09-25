@@ -23,7 +23,8 @@ describe('menu selection release', () => {
   expect(html).toContain('ТВОЙ ЦВЕТ');
   expect(html).not.toContain('opening-guest-');
   expect(overlay).not.toContain('guestTag');
-  expect(statsEntry).toContain("colorStatLabel(stats, 'white')");
-  expect(statsEntry).toContain("colorStatLabel(stats, 'black')");
+  expect(statsEntry).toContain('colorStatLabel(stats, side)');
+  expect(statsEntry).toContain("paintDigit(nodes.white, 'white')");
+  expect(statsEntry).toContain("paintDigit(nodes.black, 'black')");
  });
 });
