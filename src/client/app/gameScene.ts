@@ -58,6 +58,9 @@ import primaryPressedUrl from './ui/result/primary_pressed.webp';
 import secondaryRestUrl from './ui/result/secondary_rest.webp';
 import secondaryPressedUrl from './ui/result/secondary_pressed.webp';
 
+/** Cap for the deferred result warm-up: one idle slot, then load anyway. */
+const resultWarmIdleMs = 300;
+
 export class GameScene extends Phaser.Scene {
 	// Bot plays the opposite of the opening disk pick (default white).
 	private humanSide: Side = 'white';
@@ -118,7 +121,7 @@ export class GameScene extends Phaser.Scene {
 	private playfieldReady: Promise<void> = new Promise((resolve) => {
 		this.settlePlayfieldReady = resolve;
 	});
-	private resultReady!: Promise<void>;
+	private resultReady!: Promise<ReturnType<typeof createResultOverlay> | undefined>;
 	private interactiveReady!: Promise<void>;
 
 	preload(): void {
@@ -158,11 +161,9 @@ export class GameScene extends Phaser.Scene {
 			if (this.startupFailed || this.phase === 'title' || !this.playfieldBuilt) return;
 			this.refresh();
 		});
-		// KingFire then result: after interactive (single Phaser loader); never gate reveal/depart.
-		this.resultReady = this.interactiveReady.then(async () => {
-			await this.bootKingFire();
-			await this.bootResultPack();
-		});
+		// KingFire polish, the win/lose window and the result pack are separate branches off the
+		// reveal: a short bot match must never wait for the whole king-fire chain.
+		this.scheduleResultWindow();
 		this.title = createOpeningOverlay(this, {
 			isPaused: () => this.paused,
 			onPlayBot: () => {
@@ -221,6 +222,36 @@ export class GameScene extends Phaser.Scene {
 		this.title.flushPendingPlay();
 		this.title.flushPendingOnline();
 		this.sdk.ready();
+		if (import.meta.env.DEV) {
+			// Browser QA seam: drive a real match without synthetic board taps.
+			(window as unknown as { __checkersScene?: GameScene }).__checkersScene = this;
+		}
+	}
+
+	/**
+	 * Off the board reveal: king-fire polish, then the window itself (its own DOM art only
+	 * starts downloading once the overlay exists), then the Phaser result pack in idle.
+	 * Nothing here gates the window: it paints from its own art, and the pack is warmed
+	 * long before the first possible final of a short bot match.
+	 */
+	private scheduleResultWindow(): void {
+		void this.interactiveReady.then(() => this.bootKingFire());
+		this.resultReady = this.interactiveReady.then(async () => {
+			await this.idleSlot();
+			return this.ensureOverlay();
+		});
+		void this.resultReady.then(() => this.bootResultPack());
+	}
+
+	/** One idle slot; deferred warm-up must not compete with the board reveal. */
+	private idleSlot(): Promise<void> {
+		return new Promise((resolve) => {
+			if (typeof globalThis.requestIdleCallback === 'function') {
+				globalThis.requestIdleCallback(() => resolve(), { timeout: resultWarmIdleMs });
+				return;
+			}
+			setTimeout(resolve, 0);
+		});
 	}
 
 	private flushLoader(): Promise<void> {
@@ -350,6 +381,11 @@ export class GameScene extends Phaser.Scene {
 			if (!this.textures.exists(key)) continue;
 			this.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
 		}
+	}
+
+	/** Window instance: its DOM art is all it needs, so it is never gated on a Phaser pack. */
+	private ensureOverlay(): ReturnType<typeof createResultOverlay> | undefined {
+		if (this.startupFailed || !this.playfieldBuilt) return undefined;
 		if (!this.overlay) {
 			this.overlay = createResultOverlay(this, {
 				isOnline: () => this.online,
@@ -375,6 +411,7 @@ export class GameScene extends Phaser.Scene {
 				this.events.once('shutdown', () => window.removeEventListener('result-review', review));
 			}
 		}
+		return this.overlay;
 	}
 
 	private buildPlayfield(): void {
@@ -741,10 +778,7 @@ export class GameScene extends Phaser.Scene {
 				window.checkersStartup.waitPlay();
 				this.playfieldReady = this.bootPlayfield();
 				this.interactiveReady = this.bootMatchInteractive();
-				this.resultReady = this.interactiveReady.then(async () => {
-					await this.bootKingFire();
-					await this.bootResultPack();
-				});
+				this.scheduleResultWindow();
 				await this.playfieldReady;
 				if (this.startupFailed) {
 					window.checkersStartup.playCommitted = false;
@@ -766,8 +800,8 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private async ensureResultOverlay(): Promise<ReturnType<typeof createResultOverlay> | undefined> {
-		await this.resultReady;
-		return this.overlay;
+		// Never behind king-fire or the pack: the window paints from its own art.
+		return this.resultReady;
 	}
 
 	private showTitle(): void {
