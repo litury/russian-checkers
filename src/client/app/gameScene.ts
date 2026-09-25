@@ -961,14 +961,10 @@ export class GameScene extends Phaser.Scene {
 			this.live?.requestState();
 			return;
 		}
-		const ready = () => {
+		// Input and banks never wait for the decorative reveal: as soon as the
+		// gates leave and the board is on screen the match is already playable.
+		const settle = () => {
 			if (!this.countingIn) return;
-			if (this.online && !this.onlineBegun) {
-				this.live?.ready();
-				this.refresh();
-				return;
-			}
-			// The entire sequential opening has finished; start banks and input now.
 			this.title.speakOrcTurn(orcOpeningTurnLine(this.humanSide), this.humanSide);
 			this.clockStartedAt = this.time.now;
 			this.countingIn = false;
@@ -981,15 +977,23 @@ export class GameScene extends Phaser.Scene {
 				this.botTimer = this.time.delayedCall(400, () => this.playBot());
 			}
 		};
-		// Keep closed housings behind the gates. Only their completed departure
-		// starts the shared HUD timeline; ready owns input and local bank start.
+		const handshake = () => {
+			if (!this.countingIn) return;
+			this.live?.ready();
+			this.refresh();
+		};
+		// Keep closed housings behind the gates. Their completed departure is the
+		// only gate: the HUD reveal runs on as decoration behind a playable board.
 		hud.setVisible(true);
 		const afterTitle = () => {
 			if (!this.countingIn) return;
 			this.title.beginMatch();
 			board.startOpeningHint(this.position, this.humanSide);
 			this.title.hintWave();
-			hud.startReveal(ready);
+			if (this.online && !this.onlineBegun) handshake();
+			else settle();
+			// Decoration only: the panels finish sliding; nothing waits on them.
+			hud.startReveal(() => undefined);
 		};
 		if (fromOpening) this.title.depart(afterTitle);
 		else afterTitle();

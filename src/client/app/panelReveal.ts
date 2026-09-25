@@ -19,7 +19,7 @@ export function revealPose(ms: number, reduced: boolean) {
 	};
 }
 export class PanelReveal {
-	constructor(private readonly duration = preparationMs) {}
+	constructor(public duration = preparationMs) {}
 	elapsed = preparationMs;
 	private done?: () => void;
 	get active() {

@@ -21,11 +21,16 @@ it('resume of a begun game closes decoration once, without replay',()=>{
  const {s,snap}=setup();s.applyResume('black',snap);s.applyResume('black',snap);
  expect(s.countingIn).toBe(false);expect(s.hud.finishReveal).toHaveBeenCalledTimes(1);expect(s.clockStartedAt).toBe(4700);
 });
-it('normal local reveal cannot ready before the title callback',()=>{
+it('local input and banks open at the title callback, not at the reveal end',()=>{
  const {s}=setup();s.online=false;s.phase='human';s.board.startOpeningHint=vi.fn();
  s.title.depart=vi.fn();s.title.hintWave=vi.fn();s.title.speakOrcTurn=vi.fn();
  s.hud.setVisible=vi.fn();s.hud.startReveal=vi.fn();
- s.beginCountdown(true);expect(s.hud.startReveal).not.toHaveBeenCalled();
- s.title.depart.mock.calls[0][0]();expect(s.hud.startReveal).toHaveBeenCalledTimes(1);
- expect(s.countingIn).toBe(true);s.hud.startReveal.mock.calls[0][0]();expect(s.countingIn).toBe(false);
+ s.beginCountdown(true);expect(s.hud.startReveal).not.toHaveBeenCalled();expect(s.countingIn).toBe(true);
+ s.title.depart.mock.calls[0][0]();
+ expect(s.hud.startReveal).toHaveBeenCalledTimes(1);
+ // Board is on screen: the match is already playable while panels keep sliding.
+ expect(s.countingIn).toBe(false);expect(s.clockStartedAt).toBe(5000);
+ s.hud.startReveal.mock.calls[0][0]();
+ expect(s.countingIn).toBe(false);expect(s.clockStartedAt).toBe(5000);
+ expect(s.hud.startReveal).toHaveBeenCalledTimes(1);
 });

@@ -49,6 +49,22 @@ it('keeps the original complementary tooth path and samples arbitrary travel',()
  expect(siegeGatePose(-1,1442)).toBe(0);
  expect(siegeGatePose(1000,1442)).toBe(721);
  expect(siegeGatePose(3000,1442)).toBe(1442);
+ // A compressed pass keeps the same normalized shape at half the clock time.
+ expect(siegeGatePose(450,1442,900)).toBe(721);
+});
+it('compresses the same choreography on repeat departures',()=>{
+ const {root,overlay,visual,advance}=setup();
+ const first=vi.fn();overlay.depart(first);
+ const leaf=root.querySelector('.siege-left');
+ expect(leaf.animations[0].options.delay).toBe(350);
+ expect(leaf.animations[0].options.duration).toBe(1650);
+ visual(2000);advance(2000);expect(first).toHaveBeenCalledTimes(1);
+ overlay.show();
+ const second=vi.fn();overlay.depart(second);
+ const repeat=leaf.animations[1];
+ expect(repeat.options.delay).toBeCloseTo(157.5,6);
+ expect(repeat.options.duration).toBeCloseTo(742.5,6);
+ visual(900);advance(900);expect(second).toHaveBeenCalledTimes(1);
 });
 it.each([[1920,1080],[2560,1440],[390,844],[844,390]])('cover and travel clear every surface and mount at %s × %s',(width,height)=>{
  const artWidth=Math.max(1440,width,height*1.5);
