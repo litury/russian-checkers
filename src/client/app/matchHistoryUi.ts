@@ -3,6 +3,7 @@ import { loadMatch, loadMatches } from '@/online/cloud';
 import { canOpenBoard, type MatchRow } from '@/online/matchHistory';
 import { buildHistoryReplay, halfMoveCount, incompleteReplayCopy, outcomeLabel } from '@/online/historyReplay';
 import { squareAlg } from '@/online/notation';
+import { paintCoordGlyphs } from '../modules/board/boardCoords';
 
 const dateLabel = (value: string) => {
  const date = new Date(value);
@@ -24,6 +25,7 @@ export function bindMatchHistory() {
  const root = document.getElementById('match-history') as HTMLDialogElement | null;
  if (!open || !root || root.dataset.bound) return;
  root.dataset.bound = 'true';
+ paintCoordGlyphs(root);
  const el = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
  const title = el('opening');
  const heading = el('match-history-title');

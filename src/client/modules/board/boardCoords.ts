@@ -15,6 +15,50 @@ export const fileBottomRatio = 0.018;
 
 export const fileLabels = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] as const;
 
+/** One sheet, files then ranks 1–8. Each cell is its own sprite; this card does not animate them. */
+export const coordGlyphSheet = { cols: 8, rows: 2 } as const;
+
+export function coordGlyphOrder(): string[] {
+	return [
+		...fileLabels,
+		...Array.from({ length: 8 }, (_, row) => rankLabel(row)),
+	];
+}
+
+/** CSS sprite position. Percentage maps a flush grid: col / (cols - 1). */
+export function coordGlyphPosition(glyph: string): string {
+	const index = coordGlyphOrder().indexOf(glyph);
+	const col = index < 0 ? 0 : index % coordGlyphSheet.cols;
+	const row = index < 0 ? 0 : Math.floor(index / coordGlyphSheet.cols);
+	const x =
+		coordGlyphSheet.cols <= 1
+			? 0
+			: (col / (coordGlyphSheet.cols - 1)) * 100;
+	const y =
+		coordGlyphSheet.rows <= 1
+			? 0
+			: (row / (coordGlyphSheet.rows - 1)) * 100;
+	return `${Number(x.toFixed(6))}% ${Number(y.toFixed(6))}%`;
+}
+
+export function stampCoordGlyph(el: HTMLElement, glyph: string) {
+	el.classList.add('board-coord-glyph');
+	el.dataset.glyph = glyph;
+	el.textContent = '';
+	el.style.backgroundPosition = coordGlyphPosition(glyph);
+}
+
+/** History frame uses the same names. Live ranks are stamped again when facing flips. */
+export function paintCoordGlyphs(root: ParentNode | null | undefined) {
+	if (!root || typeof root.querySelectorAll !== 'function') return;
+	for (const el of root.querySelectorAll<HTMLElement>(
+		'.board-coord-glyph[data-glyph]',
+	)) {
+		const glyph = el.dataset.glyph;
+		if (glyph) stampCoordGlyph(el, glyph);
+	}
+}
+
 export function rankLabel(row: number): string {
 	return squareAlg({ row, col: 0 }).slice(1);
 }
@@ -61,7 +105,7 @@ export function syncBoardCoords(
 		files.className = 'board-coords-files';
 		for (const file of fileLabels) {
 			const span = document.createElement('span');
-			span.textContent = file;
+			stampCoordGlyph(span, file);
 			files.append(span);
 		}
 		const ranks = document.createElement('div');
@@ -76,10 +120,10 @@ export function syncBoardCoords(
 	layer.style.width = `${rect.width}px`;
 	layer.style.height = `${rect.height}px`;
 	layer.hidden = !visible;
-	const spans = layer.querySelectorAll('.board-coords-ranks span');
-	visualRankLabels(facing).forEach((text, i) => {
-		const span = spans[i];
-		if (span) span.textContent = text;
+	const ranks = layer.querySelectorAll<HTMLElement>('.board-coords-ranks span');
+	visualRankLabels(facing).forEach((glyph, i) => {
+		const span = ranks[i];
+		if (span) stampCoordGlyph(span, glyph);
 	});
 	return layer;
 }

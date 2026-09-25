@@ -22,15 +22,16 @@
 	font-variant-numeric: tabular-nums;
 	line-height: 1;
 }
-/* Opaque plate stays inside the existing bezel. Do not grow the rail. */
+/* Sprite plate stays inside the existing bezel. Do not grow the rail. No per-glyph motion. */
 .board-coords-files span,
 .board-coords-ranks span {
 	place-self: center;
-	display: grid;
-	place-items: center;
+	display: block;
 	box-sizing: border-box;
-	background: #120f0c;
-	color: #f1e8d4;
+	background-color: #120f0c;
+	background-image: url('./coords/glyphs.webp');
+	background-repeat: no-repeat;
+	background-size: 800% 200%;
 	border-radius: 2px;
 }
 .board-coords-files {
