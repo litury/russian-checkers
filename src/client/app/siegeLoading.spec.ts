@@ -45,7 +45,7 @@ describe('Siege delayed/failed decoration', () => {
   const { mountSiegeOpening } = await import('./siegeOpening');
   const root = new Root();
   const dispose = mountSiegeOpening(root as unknown as HTMLElement);
-  expect(pending.filter(load => /-(base|moving|front)\.png/.test(load.src))).toHaveLength(6);
+  expect(pending.filter(load => /-(base|moving|front)\.webp/.test(load.src))).toHaveLength(6);
   expect(pending.filter(load => load.src.includes('menu-selection-fire'))).toHaveLength(1);
   pending[0].resolve(); pending[1].resolve();
   await flush();

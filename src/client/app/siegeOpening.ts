@@ -2,7 +2,7 @@ import { SiegeSelection, setSiegeSide, siegeSide, type SiegeSide } from './siege
 import { drawMenuFire, MENU_FIRE } from './menuSelectionFire';
 import { MenuTouchMotion } from './menuTouchMotion';
 
-const layers = import.meta.glob('./ui/siege/{white,black}-{base,moving,front}.png', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
+const layers = import.meta.glob('./ui/siege/{white,black}-{base,moving,front}.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
 const fireUrls = [
  new URL('./ui/siege/menu-selection-fire.webp', import.meta.url).href,
 ];
@@ -98,7 +98,7 @@ export function mountSiegeOpening(root: HTMLElement) {
   button.addEventListener('keydown', keyboard);
   const side = button.dataset.side as SiegeSide;
   // Only six small source layers; no frame sequence fetched. Latest state wins on decode.
-  void Promise.all(['base', 'moving', 'front'].map(name => decode(layers[`./ui/siege/${side}-${name}.png`]))).then(images => {
+  void Promise.all(['base', 'moving', 'front'].map(name => decode(layers[`./ui/siege/${side}-${name}.webp`]))).then(images => {
    if (disposed) return;
    const canvas = button.querySelector('canvas')!;
    const context = canvas.getContext('2d');

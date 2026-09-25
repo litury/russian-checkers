@@ -3,14 +3,14 @@ import html from '../../../index.html?raw';
 import css from './openingGates.css?raw';
 import transition from './siegeGateTransition.ts?raw';
 it('covers the entire responsive surface with proportionally scaled original tooth art',()=>{
- expect(css).toContain('width:max(1440px,100cqw,150cqh)');
+ expect(css).toContain('--gate-w:max(1440px,100cqw,150cqh)');
  expect(css).toContain('aspect-ratio:3/2');
  expect(css).toContain('container-type:size');
  expect(css).not.toContain('100vmax');
  expect(css).not.toContain('width:1440px; height:960px');
  expect(css).toContain('.siege-left { clip-path:polygon(');
  expect(css).toContain('.siege-right { clip-path:polygon(');
- for(const side of ['left','right']) expect(html).toContain(`class="siege-layer siege-${side}" src="/src/client/app/ui/siege/gate.png"`);
+ for(const side of ['left','right']) expect(html).toContain(`class="siege-layer siege-${side}" src="/src/client/app/ui/siege/gate.webp"`);
 });
 it('attaches every primary/utility and selection control without changing logical focus order',()=>{
  for(const [id,side] of Object.entries({'opening-play':'left','opening-retry':'left','opening-history':'left','opening-online':'right','opening-options':'right','opening-search':'right','opening-status':'left'})) {

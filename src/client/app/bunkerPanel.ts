@@ -18,13 +18,13 @@ export function preloadBunkerPanels(scene: Phaser.Scene) {
 		else if (name !== 'opening-mask')
 			scene.load.image(`bunker-${name}`, url as string);
 	}
-	const frames = import.meta.glob('./ui/clock-frame/*.png', {
+	const frames = import.meta.glob('./ui/clock-frame/*.webp', {
 		eager: true,
 		query: '?url',
 		import: 'default',
 	});
 	for (const [path, url] of Object.entries(frames)) {
-		const name = path.split('/').pop()!.replace('.png', '');
+		const name = path.split('/').pop()!.replace('.webp', '');
 		scene.load.image(`clock-${name}`, url as string);
 	}
 }

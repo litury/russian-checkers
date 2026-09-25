@@ -14,7 +14,7 @@
 #opening .chronicle-half{position:absolute;z-index:4;top:59%;left:44px;width:calc(50% - 50px);height:294px;padding:22px 5px 12px;text-align:center;border:0;background:none;box-shadow:none;isolation:isolate}
 /* Backplate remains existing gate material. The generated frame is independently nine-sliced. */
 #opening .chronicle-half::before{content:'';position:absolute;inset:8px;z-index:-2;background:linear-gradient(#141b20cc,#1a2226db),url('./ui/siege/gate.webp') 24% 56%/auto 700px;box-shadow:0 6px 8px #0009}
-#opening .chronicle-half::after{content:'';position:absolute;inset:0;z-index:-1;border:var(--frame-corner) solid transparent;border-image:url('./ui/siege/panel-revision2/frame.png') 180 / var(--frame-corner) / 0 stretch;pointer-events:none}
+#opening .chronicle-half::after{content:'';position:absolute;inset:0;z-index:-1;border:var(--frame-corner) solid transparent;border-image:url('./ui/siege/panel-revision2/frame.webp') 180 / var(--frame-corner) / 0 stretch;pointer-events:none}
 #opening .chronicle-right{left:calc(50% + 6px)}
 #opening .chronicle-right::after{transform:scaleX(-1)}
 #opening .chronicle-right::before{background-position:center,76% 56%}
@@ -26,11 +26,11 @@
 #opening .opening-your-color{top:calc(100% + 8px)}
 /* Reach is viewport-to-panel, NOT nearest-ring distance. Link size never depends on reach.
    Chains and eyelets are descendants, inheriting exactly the panel/leaf WAAPI translation. */
-#opening .chronicle-chain{position:absolute;display:block;top:69px;width:var(--chain-reach);height:20px;right:calc(100% - 8px);background:url('./ui/siege/panel-revision2/chain-tile.png') right center / auto 20px repeat-x;filter:drop-shadow(0 3px 2px #000);pointer-events:none}
+#opening .chronicle-chain{position:absolute;display:block;top:69px;width:var(--chain-reach);height:20px;right:calc(100% - 8px);background:url('./ui/siege/panel-revision2/chain-tile.webp') right center / auto 20px repeat-x;filter:drop-shadow(0 3px 2px #000);pointer-events:none}
 #opening .chronicle-right .chronicle-chain{right:auto;left:calc(100% - 8px);background-position:left center}
 #opening .chronicle-chain.second{top:226px}
 #opening .chronicle-chain i{display:none}
-#opening .chronicle-chain::after{content:'';position:absolute;width:30px;height:34px;right:-10px;top:-7px;background:url('./ui/siege/panel-revision2/eyelet.png') center / contain no-repeat;transform:scaleX(-1)}
+#opening .chronicle-chain::after{content:'';position:absolute;width:30px;height:34px;right:-10px;top:-7px;background:url('./ui/siege/panel-revision2/eyelet.webp') center / contain no-repeat;transform:scaleX(-1)}
 #opening .chronicle-right .chronicle-chain::after{right:auto;left:-10px;transform:none}
 #opening.is-departing{overflow:hidden;overscroll-behavior:none}
 #opening #opening-stats-retry{display:none}
