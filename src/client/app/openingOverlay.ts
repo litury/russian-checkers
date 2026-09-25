@@ -6,8 +6,7 @@ import {bindMatchHistory} from './matchHistoryUi';
 import {ensureGuest, loadPresence, beatPresence} from '@/online/cloud';
 
 import {presenceLit, HEARTBEAT_MS, PRESENCE_CACHE_MS} from '@/online/presence';
-import {OpeningGates} from './openingGates';
-import {gateDurationMs as preparationMs} from './openingGates';
+import {OpeningGates, gateDurationMs, repeatGateDurationMs} from './openingGates';
 import {searchCopy, type SearchPhase} from './matchmakingSearch';
 
 declare global {
@@ -71,6 +70,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  const retry = document.getElementById('opening-retry')!;
  const motion = matchMedia('(prefers-reduced-motion: reduce)');
  const gates = new OpeningGates();
+ let departures = 0;
  const audio=createMenuAudio(scene.registry.get('sdk'));
  let firstShow = true;
  let visual: ReturnType<typeof animateSiegeGates> = null;
@@ -87,7 +87,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  const pauseScene = () => { scenePaused=true; syncPause(); };
  const resumeScene = () => { scenePaused=false; syncPause(); };
  const motionChange = () => {
-  if (motion.matches && gates.active) { audio.gate(preparationMs,true); gates.advance(preparationMs); }
+  if (motion.matches && gates.active) { audio.gate(gateDurationMs,true); gates.advance(gateDurationMs); }
  };
  const closeDialogs = () => {
   for (const id of ['opening-options-dialog','opening-help-dialog','opening-settings-dialog']) {
@@ -118,8 +118,10 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  const update = () => {
   syncPause();
   if(!gates.active || document.hidden || scenePaused || handlers.isPaused?.()) return;
-  const elapsed = motion.matches ? preparationMs : visual?.elapsed ?? preparationMs;
-  audio.gate(elapsed,motion.matches);
+  const elapsed = motion.matches ? gates.duration : visual?.elapsed ?? gates.duration;
+  // Sound windows stay on the canonical gate timeline, so a compressed repeat
+  // keeps its cues aligned instead of cutting them off.
+  audio.gate(elapsed * gateDurationMs / gates.duration,motion.matches);
   gates.advance(elapsed - gates.elapsed);
  };
  const invoke = () => {
@@ -280,7 +282,10 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
    const leaves = [...root.querySelectorAll<HTMLImageElement>('.siege-left,.siege-right')];
    const artReady = leaves.length === 2 && leaves.every(image => image.classList.contains('is-decoded'));
    if (motion.matches || !artReady) { hide(true); done(); return; }
-   visual=animateSiegeGates(root);
+   // The first arrival keeps the full approved choreography; later matches
+   // compress the same pass. Input never waits on it, but the wait is shorter.
+   gates.duration = departures++ === 0 ? gateDurationMs : repeatGateDurationMs;
+   visual=animateSiegeGates(root,gates.duration);
    if (!visual) { hide(true); done(); return; }
    gates.start(()=>{hide(true);done();});
    syncPause();
