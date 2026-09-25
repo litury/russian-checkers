@@ -71,10 +71,19 @@ describe('HTML-first opening', () => {
   expect(scene).toContain('queueKingFire');
   const createBoot = scene.match(/create\(\): void \{[\s\S]*?\n\t\}/)?.[0] ?? '';
   expect(createBoot.indexOf('bootPlayfield')).toBeLessThan(createBoot.indexOf('bootMatchInteractive'));
-  expect(createBoot.indexOf('bootMatchInteractive')).toBeLessThan(createBoot.indexOf('bootKingFire'));
-  expect(createBoot.indexOf('bootKingFire')).toBeLessThan(createBoot.indexOf('bootResultPack'));
-  expect(createBoot).toContain('await this.bootKingFire()');
-  expect(createBoot).toContain('await this.bootResultPack()');
+  expect(createBoot.indexOf('bootMatchInteractive')).toBeLessThan(createBoot.indexOf('scheduleResultWindow'));
+  // The result window and the pack hang off the reveal as separate branches: a short bot
+  // match must not wait for the whole king-fire chain before the window appears.
+  const resultWindow = scene.match(/scheduleResultWindow\(\): void \{[\s\S]*?\n\t\}/)?.[0] ?? '';
+  expect(resultWindow.indexOf('bootKingFire')).toBeLessThan(resultWindow.indexOf('bootResultPack'));
+  expect(resultWindow).toContain('this.bootKingFire()');
+  expect(resultWindow).toContain('this.bootResultPack()');
+  expect(resultWindow).toMatch(/resultReady\s*=\s*this\.interactiveReady\.then/);
+  expect(resultWindow).not.toMatch(/await this\.bootKingFire\(\);[\s\S]*await this\.bootResultPack\(\)/);
+  const ensureResult = scene.match(/private async ensureResultOverlay\([\s\S]*?\n\t\}/)?.[0] ?? '';
+  expect(ensureResult).toContain('this.resultReady');
+  expect(ensureResult).not.toContain('bootKingFire');
+  expect(ensureResult).not.toContain('bootResultPack');
   // Board reveal waits on playfieldReady only; selection-v2 loads in the background.
   const startMatch = scene.match(/private async startMatch\([\s\S]*?\n\t\}/)?.[0] ?? '';
   expect(startMatch).toContain('await this.playfieldReady');
