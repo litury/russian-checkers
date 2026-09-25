@@ -2,9 +2,8 @@ import Phaser from 'phaser';
 import { logicalSize } from '@/client/app/displayDensity';
 import { pieceSprites } from '@/client/config/layout';
 import { reliquaryLayout } from '@/client/config/reliquaryLayout';
-import { boardFrame, syncBoardCoords } from './boardCoords';
+import { boardFrame, boardFrameName, boardFrameSheet } from './boardCoords';
 import { boardCellY, visualRowStep } from './boardFacing';
-import './boardCoords.css';
 import { OpeningMoveHint } from '@/client/app/openingMoveHint';
 import { pieceStepSfx } from '@/client/app/pieceSfx';
 import { sameSquare } from '@/client/shared/sameSquare';
@@ -37,6 +36,13 @@ import {
 } from './reliquaryMarkers';
 import { MarkerMotion } from './reliquaryMotion';
 import { SelectionMotion } from './selectionMotion';
+
+function ensureBoardFrames(scene: Phaser.Scene) {
+	if (!scene.textures?.exists?.(boardFrameSheet)) return;
+	const tex = scene.textures.get(boardFrameSheet);
+	if (!tex.has('white')) tex.add('white', 0, 0, 0, 760, 836);
+	if (!tex.has('black')) tex.add('black', 0, 760, 0, 760, 836);
+}
 
 type PieceView = {
 	square: ISquare;
@@ -92,8 +98,12 @@ export function createBoardView(
 		.image(0, 0, 'reliquary_board_shadow')
 		.setOrigin(0)
 		.setDepth(0.1);
+	ensureBoardFrames(scene);
+	const boardKey = scene.textures?.exists?.(boardFrameSheet)
+		? boardFrameSheet
+		: 'reliquary_board';
 	const board = scene.add
-		.image(0, 0, 'reliquary_board')
+		.image(0, 0, boardKey, boardKey === boardFrameSheet ? 'white' : undefined)
 		.setOrigin(0)
 		.setDepth(1.1);
 	const marks = scene.add.graphics().setDepth(8);
@@ -762,7 +772,15 @@ export function createBoardView(
 				boardFrame.width * field.scale,
 				boardFrame.height * field.scale,
 			);
-		syncBoardCoords(canvas.parentElement, field, facing, visible);
+		ensureBoardFrames(scene);
+		const frameName = boardFrameName(facing);
+		if (
+			scene.textures?.exists?.(boardFrameSheet) &&
+			scene.textures.get(boardFrameSheet).has(frameName)
+		) {
+			if (board.texture?.key !== boardFrameSheet) board.setTexture(boardFrameSheet, frameName);
+			else board.setFrame(frameName);
+		}
 		shadow
 			.setPosition(
 				field.originX - 46 * field.scale,
@@ -1035,7 +1053,6 @@ export function createBoardView(
 			visible = on;
 			board.setVisible(on);
 			shadow.setVisible(on);
-			syncBoardCoords(canvas.parentElement, field, facing, visible);
 			for (const { rect } of cells) {
 				if (on) rect.setInteractive();
 				else rect.disableInteractive();

@@ -4,16 +4,13 @@ import history from '../../app/matchHistory.css?raw';
 import html from '../../../../index.html?raw';
 import {
 	boardFrame,
+	boardFrameName,
 	boardFrameRect,
-	coordGlyphOrder,
-	coordGlyphPosition,
-	coordGlyphSheet,
-	fileBottomRatio,
+	boardFrameSheet,
 	fileLabels,
 	rankLabel,
 	visualRankLabels,
 } from './boardCoords';
-import cssSource from './boardCoords.css?raw';
 
 it('names files and ranks with squareAlg, not a second alphabet', () => {
 	expect(fileLabels.join('')).toBe(
@@ -50,17 +47,11 @@ it('puts 8–1 down the left rail for white and flips only the ranks for black',
 	expect(fileLabels.join('')).toBe('abcdefgh');
 });
 
-it('maps each square name to its own cell on one 8×2 sheet', () => {
-	expect(coordGlyphOrder().join('')).toBe(
-		`${fileLabels.join('')}${[0, 1, 2, 3, 4, 5, 6, 7].map(rankLabel).join('')}`,
-	);
-	expect(coordGlyphSheet).toEqual({ cols: 8, rows: 2 });
-	expect(coordGlyphPosition('a')).toBe('0% 0%');
-	expect(coordGlyphPosition('h')).toBe('100% 0%');
-	expect(coordGlyphPosition('1')).toBe('0% 100%');
-	expect(coordGlyphPosition('8')).toBe('100% 100%');
-	expect(coordGlyphPosition('b')).toBe(`${Number((100 / 7).toFixed(6))}% 0%`);
-	expect(coordGlyphPosition('e')).toBe(coordGlyphPosition('5').replace('100%', '0%'));
+it('picks a frame on the shared sheet and does not flip the files', () => {
+	expect(boardFrameSheet).toBe('reliquary_board-frames');
+	expect(boardFrameName('white')).toBe('white');
+	expect(boardFrameName('black')).toBe('black');
+	expect(fileLabels.join('')).toBe('abcdefgh');
 });
 
 it('keeps the label box on the existing frame, not a new column', () => {
@@ -75,34 +66,18 @@ it('keeps the label box on the existing frame, not a new column', () => {
 	expect(rect.x).toBeLessThan(field.originX);
 });
 
-it('shares the history frame insets and does not replace the move list', () => {
-	const css = cssSource.replace(/\s+/g, '');
-	const pct = (part: number, whole: number) =>
-		((part / whole) * 100).toFixed(5);
-	expect(css).toContain(`left:${pct(boardFrame.padX, boardFrame.width)}%`);
-	expect(css).toContain(`top:${pct(boardFrame.padTop, boardFrame.height)}%`);
-	expect(css).toContain(`width:${pct(boardFrame.field, boardFrame.width)}%`);
-	expect(css).toContain(`height:${pct(boardFrame.field, boardFrame.height)}%`);
-	expect(css).toContain(`bottom:${(fileBottomRatio * 100).toFixed(1)}%`);
-	expect(css).toContain('background-color:#120f0c');
-	expect(css).not.toMatch(/background:#/);
-	expect(cssSource).toContain("url('./coords/glyphs.webp')");
-	expect(cssSource).toContain(
-		`background-size: ${coordGlyphSheet.cols * 100}% ${coordGlyphSheet.rows * 100}%`,
-	);
-	expect(cssSource).not.toContain('animation');
-	expect(cssSource).not.toContain('transition');
-	expect(css).toContain('color:#f1e8d4');
-	expect(css).not.toContain('text-shadow');
-	expect(html).toContain('class="mh-files board-coords-files"');
-	expect(html).toContain('class="mh-ranks board-coords-ranks"');
-	expect([...html.matchAll(/data-glyph="([^"]+)"/g)].map((match) => match[1])).toEqual([
-		...fileLabels,
-		...visualRankLabels('white'),
-	]);
+it('uses the same facing frames in history and leaves no HTML captions', () => {
+	expect(history).toContain("url('../modules/board/reliquary/board-frames.webp')");
+	expect(history).toContain('200% 100%');
+	expect(history).toContain('data-facing="black"');
+	expect(history).not.toContain('glyphs.webp');
+	expect(html).toContain('data-facing="white"');
+	expect(html).not.toContain('data-glyph');
 	expect(html).not.toContain('>a</span>');
 	expect(html).not.toContain('>8</span>');
 	expect(html).toContain('id="match-history-notation"');
 	expect(history).not.toContain('mh-files');
 	expect(history).toContain('mh-last');
+	expect(boardFrame.width).toBe(380);
+	expect(boardFrame.height).toBe(418);
 });

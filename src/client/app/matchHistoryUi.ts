@@ -3,7 +3,7 @@ import { loadMatch, loadMatches } from '@/online/cloud';
 import { canOpenBoard, type MatchRow } from '@/online/matchHistory';
 import { buildHistoryReplay, halfMoveCount, incompleteReplayCopy, outcomeLabel } from '@/online/historyReplay';
 import { squareAlg } from '@/online/notation';
-import { paintCoordGlyphs } from '../modules/board/boardCoords';
+import type { Side } from '@/rules';
 
 const dateLabel = (value: string) => {
  const date = new Date(value);
@@ -25,7 +25,6 @@ export function bindMatchHistory() {
  const root = document.getElementById('match-history') as HTMLDialogElement | null;
  if (!open || !root || root.dataset.bound) return;
  root.dataset.bound = 'true';
- paintCoordGlyphs(root);
  const el = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
  const title = el('opening');
  const heading = el('match-history-title');
@@ -142,7 +141,11 @@ export function bindMatchHistory() {
   board.replaceChildren();
   const description: string[] = [];
   const last = replay.plies[ply - 1];
-  for (let row = 7; row >= 0; row--) {
+  const facing: Side = selected?.color === 'black' ? 'black' : 'white';
+  const frame = board.parentElement;
+  if (frame) frame.dataset.facing = facing;
+  const rows = facing === 'black' ? [0, 1, 2, 3, 4, 5, 6, 7] : [7, 6, 5, 4, 3, 2, 1, 0];
+  for (const row of rows) {
    for (let col = 0; col < 8; col++) {
     const square = squareAlg({ row, col });
     const cell = element('i', 'mh-cell');

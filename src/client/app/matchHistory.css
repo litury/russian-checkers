@@ -1,5 +1,4 @@
-@import '../modules/board/boardCoords.css';
-/* History owns its surface; coordinate letters live in the shared frame layer. */
+/* History owns its surface. Coordinate marks are engraved in the facing frame. */
 #match-history {
  --mh-ink:#f1e8d4; --mh-muted:#bdb9aa; --mh-line:#68685d;
  position:fixed; inset:0; width:min(1200px,calc(100% - 64px)); height:min(940px,calc(100dvh - 64px));
@@ -49,7 +48,8 @@
 #match-history .mh-state p { margin:18px 0 24px; color:var(--mh-muted); }
 #match-history .mh-replay-layout { display:grid; grid-template-columns:minmax(0,1.6fr) minmax(250px,1fr); gap:32px; align-items:start; }
 #match-history .mh-board-column { min-width:0; max-width:620px; width:100%; margin:0 auto; }
-#match-history .mh-board-frame { position:relative; width:100%; aspect-ratio:380/418; background:url('../modules/board/reliquary/board.webp') center/100% 100% no-repeat; }
+#match-history .mh-board-frame { position:relative; width:100%; aspect-ratio:380/418; background:url('../modules/board/reliquary/board-frames.webp') left top/200% 100% no-repeat; }
+#match-history .mh-board-frame[data-facing="black"] { background-position:right top; }
 #match-history-grid { position:absolute; left:3.68421%; top:7.89474%; width:92.63158%; height:84.21053%; display:grid; grid-template-columns:repeat(8,1fr); grid-template-rows:repeat(8,1fr); }
 #match-history .mh-cell { position:relative; }
 #match-history .mh-cell[data-side]::after { content:''; position:absolute; inset:-6% 0 0; background:center/contain no-repeat; }
