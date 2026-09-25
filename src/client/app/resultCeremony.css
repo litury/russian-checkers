@@ -1,25 +1,28 @@
 .result-ceremony[hidden]{display:none}
-.result-ceremony{position:fixed;inset:0;z-index:10000;background:#030507d9;display:grid;place-items:center;padding:12px;color:#f4efe4;isolation:isolate;overscroll-behavior:contain}
-.result-ceremony section{box-sizing:border-box;width:min(440px,100%);max-height:calc(100dvh - 24px);overflow:auto;padding:22px 22px 18px;background:
- linear-gradient(180deg,#3a3428 0 2px,#1a1c1b 2px,#121614 100%);
- border:1px solid #c4ae78;outline:1px solid #2a261c;outline-offset:-6px;
- box-shadow:0 18px 70px #000,inset 0 0 0 1px #5c5344,inset 0 0 28px #000;
- text-align:center}
-.result-eyebrow{font:600 11px 'Golos Text',sans-serif;letter-spacing:.19em;color:#b8ad91;margin:0 0 8px}
-.result-ceremony h1{font:600 clamp(25px,7vw,36px) Literata,serif;margin:0;height:auto;letter-spacing:.05em}
-.result-scene-name{font:400 13px 'Golos Text',sans-serif;color:#b5a17c;margin:6px 0 12px}
+.result-ceremony{position:fixed;inset:0;z-index:10000;background:#030507d9;display:grid;place-items:center;padding:12px;color:#f4efe4;isolation:isolate;overscroll-behavior:contain;overflow:auto}
+.result-ceremony section{box-sizing:border-box;width:min(440px,100%);overflow:visible;padding:12px 14px 14px;background:#0c0e0ce6;border:0;outline:none;box-shadow:0 18px 70px #000;text-align:center}
+.result-title-plate{position:relative;width:100%;aspect-ratio:1456/570;margin:0 0 8px}
+.result-title-frame{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
+.result-title-copy{position:absolute;left:16%;right:16%;top:30%;bottom:20%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;pointer-events:none}
+.result-eyebrow{font:600 11px/1.2 'Golos Text',sans-serif;letter-spacing:.14em;color:#f0e2c4;margin:0}
+.result-ceremony h1{font:600 clamp(22px,6.2vw,34px)/1.05 Literata,serif;margin:0;height:auto;letter-spacing:.04em;color:#f7f1e4;text-shadow:0 1px 2px #000}
+.result-scene-name{font:400 13px/1.2 'Golos Text',sans-serif;color:#ead7b0;margin:2px 0 0}
 .result-ceremony canvas{display:block;width:100%;height:auto;aspect-ratio:4/3;border:1px solid #6d624c;box-shadow:inset 0 0 0 1px #17140f;box-sizing:border-box}
-.result-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
-.result-actions button{min-height:48px;border:1px solid #91815f;color:#f4efe4;background:#202726 url('./ui/siege/button-steel-rest.webp') center/100% 100% no-repeat;box-shadow:inset 0 0 0 3px #171c1b;font:600 15px 'Golos Text',sans-serif;padding:8px 10px;cursor:pointer}
-.result-actions button:active{transform:translateY(2px);background:#171c1b url('./ui/siege/button-steel-pressed.webp') center/100% 100% no-repeat}
+.result-actions{display:grid;grid-template-columns:1fr;gap:8px;margin-top:12px}
+.result-actions button{min-height:52px;aspect-ratio:2172/724;border:0;border-radius:0;color:#f4efe4;background:transparent url('./ui/result/defeat-button-rest.webp') center/contain no-repeat;box-shadow:none;font:600 16px/1.15 'Golos Text',sans-serif;padding:10px 16%;cursor:pointer;text-shadow:0 1px 2px #000}
+.result-actions button:active{background-image:url('./ui/result/defeat-button-pressed.webp');transform:none}
 .result-actions button:focus-visible{outline:3px solid #efcf7f;outline-offset:2px}
+@media (min-width:720px){
+ .result-actions{grid-template-columns:1fr 1fr;gap:10px}
+ .result-actions button{font-size:15px;padding-inline:14%}
+}
 @media (prefers-reduced-motion: reduce){
  .result-actions button:active{transform:none}
 }
 @media(max-height:500px) and (min-width:600px){
- .result-ceremony section{width:min(720px,100%);display:grid;grid-template-columns:1fr 1fr;column-gap:24px;padding:16px 24px;align-items:center}
- .result-ceremony canvas{grid-column:1;grid-row:1/5;max-height:calc(100dvh - 60px);object-fit:contain}
- .result-eyebrow,.result-ceremony h1,.result-scene-name,.result-actions{grid-column:2}
- .result-actions{grid-template-columns:1fr;margin-top:0}
- .result-ceremony h1{font-size:27px}
+ .result-ceremony section{width:min(760px,100%);display:grid;grid-template-columns:minmax(0,1.15fr) minmax(220px,0.85fr);column-gap:16px;padding:12px 16px;align-items:center}
+ .result-ceremony canvas{grid-column:1;grid-row:1/3;max-height:calc(100dvh - 36px);width:auto;max-width:100%;justify-self:center;object-fit:contain}
+ .result-title-plate{grid-column:2;width:min(100%,320px);margin:0 auto}
+ .result-actions{grid-column:2;grid-template-columns:1fr;margin-top:8px}
+ .result-ceremony h1{font-size:24px}
 }
