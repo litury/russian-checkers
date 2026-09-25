@@ -45,7 +45,9 @@ export class KingFire {
   if (!king) { this.remove(id); return; }
   // Sheets may still be background-loading; skip VFX until ready.
   if (!(reduced ? this.has('static') : this.has('idle-back') && this.has('idle-front'))) return;
-  if (this.idle.get(id)?.reduced !== reduced) this.dropIdle(id);
+  const existing = this.idle.get(id);
+  const previous = existing ? { x: existing.point.x, y: existing.point.y, cell: existing.cell } : null;
+  if (existing?.reduced !== reduced) this.dropIdle(id);
   if (!this.idle.has(id)) this.idle.set(id, {
    point: { x: p.x, y: p.y }, cell, reduced,
    sprites: reduced ? [this.sprite('static', p, cell, 3.9, 'static')]
@@ -53,6 +55,15 @@ export class KingFire {
   });
   const rest = this.idle.get(id)!;
   rest.point = { x: p.x, y: p.y }; rest.cell = cell;
+  // A kept flame outlives its piece view, so when the owner is laid out again (resize, a
+  // hidden field, the presentation sync) its ignition must travel and scale with it; else
+  // it is stranded at the old cell as a second hearth outside the board.
+  if (previous && (previous.x !== p.x || previous.y !== p.y || previous.cell !== cell))
+   for (const burst of this.bursts)
+    if (burst.owner === id && burst.point.x === previous.x && burst.point.y === previous.y) {
+     burst.point = { x: p.x, y: p.y };
+     for (const s of burst.sprites) s.setPosition(p.x, p.y).setScale(cell / 44);
+    }
   const igniting = this.bursts.some(b => b.owner === id && b.point.x === p.x && b.point.y === p.y);
   for (const s of rest.sprites) s.setPosition(p.x, p.y).setScale(cell / 44).setVisible(!igniting);
  }
