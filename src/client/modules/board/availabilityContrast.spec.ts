@@ -187,6 +187,7 @@ it('does not hang vector staples or circles under the sprite, and does not grow 
 	expect(scene).toContain("this.load.image('marker_staples_amber'");
 	expect(scene).toContain("this.load.image('marker_arrow_amber'");
 	expect(scene).toContain("this.load.image('marker_arrow_copper'");
+	expect(scene).toContain("this.load.image('marker_cut'");
 	expect(scene).not.toContain("this.load.image('marker_circle_amber'");
 	expect(scene).not.toContain("this.load.image('marker_circle_copper'");
 	expect(scene).not.toContain("this.load.image('marker_arrow',");

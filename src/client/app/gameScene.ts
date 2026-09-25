@@ -258,6 +258,7 @@ export class GameScene extends Phaser.Scene {
 		this.load.image('marker_staples_copper', new URL('../modules/board/markers/staples-copper.png', import.meta.url).href);
 		this.load.image('marker_arrow_amber', new URL('../modules/board/markers/arrow-amber.png', import.meta.url).href);
 		this.load.image('marker_arrow_copper', new URL('../modules/board/markers/arrow-copper.png', import.meta.url).href);
+		this.load.image('marker_cut', new URL('../modules/board/markers/cut.png', import.meta.url).href);
 	}
 
 	private queueMatchInteractive(): void {

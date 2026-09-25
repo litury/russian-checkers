@@ -6,6 +6,8 @@ export type MoveMarks = {
 	arrows: { from: ISquare; to: ISquare; tone: MarkTone }[];
 	brackets: { square: ISquare; tone: MarkTone }[];
 	victims: ISquare[];
+	/** One slash per victim, aimed along the hop that takes it. Not a landing mark. */
+	cuts: { square: ISquare; from: ISquare; to: ISquare }[];
 };
 
 const key = (square: ISquare): string => `${square.row},${square.col}`;
@@ -51,6 +53,7 @@ export function planMoveMarks(position: IPosition, moves: IMove[]): MoveMarks {
 	const arrows = new Map<string, MoveMarks['arrows'][number]>();
 	const brackets = new Map<string, MoveMarks['brackets'][number]>();
 	const victims = new Map<string, ISquare>();
+	const cuts = new Map<string, MoveMarks['cuts'][number]>();
 	const hops: {
 		side: Side;
 		from: ISquare;
@@ -64,9 +67,14 @@ export function planMoveMarks(position: IPosition, moves: IMove[]): MoveMarks {
 		for (const land of move.path) {
 			const enemy = segmentEnemy(position, from, land, side);
 			const tone: MarkTone = enemy ? 'copper' : 'amber';
-			if (enemy) victims.set(key(enemy), enemy);
+			if (enemy) {
+				victims.set(key(enemy), enemy);
+				if (!cuts.has(key(enemy)))
+					cuts.set(key(enemy), { square: enemy, from, to: land });
+			}
 			const marked = brackets.get(key(land));
-			if (!marked || tone === 'copper') brackets.set(key(land), { square: land, tone });
+			if (!marked || tone === 'copper')
+				brackets.set(key(land), { square: land, tone });
 			from = land;
 		}
 	}
@@ -109,5 +117,6 @@ export function planMoveMarks(position: IPosition, moves: IMove[]): MoveMarks {
 		arrows: [...arrows.values()],
 		brackets: [...brackets.values()],
 		victims: [...victims.values()],
+		cuts: [...cuts.values()],
 	};
 }

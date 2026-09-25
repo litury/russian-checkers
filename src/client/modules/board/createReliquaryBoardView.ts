@@ -5,11 +5,22 @@ import { reliquaryLayout } from '@/client/config/reliquaryLayout';
 import { boardFrame, syncBoardCoords } from './boardCoords';
 import { boardCellY, visualRowStep } from './boardFacing';
 import './boardCoords.css';
+import { OpeningMoveHint } from '@/client/app/openingMoveHint';
+import { pieceStepSfx } from '@/client/app/pieceSfx';
 import { sameSquare } from '@/client/shared/sameSquare';
-import { type IMove, type IPosition, type ISquare, type Side, legalMoves } from '@/rules';
+import {
+	type IMove,
+	type IPosition,
+	type ISquare,
+	legalMoves,
+	type Side,
+} from '@/rules';
+import { cutRotation, splitNormal, splitPixels } from './captureCut';
 import type { IBoardView } from './IBoardView';
+import { KingFire } from './kingFire';
+import { kingFireAssets } from './kingFireAssets';
+import { type MarkTone, planMoveMarks } from './moveMarks';
 import { markerMoves } from './reliquaryHints';
-import { planMoveMarks, type MarkTone } from './moveMarks';
 import {
 	ARROW_CELL,
 	ARROW_CORNER,
@@ -18,17 +29,14 @@ import {
 	drawReliquaryMarker,
 	MARKER_ARROW_AMBER,
 	MARKER_ARROW_COPPER,
+	MARKER_CUT,
 	MARKER_STAPLES,
 	MARKER_STAPLES_AMBER,
 	MARKER_STAPLES_COPPER,
 	screenStep,
 } from './reliquaryMarkers';
 import { MarkerMotion } from './reliquaryMotion';
-import { OpeningMoveHint } from '@/client/app/openingMoveHint';
 import { SelectionMotion } from './selectionMotion';
-import { KingFire } from './kingFire';
-import { pieceStepSfx } from '@/client/app/pieceSfx';
-import { kingFireAssets } from './kingFireAssets';
 
 type PieceView = {
 	square: ISquare;
@@ -58,13 +66,19 @@ export function createBoardView(
 		pieceSprites.kingLight,
 		pieceSprites.kingDark,
 		'selection_king-seal',
-		...Object.keys(kingFireAssets).map(name => `king-fire_${name}`),
-		...['white', 'black'].flatMap(side => Array.from({ length: 56 }, (_, i) => `selection_${side}-${String(i).padStart(2, '0')}`)),
+		...Object.keys(kingFireAssets).map((name) => `king-fire_${name}`),
+		...['white', 'black'].flatMap((side) =>
+			Array.from(
+				{ length: 56 },
+				(_, i) => `selection_${side}-${String(i).padStart(2, '0')}`,
+			),
+		),
 		MARKER_STAPLES,
 		MARKER_STAPLES_AMBER,
 		MARKER_STAPLES_COPPER,
 		MARKER_ARROW_AMBER,
 		MARKER_ARROW_COPPER,
+		MARKER_CUT,
 	]) {
 		if (!scene.textures?.exists?.(texture)) continue;
 		scene.textures.get(texture)?.setFilter(Phaser.Textures.FilterMode.LINEAR);
@@ -83,14 +97,21 @@ export function createBoardView(
 		.setOrigin(0)
 		.setDepth(1.1);
 	const marks = scene.add.graphics().setDepth(8);
-	const introMarks = scene.add.graphics().setDepth(7.9).setName('opening-move-hint');
+	const introMarks = scene.add
+		.graphics()
+		.setDepth(7.9)
+		.setName('opening-move-hint');
 	const intro = new OpeningMoveHint();
-	let introProgress = 0, introReduced = false;
+	let introProgress = 0,
+		introReduced = false;
 
 	const interaction = scene.add.graphics().setDepth(9);
 	const hintMotion = new MarkerMotion();
 
 	const pieces = new Map<string, PieceView>();
+	const sundered = new Set<string>();
+	const falls: { image: Phaser.GameObjects.Image; textureKey?: string }[] = [];
+	let cutSerial = 0;
 	const kingFire = new KingFire(scene);
 	const cells: { square: ISquare; rect: Phaser.GameObjects.Rectangle }[] = [];
 	const canvas = scene.game.canvas;
@@ -129,17 +150,30 @@ export function createBoardView(
 		for (const img of pools[which]) img.setVisible(false);
 		used[which] = 0;
 	};
-	const take = (which: 'intro' | 'marks', texture: string, depth: number): MarkerImage => {
+	const take = (
+		which: 'intro' | 'marks',
+		texture: string,
+		depth: number,
+	): MarkerImage => {
 		let img = pools[which][used[which]];
 		if (!img) {
 			img = scene.add.image(0, 0, texture);
 			pools[which].push(img);
 		}
 		used[which] += 1;
-		return img.setTexture(texture).setName(texture).setDepth(depth).setVisible(true).setAlpha(1).setRotation(0);
+		return img
+			.setTexture(texture)
+			.setName(texture)
+			.setDepth(depth)
+			.setVisible(true)
+			.setAlpha(1)
+			.setRotation(0);
 	};
-	const toneTexture = (tone: MarkTone, amber: string, copper: string): string =>
-		tone === 'copper' ? copper : amber;
+	const toneTexture = (
+		tone: MarkTone,
+		amber: string,
+		copper: string,
+	): string => (tone === 'copper' ? copper : amber);
 	const placeStaple = (
 		square: ISquare,
 		alpha: number,
@@ -166,13 +200,31 @@ export function createBoardView(
 			.setOrigin(0.5, 0.5)
 			.setDisplaySize(ARROW_TEXTURE.w * scale, ARROW_TEXTURE.h * scale)
 			.setRotation(arrowRotation(step.dx, step.dy))
-			.setPosition(box.x + step.dx * box.w * ARROW_CORNER, box.y + step.dy * box.h * ARROW_CORNER);
+			.setPosition(
+				box.x + step.dx * box.w * ARROW_CORNER,
+				box.y + step.dy * box.h * ARROW_CORNER,
+			);
+	};
+	const placeCut = (square: ISquare, from: ISquare, to: ISquare): void => {
+		if (!hasTexture(MARKER_CUT)) return;
+		const step = screenStep(from, to, facing);
+		if (!step.dx || !step.dy) return;
+		const box = cellBox(square);
+		take('marks', MARKER_CUT, 8.25)
+			.setOrigin(0.5, 0.5)
+			.setDisplaySize(box.w, box.h)
+			.setRotation(cutRotation(step.dx, step.dy))
+			.setPosition(box.x, box.y);
 	};
 	const drawIntro = () => {
 		introMarks.clear();
 		release('intro');
 		if (!visible || moving || isInputBlocked()) return;
-		for (const {square, alpha} of intro.sample(introProgress, introReduced, selected))
+		for (const { square, alpha } of intro.sample(
+			introProgress,
+			introReduced,
+			selected,
+		))
 			placeStaple(square, alpha, 7.9, 'intro');
 	};
 	const label = (): void => {
@@ -226,16 +278,23 @@ export function createBoardView(
 					toneTexture(cell.tone, MARKER_STAPLES_AMBER, MARKER_STAPLES_COPPER),
 				);
 			}
-			for (const sq of plan.victims) placeStaple(sq, 1, 8.1, 'marks', MARKER_STAPLES_COPPER);
+			for (const cut of plan.cuts) placeCut(cut.square, cut.from, cut.to);
 			for (const arrow of plan.arrows)
-				placeArrow(arrow.from, arrow.to, toneTexture(arrow.tone, MARKER_ARROW_AMBER, MARKER_ARROW_COPPER));
+				placeArrow(
+					arrow.from,
+					arrow.to,
+					toneTexture(arrow.tone, MARKER_ARROW_AMBER, MARKER_ARROW_COPPER),
+				);
 		}
 		if (selected) placeStaple(selected, 1, 8.15, 'marks', MARKER_STAPLES_AMBER);
 		drawInteraction();
 	};
 	const hasTexture = (key: string): boolean =>
 		typeof scene.textures.exists !== 'function' || scene.textures.exists(key);
-	const pieceTexture = (kind: PieceView['kind'], side: PieceView['side']): string =>
+	const pieceTexture = (
+		kind: PieceView['kind'],
+		side: PieceView['side'],
+	): string =>
 		kind === 'king'
 			? side === 'white'
 				? pieceSprites.kingLight
@@ -246,15 +305,25 @@ export function createBoardView(
 	const renderPiece = (view: PieceView): void => {
 		const king = view.kind === 'king';
 		const texture = pieceTexture(view.kind, view.side);
-		view.sprite.setTexture(texture).setName('selection-piece')
-			.setData('square', { ...view.square }).setData('kind', view.kind)
-			.setData('side', view.side).setData('progress', view.motion.progress);
+		view.sprite
+			.setTexture(texture)
+			.setName('selection-piece')
+			.setData('square', { ...view.square })
+			.setData('kind', view.kind)
+			.setData('side', view.side)
+			.setData('progress', view.motion.progress);
 		view.outline.setTexture(texture);
 		view.seal.setVisible(king && hasTexture('selection_king-seal'));
 		for (const image of [view.sprite, view.outline])
-			image.setOrigin(0.5, 0.5).setPosition(0, 0).setDisplaySize(field.cell * 0.86, field.cell * 0.86);
+			image
+				.setOrigin(0.5, 0.5)
+				.setPosition(0, 0)
+				.setDisplaySize(field.cell * 0.86, field.cell * 0.86);
 		view.outline.setVisible(false);
-		view.seal.setPosition(0, 0).setDisplaySize(field.cell, field.cell).setData('temporaryRank', true);
+		view.seal
+			.setPosition(0, 0)
+			.setDisplaySize(field.cell, field.cell)
+			.setData('temporaryRank', true);
 	};
 	const place = (view: PieceView): void => {
 		const box = cellBox(view.square);
@@ -265,6 +334,254 @@ export function createBoardView(
 		kingFire.remove(view);
 		scene.tweens.killTweensOf(view.group);
 		view.group.destroy();
+	};
+	const dropTexture = (textureKey: string): void => {
+		if (typeof scene.textures.remove !== 'function') return;
+		if (
+			typeof scene.textures.exists === 'function' &&
+			!scene.textures.exists(textureKey)
+		)
+			return;
+		scene.textures.remove(textureKey);
+	};
+	const clearFalls = (): void => {
+		for (const fall of falls) {
+			scene.tweens.killTweensOf(fall.image);
+			if (!(fall.image as { destroyed?: boolean }).destroyed)
+				fall.image.destroy();
+			if (fall.textureKey) {
+				dropTexture(fall.textureKey);
+				dropTexture(fall.textureKey.replace('capture-half-', 'capture-src-'));
+			}
+		}
+		falls.length = 0;
+	};
+	const sourceImage = (textureKey: string): CanvasImageSource | null => {
+		const texture = scene.textures.get(textureKey) as {
+			getSourceImage?: () => CanvasImageSource;
+		} | null;
+		return texture?.getSourceImage?.() ?? null;
+	};
+	const showHalf = (
+		textureKey: string,
+		box: { x: number; y: number; w: number; h: number },
+		endX: number,
+		endY: number,
+		spin: number,
+		align = 0,
+	): Phaser.GameObjects.Image => {
+		const image = scene.add
+			.image(box.x, box.y, textureKey)
+			.setName('capture-half')
+			.setDepth(6)
+			.setOrigin(0.5, 0.5)
+			.setDisplaySize(box.w * 0.86, box.h * 0.86)
+			.setRotation(align);
+		falls.push({ image, textureKey });
+		scene.tweens.add({
+			targets: image,
+			x: endX,
+			y: endY,
+			rotation: align + spin,
+			duration: 520,
+			ease: 'Cubic.easeOut',
+		});
+		scene.tweens.add({
+			targets: image,
+			alpha: 0,
+			delay: 320,
+			duration: 280,
+			onComplete: () => {
+				if (!(image as { destroyed?: boolean }).destroyed) image.destroy();
+				dropTexture(textureKey);
+				dropTexture(textureKey.replace('capture-half-', 'capture-src-'));
+			},
+		});
+		return image;
+	};
+	const paintPiece = (view: PieceView): HTMLCanvasElement | null => {
+		if (
+			typeof document === 'undefined' ||
+			typeof document.createElement !== 'function'
+		)
+			return null;
+		const disk = sourceImage(view.sprite.texture.key);
+		if (!disk) return null;
+		const size = 160;
+		const painted = document.createElement('canvas');
+		painted.width = size;
+		painted.height = size;
+		const ctx = painted.getContext('2d');
+		if (!ctx) return null;
+		const inset = size * 0.07;
+		ctx.drawImage(disk, inset, inset, size - inset * 2, size - inset * 2);
+		if (view.seal.visible) {
+			const seal = sourceImage(view.seal.texture.key);
+			if (seal) ctx.drawImage(seal, 0, 0, size, size);
+		}
+		return painted;
+	};
+	const spawnHalf = (
+		pixels: Uint8ClampedArray,
+		width: number,
+		height: number,
+		box: { x: number; y: number; w: number; h: number },
+		endX: number,
+		endY: number,
+		spin: number,
+	): void => {
+		if (
+			typeof scene.textures.addCanvas !== 'function' ||
+			typeof document === 'undefined'
+		)
+			return;
+		const source = document.createElement('canvas');
+		source.width = width;
+		source.height = height;
+		const ctx = source.getContext('2d');
+		if (!ctx) return;
+		const imageData = ctx.createImageData
+			? ctx.createImageData(width, height)
+			: ({
+					data: new Uint8ClampedArray(width * height * 4),
+					width,
+					height,
+				} as ImageData);
+		imageData.data.set(pixels);
+		ctx.putImageData(imageData, 0, 0);
+		const textureKey = `capture-src-${cutSerial}`;
+		const showKey = `capture-half-${cutSerial}`;
+		cutSerial += 1;
+		const created = scene.textures as {
+			createCanvas?: (
+				key: string,
+				w: number,
+				h: number,
+			) => {
+				getContext: () => CanvasRenderingContext2D;
+				refresh?: () => void;
+			} | null;
+			addDynamicTexture?: (
+				key: string,
+				w: number,
+				h: number,
+			) => {
+				stamp: (
+					key: string,
+					frame: string | number | undefined,
+					x: number,
+					y: number,
+				) => unknown;
+				render?: () => void;
+				setFilter?: (mode: number) => void;
+			} | null;
+		};
+		const canvasTex = created.createCanvas?.(textureKey, width, height);
+		if (!canvasTex) {
+			if (typeof scene.textures.addCanvas !== 'function') return;
+			scene.textures.addCanvas(textureKey, source);
+			showHalf(textureKey, box, endX, endY, spin);
+			return;
+		}
+		canvasTex.getContext().drawImage(source, 0, 0);
+		canvasTex.refresh?.();
+		const gpu = created.addDynamicTexture?.(showKey, width, height);
+		if (!gpu) {
+			showHalf(textureKey, box, endX, endY, spin);
+			return;
+		}
+		gpu.setFilter?.(Phaser.Textures.FilterMode.LINEAR);
+		// WebGL ignores putImageData until a later frame, and DynamicTexture.render
+		// during the game step blanks the camera. Stamp once the canvas is uploaded.
+		const paint = (): void => {
+			gpu.stamp(
+				textureKey,
+				null as unknown as undefined,
+				width / 2,
+				height / 2,
+			);
+			gpu.render?.();
+			showHalf(showKey, box, endX, endY, spin);
+		};
+		if (typeof requestAnimationFrame === 'function') {
+			requestAnimationFrame(() => requestAnimationFrame(paint));
+		} else {
+			paint();
+		}
+	};
+	/** Landed capture: mask the live texture into two halves. No new piece art. */
+	const splitVictim = (view: PieceView, from: ISquare, land: ISquare): void => {
+		const step = screenStep(from, land, facing);
+		const box = cellBox(view.square);
+		const painted = paintPiece(view);
+		remove(view);
+		if (!step.dx || !step.dy) return;
+		const normal = splitNormal(step.dx, step.dy);
+		const dist = box.w * 0.62;
+		const drop = box.h * 0.9;
+		const ends = [
+			{
+				x: box.x + normal.x * dist,
+				y: box.y + normal.y * dist + drop,
+				spin: 0.35,
+				sign: 1,
+			},
+			{
+				x: box.x - normal.x * dist,
+				y: box.y - normal.y * dist + drop,
+				spin: -0.35,
+				sign: -1,
+			},
+		];
+		if (painted) {
+			const ctx = painted.getContext('2d');
+			const data = ctx?.getImageData(0, 0, painted.width, painted.height);
+			if (ctx && data) {
+				const halves = splitPixels(
+					data.data,
+					painted.width,
+					painted.height,
+					step.dx,
+					step.dy,
+				);
+				spawnHalf(
+					halves.a,
+					painted.width,
+					painted.height,
+					box,
+					ends[0]!.x,
+					ends[0]!.y,
+					ends[0]!.spin,
+				);
+				spawnHalf(
+					halves.b,
+					painted.width,
+					painted.height,
+					box,
+					ends[1]!.x,
+					ends[1]!.y,
+					ends[1]!.spin,
+				);
+			}
+		}
+		if (!hasTexture(MARKER_CUT)) return;
+		const cut = scene.add
+			.image(box.x, box.y, MARKER_CUT)
+			.setName('capture-cut')
+			.setDepth(6.4)
+			.setOrigin(0.5, 0.5)
+			.setDisplaySize(box.w * 0.92, box.h * 0.92)
+			.setRotation(cutRotation(step.dx, step.dy));
+		falls.push({ image: cut });
+		scene.tweens.add({
+			targets: cut,
+			alpha: 0,
+			duration: 240,
+			delay: 220,
+			onComplete: () => {
+				if (!(cut as { destroyed?: boolean }).destroyed) cut.destroy();
+			},
+		});
 	};
 	const sync: IBoardView['sync'] = (
 		next,
@@ -296,6 +613,10 @@ export function createBoardView(
 				if (!piece) return;
 				const square = { row, col },
 					id = key(square);
+				if (sundered.has(id)) {
+					seen.add(id);
+					return;
+				}
 				seen.add(id);
 				const texture =
 					piece.kind === 'king'
@@ -309,13 +630,25 @@ export function createBoardView(
 				if (!view) {
 					const sprite = scene.add.image(0, 0, texture);
 					const outline = scene.add.image(0, 0, texture).setTint(0x141210);
-					const sealKey = hasTexture('selection_king-seal') ? 'selection_king-seal' : texture;
-					const seal = scene.add.image(0, 0, sealKey).setName('king-seal').setVisible(false);
+					const sealKey = hasTexture('selection_king-seal')
+						? 'selection_king-seal'
+						: texture;
+					const seal = scene.add
+						.image(0, 0, sealKey)
+						.setName('king-seal')
+						.setVisible(false);
 					view = {
 						square,
-						kind: piece.kind, side: piece.side, motion: new SelectionMotion(),
-						sprite, outline, seal,
-						group: scene.add.container(0, 0, [outline, sprite, seal]).setDepth(4).setName('selection-piece-group'),
+						kind: piece.kind,
+						side: piece.side,
+						motion: new SelectionMotion(),
+						sprite,
+						outline,
+						seal,
+						group: scene.add
+							.container(0, 0, [outline, sprite, seal])
+							.setDepth(4)
+							.setName('selection-piece-group'),
 					};
 					pieces.set(id, view);
 				}
@@ -325,9 +658,16 @@ export function createBoardView(
 				view.motion.select(open, reduced() || (open && view === landedView));
 				view.group.setVisible(visible);
 				place(view);
-				kingFire.rest(view, visible && !isInputBlocked() && view.kind === 'king', cellBox(square), field.cell, reduced());
+				kingFire.rest(
+					view,
+					visible && !isInputBlocked() && view.kind === 'king',
+					cellBox(square),
+					field.cell,
+					reduced(),
+				);
 			});
 		});
+		for (const id of [...sundered]) if (!seen.has(id)) sundered.delete(id);
 		for (const [id, view] of pieces)
 			if (!seen.has(id)) {
 				remove(view);
@@ -439,10 +779,17 @@ export function createBoardView(
 			);
 			if (!visible) rect.disableInteractive();
 		}
-		if (!moving) for (const view of pieces.values()) {
-			place(view);
-			kingFire.rest(view, visible && !isInputBlocked() && view.kind === 'king', cellBox(view.square), field.cell, reduced());
-		}
+		if (!moving)
+			for (const view of pieces.values()) {
+				place(view);
+				kingFire.rest(
+					view,
+					visible && !isInputBlocked() && view.kind === 'king',
+					cellBox(view.square),
+					field.cell,
+					reduced(),
+				);
+			}
 		draw();
 	};
 	const reset = (): void => {
@@ -465,6 +812,8 @@ export function createBoardView(
 		if (movingView) remove(movingView);
 		movingView = null;
 		landedView = null;
+		sundered.clear();
+		clearFalls();
 
 		for (const view of pieces.values()) remove(view);
 		pieces.clear();
@@ -514,7 +863,10 @@ export function createBoardView(
 				if (generation !== run) return;
 				landedView = null;
 				if (pieces.get(key(view.square)) === view) {
-					view.motion.select(Boolean(selected && sameSquare(selected, view.square)), reduced());
+					view.motion.select(
+						Boolean(selected && sameSquare(selected, view.square)),
+						reduced(),
+					);
 					renderPiece(view);
 				}
 				return;
@@ -530,27 +882,59 @@ export function createBoardView(
 			release('marks');
 			placeStaple(from, 1, 8, 'marks', MARKER_STAPLES_AMBER);
 			placeArrow(from, land, victim ? MARKER_ARROW_COPPER : MARKER_ARROW_AMBER);
-			placeStaple(land, 1, 8.05, 'marks', victim ? MARKER_STAPLES_COPPER : MARKER_STAPLES_AMBER);
-			if (victim) placeStaple(victim, 1, 8.1, 'marks', MARKER_STAPLES_COPPER);
-			kingFire.takeoff(view, view.kind === 'king', cellBox(from), field.cell, reduced());
-			pieceStepSfx(view.kind === 'king', Boolean(victim), view.side, victim ? pieces.get(key(victim))?.side : undefined);
+			placeStaple(
+				land,
+				1,
+				8.05,
+				'marks',
+				victim ? MARKER_STAPLES_COPPER : MARKER_STAPLES_AMBER,
+			);
+			if (victim) placeCut(victim, from, land);
+			kingFire.takeoff(
+				view,
+				view.kind === 'king',
+				cellBox(from),
+				field.cell,
+				reduced(),
+			);
+			pieceStepSfx(
+				view.kind === 'king',
+				Boolean(victim),
+				view.side,
+				victim ? pieces.get(key(victim))?.side : undefined,
+			);
 			onTakeoff?.(Boolean(victim));
 			const finish = (): void => {
 				if (generation !== run) return;
-				if (victim && !retainCaptured) {
+				if (victim) {
 					const taken = pieces.get(key(victim));
-					if (taken) remove(taken);
-					pieces.delete(key(victim));
+					if (taken && !reduced()) {
+						pieces.delete(key(victim));
+						sundered.add(key(victim));
+						splitVictim(taken, from, land);
+					} else if (taken && !retainCaptured) {
+						remove(taken);
+						pieces.delete(key(victim));
+					}
 				}
 				kingFire.move(cellBox(land));
 				kingFire.land();
 				view.square = land;
-				if (view.kind === 'man' && land.row === (view.side === 'white' ? 7 : 0)) {
+				if (
+					view.kind === 'man' &&
+					land.row === (view.side === 'white' ? 7 : 0)
+				) {
 					view.kind = 'king';
 					kingFire.ignite(view, cellBox(land), field.cell, reduced());
 				}
 				place(view);
-				kingFire.rest(view, visible && view.kind === 'king', cellBox(land), field.cell, reduced());
+				kingFire.rest(
+					view,
+					visible && view.kind === 'king',
+					cellBox(land),
+					field.cell,
+					reduced(),
+				);
 				from = land;
 				onLand?.(Boolean(victim));
 				step(index + 1);
@@ -567,8 +951,13 @@ export function createBoardView(
 				duration: 160,
 				ease: 'Sine.easeInOut',
 				// Phaser calls this once per property: y is declared after x above.
-				onUpdate: (_tween: Phaser.Tweens.Tween, _target: object, property: string) => {
-					if (generation === run && property === 'y') kingFire.move(view.group, scene.game.loop?.delta ?? 0);
+				onUpdate: (
+					_tween: Phaser.Tweens.Tween,
+					_target: object,
+					property: string,
+				) => {
+					if (generation === run && property === 'y')
+						kingFire.move(view.group, scene.game.loop?.delta ?? 0);
 				},
 				onComplete: finish,
 			});
@@ -579,7 +968,14 @@ export function createBoardView(
 		if (!visible || isInputBlocked()) kingFire.clear();
 		kingFire.update(delta, reduced());
 		for (const view of pieces.values()) {
-			if (visible && !isInputBlocked()) kingFire.rest(view, view.kind === 'king', cellBox(view.square), field.cell, reduced());
+			if (visible && !isInputBlocked())
+				kingFire.rest(
+					view,
+					view.kind === 'king',
+					cellBox(view.square),
+					field.cell,
+					reduced(),
+				);
 			view.motion.advance(delta, reduced());
 			renderPiece(view);
 		}
@@ -604,9 +1000,22 @@ export function createBoardView(
 	});
 	layout(logicalSize(scene).width, logicalSize(scene).height);
 	return {
-		clearOpeningHint: () => { intro.clear(); introMarks.clear(); release('intro'); },
-		startOpeningHint: (position, local) => { intro.start(position, local); introProgress = 0; introReduced = reduced(); drawIntro(); },
-		paintOpeningHint: (progress, motionReduced) => { introProgress = progress; introReduced = motionReduced; drawIntro(); },
+		clearOpeningHint: () => {
+			intro.clear();
+			introMarks.clear();
+			release('intro');
+		},
+		startOpeningHint: (position, local) => {
+			intro.start(position, local);
+			introProgress = 0;
+			introReduced = reduced();
+			drawIntro();
+		},
+		paintOpeningHint: (progress, motionReduced) => {
+			introProgress = progress;
+			introReduced = motionReduced;
+			drawIntro();
+		},
 		sync,
 		layout,
 		setFacing: (side) => {

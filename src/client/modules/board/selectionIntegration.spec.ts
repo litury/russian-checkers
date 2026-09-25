@@ -260,7 +260,7 @@ it.each(['reset', 'hide', 'shutdown'] as const)('%s invalidates a late move comp
  expect(h.sprite().data.progress).toBe(action === 'shutdown' ? 0 : 1);
 });
 it('end and resignation invalidate old board work before presenting the final position', () => {
- for (const method of ['private endMatch(', 'resignMatch(']) {
+ for (const method of ['private endMatch(', 'resignMatch():']) {
   const body = sceneSource.slice(sceneSource.indexOf(method)).split('\n\t}')[0];
   expect(body).toContain('this.board.reset()');
  }
@@ -372,9 +372,16 @@ it('keeps the real piece texture while selected, at a fixed pivot, and preserves
  	`${(4 + 0.5) * 44},${(7.5 - 4) * 44}`,
  	`${(5 + 0.5) * 44},${(7.5 - 5) * 44}`,
  	`${(2 + 0.5) * 44},${(7.5 - 6) * 44}`,
+ ].sort());
+ const cuts = h.objects.filter(o => o.visible && !o.destroyed && o.name === 'marker_cut');
+ expect(cuts.map(c => `${c.x},${c.y}`).sort()).toEqual([
  	`${(3 + 0.5) * 44},${(7.5 - 3) * 44}`,
  	`${(3 + 0.5) * 44},${(7.5 - 5) * 44}`,
  ].sort());
+ expect(cuts.find(c => c.x === (3 + 0.5) * 44 && c.y === (7.5 - 3) * 44).rotation)
+ 	.toBeCloseTo(Math.atan2(-1, 1) - Math.PI / 4);
+ expect(cuts.find(c => c.y === (7.5 - 5) * 44).rotation)
+ 	.toBeCloseTo(Math.atan2(-1, -1) - Math.PI / 4);
  expect(arrows).toHaveLength(2);
  const chain = arrows.find(a => Math.abs(a.x - ((4 + 0.5) * 44 - 44 * 0.55)) < 1);
  expect(chain).toBeTruthy();

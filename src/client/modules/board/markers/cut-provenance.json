@@ -1,0 +1,9 @@
+{
+  "asset": "capture cut slash",
+  "tool": "cx --account account2, built-in image_gen",
+  "session": "01a0d809-dcc6-7360-a843-f5e543d25c52",
+  "master_sha256": "a01a670119383043c4e2098f23c7d3e44e6317e6b083e23899c9110a5bc35294",
+  "master": "1254x1254 RGBA, tip down-right at 45 degrees",
+  "runtime": "512x512 area-average of the full canvas so rotation stays around the same center",
+  "piece": "not redrawn; the live texture is masked into two halves"
+}

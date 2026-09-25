@@ -17,6 +17,8 @@ export const MARKER_STAPLES_AMBER = 'marker_staples_amber';
 export const MARKER_STAPLES_COPPER = 'marker_staples_copper';
 export const MARKER_ARROW_AMBER = 'marker_arrow_amber';
 export const MARKER_ARROW_COPPER = 'marker_arrow_copper';
+/** One slash for every capture. Rotated to the hop; the piece texture is not redrawn. */
+export const MARKER_CUT = 'marker_cut';
 export const STAPLE_SOURCE_PX = 176;
 /** arrow.png size. Long side is drawn at ARROW_CELL of the live cell. */
 export const ARROW_TEXTURE = { w: 194, h: 183 } as const;
