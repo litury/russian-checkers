@@ -1,21 +1,14 @@
 {
-  "asset": "defeat button plaques",
-  "tool": "cx --account account2 exec, built-in image_gen",
+  "asset": "defeat title frame and button plaques",
+  "tool": "cx --account account2 --no-bypass exec, built-in image_gen",
   "account_home": "/home/hermes/.codex-account2",
-  "references": [
-    "src/client/app/ui/siege/cassette-title.webp",
-    "src/client/app/ui/siege/button-steel-rest.webp"
-  ],
   "originals": [
-    "/home/hermes/.codex-account2/generated_images/01a0d7d4-b24d-74b1-8d3c-3aa89943c9f3/exec-fabde644-a929-4216-aff7-2949cc60a0ad.png",
-    "/home/hermes/.codex-account2/generated_images/01a0d7d4-b24d-74b1-8d3c-3aa89943c9f3/exec-8c1ab67a-a716-4150-bb06-7cca6c3800d0.png"
+    "/home/hermes/.codex-account2/generated_images/01a0d80b-0019-7182-a9cb-ac255488bd89/exec-ba85e260-8170-42f7-a887-5c7b731ff9d9.png",
+    "/home/hermes/.codex-account2/generated_images/01a0d80b-0019-7182-a9cb-ac255488bd89/exec-1814dfd7-4b71-4005-b7da-b6aa369535b4.png",
+    "/home/hermes/.codex-account2/generated_images/01a0d80e-44b7-75e1-b6c5-dae671a1c81f/exec-f7ef187c-fc21-4893-a067-7b9d7644e50a.png"
   ],
-  "workspace_copies": [
-    "/home/hermes/.hermes/kanban/boards/russian-checkers/workspaces/t_f78d08ca/art-gen/button-plaque-rest.png",
-    "/home/hermes/.hermes/kanban/boards/russian-checkers/workspaces/t_f78d08ca/art-gen/button-plaque-pressed.png"
-  ],
-  "native_size": [2172, 724],
-  "alpha": "RGBA, corners transparent, center opaque dark",
-  "text": "none baked; HTML Golos Text sits on the dark center",
-  "title_frame": "existing src/client/app/ui/siege/cassette-title.webp, shared with menu and match history, not regenerated"
+  "title_frame": "own ivory reliquary frame, not cassette-title",
+  "buttons": "light ivory metal with dark graphite well; pressed fitted to the rest canvas so the swap does not jump",
+  "text": "none baked; HTML Golos Text and Literata sit on the dark wells",
+  "alpha": "RGBA, exterior transparent, cropped to the metal"
 }

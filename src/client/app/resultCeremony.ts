@@ -14,7 +14,7 @@ import lidUrl from './result-art/lid.png?url';
 import fireUrl from './ui/siege/menu-selection-fire.webp?url';
 import terminalUrl from './ui/result/terminal_sockets.webp?url';
 import contactUrl from './ui/bunker/lip-contact-shadow.webp?url';
-import titlePlateUrl from './ui/siege/cassette-title.webp?url';
+import titlePlateUrl from './ui/result/defeat-title-frame.webp?url';
 import './resultCeremony.css';
 const assets: Record<string, string> = {
  rear: rearUrl, lip: lipUrl, 'grip-left': gripLeftUrl, 'grip-right': gripRightUrl, pedestal: pedestalUrl,
@@ -42,7 +42,7 @@ export function lossLayout(ms:number,reduced=false){
 }
 export function createResultOverlay(scene:Phaser.Scene,handlers:{onPlayAgain:()=>void;onMenu:()=>void;isOnline?:()=>boolean;onSound?:(win:boolean)=>void;onStopSound?:()=>void}){
  const root=document.createElement('div');root.className='result-ceremony';root.hidden=true;
- root.innerHTML='<section role="dialog" aria-modal="true" aria-labelledby="result-heading" tabindex="-1"><div class="result-title-plate"><img class="result-title-frame" src="'+titlePlateUrl+'" width="1456" height="570" alt="" /><div class="result-title-copy"><p class="result-eyebrow">РЕЗУЛЬТАТ ПАРТИИ</p><h1 id="result-heading"></h1><p class="result-scene-name"></p></div></div><canvas width="720" height="540" aria-hidden="true"></canvas><div class="result-actions"><button type="button" data-result="again">Ещё партия</button><button type="button" data-result="menu">В меню</button></div></section>';
+ root.innerHTML='<section role="dialog" aria-modal="true" aria-labelledby="result-heading" tabindex="-1"><div class="result-title-plate"><img class="result-title-frame" src="'+titlePlateUrl+'" width="1909" height="636" alt="" /><div class="result-title-copy"><p class="result-eyebrow">РЕЗУЛЬТАТ ПАРТИИ</p><h1 id="result-heading"></h1><p class="result-scene-name"></p></div></div><canvas width="720" height="540" aria-hidden="true"></canvas><div class="result-actions"><button type="button" data-result="again">Ещё партия</button><button type="button" data-result="menu">В меню</button></div></section>';
  document.body.append(root);
  const panel=root.querySelector('section')!;const canvas=root.querySelector('canvas')!;const ctx=canvas.getContext('2d')!;
  const images:Record<string,HTMLImageElement>={};

@@ -7,8 +7,9 @@ const defeatControls = readFileSync(new URL('./defeatControls.ts', import.meta.u
 const history = readFileSync(new URL('../../../index.html', import.meta.url), 'utf8');
 
 describe('defeat title and button plaques', () => {
-  it('reuses the menu cassette frame and does not bake a new alphabet', () => {
-    expect(ceremony).toContain("ui/siege/cassette-title.webp");
+  it('uses its own title frame and does not borrow the menu cassette', () => {
+    expect(ceremony).toContain('ui/result/defeat-title-frame.webp');
+    expect(ceremony).not.toContain('cassette-title');
     expect(ceremony).toContain('result-title-plate');
     expect(ceremony).toContain('Ещё партия');
     expect(ceremony).toContain('В меню');
@@ -22,6 +23,7 @@ describe('defeat title and button plaques', () => {
     expect(ceremonyCss).toContain('center/contain');
     expect(ceremonyCss).not.toContain('100% 100%');
     expect(ceremonyCss).not.toContain('overflow:hidden');
+    expect(ceremonyCss).not.toContain('cassette-title');
     expect(ceremonyCss).toContain('defeat-button-rest.webp');
     expect(ceremonyCss).toContain('defeat-button-pressed.webp');
   });
@@ -30,6 +32,7 @@ describe('defeat title and button plaques', () => {
     expect(defeatControls).toContain("buttons=['Ещё раз','В меню']");
     expect(defeatControls).toContain('background:transparent');
     expect(defeatControls).not.toContain('defeat-button-rest');
+    expect(defeatControls).not.toContain('defeat-title-frame');
     expect(defeatControls).not.toContain('cassette-title');
   });
 });
