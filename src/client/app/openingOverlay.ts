@@ -6,7 +6,7 @@ import {bindMatchHistory} from './matchHistoryUi';
 import {ensureGuest, loadPresence, beatPresence} from '@/online/cloud';
 
 import {presenceLit, HEARTBEAT_MS, PRESENCE_CACHE_MS} from '@/online/presence';
-import {markPerf,markPerfAt} from './perfMarks';
+import {notePlayIntent, playIntentEvent} from './playIntent';
 import {OpeningGates} from './openingGates';
 import {gateDurationMs as preparationMs} from './openingGates';
 import {searchCopy, type SearchPhase} from './matchmakingSearch';
@@ -21,6 +21,9 @@ declare global {
    playIntent?: ((event?: Event) => void) | null;
    onlineIntent?: ((event?: Event) => void) | null;
    pendingOnline?: boolean;
+   /** Press instant captured in HTML before the engine module loaded. */
+   playIntentAt?: number | null;
+   onlineIntentAt?: number | null;
    source?: 'play' | 'online';
    fail: (message: string) => void;
    unlock: () => void;
@@ -101,6 +104,8 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  window.checkersStartup.playCommitted=false;
  window.checkersStartup.pendingPlay=false;
  window.checkersStartup.pendingOnline=false;
+ window.checkersStartup.playIntentAt=null;
+ window.checkersStartup.onlineIntentAt=null;
  clearSearch();
   audio.hide(completed,motion.matches);
   gates.cancel(); closeDialogs(); root.hidden=true; root.inert=false;
@@ -122,12 +127,6 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   const elapsed = motion.matches ? preparationMs : visual?.elapsed ?? preparationMs;
   audio.gate(elapsed,motion.matches);
   gates.advance(elapsed - gates.elapsed);
- };
- const notePlayIntent = (event?: Event) => {
-  // A busy main thread must not hide the wait: use the click's own timestamp.
-  const stamp = event && Number.isFinite(event.timeStamp) ? event.timeStamp : performance.now();
-  markPerfAt('play-intent', stamp);
-  markPerf('play-handled');
  };
  const invoke = (event?: Event) => {
   // Allow invoke while waitPlay disabled the button (early click / residual load).
@@ -254,14 +253,19 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   /** After playfieldReady is wired: consume early «Играть» tap and auto-start. */
   flushPendingPlay:()=>{
    if(!window.checkersStartup.pendingPlay && !window.checkersStartup.playCommitted) return;
+   // The press may predate the engine: replay its instant so play-intent is the tap.
+   const stamp=window.checkersStartup.playIntentAt;
+   window.checkersStartup.playIntentAt=null;
    // Honest progress until auto-start; waitPlay before clearing pending so show cannot idle.
    window.checkersStartup.waitPlay();
    window.checkersStartup.pendingPlay=false;
-   invoke();
+   invoke(playIntentEvent(stamp));
   },
   flushPendingOnline:()=>{
    if(!window.checkersStartup.pendingOnline) return;
-   invokeOnline();
+   const stamp=window.checkersStartup.onlineIntentAt;
+   window.checkersStartup.onlineIntentAt=null;
+   invokeOnline(playIntentEvent(stamp));
   },
   show:()=>{
    audio.show();

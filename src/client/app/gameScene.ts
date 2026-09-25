@@ -105,6 +105,8 @@ export class GameScene extends Phaser.Scene {
 	private onlineBegun = false;
 	private inboundNet: NetMove[] = [];
 	private applyingNet = false;
+	/** Pending first-frame listener; kept so shutdown can remove it. */
+	private boardFrameListener?: () => void;
 
 	private botTimer?: Phaser.Time.TimerEvent;
 
@@ -885,13 +887,32 @@ export class GameScene extends Phaser.Scene {
 		this.countingIn = false;
 	}
 
-	/** First painted board frame after the reveal gate: scene render or next two rAFs. */
+	/**
+	 * First frame that actually painted the revealed board.
+	 *
+	 * A scene has no `postrender` event; the real post-render signal is
+	 * `Phaser.Core.Events.POST_RENDER` on the game emitter (Game.step, after the
+	 * renderer finished the whole frame). Two rAF ticks are not a painted frame,
+	 * so they are not used as a substitute. The listener is removed on the first
+	 * frame and on shutdown, so nothing is left behind.
+	 */
 	private markBoardFirstFrame(): void {
-		const done = () => markPerf('board-first-frame');
-		this.events.once('postrender', done);
-		if (typeof requestAnimationFrame === 'function') {
-			requestAnimationFrame(() => requestAnimationFrame(done));
-		}
+		const events = this.game?.events;
+		if (!events || this.boardFrameListener) return;
+		const shutdown = () => {
+			if (this.boardFrameListener !== done) return;
+			this.boardFrameListener = undefined;
+			events.off(Phaser.Core.Events.POST_RENDER, done);
+		};
+		const done = () => {
+			this.boardFrameListener = undefined;
+			events.off(Phaser.Core.Events.POST_RENDER, done);
+			this.events.off('shutdown', shutdown);
+			markPerf('board-first-frame');
+		};
+		this.boardFrameListener = done;
+		events.once(Phaser.Core.Events.POST_RENDER, done);
+		this.events.once('shutdown', shutdown);
 	}
 
 	private beginCountdown(fromOpening = false): void {
@@ -1310,7 +1331,9 @@ export class GameScene extends Phaser.Scene {
 		const next = apply(this.position, move);
 		if (!next) return;
 		this.settleClock(mover);
-		if (this.matchPlies.length === 0 && mover === this.humanSide) markPerf('first-move-played');
+		// First accepted move of the human side: bots may have played earlier plies.
+		// markPerf keeps the first write, so later human moves never move the mark.
+		if (mover === this.humanSide) markPerf('first-move-played');
 		this.matchPlies.push({ side: mover, from: move.from, path: move.path });
 		this.position = next;
 		this.humanChain = null;

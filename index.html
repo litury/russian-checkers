@@ -393,6 +393,9 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   playCommitted: false,
   playIntent: null,
   onlineIntent: null,
+  // Press instant captured before the engine module loads; replayed on flush.
+  playIntentAt: null,
+  onlineIntentAt: null,
   source: 'play',
   fail(message) {
    clearTimeout(window.checkersStartup.watchdog);
@@ -401,6 +404,8 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
    window.checkersStartup.playCommitted = false;
    window.checkersStartup.playIntent = null;
    window.checkersStartup.onlineIntent = null;
+   window.checkersStartup.playIntentAt = null;
+   window.checkersStartup.onlineIntentAt = null;
    window.checkersFlavor.setState('error');
    byId('opening-status').hidden = false;
    byId('opening-error').hidden = false;
@@ -487,14 +492,23 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   if (play.hidden || play.disabled) return;
   window.checkersStartup.source = 'play';
   if (typeof window.checkersStartup.playIntent === 'function') window.checkersStartup.playIntent(event);
-  else { window.checkersStartup.pendingPlay = true; window.checkersStartup.waitPlay(); }
+  else {
+   // No engine yet: keep the press instant, the flush replays it as play-intent.
+   window.checkersStartup.playIntentAt = event && Number.isFinite(event.timeStamp) ? event.timeStamp : null;
+   window.checkersStartup.pendingPlay = true;
+   window.checkersStartup.waitPlay();
+  }
  };
  online.disabled = false;
  online.onclick = (event) => {
   if (online.hidden || online.disabled) return;
   window.checkersStartup.source = 'online';
   if (typeof window.checkersStartup.onlineIntent === 'function') window.checkersStartup.onlineIntent(event);
-  else { window.checkersStartup.pendingOnline = true; window.checkersStartup.waitOnline(); }
+  else {
+   window.checkersStartup.onlineIntentAt = event && Number.isFinite(event.timeStamp) ? event.timeStamp : null;
+   window.checkersStartup.pendingOnline = true;
+   window.checkersStartup.waitOnline();
+  }
  };
  window.checkersStartup.unlock();
  window.checkersStartup.progress('Загружаем игру… Можно выбрать сторону и нажать «С машиной».');
