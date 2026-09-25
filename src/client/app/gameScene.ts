@@ -37,7 +37,7 @@ import {
 } from '@/rules';
 import { createHud, matchStatus } from './createHud';
 import { markPerf } from './perfMarks';
-import { warmImages } from './idleWork';
+import { optionalPack, warmImages } from './idleWork';
 import { dropNoticeLine } from './dropNotice';
 import { preloadBunkerPanels } from './bunkerPanel';
 import { remainingForHud } from './matchClock';
@@ -123,6 +123,12 @@ export class GameScene extends Phaser.Scene {
 
 	private startupFailed = false;
 	private playfieldBuilt = false;
+	/**
+	 * Decoration packs warm up lazily and may be missing (aborted/blocked lazy
+	 * import): the match stays playable, this is only a diagnostic surface for
+	 * the browser QA seam.
+	 */
+	readonly missingDecoration = { selectionOverlay: false, kingFire: false };
 	private startingFromOpening = false;
 	/** Settled by bootPlayfield; created before overlay so await never sees undefined. */
 	private settlePlayfieldReady!: () => void;
@@ -247,8 +253,20 @@ export class GameScene extends Phaser.Scene {
 	private scheduleResultWindow(): void {
 		void this.interactiveReady.then(async () => {
 			// Small overlay pack first: the board can then show selection at once.
-			await this.bootSelectionOverlay();
-			await this.bootKingFire();
+			// Both packs are decoration, and each owns its own failure: a rejected
+			// lazy import of the overlay must not become an unhandled rejection and
+			// must not cancel the king-fire warm-up queued behind it.
+			const markOverlayUnavailable = (): void => {
+				this.missingDecoration.selectionOverlay = true;
+			};
+			await optionalPack(
+				'selection-overlay',
+				() => this.bootSelectionOverlay(),
+				markOverlayUnavailable,
+			);
+			await optionalPack('king-fire', () => this.bootKingFire(), () => {
+				this.missingDecoration.kingFire = true;
+			});
 		});
 		this.resultReady = this.interactiveReady.then(async () => {
 			await this.idleSlot();

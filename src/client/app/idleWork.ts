@@ -26,6 +26,31 @@ export function whenIdle(task: () => void, timeoutMs = 2000): () => void {
 }
 
 /**
+ * Runs one optional decoration warm-up (a lazily imported art pack, a Phaser
+ * loader queue built from it) and owns its failure.
+ *
+ * A lazy pack can reject for reasons that have nothing to do with the match:
+ * a URL-module import that 404s or is aborted, a loader error, a codec the
+ * browser refuses. Decoration may then simply be missing, but it must not
+ * surface as an unhandled rejection and must not cancel the warm-ups that
+ * follow it. Returns whether the step finished.
+ */
+export async function optionalPack(
+	label: string,
+	boot: () => Promise<void>,
+	onFailure?: (label: string, error: unknown) => void,
+): Promise<boolean> {
+	try {
+		await boot();
+		return true;
+	} catch (error) {
+		if (onFailure) onFailure(label, error);
+		else console.warn(`[damka] optional pack "${label}" unavailable`, error);
+		return false;
+	}
+}
+
+/**
  * Decodes decorative images one per idle slot. Never throws, never blocks:
  * a failed or slow image is simply skipped, and `shouldStop` (page change,
  * match over) ends the queue early. Returns a cancel function.

@@ -99,5 +99,9 @@ it('delivers the ten overlay frames and queues them only after the reveal', () =
 		/bootMatchInteractive\(\): Promise<void> \{[\s\S]*?\n	\}/,
 	])
 		expect(scene.match(gate)?.[0] ?? '').not.toContain('queueSelectionOverlay');
-	expect(scene).toContain('await this.bootSelectionOverlay()');
+	// The lazy pack is warmed through the isolated optional step, never bare-await:
+	// a rejected URL import must not cancel king-fire nor leak an unhandled rejection.
+	expect(scene).toContain("optionalPack(\n				'selection-overlay',");
+	expect(scene).toContain('() => this.bootSelectionOverlay(),');
+	expect(scene).not.toContain('await this.bootSelectionOverlay()');
 });
