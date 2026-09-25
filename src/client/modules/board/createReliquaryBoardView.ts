@@ -9,14 +9,20 @@ import { sameSquare } from '@/client/shared/sameSquare';
 import { type IMove, type IPosition, type ISquare, type Side, legalMoves } from '@/rules';
 import type { IBoardView } from './IBoardView';
 import { markerMoves } from './reliquaryHints';
+import { planMoveMarks, type MarkTone } from './moveMarks';
 import {
 	ARROW_CELL,
 	ARROW_CORNER,
 	ARROW_TEXTURE,
 	arrowRotation,
 	drawReliquaryMarker,
-	MARKER_ARROW,
+	MARKER_ARROW_AMBER,
+	MARKER_ARROW_COPPER,
+	MARKER_CIRCLE_AMBER,
+	MARKER_CIRCLE_COPPER,
 	MARKER_STAPLES,
+	MARKER_STAPLES_AMBER,
+	MARKER_STAPLES_COPPER,
 	screenStep,
 } from './reliquaryMarkers';
 import { MarkerMotion } from './reliquaryMotion';
@@ -58,7 +64,12 @@ export function createBoardView(
 		...Object.keys(kingFireAssets).map(name => `king-fire_${name}`),
 		...['white', 'black'].flatMap(side => Array.from({ length: 56 }, (_, i) => `selection_${side}-${String(i).padStart(2, '0')}`)),
 		MARKER_STAPLES,
-		MARKER_ARROW,
+		MARKER_STAPLES_AMBER,
+		MARKER_STAPLES_COPPER,
+		MARKER_ARROW_AMBER,
+		MARKER_ARROW_COPPER,
+		MARKER_CIRCLE_AMBER,
+		MARKER_CIRCLE_COPPER,
 	]) {
 		if (!scene.textures?.exists?.(texture)) continue;
 		scene.textures.get(texture)?.setFilter(Phaser.Textures.FilterMode.LINEAR);
@@ -132,27 +143,43 @@ export function createBoardView(
 		used[which] += 1;
 		return img.setTexture(texture).setName(texture).setDepth(depth).setVisible(true).setAlpha(1).setRotation(0);
 	};
-	const placeStaple = (square: ISquare, alpha: number, depth: number, which: 'intro' | 'marks'): void => {
-		if (alpha <= 0 || !hasTexture(MARKER_STAPLES)) return;
+	const toneTexture = (tone: MarkTone, amber: string, copper: string): string =>
+		tone === 'copper' ? copper : amber;
+	const placeStaple = (
+		square: ISquare,
+		alpha: number,
+		depth: number,
+		which: 'intro' | 'marks',
+		texture = MARKER_STAPLES,
+	): void => {
+		if (alpha <= 0 || !hasTexture(texture)) return;
 		const box = cellBox(square);
-		take(which, MARKER_STAPLES, depth)
+		take(which, texture, depth)
 			.setPosition(box.x, box.y)
 			.setOrigin(0.5, 0.5)
 			.setDisplaySize(box.w, box.h)
 			.setAlpha(alpha);
 	};
-	const placeArrow = (from: ISquare, to: ISquare): void => {
-		if (!hasTexture(MARKER_ARROW)) return;
+	const placeArrow = (from: ISquare, to: ISquare, texture: string): void => {
+		if (!hasTexture(texture)) return;
 		const step = screenStep(from, to, facing);
 		if (!step.dx || !step.dy) return;
 		const box = cellBox(from);
 		const long = Math.max(box.w, box.h) * ARROW_CELL;
 		const scale = long / Math.max(ARROW_TEXTURE.w, ARROW_TEXTURE.h);
-		take('marks', MARKER_ARROW, 8.2)
+		take('marks', texture, 8.2)
 			.setOrigin(0.5, 0.5)
 			.setDisplaySize(ARROW_TEXTURE.w * scale, ARROW_TEXTURE.h * scale)
 			.setRotation(arrowRotation(step.dx, step.dy))
 			.setPosition(box.x + step.dx * box.w * ARROW_CORNER, box.y + step.dy * box.h * ARROW_CORNER);
+	};
+	const placeCircle = (square: ISquare, texture: string): void => {
+		if (!hasTexture(texture)) return;
+		const box = cellBox(square);
+		take('marks', texture, 8.05)
+			.setPosition(box.x, box.y)
+			.setOrigin(0.5, 0.5)
+			.setDisplaySize(box.w, box.h);
 	};
 	const drawIntro = () => {
 		introMarks.clear();
@@ -198,24 +225,15 @@ export function createBoardView(
 		drawIntro();
 
 		if (!visible) return;
-		if (selected) placeStaple(selected, 1, 8, 'marks');
-		const seen = new Set<string>();
-		const arrows = new Set<string>();
-
+		if (selected) placeStaple(selected, 1, 8, 'marks', MARKER_STAPLES_AMBER);
 		const routes = markerMoves(choices, selected);
-		for (const move of routes) {
-			const victims = targets(move);
-			for (const sq of victims) {
-				const id = `target:${key(sq)}`;
-				if (!seen.has(id)) placeStaple(sq, 1, 8, 'marks');
-				seen.add(id);
-			}
-			const land = move.path[0];
-			if (!land) continue;
-			const step = screenStep(move.from, land, facing);
-			const id = `${step.dx},${step.dy}`;
-			if (!arrows.has(id)) placeArrow(move.from, land);
-			arrows.add(id);
+		if (position) {
+			const plan = planMoveMarks(position, routes);
+			for (const sq of plan.victims) placeStaple(sq, 1, 8, 'marks', MARKER_STAPLES_COPPER);
+			for (const circle of plan.circles)
+				placeCircle(circle.square, toneTexture(circle.tone, MARKER_CIRCLE_AMBER, MARKER_CIRCLE_COPPER));
+			for (const arrow of plan.arrows)
+				placeArrow(arrow.from, arrow.to, toneTexture(arrow.tone, MARKER_ARROW_AMBER, MARKER_ARROW_COPPER));
 		}
 		drawInteraction();
 	};
@@ -526,9 +544,10 @@ export function createBoardView(
 			);
 			marks.clear();
 			release('marks');
-			placeStaple(from, 1, 8, 'marks');
-			placeArrow(from, land);
-			if (victim) placeStaple(victim, 1, 8, 'marks');
+			placeStaple(from, 1, 8, 'marks', MARKER_STAPLES_AMBER);
+			placeArrow(from, land, victim ? MARKER_ARROW_COPPER : MARKER_ARROW_AMBER);
+			placeCircle(land, victim ? MARKER_CIRCLE_COPPER : MARKER_CIRCLE_AMBER);
+			if (victim) placeStaple(victim, 1, 8, 'marks', MARKER_STAPLES_COPPER);
 			kingFire.takeoff(view, view.kind === 'king', cellBox(from), field.cell, reduced());
 			pieceStepSfx(view.kind === 'king', Boolean(victim), view.side, victim ? pieces.get(key(victim))?.side : undefined);
 			onTakeoff?.(Boolean(victim));

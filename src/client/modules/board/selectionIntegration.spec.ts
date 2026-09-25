@@ -305,16 +305,21 @@ it('renders exact individually delivered frames at a fixed body pivot, holds sel
  expect(h.sprite().y).toBe(y);
  expect(h.sprite().displayWidth).toBe(w);
  });
- it('shows one rotated arrow only after selection, and staples instead of a circle', () => {
+ it('shows one rotated arrow only after selection, an amber staple on the piece, and a circle on the landing', () => {
  const h = harness();
- const arrows = () => h.objects.filter(o => o.visible && !o.destroyed && o.name === 'marker_arrow');
- const staples = () => h.objects.filter(o => o.visible && !o.destroyed && o.name === 'marker_staples');
+ const arrows = () => h.objects.filter(o => o.visible && !o.destroyed && o.name === 'marker_arrow_amber');
+ const staples = () => h.objects.filter(o => o.visible && !o.destroyed && o.name === 'marker_staples_amber');
+ const circles = () => h.objects.filter(o => o.visible && !o.destroyed && o.name === 'marker_circle_amber');
  h.board.sync(position(), [from], null);
  expect(arrows()).toHaveLength(0);
+ expect(circles()).toHaveLength(0);
  h.board.sync(position(), [from], from, [{ from, path: [land] }]);
  expect(staples()).toHaveLength(1);
  expect(staples()[0].displayWidth).toBe(44);
  expect(staples()[0].x).toBe(22);
+ expect(circles()).toHaveLength(1);
+ expect(circles()[0].x).toBe((1 + 0.5) * 44);
+ expect(circles()[0].y).toBe((7.5 - 3) * 44);
  expect(arrows()).toHaveLength(1);
  expect(arrows()[0].x).toBeCloseTo(22 + 44 * 0.55);
  expect(arrows()[0].y).toBeLessThan(242);
@@ -327,9 +332,36 @@ it('renders exact individually delivered frames at a fixed body pivot, holds sel
  	{ from: mid, path: [{ row: 3, col: 3 }] },
  ]);
  expect(arrows()).toHaveLength(2);
+ expect(circles()).toHaveLength(2);
  expect(new Set(arrows().map(a => a.rotation)).size).toBe(2);
  h.board.setFacing('black');
  h.board.sync(position(), [from], from, [{ from, path: [land] }]);
  expect(arrows()).toHaveLength(1);
  expect(arrows()[0].y).toBeCloseTo((2 + 0.5) * 44 + 44 * 0.55);
+ expect(circles()[0].y).toBeCloseTo((3 + 0.5) * 44);
+ });
+ it('keeps a circle on every far king landing instead of collapsing the diagonal to path[0]', () => {
+ const h = harness();
+ const origin = { row: 2, col: 2 };
+ const squares = Array.from({ length: 8 }, () => Array(8).fill(null));
+ squares[2][2] = { kind: 'king', side: 'white' };
+ squares[3][3] = { kind: 'man', side: 'black' };
+ squares[5][3] = { kind: 'man', side: 'black' };
+ h.board.sync({ squares, turn: 'white' }, [origin], origin, [
+ 	{ from: origin, path: [{ row: 4, col: 4 }] },
+ 	{ from: origin, path: [{ row: 5, col: 5 }] },
+ 	{ from: origin, path: [{ row: 4, col: 4 }, { row: 6, col: 2 }] },
+ ]);
+ const circles = h.objects.filter(o => o.visible && !o.destroyed && o.name === 'marker_circle_copper');
+ const arrows = h.objects.filter(o => o.visible && !o.destroyed && o.name === 'marker_arrow_copper');
+ const victims = h.objects.filter(o => o.visible && !o.destroyed && o.name === 'marker_staples_copper');
+ expect(circles.map(c => `${c.x},${c.y}`).sort()).toEqual([
+ 	`${(4 + 0.5) * 44},${(7.5 - 4) * 44}`,
+ 	`${(5 + 0.5) * 44},${(7.5 - 5) * 44}`,
+ 	`${(2 + 0.5) * 44},${(7.5 - 6) * 44}`,
+ ].sort());
+ expect(arrows).toHaveLength(1);
+ expect(victims).toHaveLength(2);
+ expect(victims[0].x).toBe((3 + 0.5) * 44);
+ expect(h.objects.filter(o => o.visible && o.name === 'marker_circle_amber')).toHaveLength(0);
  });

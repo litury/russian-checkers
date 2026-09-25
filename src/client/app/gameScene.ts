@@ -254,7 +254,12 @@ export class GameScene extends Phaser.Scene {
 		this.load.image(pieceSprites.kingLight, reliquaryAssets['../modules/board/reliquary/ivory_king.webp'] as string);
 		this.load.image(pieceSprites.kingDark, reliquaryAssets['../modules/board/reliquary/black_king.webp'] as string);
 		this.load.image('marker_staples', new URL('../modules/board/markers/staples.png', import.meta.url).href);
-		this.load.image('marker_arrow', new URL('../modules/board/markers/arrow.png', import.meta.url).href);
+		this.load.image('marker_staples_amber', new URL('../modules/board/markers/staples-amber.png', import.meta.url).href);
+		this.load.image('marker_staples_copper', new URL('../modules/board/markers/staples-copper.png', import.meta.url).href);
+		this.load.image('marker_arrow_amber', new URL('../modules/board/markers/arrow-amber.png', import.meta.url).href);
+		this.load.image('marker_arrow_copper', new URL('../modules/board/markers/arrow-copper.png', import.meta.url).href);
+		this.load.image('marker_circle_amber', new URL('../modules/board/markers/circle-amber.png', import.meta.url).href);
+		this.load.image('marker_circle_copper', new URL('../modules/board/markers/circle-copper.png', import.meta.url).href);
 	}
 
 	private queueMatchInteractive(): void {

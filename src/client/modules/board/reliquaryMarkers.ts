@@ -13,7 +13,12 @@ export type Marker =
 
 /** Cropped parent staple sheet: four corners in a 176px cell, shown at the live cell size. */
 export const MARKER_STAPLES = 'marker_staples';
-export const MARKER_ARROW = 'marker_arrow';
+export const MARKER_STAPLES_AMBER = 'marker_staples_amber';
+export const MARKER_STAPLES_COPPER = 'marker_staples_copper';
+export const MARKER_ARROW_AMBER = 'marker_arrow_amber';
+export const MARKER_ARROW_COPPER = 'marker_arrow_copper';
+export const MARKER_CIRCLE_AMBER = 'marker_circle_amber';
+export const MARKER_CIRCLE_COPPER = 'marker_circle_copper';
 export const STAPLE_SOURCE_PX = 176;
 /** arrow.png size. Long side is drawn at ARROW_CELL of the live cell. */
 export const ARROW_TEXTURE = { w: 194, h: 183 } as const;
@@ -43,8 +48,9 @@ export function arrowRotation(dx: number, dy: number): number {
 }
 
 /**
- * Keyboard focus only. Staples and the move arrow are sprites, not a second
- * vector layer. Destination circles are not drawn.
+ * Keyboard focus only. Staples, the move arrow and the landing ring are
+ * sprites. Do not paint a second vector circle, and do not tint a whole PNG:
+ * the dark sole would change colour with the metal.
  */
 export function drawReliquaryMarker(
 	g: Phaser.GameObjects.Graphics,
