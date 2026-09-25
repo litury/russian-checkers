@@ -776,7 +776,11 @@ export function createBoardView(
 		drawInteraction();
 	};
 	const onFocus = (): void => {
-		keyboard = canvas.matches(':focus-visible');
+		// Keyboard-only highlight: a tap must not draw it even if the engine
+		// keeps :focus-visible after a touch.
+		keyboard =
+			canvas.matches(':focus-visible') &&
+			document.documentElement.dataset.inputMode !== 'pointer';
 		drawInteraction();
 	};
 	canvas.addEventListener('keydown', onKey);

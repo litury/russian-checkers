@@ -11,6 +11,7 @@
 #match-history [hidden] { display:none !important; }
 #match-history * { box-sizing:border-box; }
 #match-history :focus-visible { outline:3px solid #edc476; outline-offset:3px; }
+html[data-input-mode=pointer] #match-history :focus-visible { outline:none; }
 #match-history h2,#match-history h3,#match-history p { margin:0; }
 #match-history h2 { font:600 clamp(26px,3vw,38px)/1.3 Literata,serif; }
 #match-history h3 { font-size:19px; font-weight:600; }

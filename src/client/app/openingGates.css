@@ -45,6 +45,8 @@
 #opening #opening-history { top:calc(var(--play-y) + 174px); left:calc(50% - 92px); }
 #opening #opening-retry { font-size:14px; }
 #opening button:focus-visible { outline:3px solid #bed9ec; outline-offset:0; }
+/* Touch/pointer focus keeps no ring: the gate is the last input modality. */
+html[data-input-mode=pointer] #opening button:focus-visible { outline:none; }
 #opening .opening-actions button:hover { filter:brightness(1.06); }
 #opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options):active {
  filter:none; background-image:url('./ui/siege/button-steel-pressed.webp'); transform:translateY(2px);
@@ -108,6 +110,7 @@
 }
 #match-undo:disabled,#match-resign:disabled{opacity:.45;cursor:default}
 #match-undo:focus-visible,#match-resign:focus-visible{outline:3px solid #bed9ec;outline-offset:3px}
+html[data-input-mode=pointer] #match-undo:focus-visible,html[data-input-mode=pointer] #match-resign:focus-visible{outline:none}
 
 
 #opening .siege-left { clip-path:polygon(0% 0%, 50.130208% 0.000000%, 50.130208% 16.015625%, 47.460938% 18.945312%, 47.460938% 29.296875%, 51.302083% 32.812500%, 51.302083% 41.308594%, 47.981771% 44.335938%, 47.981771% 54.394531%, 51.236979% 57.519531%, 51.236979% 66.308594%, 47.460938% 69.921875%, 47.460938% 79.003906%, 50.130208% 81.835938%, 50.130208% 100.000000%, 0% 100%); }
