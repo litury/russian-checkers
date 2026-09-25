@@ -1,5 +1,7 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import html from '../../../index.html?raw';
+import { readPerf, resetPerf } from './perfMarks';
+import { notePlayIntent, playIntentEvent } from './playIntent';
 
 function boot() {
  const nodes = new Map<string, any>();
@@ -84,4 +86,38 @@ it('search copy does not reopen the load-error banner', () => {
  expect(byId('opening-status').hidden).toBe(true);
  expect(byId('opening-error').textContent).not.toContain('Ищем');
  expect(byId('opening-loading-status').textContent).toContain('Ищем');
+});
+it('stores the press instant when «Играть» is pressed before the engine loads', () => {
+ vi.useFakeTimers(); const { startup, byId } = boot();
+ byId('opening-play').onclick({ timeStamp: 137 });
+ expect(startup.pendingPlay).toBe(true);
+ expect(startup.playIntentAt).toBe(137);
+});
+it('stores the press instant for the pre-engine human CTA too', () => {
+ vi.useFakeTimers(); const { startup, byId } = boot();
+ byId('opening-online').onclick({ timeStamp: 214 });
+ expect(startup.pendingOnline).toBe(true);
+ expect(startup.onlineIntentAt).toBe(214);
+});
+it('leaves a click that already reached the engine untouched', () => {
+ vi.useFakeTimers(); const { startup, byId } = boot();
+ const seen: Array<Event | undefined> = [];
+ startup.playIntent = (event?: Event) => seen.push(event);
+ const event = { timeStamp: 2600 } as Event;
+ byId('opening-play').onclick(event);
+ expect(seen).toEqual([event]);
+ expect(startup.playIntentAt).toBe(null);
+});
+it('a cold HTML press reaches the engine timeline with the original instant', () => {
+ vi.useFakeTimers(); resetPerf();
+ const { startup, byId } = boot();
+ // The engine modules are still loading while the player presses the CTA …
+ vi.advanceTimersByTime(2500);
+ byId('opening-play').onclick({ timeStamp: 137 });
+ // … and the engine replays exactly what the HTML script captured for that press.
+ notePlayIntent(playIntentEvent(startup.playIntentAt));
+ const { marks, measures } = readPerf();
+ expect(marks['play-intent']).toBeCloseTo(137, 3);
+ expect(marks['play-handled']).toBeGreaterThanOrEqual(2500);
+ expect(measures['play-input-delay']).toBeGreaterThanOrEqual(2000);
 });
