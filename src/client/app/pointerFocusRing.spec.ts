@@ -230,6 +230,75 @@ describe('touch focus ring regression', () => {
 		expect(state.isSuppressed(s.canvas)).toBe(false);
 	});
 
+	it('clears the pointer suppression on keyboard input without any focus move', () => {
+		const s = scene();
+		const state = new FocusRingState();
+
+		state.pointerDown(s.menuButton);
+		state.focusIn(s.menuButton);
+		expect(state.isSuppressed(s.menuButton)).toBe(true);
+
+		// Keyboard takeover while the tapped element keeps focus (no Tab, no
+		// focusout): the ring has to come back on that very element.
+		state.keyDown();
+
+		expect(state.isSuppressed(s.menuButton)).toBe(false);
+		expect(s.menuButton.hasAttribute(POINTER_FOCUS_ATTR)).toBe(false);
+	});
+
+	it('restores the ring when typing starts in a field a tap focused', () => {
+		const s = scene();
+		const state = new FocusRingState();
+
+		state.pointerDown(s.label);
+		state.focusIn(s.email);
+		expect(state.isSuppressed(s.email)).toBe(true);
+
+		// Physical keyboard input in the still-focused field.
+		state.keyDown();
+		expect(state.isSuppressed(s.email)).toBe(false);
+		expect(s.email.hasAttribute(POINTER_FOCUS_ATTR)).toBe(false);
+
+		// A later tap on that same field suppresses the ring again.
+		state.pointerDown(s.label);
+		state.focusIn(s.email);
+		expect(state.isSuppressed(s.email)).toBe(true);
+	});
+
+	it('keeps the suppression when the gesture is cancelled without keyboard input', () => {
+		const s = scene();
+		const state = new FocusRingState();
+
+		state.pointerDown(s.menuButton);
+		state.focusIn(s.menuButton);
+		// pointercancel only drops the pending gesture; the ring stays hidden
+		// for the element the finger focused until real keyboard input.
+		state.pointerCancel();
+		expect(state.isSuppressed(s.menuButton)).toBe(true);
+
+		state.pointerDown(s.backdrop);
+		expect(state.isSuppressed(s.menuButton)).toBe(false);
+	});
+
+	it('suppresses the ring again when the finger returns to a keyboard-focused button', () => {
+		const s = scene();
+		const state = new FocusRingState();
+
+		// Tab focused the button: the ring shows.
+		state.focusIn(s.menuButton);
+		expect(state.isSuppressed(s.menuButton)).toBe(false);
+
+		// The finger lands on that already-focused button: no focusin fires, so
+		// the press itself has to hide the ring.
+		state.pointerDown(s.menuButton);
+		expect(state.isSuppressed(s.menuButton)).toBe(true);
+		expect(s.menuButton.hasAttribute(POINTER_FOCUS_ATTR)).toBe(true);
+
+		// Keyboard again: the ring is back without moving focus.
+		state.keyDown();
+		expect(state.isSuppressed(s.menuButton)).toBe(false);
+	});
+
 	it('moves the mark instead of accumulating it', () => {
 		const s = scene();
 		const state = new FocusRingState();

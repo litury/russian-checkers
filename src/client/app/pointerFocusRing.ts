@@ -58,6 +58,9 @@ export class FocusRingState {
 
 	private pointerTarget: FocusRingElement | null = null;
 
+	/** The element that currently holds focus, if any. */
+	private focused: FocusRingElement | null = null;
+
 	/** A pointer press landed on `target`. */
 	pointerDown(target: FocusRingElement | null): void {
 		this.pointerTarget = target;
@@ -65,15 +68,32 @@ export class FocusRingState {
 		// the engine may keep the old element focused and still matching
 		// `:focus-visible`, so waiting for a focusout is not enough.
 		if (this.marked && this.marked !== focusOwnerOf(target)) this.unmark();
+		// A finger landing on the element that already holds focus produces no
+		// focusin, so the ring would stay visible on a button the keyboard (or
+		// an earlier gesture) focused. A press is still pointer input: suppress.
+		if (this.focused && pointerOwnsFocus(target, this.focused))
+			this.mark(this.focused);
 	}
 
 	/** Keyboard input took over: no pending pointer focus ownership. */
 	keyDown(): void {
 		this.pointerTarget = null;
+		// Keyboard takeover also revokes a ring already handed to a finger,
+		// even when focus does not move: tapping a field and then typing on a
+		// physical keyboard is keyboard use, and the focused element must show
+		// its ring again. Waiting for a focusout/focusin pair missed exactly
+		// that case, leaving the ring hidden for a real keyboard user.
+		this.unmark();
+	}
+
+	/** The gesture was cancelled (scroll takeover): it focused nothing new. */
+	pointerCancel(): void {
+		this.pointerTarget = null;
 	}
 
 	/** Focus moved (or was set) on `focused`. */
 	focusIn(focused: FocusRingElement | null): void {
+		this.focused = focusOwnerOf(focused) ?? focused;
 		if (pointerOwnsFocus(this.pointerTarget, focused)) {
 			this.mark(focused);
 			// Owned focus is spent: a later screen-reader/scripted focus of the
@@ -85,6 +105,7 @@ export class FocusRingState {
 	}
 
 	focusOut(blurred: FocusRingElement | null): void {
+		if (blurred && this.focused === blurred) this.focused = null;
 		if (blurred && this.marked === blurred) this.unmark();
 	}
 
@@ -126,7 +147,7 @@ export function installPointerFocusRing(
 		(event) => state.pointerDown(elementOf(event.target)),
 		true,
 	);
-	root.addEventListener('pointercancel', () => state.keyDown(), true);
+	root.addEventListener('pointercancel', () => state.pointerCancel(), true);
 	root.addEventListener('keydown', () => state.keyDown(), true);
 	root.addEventListener(
 		'focusin',
