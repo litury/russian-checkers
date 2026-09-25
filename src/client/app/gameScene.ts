@@ -32,6 +32,8 @@ import {
 	winner,
 } from '@/rules';
 import { createHud, matchStatus } from './createHud';
+import { markPerf } from './perfMarks';
+import { warmImages } from './idleWork';
 import { dropNoticeLine } from './dropNotice';
 import { preloadBunkerPanels } from './bunkerPanel';
 import { remainingForHud } from './matchClock';
@@ -120,6 +122,8 @@ export class GameScene extends Phaser.Scene {
 	});
 	private resultReady!: Promise<void>;
 	private interactiveReady!: Promise<void>;
+	private endpointWarmUp = false;
+	private stopWarmUp?: () => void;
 
 	preload(): void {
 		this.startupFailed = false;
@@ -262,14 +266,29 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private queueMatchInteractive(): void {
-		// Selection-v2 frames + seal: required before playfield reveal (hitboxes/origin).
-		const selectionFrames = import.meta.glob('../modules/board/selection-v2/frames/*/*.webp', {
-			eager: true, query: '?url', import: 'default',
-		});
-		for (const [path, url] of Object.entries(selectionFrames)) {
-			this.load.image(`selection_${path.split('/').pop()!.replace('.webp', '')}`, url as string);
-		}
+		// Selection-v2 frames are menu/result art only: the board never draws them
+		// (pieces keep their Reliquary disks, brackets come from markers/*.png).
+		// Only the king seal is a board texture, and it is one small file.
 		this.load.image('selection_king-seal', new URL('../modules/board/selection/markers/king-seal-proposed.webp', import.meta.url).href);
+	}
+
+	/** Menu/result endpoint frames, warmed in idle time after input is already allowed. */
+	private warmSelectionEndpoints(): void {
+		if (this.endpointWarmUp || this.startupFailed) return;
+		this.endpointWarmUp = true;
+		const urls = Object.entries(
+			import.meta.glob('../modules/board/selection-v2/frames/*/*-{00,55}.webp', {
+				query: '?url',
+				import: 'default',
+			}) as Record<string, () => Promise<string>>,
+		).sort(([a], [b]) => a.localeCompare(b));
+		void Promise.all(urls.map(([, load]) => load()))
+			.then((resolved) => {
+				this.stopWarmUp = warmImages(resolved, () => this.startupFailed || this.phase === 'over');
+			})
+			.catch(() => {
+				// Endpoint art is decoration: a failure never changes match state.
+			});
 	}
 
 	private queueKingFire(): void {
@@ -314,6 +333,9 @@ export class GameScene extends Phaser.Scene {
 		await this.flushLoader();
 		if (this.startupFailed) return;
 		this.buildPlayfield();
+		if (!this.playfieldBuilt) return;
+		// Board + pieces are on screen-capable textures here: this is the reveal gate.
+		markPerf('playfield-ready');
 	}
 
 	private async bootMatchInteractive(): Promise<void> {
@@ -671,6 +693,7 @@ export class GameScene extends Phaser.Scene {
 	private finishOnlineOpening(): void {
 		if (!this.countingIn) return;
 		this.stopCountdown();
+		markPerf('counting-in-false');
 		this.title.hide(true);
 		this.title.beginMatch();
 		this.hud?.finishReveal();
@@ -778,6 +801,8 @@ export class GameScene extends Phaser.Scene {
 
 	private showTitle(): void {
 		this.resultGen += 1;
+		this.stopWarmUp?.();
+		this.stopWarmUp = undefined;
 		this.humanChain = null;
 		this.botTimer?.remove(false);
 		this.tweens.killAll();
@@ -849,6 +874,7 @@ export class GameScene extends Phaser.Scene {
 		this.hud.setNames('Ты', this.online ? 'Соперник' : 'Бот');
 		// Real piece disks stay. Selection-v2 frames are not substituted on the board.
 		this.board.setPlayfieldVisible(true);
+		this.markBoardFirstFrame();
 		this.beginCountdown(fromOpening);
 		this.refresh();
 	}
@@ -857,6 +883,15 @@ export class GameScene extends Phaser.Scene {
 		this.board?.clearOpeningHint();
 		this.hud?.stopReveal();
 		this.countingIn = false;
+	}
+
+	/** First painted board frame after the reveal gate: scene render or next two rAFs. */
+	private markBoardFirstFrame(): void {
+		const done = () => markPerf('board-first-frame');
+		this.events.once('postrender', done);
+		if (typeof requestAnimationFrame === 'function') {
+			requestAnimationFrame(() => requestAnimationFrame(done));
+		}
 	}
 
 	private beginCountdown(fromOpening = false): void {
@@ -882,6 +917,7 @@ export class GameScene extends Phaser.Scene {
 			this.title.speakOrcTurn(orcOpeningTurnLine(this.humanSide), this.humanSide);
 			this.clockStartedAt = this.time.now;
 			this.countingIn = false;
+			markPerf('counting-in-false');
 			this.paintClock();
 			this.refresh();
 			if (this.phase === 'bot') {
@@ -1023,6 +1059,12 @@ export class GameScene extends Phaser.Scene {
 			return;
 		}
 		if (!this.board || !this.hud) return;
+		// Input permission for the human's first move: the user-visible end of the start path.
+		if (this.canSelect()) {
+			markPerf('first-move-allowed');
+			// Decoration warm-up starts only here: never on the reveal path.
+			this.warmSelectionEndpoints();
+		}
 		// Paint the activity edge with the position/status, not the next clock tick.
 		this.paintClock();
 		this.board.sync(
@@ -1268,6 +1310,7 @@ export class GameScene extends Phaser.Scene {
 		const next = apply(this.position, move);
 		if (!next) return;
 		this.settleClock(mover);
+		if (this.matchPlies.length === 0 && mover === this.humanSide) markPerf('first-move-played');
 		this.matchPlies.push({ side: mover, from: move.from, path: move.path });
 		this.position = next;
 		this.humanChain = null;

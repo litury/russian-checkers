@@ -6,6 +6,7 @@ import {bindMatchHistory} from './matchHistoryUi';
 import {ensureGuest, loadPresence, beatPresence} from '@/online/cloud';
 
 import {presenceLit, HEARTBEAT_MS, PRESENCE_CACHE_MS} from '@/online/presence';
+import {markPerf,markPerfAt} from './perfMarks';
 import {OpeningGates} from './openingGates';
 import {gateDurationMs as preparationMs} from './openingGates';
 import {searchCopy, type SearchPhase} from './matchmakingSearch';
@@ -17,8 +18,8 @@ declare global {
    watchdog: number;
    pendingPlay?: boolean;
    playCommitted?: boolean;
-   playIntent?: (() => void) | null;
-   onlineIntent?: (() => void) | null;
+   playIntent?: ((event?: Event) => void) | null;
+   onlineIntent?: ((event?: Event) => void) | null;
    pendingOnline?: boolean;
    source?: 'play' | 'online';
    fail: (message: string) => void;
@@ -122,23 +123,31 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   audio.gate(elapsed,motion.matches);
   gates.advance(elapsed - gates.elapsed);
  };
- const invoke = () => {
+ const notePlayIntent = (event?: Event) => {
+  // A busy main thread must not hide the wait: use the click's own timestamp.
+  const stamp = event && Number.isFinite(event.timeStamp) ? event.timeStamp : performance.now();
+  markPerfAt('play-intent', stamp);
+  markPerf('play-handled');
+ };
+ const invoke = (event?: Event) => {
   // Allow invoke while waitPlay disabled the button (early click / residual load).
   if(root.hidden||gates.active||root.inert) return;
+  notePlayIntent(event);
   window.checkersStartup.source = 'play';
   handlers.onPlayBot();
  };
  const pickWhite = pick('white');
  const pickBlack = pick('black');
- play.onclick=()=>invoke();
- const invokeOnline = () => {
+ play.onclick=(event)=>invoke(event);
+ const invokeOnline = (event?: Event) => {
   if(root.hidden||root.inert) return;
+  notePlayIntent(event);
   window.checkersStartup.source = 'online';
   window.checkersStartup.pendingOnline = false;
   handlers.onPlayOnline?.();
  };
  window.checkersStartup.onlineIntent = invokeOnline;
- if (online) online.onclick=()=>invokeOnline();
+ if (online) online.onclick=(event)=>invokeOnline(event);
  const searchFind = document.getElementById('opening-search-find') as HTMLButtonElement | null;
  const searchCreate = document.getElementById('opening-search-create') as HTMLButtonElement | null;
  const searchEnter = document.getElementById('opening-search-enter') as HTMLButtonElement | null;

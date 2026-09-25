@@ -483,17 +483,17 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
    byId('opening-loading-status').textContent = message;
   }
  };
- play.onclick = () => {
+ play.onclick = (event) => {
   if (play.hidden || play.disabled) return;
   window.checkersStartup.source = 'play';
-  if (typeof window.checkersStartup.playIntent === 'function') window.checkersStartup.playIntent();
+  if (typeof window.checkersStartup.playIntent === 'function') window.checkersStartup.playIntent(event);
   else { window.checkersStartup.pendingPlay = true; window.checkersStartup.waitPlay(); }
  };
  online.disabled = false;
- online.onclick = () => {
+ online.onclick = (event) => {
   if (online.hidden || online.disabled) return;
   window.checkersStartup.source = 'online';
-  if (typeof window.checkersStartup.onlineIntent === 'function') window.checkersStartup.onlineIntent();
+  if (typeof window.checkersStartup.onlineIntent === 'function') window.checkersStartup.onlineIntent(event);
   else { window.checkersStartup.pendingOnline = true; window.checkersStartup.waitOnline(); }
  };
  window.checkersStartup.unlock();
