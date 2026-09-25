@@ -6,6 +6,10 @@ import { palette } from '@/client/config/palette';
 import type { IBoardView } from '@/client/modules/board';
 import { createBoardView } from '@/client/modules/board';
 import { preloadKingFire } from '@/client/modules/board/kingFireAssets';
+import {
+	selectionOverlayTexture,
+	type SelectionOverlayFrame,
+} from '@/client/modules/board/selectionOverlay';
 import { installDisplayDensity, logicalSize } from './displayDensity';
 import { preparationMs } from './panelReveal';
 import { orcOpeningTurnLine } from './orcTurn';
@@ -241,7 +245,11 @@ export class GameScene extends Phaser.Scene {
 	 * long before the first possible final of a short bot match.
 	 */
 	private scheduleResultWindow(): void {
-		void this.interactiveReady.then(() => this.bootKingFire());
+		void this.interactiveReady.then(async () => {
+			// Small overlay pack first: the board can then show selection at once.
+			await this.bootSelectionOverlay();
+			await this.bootKingFire();
+		});
 		this.resultReady = this.interactiveReady.then(async () => {
 			await this.idleSlot();
 			return this.ensureOverlay();
@@ -383,6 +391,39 @@ export class GameScene extends Phaser.Scene {
 			this.textures.get(key)?.setFilter(Phaser.Textures.FilterMode.LINEAR);
 		}
 		// No mid-match disk→v2 refresh: reveal waits on interactiveReady.
+	}
+
+	private async queueSelectionOverlay(): Promise<void> {
+		// Selection overlay pack: decoration only, so it loads lazily after the
+		// reveal — the start path stays board + pieces + HUD.
+		const frames = import.meta.glob(
+			'../modules/board/selection-overlay/*.png',
+			{ query: '?url', import: 'default' },
+		) as Record<string, () => Promise<string>>;
+		const entries = await Promise.all(
+			Object.entries(frames).map(
+				async ([path, load]) => [path, await load()] as const,
+			),
+		);
+		for (const [path, url] of entries) {
+			const frame = path
+				.split('/')
+				.pop()!
+				.replace('.png', '')
+				.replace('select_', '') as SelectionOverlayFrame;
+			this.load.image(selectionOverlayTexture(frame), url);
+		}
+	}
+
+	private async bootSelectionOverlay(): Promise<void> {
+		if (this.startupFailed || !this.playfieldBuilt) return;
+		await this.queueSelectionOverlay();
+		await this.flushLoader();
+		if (this.startupFailed) return;
+		for (const key of this.textures.getTextureKeys()) {
+			if (!key.startsWith('selection_overlay_')) continue;
+			this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR);
+		}
 	}
 
 	private async bootKingFire(): Promise<void> {

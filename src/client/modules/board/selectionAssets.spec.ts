@@ -12,6 +12,11 @@ const seals = import.meta.glob('./selection/markers/*.webp', {
 	query: '?url',
 	import: 'default',
 });
+const overlay = import.meta.glob('./selection-overlay/*.png', {
+	eager: true,
+	query: '?url',
+	import: 'default',
+});
 it('delivers112 v2 WebP frames and preserves the separate king seal', () => {
 	expect(Object.keys(frames)).toHaveLength(112);
 	for (const side of ['white', 'black'])
@@ -58,4 +63,41 @@ it('warms only endpoint frames, in idle time, after input is already allowed', (
 	// Idle scheduling itself yields when the browser has no requestIdleCallback.
 	expect(idleWork).toContain('requestIdleCallback');
 	expect(idleWork).toContain('setTimeout');
+});
+it('delivers the ten overlay frames and queues them only after the reveal', () => {
+	const names = [
+		'select_none',
+		'select_enter-01',
+		'select_enter-02',
+		'select_enter-03',
+		'select_enter-04',
+		'select_hold-01',
+		'select_hold-02',
+		'select_exit-01',
+		'select_exit-02',
+		'select_exit-03',
+	];
+	expect(Object.keys(overlay).sort()).toEqual(
+		names.map((name) => `./selection-overlay/${name}.png`).sort(),
+	);
+	expect(scene).toContain('../modules/board/selection-overlay/*.png');
+	const queue =
+		scene.match(
+			/private async queueSelectionOverlay\(\): Promise<void> \{[\s\S]*?\n	\}/,
+		)?.[0] ?? '';
+	expect(queue).toContain("replace('select_', '')");
+	expect(queue).toContain('selectionOverlayTexture(frame)');
+	const boot =
+		scene.match(
+			/private async bootSelectionOverlay\(\): Promise<void> \{[\s\S]*?\n	\}/,
+		)?.[0] ?? '';
+	expect(boot).toContain('await this.queueSelectionOverlay()');
+	expect(boot).toContain('await this.flushLoader()');
+	// Neither start gate may own the decoration pack.
+	for (const gate of [
+		/bootPlayfield\(\): Promise<void> \{[\s\S]*?\n	\}/,
+		/bootMatchInteractive\(\): Promise<void> \{[\s\S]*?\n	\}/,
+	])
+		expect(scene.match(gate)?.[0] ?? '').not.toContain('queueSelectionOverlay');
+	expect(scene).toContain('await this.bootSelectionOverlay()');
 });

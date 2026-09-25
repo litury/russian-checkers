@@ -13,7 +13,7 @@ import { createBoardView } from './createReliquaryBoardView';
 import sceneSource from '@/client/app/gameScene.ts?raw';
 import type { IPosition } from '@/rules';
 
-function harness(reduced = false, blocked: () => boolean = () => false) {
+function harness(reduced = false, blocked: () => boolean = () => false, texturesReady = true) {
  vi.stubGlobal('matchMedia', () => ({ matches: reduced }));
  vi.stubGlobal('document', { activeElement: null });
  const objects: any[] = [], tweens: any[] = [];
@@ -39,7 +39,7 @@ function harness(reduced = false, blocked: () => boolean = () => false) {
  };
  const events = new EventEmitter();
  const scene: any = {
-  textures: { get: () => ({ setFilter() {} }) },
+  textures: { get: () => ({ setFilter() {} }), exists: texturesReady ? undefined : () => false },
   add: { image: make, sprite: make, graphics: () => make(), tileSprite: make, rectangle: make,
    container: (x: number, y: number, children: any[]) => { const c = make(x,y); c.children = children; return c; } },
   game: { canvas: { getAttribute: () => null, setAttribute() {}, removeAttribute() {}, addEventListener() {}, removeEventListener() {} } },
@@ -317,6 +317,108 @@ it('keeps the real piece texture while selected, at a fixed pivot, and preserves
  expect(h.sprite().y).toBe(y);
  expect(h.sprite().displayWidth).toBe(w);
  });
+const overlay = (h: ReturnType<typeof harness>) =>
+ h.objects.find(o => o.name === 'selection-overlay' && !o.destroyed);
+const group = (h: ReturnType<typeof harness>) =>
+ h.objects.find(o => o.name === 'selection-piece-group' && !o.destroyed);
+it('never points the layer at a missing texture while the pack is still loading', () => {
+ const h = harness(false, () => false, false);
+ h.board.sync(position(), [from], from);
+ h.tick(650);
+ const layer = overlay(h);
+ // Lazy pack absent: the layer keeps a live texture and stays hidden, never __MISSING.
+ expect(layer.texture.key).toBe('manLight');
+ expect(layer.visible).toBe(false);
+ expect(layer.data.frame).toBe('hold-01');
+ expect(h.sprite().texture.key).toBe('manLight');
+ expect(h.objects.find(o => o.name === 'king-seal').visible).toBe(false);
+});
+it('lays the selection overlay above the sprite, cell-sized, hidden at rest', () => {
+ const h = harness();
+ h.board.sync(position(), [from], null);
+ const layer = overlay(h), piece = h.sprite();
+ expect(layer).toBeTruthy();
+ const children = group(h).children;
+ expect(children.indexOf(layer)).toBeGreaterThan(children.indexOf(piece));
+ expect(children[children.length - 1]).toBe(layer);
+ expect(layer.visible).toBe(false);
+ expect(layer.data.frame).toBe('none');
+ expect(layer.displayWidth).toBe(44);
+ expect(layer.displayHeight).toBe(44);
+ expect(layer.originX).toBe(0.5);
+ expect(piece.texture.key).toBe('manLight');
+});
+it('drives the overlay frames from the selection progress on both ladders', () => {
+ const h = harness();
+ h.board.sync(position(), [from], from);
+ h.tick(1);
+ expect(overlay(h).visible).toBe(true);
+ expect(overlay(h).data.frame).toBe('enter-01');
+ const opening: string[] = [];
+ for (let i = 0; i < 13; i++) { h.tick(50); opening.push(overlay(h).data.frame); }
+ for (const frame of ['enter-01', 'enter-02', 'enter-03', 'enter-04']) expect(opening).toContain(frame);
+ expect(opening[opening.length - 1]).toBe('hold-01');
+ expect(opening.indexOf('enter-02')).toBeGreaterThan(opening.indexOf('enter-01'));
+ expect(opening.indexOf('enter-03')).toBeGreaterThan(opening.indexOf('enter-02'));
+ expect(opening.indexOf('enter-04')).toBeGreaterThan(opening.indexOf('enter-03'));
+ h.board.sync(position(), [from], null);
+ const closing: string[] = [];
+ for (let i = 0; i < 13; i++) { h.tick(50); closing.push(overlay(h).data.frame); }
+ expect(closing[0]).toBe('exit-01');
+ for (const frame of ['exit-02', 'exit-03']) expect(closing).toContain(frame);
+ expect(closing[closing.length - 1]).toBe('none');
+ expect(closing.indexOf('exit-02')).toBeGreaterThan(closing.indexOf('exit-01'));
+ expect(closing.indexOf('exit-03')).toBeGreaterThan(closing.indexOf('exit-02'));
+ expect(overlay(h).visible).toBe(false);
+ // The piece itself never changes texture or pivot while the overlay animates.
+ expect(h.sprite().texture.key).toBe('manLight');
+ expect(h.sprite().originX).toBe(0.5);
+});
+it('carries the overlay with the piece group through a move and closes after landing', () => {
+ const h = harness();
+ h.board.sync(position(), [from], from);
+ h.tick(650);
+ expect(overlay(h).data.frame).toBe('hold-01');
+ const layer = overlay(h);
+ h.board.playMove({ from, path: [land] }, () => h.board.sync(position('man', 'white', land), [], null));
+ const tween = h.tweens[0];
+ expect(tween.targets.name).toBe('selection-piece-group');
+ expect(tween.targets.children).toContain(layer);
+ h.tick(80);
+ expect(overlay(h).data.frame).toBe('hold-01');
+ h.finish();
+ expect(h.sprite().data.square).toEqual(land);
+ expect(overlay(h).data.frame).toBe('hold-01');
+ h.tick(650);
+ expect(overlay(h).data.frame).toBe('none');
+ expect(overlay(h).visible).toBe(false);
+});
+it('reduced motion jumps straight to the hold frame and clears the layer at once', () => {
+ const h = harness(true);
+ h.board.sync(position(), [from], from);
+ expect(h.sprite().data.progress).toBe(1);
+ expect(overlay(h).data.frame).toBe('hold-01');
+ h.board.sync(position(), [from], null);
+ expect(h.sprite().data.progress).toBe(0);
+ expect(overlay(h).data.frame).toBe('none');
+ expect(overlay(h).visible).toBe(false);
+ expect(h.tweens).toHaveLength(0);
+});
+it('keeps one overlay layer per piece and destroys it with the piece', () => {
+ const h = harness();
+ h.board.sync(position(), [from], from);
+ h.tick(650);
+ const first = overlay(h);
+ expect(first.visible).toBe(true);
+ expect(group(h).children).toContain(first);
+ h.board.sync(position(), [from], from);
+ h.tick(100);
+ expect(overlay(h)).toBe(first);
+ expect(h.objects.filter(o => o.name === 'selection-overlay' && !o.destroyed)).toHaveLength(1);
+ h.board.reset();
+ expect(first.destroyed).toBe(true);
+ expect(h.objects.filter(o => o.name === 'selection-overlay' && !o.destroyed)).toHaveLength(0);
+});
  it('shows one rotated arrow only after selection, and amber brackets on the piece and the landing', () => {
  const h = harness();
  const arrows = () => h.objects.filter(o => o.visible && !o.destroyed && o.name === 'marker_arrow_amber');

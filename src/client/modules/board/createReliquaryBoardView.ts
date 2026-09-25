@@ -36,6 +36,7 @@ import {
 } from './reliquaryMarkers';
 import { MarkerMotion } from './reliquaryMotion';
 import { SelectionMotion } from './selectionMotion';
+import { selectionOverlayFrame, selectionOverlayTexture } from './selectionOverlay';
 
 function ensureBoardFrames(scene: Phaser.Scene) {
 	if (!scene.textures?.exists?.(boardFrameSheet)) return;
@@ -53,12 +54,13 @@ type PieceView = {
 	seal: Phaser.GameObjects.Image;
 	sprite: Phaser.GameObjects.Image;
 	outline: Phaser.GameObjects.Image;
+	overlay: Phaser.GameObjects.Image;
 };
 const key = (s: ISquare): string => `${s.row},${s.col}`;
 const reduced = (): boolean =>
 	globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 
-/** Reliquary board. Pieces keep their real textures; brackets mark selection and moves. */
+/** Reliquary board. Pieces keep their real textures; a separate overlay layer marks selection. */
 export function createBoardView(
 	scene: Phaser.Scene,
 	onSquare: (square: ISquare) => void,
@@ -334,6 +336,19 @@ export function createBoardView(
 			.setPosition(0, 0)
 			.setDisplaySize(field.cell, field.cell)
 			.setData('temporaryRank', true);
+		// Selection overlay: its own layer above the piece, cell-sized, normal alpha over.
+		// Frames 0 and exit-03 carry no ink, so both endpoints simply hide the layer.
+		const overlayFrame = selectionOverlayFrame(view.motion.progress, view.motion.opening);
+		const overlayTexture = selectionOverlayTexture(overlayFrame);
+		const overlayReady = overlayFrame !== 'none' && hasTexture(overlayTexture);
+		if (overlayReady) view.overlay.setTexture(overlayTexture);
+		view.overlay
+			.setVisible(overlayReady)
+			.setOrigin(0.5, 0.5)
+			.setPosition(0, 0)
+			.setDisplaySize(field.cell, field.cell)
+			.setData('frame', overlayFrame)
+			.setData('progress', view.motion.progress);
 	};
 	const place = (view: PieceView): void => {
 		const box = cellBox(view.square);
@@ -647,6 +662,15 @@ export function createBoardView(
 						.image(0, 0, sealKey)
 						.setName('king-seal')
 						.setVisible(false);
+					// Overlay frame pack arrives lazily: until then keep a live texture
+					// and stay hidden, so a missing key never reaches the renderer.
+					const overlayKey = hasTexture(selectionOverlayTexture('none'))
+						? selectionOverlayTexture('none')
+						: texture;
+					const overlay = scene.add
+						.image(0, 0, overlayKey)
+						.setName('selection-overlay')
+						.setVisible(false);
 					view = {
 						square,
 						kind: piece.kind,
@@ -655,8 +679,9 @@ export function createBoardView(
 						sprite,
 						outline,
 						seal,
+						overlay,
 						group: scene.add
-							.container(0, 0, [outline, sprite, seal])
+							.container(0, 0, [outline, sprite, seal, overlay])
 							.setDepth(4)
 							.setName('selection-piece-group'),
 					};

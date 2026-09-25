@@ -6,6 +6,8 @@ export class SelectionMotion {
  private elapsed = 0;
  private duration = 0;
  get frame(): number { return Math.round(this.progress * 20); }
+ /** Ladder direction for the overlay pack: true while the selection opens. */
+ get opening(): boolean { return this.target >= this.start; }
  select(open: boolean, reduced: boolean): void {
   const target = open ? 1 : 0;
   if (target !== this.target) {

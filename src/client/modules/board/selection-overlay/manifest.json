@@ -1,0 +1,161 @@
+{
+ "asset": "selection overlay (\u043d\u0430\u043a\u043b\u0430\u0434\u043a\u0430) \u2014 separate layer above the piece sprite",
+ "canvas": [
+  132,
+  132
+ ],
+ "canvasCssPx": 44.0,
+ "devicePixelRatio": 3,
+ "scaleToRuntime": 0.3333333333333333,
+ "anchor": "cell centre",
+ "pieceFraction": 0.86,
+ "blend": "normal alpha over, drawn above the piece sprite",
+ "zOrderNote": "alpha is exactly 0 inside both piece silhouettes, so the overlay is visually identical whether drawn above or below",
+ "additiveWarning": "no baked additive; do not composite with ADD or the glow doubles",
+ "palette": {
+  "core": "#e4ba75",
+  "amber": "#c9974f",
+  "backing": "#101619",
+  "bevel": "#e1d3ac"
+ },
+ "geometry": {
+  "outsideOnly": true,
+  "bracketHalfAngleDeg": 30.0,
+  "gapDeg": 30.0,
+  "clearanceCssPx": 0.75,
+  "pieceAlphaThreshold": 0.02,
+  "silhouetteSource": "union of runtime ivory/black disks"
+ },
+ "frames": [
+  {
+   "file": "select_none.png",
+   "state": "none",
+   "reveal": 0.0,
+   "glow": 0.0,
+   "maxAlpha": 0.0,
+   "maxAlphaInsideSilhouette": 0.0,
+   "coveredFrac": 0.0,
+   "sha256": "27b6a0961f63050ad6db7d836fd163dfb9d1fe833cb108020dafb808cf6e6502"
+  },
+  {
+   "file": "select_enter-01.png",
+   "state": "enter",
+   "reveal": 0.24,
+   "glow": 0.52,
+   "maxAlpha": 0.933,
+   "maxAlphaInsideSilhouette": 0.0,
+   "coveredFrac": 0.03977,
+   "sha256": "8a4bb782eeda6976c3f032d24a7bc41b666e61a06f1070f52ccfa526fa7e016f"
+  },
+  {
+   "file": "select_enter-02.png",
+   "state": "enter",
+   "reveal": 0.5,
+   "glow": 0.76,
+   "maxAlpha": 1.0,
+   "maxAlphaInsideSilhouette": 0.0,
+   "coveredFrac": 0.15295,
+   "sha256": "b786b31878048d034aeab393964de6a3769681d5760118ce09c66efe307fb8fd"
+  },
+  {
+   "file": "select_enter-03.png",
+   "state": "enter",
+   "reveal": 0.76,
+   "glow": 0.92,
+   "maxAlpha": 1.0,
+   "maxAlphaInsideSilhouette": 0.0,
+   "coveredFrac": 0.22297,
+   "sha256": "895621b61f5ceae6821a558d84f0f3ab32fde957c4e71d11a1727a5c03b98ae8"
+  },
+  {
+   "file": "select_enter-04.png",
+   "state": "enter",
+   "reveal": 1.0,
+   "glow": 1.0,
+   "maxAlpha": 1.0,
+   "maxAlphaInsideSilhouette": 0.0,
+   "coveredFrac": 0.27296,
+   "sha256": "7ced99a89a51712a2fbc7e082d95fa93e2df16de7479f7408052efebb74c3f50"
+  },
+  {
+   "file": "select_hold-01.png",
+   "state": "hold",
+   "reveal": 1.0,
+   "glow": 1.0,
+   "maxAlpha": 1.0,
+   "maxAlphaInsideSilhouette": 0.0,
+   "coveredFrac": 0.27296,
+   "sha256": "c7c1a811d17154fd37c6a76b277922ebb96e40f248f863a2922275bb0eb09fc5"
+  },
+  {
+   "file": "select_hold-02.png",
+   "state": "hold",
+   "reveal": 1.0,
+   "glow": 0.93,
+   "maxAlpha": 1.0,
+   "maxAlphaInsideSilhouette": 0.0,
+   "coveredFrac": 0.26515,
+   "sha256": "69cb50249597e5d4073b267a1105956a68befd9189b226082c00954c38efce96"
+  },
+  {
+   "file": "select_exit-01.png",
+   "state": "exit",
+   "reveal": 0.74,
+   "glow": 0.8,
+   "maxAlpha": 1.0,
+   "maxAlphaInsideSilhouette": 0.0,
+   "coveredFrac": 0.20116,
+   "sha256": "7c91112db3f5607ab3b4bcc4048dd52bbc33313fdcc4b1bc98b9c5471cb18923"
+  },
+  {
+   "file": "select_exit-02.png",
+   "state": "exit",
+   "reveal": 0.44,
+   "glow": 0.44,
+   "maxAlpha": 0.9355,
+   "maxAlphaInsideSilhouette": 0.0,
+   "coveredFrac": 0.09257,
+   "sha256": "299bfeab7e258713175a0e4640cf70ce747500b9807f20f1ba6b430274d7c68b"
+  },
+  {
+   "file": "select_exit-03.png",
+   "state": "exit",
+   "reveal": 0.0,
+   "glow": 0.0,
+   "maxAlpha": 0.0,
+   "maxAlphaInsideSilhouette": 0.0,
+   "coveredFrac": 0.0,
+   "sha256": "27b6a0961f63050ad6db7d836fd163dfb9d1fe833cb108020dafb808cf6e6502"
+  }
+ ],
+ "sources": {
+  "ivory": {
+   "path": "<repo>/src/client/app/ui/opening/ivory_disk.webp",
+   "sha256": "9ad99f493238170770a7c3deb162894c6ef23b2f1632ee17c2f9e63c400fa493"
+  },
+  "black": {
+   "path": "<repo>/src/client/app/ui/opening/black_disk.webp",
+   "sha256": "41b140fa407a7a77e114443ab9e5224224ef2a8e60773c4c0f301424a71137f9"
+  },
+  "material": {
+   "path": "amber_material.png",
+   "sha256": "3715ccd5020a3013209216ba0d91fe6cf5841b0c5a2b89f30a621411632bfd51",
+   "generatedBy": "cx --account account2 (Codex built-in image_gen)",
+   "nativeSize": [
+    1254,
+    1254
+   ]
+  },
+  "board": {
+   "path": "<repo>/src/client/modules/board/reliquary/board.webp",
+   "sha256": "aad5a2c54df66d9488389d80b31581bdabc4154d8c79b8504a5d8dad3c6234d0"
+  }
+ },
+ "timingMs": {
+  "enter": 650,
+  "hold": "static; optional 1600 breath loop",
+  "exit": 650,
+  "frameStepEnter": 162,
+  "frameStepExit": 162
+ }
+}
