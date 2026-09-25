@@ -262,8 +262,95 @@ it.each(['reset', 'hide', 'shutdown'] as const)('%s invalidates a late move comp
 it('end and resignation invalidate old board work before presenting the final position', () => {
  for (const method of ['private endMatch(', 'resignMatch():']) {
   const body = sceneSource.slice(sceneSource.indexOf(method)).split('\n\t}')[0];
-  expect(body).toContain('this.board.reset()');
+  expect(body).toContain('this.board.reset(');
  }
+ // Only the promotion that ended the match keeps its fire; a resignation has none to present.
+ const end = sceneSource.slice(sceneSource.indexOf('private endMatch(')).split('\n\t}')[0];
+ const resign = sceneSource.slice(sceneSource.indexOf('resignMatch():')).split('\n\t}')[0];
+ expect(end).toContain('keepPromotionFire: true');
+ expect(resign).not.toContain('keepPromotionFire');
+});
+it('keeps the final promotion burning through the presentation reset, then clears it with the next match', () => {
+ let blocked = false;
+ const h = harness(false, () => blocked);
+ const start = { row: 6, col: 0 }, crown = { row: 7, col: 1 };
+ h.board.sync(position('man', 'white', start), [start], start);
+ h.board.playMove({ from: start, path: [crown] }, () => {}, undefined, undefined, true);
+ h.finish();
+ expect(fire(h, 'ignite')).toHaveLength(2);
+ // The match ends: the board resets for the presentation and input is blocked behind the result window.
+ h.board.reset({ keepPromotionFire: true });
+ blocked = true;
+ h.board.sync(position('king', 'white', crown), [], null);
+ h.tick(1);
+ expect(fire(h, 'ignite')).toHaveLength(2);
+ expect(fire(h, 'idle')).toHaveLength(0);
+ h.tick(600);
+ expect(fire(h, 'ignite')).toHaveLength(2);
+ h.tick(700);
+ expect(fire(h, 'ignite')).toHaveLength(0);
+ expect(fire(h, 'idle')).toHaveLength(2);
+ // A new match clears it without a trace.
+ h.board.reset();
+ h.tick(1);
+ for (const mode of ['idle', 'ignite', 'static', 'trail', 'moving']) expect(fire(h, mode)).toHaveLength(0);
+});
+it('a presentation reset without a last-move promotion still clears the fire', () => {
+ let blocked = false;
+ const h = harness(false, () => blocked);
+ h.board.sync(position('king'), [from], from);
+ expect(fire(h, 'idle')).toHaveLength(2);
+ h.board.reset({ keepPromotionFire: true });
+ blocked = true;
+ h.board.sync(position('king'), [], null);
+ h.tick(1);
+ expect(fire(h, 'idle')).toHaveLength(0);
+ expect(fire(h, 'ignite')).toHaveLength(0);
+});
+it('does not present the fire of a promotion that is not the last move', () => {
+ const h = harness();
+ const start = { row: 6, col: 0 }, crown = { row: 7, col: 1 }, after = { row: 5, col: 2 };
+ h.board.sync(position('man', 'white', start), [start], start);
+ h.board.playMove({ from: start, path: [crown] }, () => {}, undefined, undefined, true);
+ h.finish();
+ h.board.sync(position('king', 'white', crown), [crown], crown);
+ h.board.playMove({ from: crown, path: [after] }, () => {}, undefined, undefined, true);
+ h.finish();
+ h.board.reset({ keepPromotionFire: true });
+ h.tick(1);
+ expect(fire(h, 'idle')).toHaveLength(0);
+ expect(fire(h, 'ignite')).toHaveLength(0);
+});
+it('keeps the final promotion across a resize but not across a hidden playfield', () => {
+ const h = harness(false, () => true);
+ const start = { row: 6, col: 0 }, crown = { row: 7, col: 1 };
+ h.board.sync(position('man', 'white', start), [start], start);
+ h.board.playMove({ from: start, path: [crown] }, () => {}, undefined, undefined, true);
+ h.finish();
+ h.board.reset({ keepPromotionFire: true });
+ h.board.sync(position('king', 'white', crown), [], null);
+ h.tick(1);
+ expect(fire(h, 'ignite')).toHaveLength(2);
+ h.board.layout(800, 600);
+ expect(fire(h, 'ignite')).toHaveLength(2);
+ h.board.setPlayfieldVisible(false);
+ h.board.setPlayfieldVisible(true);
+ h.board.sync(position('king', 'white', crown), [], null);
+ h.tick(1);
+ for (const mode of ['idle', 'ignite', 'static']) expect(fire(h, mode)).toHaveLength(0);
+});
+it('reduced motion presents the final promotion as a static flame', () => {
+ const h = harness(true, () => true);
+ const start = { row: 6, col: 0 }, crown = { row: 7, col: 1 };
+ h.board.sync(position('man', 'white', start), [start], start);
+ // Reduced motion lands and promotes synchronously, without a tween to complete.
+ h.board.playMove({ from: start, path: [crown] }, () => {}, undefined, undefined, true);
+ expect(fire(h, 'static')).toHaveLength(1);
+ h.board.reset({ keepPromotionFire: true });
+ h.board.sync(position('king', 'white', crown), [], null);
+ h.tick(1);
+ expect(fire(h, 'static')).toHaveLength(1);
+ expect(fire(h, 'ignite')).toHaveLength(0);
 });
 it('reduced motion preserves callback order, capture selection, and immediate promotion without tweens', () => {
  const h = harness(true), order: string[] = [];

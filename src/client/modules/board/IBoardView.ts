@@ -24,7 +24,11 @@ export interface IBoardView {
 		retainCaptured?: boolean,
 	) => void;
 	playFlagBurst: (square: ISquare, onDone: () => void) => void;
-	reset: () => void;
+	/**
+	 * Clears the position. `keepPromotionFire` spares the fire of the promotion that just
+	 * ended the match, so the player still sees it under the result window.
+	 */
+	reset: (options?: { keepPromotionFire?: boolean }) => void;
 	setPlayfieldVisible: (on: boolean) => void;
 	setWaitingIdle: (on: boolean) => void;
 	notePly: () => void;
