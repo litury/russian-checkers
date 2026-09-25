@@ -18,8 +18,6 @@ import {
 	drawReliquaryMarker,
 	MARKER_ARROW_AMBER,
 	MARKER_ARROW_COPPER,
-	MARKER_CIRCLE_AMBER,
-	MARKER_CIRCLE_COPPER,
 	MARKER_STAPLES,
 	MARKER_STAPLES_AMBER,
 	MARKER_STAPLES_COPPER,
@@ -28,7 +26,6 @@ import {
 import { MarkerMotion } from './reliquaryMotion';
 import { OpeningMoveHint } from '@/client/app/openingMoveHint';
 import { SelectionMotion } from './selectionMotion';
-import { selectionV2Frame } from './selectionV2';
 import { KingFire } from './kingFire';
 import { pieceStepSfx } from '@/client/app/pieceSfx';
 import { kingFireAssets } from './kingFireAssets';
@@ -47,7 +44,7 @@ const key = (s: ISquare): string => `${s.row},${s.col}`;
 const reduced = (): boolean =>
 	globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 
-/** Reliquary renderer with approved baked king-fire v3 and selection v2. */
+/** Reliquary board. Pieces keep their real textures; brackets mark selection and moves. */
 export function createBoardView(
 	scene: Phaser.Scene,
 	onSquare: (square: ISquare) => void,
@@ -68,8 +65,6 @@ export function createBoardView(
 		MARKER_STAPLES_COPPER,
 		MARKER_ARROW_AMBER,
 		MARKER_ARROW_COPPER,
-		MARKER_CIRCLE_AMBER,
-		MARKER_CIRCLE_COPPER,
 	]) {
 		if (!scene.textures?.exists?.(texture)) continue;
 		scene.textures.get(texture)?.setFilter(Phaser.Textures.FilterMode.LINEAR);
@@ -173,14 +168,6 @@ export function createBoardView(
 			.setRotation(arrowRotation(step.dx, step.dy))
 			.setPosition(box.x + step.dx * box.w * ARROW_CORNER, box.y + step.dy * box.h * ARROW_CORNER);
 	};
-	const placeCircle = (square: ISquare, texture: string): void => {
-		if (!hasTexture(texture)) return;
-		const box = cellBox(square);
-		take('marks', texture, 8.05)
-			.setPosition(box.x, box.y)
-			.setOrigin(0.5, 0.5)
-			.setDisplaySize(box.w, box.h);
-	};
 	const drawIntro = () => {
 		introMarks.clear();
 		release('intro');
@@ -225,16 +212,25 @@ export function createBoardView(
 		drawIntro();
 
 		if (!visible) return;
-		if (selected) placeStaple(selected, 1, 8, 'marks', MARKER_STAPLES_AMBER);
 		const routes = markerMoves(choices, selected);
 		if (position) {
 			const plan = planMoveMarks(position, routes);
-			for (const sq of plan.victims) placeStaple(sq, 1, 8, 'marks', MARKER_STAPLES_COPPER);
-			for (const circle of plan.circles)
-				placeCircle(circle.square, toneTexture(circle.tone, MARKER_CIRCLE_AMBER, MARKER_CIRCLE_COPPER));
+			const taken = new Set(plan.victims.map(key));
+			for (const cell of plan.brackets) {
+				if (taken.has(key(cell.square))) continue;
+				placeStaple(
+					cell.square,
+					1,
+					8.05,
+					'marks',
+					toneTexture(cell.tone, MARKER_STAPLES_AMBER, MARKER_STAPLES_COPPER),
+				);
+			}
+			for (const sq of plan.victims) placeStaple(sq, 1, 8.1, 'marks', MARKER_STAPLES_COPPER);
 			for (const arrow of plan.arrows)
 				placeArrow(arrow.from, arrow.to, toneTexture(arrow.tone, MARKER_ARROW_AMBER, MARKER_ARROW_COPPER));
 		}
+		if (selected) placeStaple(selected, 1, 8.15, 'marks', MARKER_STAPLES_AMBER);
 		drawInteraction();
 	};
 	const hasTexture = (key: string): boolean =>
@@ -249,28 +245,16 @@ export function createBoardView(
 				: pieceSprites.manDark;
 	const renderPiece = (view: PieceView): void => {
 		const king = view.kind === 'king';
-		const frame = `selection_${view.side}-${String(selectionV2Frame(view.motion.progress)).padStart(2, '0')}`;
-		// Disk fallback only if selection frames missing (interactive boot failed) — no mid-match swap.
-		const selectionReady = hasTexture(frame);
-		const texture = selectionReady ? frame : pieceTexture(view.kind, view.side);
+		const texture = pieceTexture(view.kind, view.side);
 		view.sprite.setTexture(texture).setName('selection-piece')
 			.setData('square', { ...view.square }).setData('kind', view.kind)
 			.setData('side', view.side).setData('progress', view.motion.progress);
 		view.outline.setTexture(texture);
 		view.seal.setVisible(king && hasTexture('selection_king-seal'));
-		if (selectionReady) {
-			// Both ranks share approved v2 geometry; seal is TEMPORARY until crown art arrives.
-			const scale = (35 / 648) * field.cell / 44;
-			for (const image of [view.sprite, view.outline])
-				image.setOrigin(365 / 724, 679 / 724).setPosition(0, 17.6 * field.cell / 44).setDisplaySize(724 * scale, 724 * scale);
-			view.outline.setVisible(false);
-			view.seal.setPosition(0, -selectionV2Frame(view.motion.progress) * scale).setDisplaySize(field.cell, field.cell).setData('temporaryRank', true);
-		} else {
-			for (const image of [view.sprite, view.outline])
-				image.setOrigin(0.5, 0.5).setPosition(0, 0).setDisplaySize(field.cell * 0.86, field.cell * 0.86);
-			view.outline.setVisible(false);
-			view.seal.setPosition(0, 0).setDisplaySize(field.cell, field.cell).setData('temporaryRank', true);
-		}
+		for (const image of [view.sprite, view.outline])
+			image.setOrigin(0.5, 0.5).setPosition(0, 0).setDisplaySize(field.cell * 0.86, field.cell * 0.86);
+		view.outline.setVisible(false);
+		view.seal.setPosition(0, 0).setDisplaySize(field.cell, field.cell).setData('temporaryRank', true);
 	};
 	const place = (view: PieceView): void => {
 		const box = cellBox(view.square);
@@ -546,8 +530,8 @@ export function createBoardView(
 			release('marks');
 			placeStaple(from, 1, 8, 'marks', MARKER_STAPLES_AMBER);
 			placeArrow(from, land, victim ? MARKER_ARROW_COPPER : MARKER_ARROW_AMBER);
-			placeCircle(land, victim ? MARKER_CIRCLE_COPPER : MARKER_CIRCLE_AMBER);
-			if (victim) placeStaple(victim, 1, 8, 'marks', MARKER_STAPLES_COPPER);
+			placeStaple(land, 1, 8.05, 'marks', victim ? MARKER_STAPLES_COPPER : MARKER_STAPLES_AMBER);
+			if (victim) placeStaple(victim, 1, 8.1, 'marks', MARKER_STAPLES_COPPER);
 			kingFire.takeoff(view, view.kind === 'king', cellBox(from), field.cell, reduced());
 			pieceStepSfx(view.kind === 'king', Boolean(victim), view.side, victim ? pieces.get(key(victim))?.side : undefined);
 			onTakeoff?.(Boolean(victim));

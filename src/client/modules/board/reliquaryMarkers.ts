@@ -17,8 +17,6 @@ export const MARKER_STAPLES_AMBER = 'marker_staples_amber';
 export const MARKER_STAPLES_COPPER = 'marker_staples_copper';
 export const MARKER_ARROW_AMBER = 'marker_arrow_amber';
 export const MARKER_ARROW_COPPER = 'marker_arrow_copper';
-export const MARKER_CIRCLE_AMBER = 'marker_circle_amber';
-export const MARKER_CIRCLE_COPPER = 'marker_circle_copper';
 export const STAPLE_SOURCE_PX = 176;
 /** arrow.png size. Long side is drawn at ARROW_CELL of the live cell. */
 export const ARROW_TEXTURE = { w: 194, h: 183 } as const;
@@ -48,8 +46,8 @@ export function arrowRotation(dx: number, dy: number): number {
 }
 
 /**
- * Keyboard focus only. Staples, the move arrow and the landing ring are
- * sprites. Do not paint a second vector circle, and do not tint a whole PNG:
+ * Keyboard focus only. Corner brackets and the move arrow are sprites.
+ * Do not paint a vector circle or a plate. Do not tint a whole PNG:
  * the dark sole would change colour with the metal.
  */
 export function drawReliquaryMarker(

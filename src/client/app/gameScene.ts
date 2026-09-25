@@ -258,8 +258,6 @@ export class GameScene extends Phaser.Scene {
 		this.load.image('marker_staples_copper', new URL('../modules/board/markers/staples-copper.png', import.meta.url).href);
 		this.load.image('marker_arrow_amber', new URL('../modules/board/markers/arrow-amber.png', import.meta.url).href);
 		this.load.image('marker_arrow_copper', new URL('../modules/board/markers/arrow-copper.png', import.meta.url).href);
-		this.load.image('marker_circle_amber', new URL('../modules/board/markers/circle-amber.png', import.meta.url).href);
-		this.load.image('marker_circle_copper', new URL('../modules/board/markers/circle-copper.png', import.meta.url).href);
 	}
 
 	private queueMatchInteractive(): void {
@@ -848,7 +846,7 @@ export class GameScene extends Phaser.Scene {
 		this.hud.prepareClosed();
 		this.hud.setVisible(true);
 		this.hud.setNames('Ты', this.online ? 'Соперник' : 'Бот');
-		// Disks until selection-v2 finishes in the background; refresh swaps textures then.
+		// Real piece disks stay. Selection-v2 frames are not substituted on the board.
 		this.board.setPlayfieldVisible(true);
 		this.beginCountdown(fromOpening);
 		this.refresh();

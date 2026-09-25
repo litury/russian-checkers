@@ -173,23 +173,27 @@ it('does not hang vector staples or circles under the sprite, and does not grow 
 	expect(markers).not.toContain('fillEllipse');
 	expect(board).toContain('MARKER_STAPLES');
 	expect(board).toContain('placeArrow');
-	expect(board).toContain('placeCircle');
 	expect(board).toContain('planMoveMarks');
+	expect(board).not.toContain('placeCircle');
+	expect(board).not.toContain('MARKER_CIRCLE');
+	expect(board).not.toContain('circle-amber');
 	expect(board).not.toContain('move.path[0]');
 	expect(board).not.toContain('fillEllipse');
 	expect(board).not.toContain("paint(land, victim ? 'landing' : 'move')");
+	expect(board).not.toContain('selectionV2Frame');
+	expect(board).not.toContain('selectionReady');
 	expect((board.match(/setTint/g) ?? []).length).toBe(1);
 	expect(scene).toContain("this.load.image('marker_staples'");
 	expect(scene).toContain("this.load.image('marker_staples_amber'");
 	expect(scene).toContain("this.load.image('marker_arrow_amber'");
 	expect(scene).toContain("this.load.image('marker_arrow_copper'");
-	expect(scene).toContain("this.load.image('marker_circle_amber'");
-	expect(scene).toContain("this.load.image('marker_circle_copper'");
+	expect(scene).not.toContain("this.load.image('marker_circle_amber'");
+	expect(scene).not.toContain("this.load.image('marker_circle_copper'");
 	expect(scene).not.toContain("this.load.image('marker_arrow',");
 	expect(boardFrame).toEqual({ width: 380, height: 418, field: 352, padX: 14, padTop: 33 });
 });
 
-it('recolors only the light metal, and the landing ring stays readable on both squares', () => {
+it('recolors only the light metal of the same bracket and arrow', () => {
 	const soleSame = (painted: string, source: string) => {
 		const next = readPng(fileURLToPath(new URL(painted, import.meta.url)));
 		const prev = readPng(fileURLToPath(new URL(source, import.meta.url)));
@@ -212,23 +216,4 @@ it('recolors only the light metal, and the landing ring stays readable on both s
 		soleSame(file, './markers/staples.png');
 	for (const file of ['./markers/arrow-amber.png', './markers/arrow-copper.png'])
 		soleSame(file, './markers/arrow.png');
-	for (const file of ['./markers/circle-amber.png', './markers/circle-copper.png']) {
-		const png = readPng(fileURLToPath(new URL(file, import.meta.url)));
-		expect(png.rows[0][3]).toBe(0);
-		expect(png.rows[Math.floor(png.height / 2)][Math.floor(png.width / 2) * 4 + 3]).toBe(0);
-		const light: number[] = [];
-		const dark: number[] = [];
-		for (let y = 0; y < png.height; y++) {
-			for (let x = 0; x < png.width; x++) {
-				const px = png.rows[y].subarray(x * 4, x * 4 + 4);
-				const L = lum(px);
-				if (px[3] >= 250 && L > 150) light.push(L);
-				if (px[3] > 200 && L < 80) dark.push(L);
-			}
-		}
-		const lightMean = light.reduce((s, n) => s + n, 0) / light.length;
-		const darkMean = dark.reduce((s, n) => s + n, 0) / dark.length;
-		expect(ratio(lightMean, DARK_SQUARE)).toBeGreaterThan(3);
-		expect(ratio(darkMean, LIGHT_SQUARE)).toBeGreaterThan(3);
-	}
 });

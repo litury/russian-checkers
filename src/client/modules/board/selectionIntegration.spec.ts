@@ -195,7 +195,9 @@ it('moves the sole selected group without closing at departure, then closes at t
  expect(piece.data.square).toEqual(land);
  expect(piece.data.progress).toBe(progress);
  h.tick(650);
- expect(piece.texture.key).toBe('selection_white-00');
+ expect(piece.texture.key).toBe('manLight');
+ expect(piece.texture.key).not.toMatch(/^selection_/);
+ expect(piece.data.progress).toBe(0);
  // GameScene must not clear selection in a pre-departure sync (especially reduced motion).
  expect(sceneSource).not.toContain('this.board.sync(visual, [], null)');
  expect(sceneSource).not.toContain('this.board.sync(this.position, [], null)');
@@ -206,18 +208,23 @@ it('holds frame20 between capture hops and only assembles after the final hop', 
  h.tick(100);
  h.board.playMove({ from, path: [land] }, () => h.board.sync(position('man', 'white', land), [land], land), undefined, undefined, true);
  h.finish();
- expect(h.sprite().texture.key).toBe('selection_white-55');
+ expect(h.sprite().texture.key).toBe('manLight');
+ expect(h.sprite().data.progress).toBe(1);
  h.tick(1);
- expect(h.sprite().texture.key).toBe('selection_white-55');
+ expect(h.sprite().texture.key).toBe('manLight');
+ expect(h.sprite().data.progress).toBe(1);
  h.tick(5000);
- expect(h.sprite().texture.key).toBe('selection_white-55');
+ expect(h.sprite().texture.key).toBe('manLight');
+ expect(h.sprite().data.progress).toBe(1);
  const end = { row: 4, col: 2 };
  h.board.playMove({ from: land, path: [end] }, () => h.board.sync(position('man', 'white', end), [], null), undefined, undefined, true);
  h.tick(80);
- expect(h.sprite().texture.key).toBe('selection_white-55');
+ expect(h.sprite().texture.key).toBe('manLight');
+ expect(h.sprite().data.progress).toBe(1);
  h.finish();
  h.tick(650);
- expect(h.sprite().texture.key).toBe('selection_white-00');
+ expect(h.sprite().texture.key).toBe('manLight');
+ expect(h.sprite().data.progress).toBe(0);
 });
 it.each(['white', 'black'] as const)('promotes %s using logical kind, with the original king and separate seal', side => {
  const h = harness();
@@ -228,8 +235,9 @@ it.each(['white', 'black'] as const)('promotes %s using logical kind, with the o
  h.board.playMove({ from: start, path: [crown] }, () => {});
  h.finish();
  expect(h.sprite().data.kind).toBe('king');
- expect(h.sprite().texture.key).toBe(`selection_${side}-55`);
- expect(h.sprite().originX).toBeCloseTo(365 / 724);
+ expect(h.sprite().texture.key).toBe(side === 'white' ? 'kingLight' : 'kingDark');
+ expect(h.sprite().texture.key).not.toMatch(/^selection_/);
+ expect(h.sprite().originX).toBe(0.5);
  expect(h.objects.find(o => o.name === 'king-seal' && !o.destroyed).visible).toBe(true);
 });
 it.each(['reset', 'hide', 'shutdown'] as const)('%s invalidates a late move completion without touching a newly selected piece', action => {
@@ -248,7 +256,8 @@ it.each(['reset', 'hide', 'shutdown'] as const)('%s invalidates a late move comp
  expect(done).not.toHaveBeenCalled();
  expect(stale.destroyed).toBe(true);
  expect(h.sprite()).not.toBe(stale);
- expect(h.sprite().texture.key).toBe(action === 'shutdown' ? 'selection_white-00' : 'selection_white-55');
+ expect(h.sprite().texture.key).toBe('manLight');
+ expect(h.sprite().data.progress).toBe(action === 'shutdown' ? 0 : 1);
 });
 it('end and resignation invalidate old board work before presenting the final position', () => {
  for (const method of ['private endMatch(', 'resignMatch(']) {
@@ -260,13 +269,15 @@ it('reduced motion preserves callback order, capture selection, and immediate pr
  const h = harness(true), order: string[] = [];
  const start = { row: 6, col: 0 }, crown = { row: 7, col: 1 };
  h.board.sync(position('man', 'white', start), [start], start);
- expect(h.sprite().texture.key).toBe('selection_white-55');
+ expect(h.sprite().texture.key).toBe('manLight');
+ expect(h.sprite().data.progress).toBe(1);
  h.board.playMove({ from: start, path: [crown] }, () => {
   order.push('done'); h.board.sync(position('king', 'white', crown), [crown], crown);
  }, () => order.push('land'), () => order.push('takeoff'), true);
  expect(order).toEqual(['takeoff', 'land', 'done']);
  expect(h.tweens).toHaveLength(0);
- expect(h.sprite().texture.key).toBe('selection_white-55');
+ expect(h.sprite().texture.key).toBe('kingLight');
+ expect(h.sprite().texture.key).not.toMatch(/^selection_/);
  expect(h.sprite().data.progress).toBe(1);
  h.board.sync(position('king', 'white', crown), [], null);
  expect(h.sprite().data.progress).toBe(0);
@@ -278,48 +289,49 @@ it('removes an assembling piece without resurrection or interference with a new 
  h.board.sync(position(), [], null); h.tick(100);
  h.board.sync(position('man', 'black', land), [land], land); h.tick(650);
  expect(old.destroyed).toBe(true);
- expect(h.sprite().texture.key).toBe('selection_black-55');
+ expect(h.sprite().texture.key).toBe('manDark');
+ expect(h.sprite().texture.key).not.toMatch(/^selection_/);
  expect(h.objects.filter(o => o.name === 'selection-piece' && !o.destroyed)).toHaveLength(1);
 });
-it('logical king shares v2 closed/selected/reverse body and keeps temporary rank seal', () => {
+it('keeps the real king texture and a still seal; selection does not lift or bleach the piece', () => {
  const h=harness();h.board.sync(position('king'),[from],null);
- expect(h.sprite().texture.key).toBe('selection_white-00');
+ expect(h.sprite().texture.key).toBe('kingLight');
  const seal=h.objects.find(o=>o.name==='king-seal');const y=seal.y;
  expect(seal.visible).toBe(true);h.board.sync(position('king'),[from],from);h.tick(650);
- expect(h.sprite().texture.key).toBe('selection_white-55');expect(seal.y).toBeLessThan(y);
+ expect(h.sprite().texture.key).toBe('kingLight');expect(seal.y).toBe(y);
  h.board.sync(position('king'),[from],null);h.tick(650);
- expect(h.sprite().texture.key).toBe('selection_white-00');expect(seal.y).toBeCloseTo(y);
+ expect(h.sprite().texture.key).toBe('kingLight');expect(seal.y).toBeCloseTo(y);
 });
-it('renders exact individually delivered frames at a fixed body pivot, holds selection, and preserves kind', () => {
+it('keeps the real piece texture while selected, at a fixed pivot, and preserves kind', () => {
  const h = harness();
  h.board.sync(position(), [from], from);
- expect(h.sprite()?.texture.key).toBe('selection_white-00');
- expect(h.sprite().originX).toBeCloseTo(365 / 724);
- expect(h.sprite().originY).toBeCloseTo(679 / 724);
+ expect(h.sprite()?.texture.key).toBe('manLight');
+ expect(h.sprite().originX).toBe(0.5);
+ expect(h.sprite().originY).toBe(0.5);
  h.tick(650);
- expect(h.sprite().texture.key).toBe('selection_white-55');
+ expect(h.sprite().texture.key).toBe('manLight');
  expect(h.sprite().data.kind).toBe('man');
  const y = h.sprite().y, w = h.sprite().displayWidth;
  h.tick(3000);
- expect(h.sprite().texture.key).toBe('selection_white-55');
+ expect(h.sprite().texture.key).toBe('manLight');
  expect(h.sprite().y).toBe(y);
  expect(h.sprite().displayWidth).toBe(w);
  });
- it('shows one rotated arrow only after selection, an amber staple on the piece, and a circle on the landing', () => {
+ it('shows one rotated arrow only after selection, and amber brackets on the piece and the landing', () => {
  const h = harness();
  const arrows = () => h.objects.filter(o => o.visible && !o.destroyed && o.name === 'marker_arrow_amber');
  const staples = () => h.objects.filter(o => o.visible && !o.destroyed && o.name === 'marker_staples_amber');
- const circles = () => h.objects.filter(o => o.visible && !o.destroyed && o.name === 'marker_circle_amber');
+ const circles = () => h.objects.filter(o => o.visible && !o.destroyed && String(o.name).includes('circle'));
  h.board.sync(position(), [from], null);
  expect(arrows()).toHaveLength(0);
- expect(circles()).toHaveLength(0);
+ expect(staples()).toHaveLength(0);
  h.board.sync(position(), [from], from, [{ from, path: [land] }]);
- expect(staples()).toHaveLength(1);
- expect(staples()[0].displayWidth).toBe(44);
- expect(staples()[0].x).toBe(22);
- expect(circles()).toHaveLength(1);
- expect(circles()[0].x).toBe((1 + 0.5) * 44);
- expect(circles()[0].y).toBe((7.5 - 3) * 44);
+ expect(h.sprite().texture.key).toBe('manLight');
+ expect(staples()).toHaveLength(2);
+ expect(staples().some(s => s.x === 22 && s.displayWidth === 44)).toBe(true);
+ const landing = staples().find(s => s.x === (1 + 0.5) * 44);
+ expect(landing.y).toBe((7.5 - 3) * 44);
+ expect(circles()).toHaveLength(0);
  expect(arrows()).toHaveLength(1);
  expect(arrows()[0].x).toBeCloseTo(22 + 44 * 0.55);
  expect(arrows()[0].y).toBeLessThan(242);
@@ -332,15 +344,16 @@ it('renders exact individually delivered frames at a fixed body pivot, holds sel
  	{ from: mid, path: [{ row: 3, col: 3 }] },
  ]);
  expect(arrows()).toHaveLength(2);
- expect(circles()).toHaveLength(2);
+ expect(staples()).toHaveLength(3);
  expect(new Set(arrows().map(a => a.rotation)).size).toBe(2);
  h.board.setFacing('black');
  h.board.sync(position(), [from], from, [{ from, path: [land] }]);
  expect(arrows()).toHaveLength(1);
  expect(arrows()[0].y).toBeCloseTo((2 + 0.5) * 44 + 44 * 0.55);
- expect(circles()[0].y).toBeCloseTo((3 + 0.5) * 44);
+ expect(staples().find(s => s.x === (1 + 0.5) * 44).y).toBeCloseTo((3 + 0.5) * 44);
+ expect(circles()).toHaveLength(0);
  });
- it('keeps a circle on every far king landing instead of collapsing the diagonal to path[0]', () => {
+ it('keeps a bracket on every far king landing and an arrow in the empty chain cell, not on the victim', () => {
  const h = harness();
  const origin = { row: 2, col: 2 };
  const squares = Array.from({ length: 8 }, () => Array(8).fill(null));
@@ -352,16 +365,24 @@ it('renders exact individually delivered frames at a fixed body pivot, holds sel
  	{ from: origin, path: [{ row: 5, col: 5 }] },
  	{ from: origin, path: [{ row: 4, col: 4 }, { row: 6, col: 2 }] },
  ]);
- const circles = h.objects.filter(o => o.visible && !o.destroyed && o.name === 'marker_circle_copper');
+ expect(h.sprite().texture.key).toBe('kingLight');
+ const copper = h.objects.filter(o => o.visible && !o.destroyed && o.name === 'marker_staples_copper');
  const arrows = h.objects.filter(o => o.visible && !o.destroyed && o.name === 'marker_arrow_copper');
- const victims = h.objects.filter(o => o.visible && !o.destroyed && o.name === 'marker_staples_copper');
- expect(circles.map(c => `${c.x},${c.y}`).sort()).toEqual([
+ expect(copper.map(c => `${c.x},${c.y}`).sort()).toEqual([
  	`${(4 + 0.5) * 44},${(7.5 - 4) * 44}`,
  	`${(5 + 0.5) * 44},${(7.5 - 5) * 44}`,
  	`${(2 + 0.5) * 44},${(7.5 - 6) * 44}`,
+ 	`${(3 + 0.5) * 44},${(7.5 - 3) * 44}`,
+ 	`${(3 + 0.5) * 44},${(7.5 - 5) * 44}`,
  ].sort());
- expect(arrows).toHaveLength(1);
- expect(victims).toHaveLength(2);
- expect(victims[0].x).toBe((3 + 0.5) * 44);
- expect(h.objects.filter(o => o.visible && o.name === 'marker_circle_amber')).toHaveLength(0);
+ expect(arrows).toHaveLength(2);
+ const chain = arrows.find(a => Math.abs(a.x - ((4 + 0.5) * 44 - 44 * 0.55)) < 1);
+ expect(chain).toBeTruthy();
+ expect(chain.y).toBeCloseTo((7.5 - 4) * 44 - 44 * 0.55);
+ for (const victim of [{ row: 3, col: 3 }, { row: 5, col: 3 }]) {
+ 	const x = (victim.col + 0.5) * 44;
+ 	const y = (7.5 - victim.row) * 44;
+ 	expect(arrows.some(a => Math.abs(a.x - x) < 8 && Math.abs(a.y - y) < 8)).toBe(false);
+ }
+ expect(h.objects.filter(o => o.visible && String(o.name).includes('circle'))).toHaveLength(0);
  });
