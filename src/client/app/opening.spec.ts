@@ -16,8 +16,8 @@ describe('HTML-first opening', () => {
   expect(main).not.toContain('/sdk.js');
  });
  it('uses an accessible indeterminate loading indicator, without a duplicate kicker', () => {
-  expect(html).toMatch(/id="opening-play"[^>]*aria-label="С машиной"[^>]*aria-busy="true"[^>]*disabled>/);
-  expect(html).toContain('disabled><span class="opening-cta-label">С машиной</span></button>');
+  expect(html).toMatch(/id="opening-play"[^>]*aria-label="С ботом"[^>]*aria-busy="true"[^>]*disabled>/);
+  expect(html).toContain('disabled><span class="opening-cta-label">С ботом</span></button>');
   expect(html).toContain('@keyframes opening-segment');
   expect(html).not.toContain('disabled>Загрузка…');
   expect(html).not.toContain('opening-kicker');
@@ -33,7 +33,7 @@ describe('HTML-first opening', () => {
   expect(html).toContain('data-api="%VITE_API_URL%"');
   expect(html).not.toContain('.replace(/%VITE_API_URL%');
   expect(html).toContain('id="opening-online"');
-  expect(html).toContain('С человеком');
+  expect(html).toContain('В сети');
  });
  it('unlocks Play from the HTML gate before Phaser preload packs', () => {
   expect(html).toContain('unlock()');

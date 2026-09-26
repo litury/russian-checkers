@@ -122,8 +122,8 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   <p id="opening-stats-unavailable" class="opening-sr-only" role="status" data-error="Статистика недоступна">Загружаем статистику…</p>
   <button id="opening-stats-retry" class="opening-utility" type="button" aria-label="Повторить загрузку статистики" hidden>Повторить</button>
   <nav class="opening-actions" aria-label="Главное меню">
-   <button id="opening-play" data-siege-mount="left" class="opening-button opening-primary" aria-label="С машиной" aria-busy="true" disabled><span class="opening-cta-label">С машиной</span></button>
-   <button id="opening-online" data-siege-mount="right" class="opening-button" type="button"><span class="opening-cta-label">С человеком</span><span id="opening-live-dot" hidden></span><span id="opening-live-count" class="opening-live-badge" hidden>Онлайн</span></button>
+   <button id="opening-play" data-siege-mount="left" class="opening-button opening-primary" aria-label="С ботом" aria-busy="true" disabled><span class="opening-cta-label">С ботом</span></button>
+   <button id="opening-online" data-siege-mount="right" class="opening-button" type="button"><span class="opening-cta-label">В сети</span><span id="opening-live-dot" hidden></span><span id="opening-live-count" class="opening-live-badge" hidden>Онлайн</span></button>
    <div id="opening-search" data-siege-mount="right" hidden>
     <p id="opening-search-copy">Ищем соперника</p>
     <div id="opening-search-actions">
@@ -383,7 +383,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   const label = button.querySelector && button.querySelector('.opening-cta-label');
   const text = busy ? 'Загрузка…' : name;
   if (label) label.textContent = text;
-  else if (button === play && text === 'С машиной') play.textContent = 'С машиной';
+  else if (button === play && text === 'С ботом') play.textContent = 'С ботом';
   else button.textContent = text;
   button.disabled = busy;
   button.setAttribute('aria-busy', busy ? 'true' : 'false');
@@ -414,7 +414,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
    byId('opening-error').hidden = false;
    byId('opening-error').textContent = message;
    byId('opening-loading-status').textContent = message;
-   setCta(play, 'С машиной', false);
+   setCta(play, 'С ботом', false);
    play.disabled = true;
    play.hidden = true;
    byId('opening-retry').hidden = false;
@@ -427,14 +427,14 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
     window.checkersStartup.waitPlay();
     return;
    }
-   setCta(play, 'С машиной', false);
+   setCta(play, 'С ботом', false);
    play.hidden = false;
    byId('opening-retry').hidden = true;
    if (window.checkersStartup.pendingOnline) window.checkersStartup.waitOnline();
   },
   waitPlay() {
    const armed = window.checkersStartup.source === 'online' ? online : play;
-   const name = armed === online ? 'С человеком' : 'С машиной';
+   const name = armed === online ? 'В сети' : 'С ботом';
    if (armed.hidden) return;
    window.checkersStartup.playCommitted = true;
    setCta(armed, name, true);
@@ -447,18 +447,18 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
    if (online.hidden) return;
    window.checkersStartup.source = 'online';
    window.checkersStartup.pendingOnline = true;
-   setCta(online, 'С человеком', true);
+   setCta(online, 'В сети', true);
    window.checkersStartup.status('Загружаем доску и шашки…');
    byId('opening-status').hidden = true;
    byId('opening-error').hidden = true;
   },
   idlePlay() {
    if (play.hidden || window.checkersStartup.pendingPlay || (window.checkersStartup.playCommitted && window.checkersStartup.source !== 'online')) return;
-   setCta(play, 'С машиной', false);
+   setCta(play, 'С ботом', false);
   },
   idleOnline() {
    if (window.checkersStartup.pendingOnline || (window.checkersStartup.playCommitted && window.checkersStartup.source === 'online')) return;
-   setCta(online, 'С человеком', false);
+   setCta(online, 'В сети', false);
   },
   ready() {
    // Engine module is present. Hide the load banner; do not announce a finished match.
@@ -514,7 +514,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   }
  };
  window.checkersStartup.unlock();
- window.checkersStartup.progress('Загружаем игру… Можно выбрать сторону и нажать «С машиной».');
+ window.checkersStartup.progress('Загружаем игру… Можно выбрать сторону и нажать «С ботом».');
  // Slow transfer is not an import failure: keep a queued start, and do not cover Play.
  window.checkersStartup.watchdog = setTimeout(() => window.checkersStartup.slow(), 12000);
 })();

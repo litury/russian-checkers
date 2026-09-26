@@ -26,7 +26,7 @@ it('CS-01 early HTML allows queued play but never announces loaded engine or a l
 it('pressed machine CTA waits on itself and leaves the other button alone', () => {
  vi.useFakeTimers(); const { startup, byId } = boot();
  const online = byId('opening-online');
- online.textContent = 'С человеком';
+ online.textContent = 'В сети';
  online.disabled = false;
  byId('opening-play').onclick();
  expect(startup.playCommitted).toBe(true);
@@ -36,7 +36,7 @@ it('pressed machine CTA waits on itself and leaves the other button alone', () =
  expect(byId('opening-play').setAttribute).toHaveBeenCalledWith('aria-busy', 'true');
  expect(byId('opening-status').hidden).toBe(true);
  expect(online.disabled).toBe(false);
- expect(online.textContent).toBe('С человеком');
+ expect(online.textContent).toBe('В сети');
 });
 it('pressed human CTA waits on itself and does not arm the machine button', () => {
  vi.useFakeTimers(); const { startup, byId } = boot();
