@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => ({
 		environment: 'node',
 		// Preserve the actual stylesheet for raw-source assertions instead of an empty CSS stub.
 		css: {
-			include: [/openingGates\.css/, /boardCoords\.css/, /matchHistory\.css/],
+			include: [/openingGates\.css/, /boardCoords\.css/, /matchHistory\.css/, /resultCeremony\.css/],
 		},
 		include: ['src/**/*.spec.ts', 'server/src/**/*.spec.ts'],
 	},

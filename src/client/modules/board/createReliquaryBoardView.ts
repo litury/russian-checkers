@@ -1,11 +1,10 @@
 import Phaser from 'phaser';
 import { logicalSize } from '@/client/app/displayDensity';
-import { pieceSprites } from '@/client/config/layout';
-import { reliquaryLayout } from '@/client/config/reliquaryLayout';
-import { boardFrame, boardFrameName, boardFrameSheet } from './boardCoords';
-import { boardCellY, visualRowStep } from './boardFacing';
 import { OpeningMoveHint } from '@/client/app/openingMoveHint';
 import { pieceStepSfx } from '@/client/app/pieceSfx';
+import { POINTER_FOCUS_ATTR } from '@/client/app/pointerFocusRing';
+import { pieceSprites } from '@/client/config/layout';
+import { reliquaryLayout } from '@/client/config/reliquaryLayout';
 import { sameSquare } from '@/client/shared/sameSquare';
 import {
 	type IMove,
@@ -14,6 +13,8 @@ import {
 	legalMoves,
 	type Side,
 } from '@/rules';
+import { boardFrame, boardFrameName, boardFrameSheet } from './boardCoords';
+import { boardCellY, visualRowStep } from './boardFacing';
 import { cutRotation, splitNormal, splitPixels } from './captureCut';
 import type { IBoardView } from './IBoardView';
 import { KingFire } from './kingFire';
@@ -36,7 +37,10 @@ import {
 } from './reliquaryMarkers';
 import { MarkerMotion } from './reliquaryMotion';
 import { SelectionMotion } from './selectionMotion';
-import { selectionOverlayFrame, selectionOverlayTexture } from './selectionOverlay';
+import {
+	selectionOverlayFrame,
+	selectionOverlayTexture,
+} from './selectionOverlay';
 
 function ensureBoardFrames(scene: Phaser.Scene) {
 	if (!scene.textures?.exists?.(boardFrameSheet)) return;
@@ -352,7 +356,10 @@ export function createBoardView(
 			.setData('temporaryRank', true);
 		// Selection overlay: its own layer above the piece, cell-sized, normal alpha over.
 		// Frames 0 and exit-03 carry no ink, so both endpoints simply hide the layer.
-		const overlayFrame = selectionOverlayFrame(view.motion.progress, view.motion.opening);
+		const overlayFrame = selectionOverlayFrame(
+			view.motion.progress,
+			view.motion.opening,
+		);
 		const overlayTexture = selectionOverlayTexture(overlayFrame);
 		const overlayReady = overlayFrame !== 'none' && hasTexture(overlayTexture);
 		if (overlayReady) view.overlay.setTexture(overlayTexture);
@@ -790,7 +797,12 @@ export function createBoardView(
 		drawInteraction();
 	};
 	const onFocus = (): void => {
-		keyboard = canvas.matches(':focus-visible');
+		// Keyboard-only highlight: a tap must not draw it even if the engine
+		// keeps :focus-visible after a touch. The mark lives on the element the
+		// pointer actually focused (pointerFocusRing), not on a global mode.
+		keyboard =
+			canvas.matches(':focus-visible') &&
+			!canvas.hasAttribute(POINTER_FOCUS_ATTR);
 		drawInteraction();
 	};
 	canvas.addEventListener('keydown', onKey);
@@ -817,7 +829,8 @@ export function createBoardView(
 			scene.textures?.exists?.(boardFrameSheet) &&
 			scene.textures.get(boardFrameSheet).has(frameName)
 		) {
-			if (board.texture?.key !== boardFrameSheet) board.setTexture(boardFrameSheet, frameName);
+			if (board.texture?.key !== boardFrameSheet)
+				board.setTexture(boardFrameSheet, frameName);
 			else board.setFrame(frameName);
 		}
 		shadow
