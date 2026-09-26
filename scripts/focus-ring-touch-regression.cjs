@@ -75,7 +75,8 @@ const highlightOf = (locator) =>
 		getComputedStyle(el).getPropertyValue('-webkit-tap-highlight-color').trim(),
 	);
 const transparentHighlight = (value) =>
-	value === 'transparent' || /^rgba?\(\s*0\s*,\s*0\s*,\s*0\s*,\s*0\s*\)$/.test(value);
+	value === 'transparent' ||
+	/^rgba?\(\s*0\s*,\s*0\s*,\s*0\s*,\s*0\s*\)$/.test(value);
 
 /** Style of whatever holds focus right now, or null for the body. */
 const focusedStyle = (page) =>
@@ -103,6 +104,18 @@ const tabUntilFocused = async (page, presses = 5) => {
 		if (focused) return focused;
 	}
 	return focusedStyle(page);
+};
+
+/** A real finger on whatever currently holds focus (the dialog's close button). */
+const tapFocused = async (page) => {
+	const box = await page.evaluate(() => {
+		const el = document.activeElement;
+		if (!el || el === document.body) return null;
+		const r = el.getBoundingClientRect();
+		return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+	});
+	if (!box) throw new Error('nothing focusable to tap');
+	await page.touchscreen.tap(box.x, box.y);
 };
 
 (async () => {
@@ -217,7 +230,10 @@ const tabUntilFocused = async (page, presses = 5) => {
 		await page.screenshot({ path: `${OUT}/regression-blur-focus.png` });
 		check(
 			'D2 blur + focus({focusVisible:true}) keeps the ring',
-			afterBlur.active && afterBlur.fv && !afterBlur.marked && hasRing(afterBlur),
+			afterBlur.active &&
+				afterBlur.fv &&
+				!afterBlur.marked &&
+				hasRing(afterBlur),
 			JSON.stringify(afterBlur),
 		);
 
@@ -260,7 +276,9 @@ const tabUntilFocused = async (page, presses = 5) => {
 		const emailHighlight = await highlightOf(email);
 		check(
 			'G tap on a dialog field keeps no ring',
-			emailTapped.marked && noRing(emailTapped) && transparentHighlight(emailHighlight),
+			emailTapped.marked &&
+				noRing(emailTapped) &&
+				transparentHighlight(emailHighlight),
 			`${JSON.stringify(emailTapped)} highlight=${emailHighlight}`,
 		);
 		await page.keyboard.type('a');
@@ -294,7 +312,9 @@ const tabUntilFocused = async (page, presses = 5) => {
 		const resignExplicit = await styleOf(resign);
 		check(
 			'H explicit visible focus on the board rail',
-			hasRing(resignExplicit) && !resignExplicit.marked && transparentHighlight(resignHighlight),
+			hasRing(resignExplicit) &&
+				!resignExplicit.marked &&
+				transparentHighlight(resignHighlight),
 			`${JSON.stringify(resignExplicit)} highlight=${resignHighlight}`,
 		);
 
@@ -333,6 +353,55 @@ const tabUntilFocused = async (page, presses = 5) => {
 			noRing(back),
 			JSON.stringify(back),
 		);
+
+		// L. A dialog closed by a finger restores focus to its opener. The
+		// browser carries :focus-visible over from the button that had it, so
+		// the ring used to reappear on the opener under the finger (round-5
+		// defect). The opener is an element the press never touched.
+		{
+			await page.waitForFunction(
+				() =>
+					document.querySelector('#match-history')?.dataset.bound === 'true',
+			);
+			await page.locator('#opening-history').tap();
+			await page.locator('#match-history').waitFor({ timeout: 15000 });
+			const inDialog = await tabUntilFocused(page, 3);
+			check(
+				'L history dialog Tab shows a ring',
+				!!inDialog && hasRing(inDialog),
+				JSON.stringify(inDialog),
+			);
+			await tapFocused(page);
+			const opener = await styleOf(page.locator('#opening-history'));
+			await page.screenshot({ path: `${OUT}/regression-history-opener.png` });
+			check(
+				'L a finger closing the history dialog leaves no ring on the opener',
+				opener.active && noRing(opener),
+				JSON.stringify(opener),
+			);
+		}
+
+		// M. Same hand-off through the help dialog, which restores focus hop by
+		// hop (help -> options -> menu): every hop is still one finger action.
+		{
+			await page.locator('#opening-options').tap();
+			await page.locator('#opening-help').tap();
+			await page.locator('#opening-help-dialog').waitFor({ timeout: 15000 });
+			const inHelp = await tabUntilFocused(page, 3);
+			check(
+				'M help dialog Tab shows a ring',
+				!!inHelp && hasRing(inHelp),
+				JSON.stringify(inHelp),
+			);
+			await tapFocused(page);
+			const opener = await styleOf(page.locator('#opening-help'));
+			await page.screenshot({ path: `${OUT}/regression-help-opener.png` });
+			check(
+				'M a finger closing the help dialog leaves no ring on the opener',
+				opener.active && noRing(opener),
+				JSON.stringify(opener),
+			);
+		}
 	} finally {
 		await browser.close();
 	}

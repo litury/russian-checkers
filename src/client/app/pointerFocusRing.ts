@@ -21,6 +21,17 @@
  * `focus()` on the active element moves nothing. The request is still
  * non-pointer and has to win, so the module wraps `HTMLElement.prototype.focus`
  * once and releases the mark for that element before delegating.
+ *
+ * The last case is a focus hand-off the finger starts and a script completes:
+ * a dialog closed by a tap focuses its opener again (`matchHistoryUi.close`,
+ * the help/settings dialogs). The tap's element stops rendering, a `focusout`
+ * fires for it, and the following `focusin` lands on a different element —
+ * one the press never touched. The browser still marks that opener
+ * `:focus-visible` (it carries the state over from the element that had it),
+ * so without help the ring comes back on the button under a finger. When the
+ * element that just lost focus stopped rendering while the pointer was still
+ * the last input, the next focus is the gesture's continuation and is marked
+ * as pointer focus too.
  */
 export const POINTER_FOCUS_ATTR = 'data-pointer-focus';
 
@@ -37,11 +48,31 @@ export type FocusRingElement = {
 	setAttribute(name: string, value: string): void;
 	removeAttribute(name: string): void;
 	hasAttribute(name: string): boolean;
+	/** Native rendering probe; absent on the DOM-free test doubles. */
+	checkVisibility?(): boolean;
 };
 
 const focusOwnerOf = (
 	target: FocusRingElement | null,
 ): FocusRingElement | null => target?.closest(FOCUSABLE_SELECTOR) ?? null;
+
+/**
+ * Is `element` still laid out? A closed `<dialog>` sets `display:none` on the
+ * whole subtree, so its buttons report `checkVisibility() === false` even
+ * though they stay connected. Doubles without a DOM fall back to `offsetParent`
+ * and, failing that, count as rendered.
+ */
+export function isRendered(element: FocusRingElement | null): boolean {
+	if (!element) return false;
+	const probe = element as {
+		checkVisibility?: () => boolean;
+		offsetParent?: unknown;
+	};
+	if (typeof probe.checkVisibility === 'function')
+		return probe.checkVisibility();
+	if ('offsetParent' in probe) return probe.offsetParent !== null;
+	return true;
+}
 
 /**
  * Did `focused` take focus because the pointer went down on `target`?
@@ -72,9 +103,26 @@ export class FocusRingState {
 	/** The element that currently holds focus, if any. */
 	private focused: FocusRingElement | null = null;
 
+	/**
+	 * No keyboard or explicit visible-focus request has happened since the last
+	 * pointer press. It does not gate focus by itself — only the hand-off below
+	 * consults it — so a tap on empty space never suppresses a later
+	 * screen-reader or scripted focus.
+	 */
+	private pointerInput = false;
+
+	/** The next focus continues a gesture whose element stopped rendering. */
+	private pointerReturn = false;
+
+	/** The current mark came from a pointer hand-off, not from a direct press. */
+	private handoffMark = false;
+
 	/** A pointer press landed on `target`. */
 	pointerDown(target: FocusRingElement | null): void {
 		this.pointerTarget = target;
+		this.pointerInput = true;
+		this.pointerReturn = false;
+		this.handoffMark = false;
 		// A touch anywhere else revokes the previous tap's ring immediately:
 		// the engine may keep the old element focused and still matching
 		// `:focus-visible`, so waiting for a focusout is not enough.
@@ -89,6 +137,9 @@ export class FocusRingState {
 	/** Keyboard input took over: no pending pointer focus ownership. */
 	keyDown(): void {
 		this.pointerTarget = null;
+		this.pointerInput = false;
+		this.pointerReturn = false;
+		this.handoffMark = false;
 		// Keyboard takeover also revokes a ring already handed to a finger,
 		// even when focus does not move: tapping a field and then typing on a
 		// physical keyboard is keyboard use, and the focused element must show
@@ -100,6 +151,9 @@ export class FocusRingState {
 	/** The gesture was cancelled (scroll takeover): it focused nothing new. */
 	pointerCancel(): void {
 		this.pointerTarget = null;
+		this.pointerInput = false;
+		this.pointerReturn = false;
+		this.handoffMark = false;
 	}
 
 	/**
@@ -119,25 +173,48 @@ export class FocusRingState {
 	 */
 	explicitVisibleFocus(element: FocusRingElement | null): void {
 		this.pointerTarget = null;
+		this.pointerInput = false;
+		this.pointerReturn = false;
+		this.handoffMark = false;
 		if (this.marked && focusOwnerOf(element) === this.marked) this.unmark();
 	}
 
 	/** Focus moved (or was set) on `focused`. */
 	focusIn(focused: FocusRingElement | null): void {
 		this.focused = focusOwnerOf(focused) ?? focused;
+		const handingOver = this.pointerReturn;
+		this.pointerReturn = false;
 		if (pointerOwnsFocus(this.pointerTarget, focused)) {
 			this.mark(focused);
 			// Owned focus is spent: a later screen-reader/scripted focus of the
 			// same element must get its ring back.
 			this.pointerTarget = null;
+			this.handoffMark = false;
 			return;
 		}
+		if (handingOver) {
+			// The gesture's element vanished (a dialog closed under the finger)
+			// and this focus is the rest of the same hand-off: no ring. Closing
+			// a nested dialog can restore focus through several elements, so the
+			// mark remembers it came from the hand-off and keeps suppressing the
+			// next hop too.
+			this.mark(focused);
+			this.pointerTarget = null;
+			this.handoffMark = true;
+			return;
+		}
+		this.handoffMark = false;
 		this.unmark();
 	}
 
 	focusOut(blurred: FocusRingElement | null): void {
 		if (blurred && this.focused === blurred) this.focused = null;
-		if (blurred && this.marked === blurred) this.unmark();
+		const wasMarked = !!blurred && this.marked === blurred;
+		// Closing a nested dialog restores focus hop by hop; the mark set by an
+		// earlier hop is the only thing that ties the hops of one tap together,
+		// so it also keeps the hand-off alive for the next focus.
+		const continues = wasMarked && this.handoffMark;
+		if (wasMarked) this.unmark();
 		// A press on the element that already held focus set the mark without
 		// any `focusin`, so that gesture's ownership was never spent. Once
 		// that element loses focus the gesture is over: a later `focusin` of
@@ -145,6 +222,15 @@ export class FocusRingState {
 		// back, and must not be marked as touch focus.
 		if (blurred && pointerOwnsFocus(this.pointerTarget, blurred))
 			this.pointerTarget = null;
+		// A dialog (or panel) closed by the finger takes the focused element
+		// out of the layout and then hands focus to its opener. That next focus
+		// arrives on an element the press never touched, so `pointerOwnsFocus`
+		// cannot claim it; the vanished element is the only signal that the
+		// hand-off is still part of the tap. Keyboard and explicit requests
+		// clear `pointerInput`, so their hand-offs keep the ring.
+		this.pointerReturn =
+			!!blurred && this.pointerInput && (continues || !isRendered(blurred));
+		if (!this.pointerReturn) this.handoffMark = false;
 	}
 
 	isSuppressed(element: FocusRingElement | null): boolean {

@@ -2,8 +2,10 @@ import { describe, expect, it, vi } from 'vitest';
 import {
 	FOCUS_HOOK,
 	FOCUSABLE_SELECTOR,
+	type FocusRingElement,
 	FocusRingState,
 	installExplicitFocusHook,
+	isRendered,
 	POINTER_FOCUS_ATTR,
 	pointerOwnsFocus,
 } from './pointerFocusRing';
@@ -21,6 +23,9 @@ class FakeElement {
 	parent: FakeElement | null = null;
 
 	children: FakeElement[] = [];
+
+	/** Layout state: a closed dialog makes its subtree non-rendered. */
+	visible = true;
 
 	constructor(tagName: string, attrs: Record<string, string> = {}) {
 		this.tagName = tagName.toUpperCase();
@@ -64,6 +69,10 @@ class FakeElement {
 		return this.attrs.has(name);
 	}
 
+	checkVisibility(): boolean {
+		return this.visible;
+	}
+
 	private matches(selector: string): boolean {
 		if (selector === 'label') return this.tagName === 'LABEL';
 		if (selector !== FOCUSABLE_SELECTOR)
@@ -94,6 +103,7 @@ const scene = () => {
 	);
 	const backdrop = body.append(new FakeElement('div', { id: 'backdrop' }));
 	const canvas = body.append(new FakeElement('canvas', { tabindex: '0' }));
+	const opener = body.append(new FakeElement('button', { id: 'opener' }));
 	const other = dialog.append(new FakeElement('button', { id: 'other' }));
 	return {
 		html,
@@ -104,6 +114,7 @@ const scene = () => {
 		email,
 		backdrop,
 		canvas,
+		opener,
 		other,
 	};
 };
@@ -418,6 +429,119 @@ describe('explicit non-pointer focus request', () => {
 
 		expect(state.isSuppressed(s.menuButton)).toBe(false);
 		expect(s.menuButton.hasAttribute(POINTER_FOCUS_ATTR)).toBe(false);
+	});
+});
+
+describe('handing focus off after the finger closed a dialog', () => {
+	/**
+	 * The round-5 defect: the finger taps the close button of an open dialog,
+	 * the dialog closes (its subtree stops rendering), and the close handler
+	 * focuses the opener again (`matchHistoryUi.close`). The browser carries
+	 * `:focus-visible` over, the opener is an element the press never touched,
+	 * so `pointerOwnsFocus` cannot claim it — the vanished element is the only
+	 * signal left.
+	 */
+	it('marks the opener the click handler focuses after the dialog closed', () => {
+		const s = scene();
+		const state = new FocusRingState();
+
+		// Tab focused the dialog's back button.
+		state.focusIn(s.menuButton);
+		expect(state.isSuppressed(s.menuButton)).toBe(false);
+		// Finger lands on it: marked by the press, no focusin fires.
+		state.pointerDown(s.menuButton);
+		expect(state.isSuppressed(s.menuButton)).toBe(true);
+
+		// Click handler: `root.close()` then `opener.focus()`.
+		s.menuButton.visible = false;
+		state.focusOut(s.menuButton);
+		state.focusIn(s.opener);
+
+		expect(state.isSuppressed(s.opener)).toBe(true);
+		expect(s.opener.hasAttribute(POINTER_FOCUS_ATTR)).toBe(true);
+	});
+
+	it('carries the mark through the hops of a nested dialog restore', () => {
+		const s = scene();
+		const state = new FocusRingState();
+
+		state.focusIn(s.menuButton);
+		state.pointerDown(s.menuButton);
+		s.menuButton.visible = false;
+		state.focusOut(s.menuButton);
+		// Closing a nested dialog restores focus hop by hop; every intermediate
+		// element is laid out again, so only the mark ties the hops together.
+		state.focusIn(s.other);
+		expect(state.isSuppressed(s.other)).toBe(true);
+		state.focusOut(s.other);
+		state.focusIn(s.opener);
+
+		expect(state.isSuppressed(s.opener)).toBe(true);
+		expect(state.isSuppressed(s.other)).toBe(false);
+	});
+
+	it('keeps the ring when the vanished element was blurred by the keyboard', () => {
+		const s = scene();
+		const state = new FocusRingState();
+
+		state.focusIn(s.menuButton);
+		state.pointerDown(s.menuButton);
+		// Escape (a key) closes the dialog: the hand-off is keyboard work.
+		state.keyDown();
+		s.menuButton.visible = false;
+		state.focusOut(s.menuButton);
+		state.focusIn(s.opener);
+
+		expect(state.isSuppressed(s.opener)).toBe(false);
+		expect(s.opener.hasAttribute(POINTER_FOCUS_ATTR)).toBe(false);
+	});
+
+	it('keeps the ring when the vanished element was blurred by an explicit request', () => {
+		const s = scene();
+		const state = new FocusRingState();
+
+		state.pointerDown(s.menuButton);
+		state.focusIn(s.menuButton);
+		state.explicitVisibleFocus(s.opener);
+		s.menuButton.visible = false;
+		state.focusOut(s.menuButton);
+		state.focusIn(s.opener);
+
+		expect(state.isSuppressed(s.opener)).toBe(false);
+	});
+
+	it('does not claim a later scripted focus after a tap on empty space', () => {
+		const s = scene();
+		const state = new FocusRingState();
+
+		state.pointerDown(s.backdrop);
+		state.focusIn(s.opener);
+
+		expect(state.isSuppressed(s.opener)).toBe(false);
+	});
+
+	it('keeps the ring when the blurred element is still laid out', () => {
+		const s = scene();
+		const state = new FocusRingState();
+
+		state.pointerDown(s.menuButton);
+		state.focusIn(s.menuButton);
+		state.focusOut(s.menuButton);
+		state.focusIn(s.opener);
+
+		expect(state.isSuppressed(s.opener)).toBe(false);
+	});
+});
+
+describe('isRendered', () => {
+	it('reads the layout probe and falls back for plain doubles', () => {
+		const s = scene();
+		expect(isRendered(s.menuButton)).toBe(true);
+		s.menuButton.visible = false;
+		expect(isRendered(s.menuButton)).toBe(false);
+		expect(isRendered(null)).toBe(false);
+		const bare = { closest: () => null } as unknown as FocusRingElement;
+		expect(isRendered(bare)).toBe(true);
 	});
 });
 
