@@ -11,6 +11,7 @@ vi.mock('@/client/config/reliquaryLayout', () => ({ reliquaryLayout: () => ({ ..
 vi.mock('phaser', () => ({ default: { Textures: { FilterMode: { LINEAR: 1 } }, Geom: { Rectangle: class { static Contains() {} } } } }));
 vi.mock('@/client/app/displayDensity', () => ({ logicalSize: () => ({ width: 1024, height: 768 }) }));
 import { createBoardView } from './createReliquaryBoardView';
+import { ARROW_INSET } from './reliquaryMarkers';
 import sceneSource from '@/client/app/gameScene.ts?raw';
 import type { IPosition } from '@/rules';
 
@@ -555,8 +556,12 @@ it('keeps one overlay layer per piece and destroys it with the piece', () => {
  expect(landing.y).toBe((7.5 - 3) * 44);
  expect(circles()).toHaveLength(0);
  expect(arrows()).toHaveLength(1);
- expect(arrows()[0].x).toBeCloseTo(22 + 44 * 0.55);
+ expect(arrows()[0].x).toBeCloseTo(22 + 44 * (1 - ARROW_INSET));
  expect(arrows()[0].y).toBeLessThan(242);
+ // The arrow sits inside the destination cell, one ARROW_INSET short of its
+ // centre and clear of the corner brackets of both cells.
+ expect(ARROW_INSET).toBeGreaterThan(0);
+ expect(1 - ARROW_INSET).toBeGreaterThan(0.5);
  expect(arrows()[0].rotation).toBeCloseTo(Math.atan2(-1, 1) - Math.atan2(132 - 91.5, 160 - 97));
  const mid = { row: 2, col: 2 };
  const squares = Array.from({ length: 8 }, () => Array(8).fill(null));
@@ -571,7 +576,7 @@ it('keeps one overlay layer per piece and destroys it with the piece', () => {
  h.board.setFacing('black');
  h.board.sync(position(), [from], from, [{ from, path: [land] }]);
  expect(arrows()).toHaveLength(1);
- expect(arrows()[0].y).toBeCloseTo((2 + 0.5) * 44 + 44 * 0.55);
+ expect(arrows()[0].y).toBeCloseTo((2 + 0.5) * 44 + 44 * (1 - ARROW_INSET));
  expect(staples().find(s => s.x === (1 + 0.5) * 44).y).toBeCloseTo((3 + 0.5) * 44);
  expect(circles()).toHaveLength(0);
  });
@@ -605,9 +610,11 @@ it('keeps one overlay layer per piece and destroys it with the piece', () => {
  expect(cuts.find(c => c.y === (7.5 - 5) * 44).rotation)
  	.toBeCloseTo(Math.atan2(-1, -1) - Math.PI / 4);
  expect(arrows).toHaveLength(2);
- const chain = arrows.find(a => Math.abs(a.x - ((4 + 0.5) * 44 - 44 * 0.55)) < 1);
+ // The chain arrow skips the piece on the victim square and is drawn inside the
+ // landing cell of its hop, ARROW_INSET short of that cell's centre.
+ const chain = arrows.find(a => Math.abs(a.x - ((2 + 0.5) * 44 + 44 * ARROW_INSET)) < 1);
  expect(chain).toBeTruthy();
- expect(chain.y).toBeCloseTo((7.5 - 4) * 44 - 44 * 0.55);
+ expect(chain.y).toBeCloseTo((7.5 - 6) * 44 + 44 * ARROW_INSET);
  for (const victim of [{ row: 3, col: 3 }, { row: 5, col: 3 }]) {
  	const x = (victim.col + 0.5) * 44;
  	const y = (7.5 - victim.row) * 44;
