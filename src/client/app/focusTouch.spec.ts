@@ -51,10 +51,13 @@ describe('touch focus ring', () => {
 		);
 	});
 
-	it('darkens the tap highlight instead of flashing the default one', () => {
+	it('removes the tap highlight instead of repainting it', () => {
+		// The player's complaint was a visible tap fill. It must be gone, not
+		// recoloured: any alpha > 0 (e.g. rgba(0,0,0,.3)) is still a plaque.
 		expect(css(html)).toContain(
-			'*{box-sizing:border-box;-webkit-tap-highlight-color:rgba(0,0,0,.3)}',
+			'*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}',
 		);
+		expect(css(html)).not.toMatch(/-webkit-tap-highlight-color:\s*rgba?\(/);
 	});
 
 	it('does not draw the board keyboard highlight after a tap', () => {

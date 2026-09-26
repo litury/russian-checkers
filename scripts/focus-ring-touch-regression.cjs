@@ -64,6 +64,19 @@ const styleOf = (locator) =>
 const hasRing = (s) => s.fv && RING.test(s.outline);
 const noRing = (s) => !RING.test(s.outline);
 
+/**
+ * The computed tap highlight of an element. A tap must flash nothing at all,
+ * so every interactive surface has to resolve to fully transparent; a value
+ * such as the engine default `rgba(51, 181, 229, 0.4)` or a hand-picked
+ * `rgba(0, 0, 0, .3)` is still a visible plaque and fails.
+ */
+const highlightOf = (locator) =>
+	locator.evaluate((el) =>
+		getComputedStyle(el).getPropertyValue('-webkit-tap-highlight-color').trim(),
+	);
+const transparentHighlight = (value) =>
+	value === 'transparent' || /^rgba?\(\s*0\s*,\s*0\s*,\s*0\s*,\s*0\s*\)$/.test(value);
+
 /** Style of whatever holds focus right now, or null for the body. */
 const focusedStyle = (page) =>
 	page.evaluate(() => {
@@ -119,6 +132,30 @@ const tabUntilFocused = async (page, presses = 5) => {
 
 		const slot = page.locator('#opening .gate-piece-slot[data-side="black"]');
 
+		// K. No tap highlight anywhere: every menu control must resolve to a
+		// fully transparent highlight, not the engine's default blue plaque.
+		{
+			const surfaces = {
+				'#opening-play': page.locator('#opening-play'),
+				'colour slot': slot,
+				'#opening-options': page.locator('#opening-options'),
+				'#opening-settings': page.locator('#opening-settings'),
+				'#opening-history': page.locator('#opening-history'),
+			};
+			const values = {};
+			let allClear = true;
+			for (const [name, locator] of Object.entries(surfaces)) {
+				const value = await highlightOf(locator);
+				values[name] = value;
+				if (!transparentHighlight(value)) allClear = false;
+			}
+			check(
+				'K menu controls flash no tap highlight',
+				allClear,
+				JSON.stringify(values),
+			);
+		}
+
 		// A. finger on the colour sample: no ring under the finger.
 		await slot.tap();
 		const tapped = await styleOf(slot);
@@ -166,6 +203,42 @@ const tabUntilFocused = async (page, presses = 5) => {
 			JSON.stringify(control),
 		);
 
+		// D2. The re-tap at C left the gesture unspent (no focusin consumed
+		// it). After an explicit visible focus the pending ownership must be
+		// gone, so a real blur + focus pair without any new finger or key is
+		// still a non-pointer focus and keeps its ring.
+		await slot.tap(); // restore the marked, unspent state
+		await slot.evaluate((el) => el.focus({ focusVisible: true }));
+		await slot.evaluate((el) => {
+			el.blur();
+			el.focus({ focusVisible: true });
+		});
+		const afterBlur = await styleOf(slot);
+		await page.screenshot({ path: `${OUT}/regression-blur-focus.png` });
+		check(
+			'D2 blur + focus({focusVisible:true}) keeps the ring',
+			afterBlur.active && afterBlur.fv && !afterBlur.marked && hasRing(afterBlur),
+			JSON.stringify(afterBlur),
+		);
+
+		// D3. Move focus to another control by an explicit request and back:
+		// the old gesture must not claim the return either.
+		const play = page.locator('#opening-play');
+		await slot.evaluate((el) => {
+			el.blur();
+		});
+		await play.evaluate((el) => el.focus({ focusVisible: true }));
+		await slot.evaluate((el) => {
+			el.blur();
+			el.focus({ focusVisible: true });
+		});
+		const returned = await styleOf(slot);
+		check(
+			'D3 focus away and back by explicit requests keeps the ring',
+			returned.active && returned.fv && !returned.marked && hasRing(returned),
+			JSON.stringify(returned),
+		);
+
 		// F. keyboard-only ring in the menu.
 		await page.touchscreen.tap(5, 5);
 		const menuKey = await tabUntilFocused(page);
@@ -184,10 +257,11 @@ const tabUntilFocused = async (page, presses = 5) => {
 		await email.waitFor({ timeout: 15000 });
 		await email.tap();
 		const emailTapped = await styleOf(email);
+		const emailHighlight = await highlightOf(email);
 		check(
 			'G tap on a dialog field keeps no ring',
-			emailTapped.marked && noRing(emailTapped),
-			JSON.stringify(emailTapped),
+			emailTapped.marked && noRing(emailTapped) && transparentHighlight(emailHighlight),
+			`${JSON.stringify(emailTapped)} highlight=${emailHighlight}`,
 		);
 		await page.keyboard.type('a');
 		const emailTyped = await styleOf(email);
@@ -215,12 +289,13 @@ const tabUntilFocused = async (page, presses = 5) => {
 			{ timeout: 60000 },
 		);
 		const resign = page.locator('#match-resign');
+		const resignHighlight = await highlightOf(resign);
 		await resign.evaluate((el) => el.focus({ focusVisible: true }));
 		const resignExplicit = await styleOf(resign);
 		check(
 			'H explicit visible focus on the board rail',
-			hasRing(resignExplicit) && !resignExplicit.marked,
-			JSON.stringify(resignExplicit),
+			hasRing(resignExplicit) && !resignExplicit.marked && transparentHighlight(resignHighlight),
+			`${JSON.stringify(resignExplicit)} highlight=${resignHighlight}`,
 		);
 
 		// I. result window.
@@ -228,10 +303,11 @@ const tabUntilFocused = async (page, presses = 5) => {
 		const menuButton = page.locator('[data-result="menu"]');
 		await menuButton.waitFor({ timeout: 60000 });
 		const resultTap = await styleOf(menuButton);
+		const resultHighlight = await highlightOf(menuButton);
 		check(
 			'I tap focus in the result window keeps no ring',
-			noRing(resultTap),
-			JSON.stringify(resultTap),
+			noRing(resultTap) && transparentHighlight(resultHighlight),
+			`${JSON.stringify(resultTap)} highlight=${resultHighlight}`,
 		);
 		const resultKey = await tabUntilFocused(page, 3);
 		check(

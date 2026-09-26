@@ -352,6 +352,73 @@ describe('explicit non-pointer focus request', () => {
 		expect(state.isSuppressed(s.menuButton)).toBe(true);
 		expect(s.menuButton.hasAttribute(POINTER_FOCUS_ATTR)).toBe(true);
 	});
+
+	it('cancels the pending gesture so a later focusin is not marked again', () => {
+		const s = scene();
+		const state = new FocusRingState();
+
+		// Re-tapping the element that still holds focus marks it without any
+		// focusin, so the gesture's ownership stays unspent.
+		state.pointerDown(s.menuButton);
+		state.focusIn(s.menuButton);
+		state.keyDown();
+		state.pointerDown(s.menuButton);
+		expect(state.isSuppressed(s.menuButton)).toBe(true);
+
+		// The explicit request lifts the mark and spends the gesture…
+		state.explicitVisibleFocus(s.menuButton);
+		// …so blurring and focusing again is a real focusin the tracker must
+		// treat as non-pointer, not as the finger returning.
+		state.focusOut(s.menuButton);
+		state.focusIn(s.menuButton);
+
+		expect(state.isSuppressed(s.menuButton)).toBe(false);
+		expect(s.menuButton.hasAttribute(POINTER_FOCUS_ATTR)).toBe(false);
+	});
+
+	it('spends the pending gesture when the request moves focus elsewhere', () => {
+		const s = scene();
+		const state = new FocusRingState();
+
+		state.pointerDown(s.menuButton);
+		state.focusIn(s.menuButton);
+		state.keyDown();
+		state.pointerDown(s.menuButton);
+
+		// Focus leaves to another control by an explicit request…
+		state.explicitVisibleFocus(s.email);
+		state.focusOut(s.menuButton);
+		state.focusIn(s.email);
+		expect(state.isSuppressed(s.email)).toBe(false);
+
+		// …and returning to the button is a non-pointer focus too: the old
+		// gesture must not claim it.
+		state.focusOut(s.email);
+		state.focusIn(s.menuButton);
+
+		expect(state.isSuppressed(s.menuButton)).toBe(false);
+		expect(s.menuButton.hasAttribute(POINTER_FOCUS_ATTR)).toBe(false);
+	});
+
+	it('drops the unspent gesture once its element loses focus', () => {
+		const s = scene();
+		const state = new FocusRingState();
+
+		// Tab focused the button, then the finger landed on it: the press
+		// marks it but fires no focusin, so the gesture stays unspent.
+		state.focusIn(s.menuButton);
+		state.pointerDown(s.menuButton);
+		expect(state.isSuppressed(s.menuButton)).toBe(true);
+
+		// Focus leaves the button — by mouse, script or another tap — with no
+		// new visible-focus request and no keyboard involved. The gesture is
+		// over; a plain scripted focus of the button afterwards is not touch.
+		state.focusOut(s.menuButton);
+		state.focusIn(s.menuButton);
+
+		expect(state.isSuppressed(s.menuButton)).toBe(false);
+		expect(s.menuButton.hasAttribute(POINTER_FOCUS_ATTR)).toBe(false);
+	});
 });
 
 describe('installExplicitFocusHook', () => {

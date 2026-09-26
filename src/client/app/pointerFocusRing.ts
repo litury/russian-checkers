@@ -105,11 +105,20 @@ export class FocusRingState {
 	/**
 	 * An explicit non-pointer focus request reached `element` —
 	 * `element.focus({ focusVisible: true })`, the documented path for scripts
-	 * and assistive technology. When the element is already active the request
-	 * fires no `focusin`, so the request itself has to lift a pointer mark:
-	 * the mark hides the ring, and only pointer input may do that.
+	 * and assistive technology.
+	 *
+	 * The request is non-pointer input, so it does two things. It lifts a
+	 * pointer mark already sitting on `element`: when the element is active
+	 * the request fires no `focusin`, so nothing else can. And it cancels a
+	 * still-pending pointer ownership — pressing the element that already
+	 * holds focus leaves the gesture unspent (no `focusin` consumes it), and
+	 * the next real `focusin` of that element would be re-marked as touch
+	 * focus, hiding the ring the script or assistive technology just asked
+	 * for. An explicit visible-focus request outranks a gesture that has
+	 * already ended.
 	 */
 	explicitVisibleFocus(element: FocusRingElement | null): void {
+		this.pointerTarget = null;
 		if (this.marked && focusOwnerOf(element) === this.marked) this.unmark();
 	}
 
@@ -129,6 +138,13 @@ export class FocusRingState {
 	focusOut(blurred: FocusRingElement | null): void {
 		if (blurred && this.focused === blurred) this.focused = null;
 		if (blurred && this.marked === blurred) this.unmark();
+		// A press on the element that already held focus set the mark without
+		// any `focusin`, so that gesture's ownership was never spent. Once
+		// that element loses focus the gesture is over: a later `focusin` of
+		// it is a script or assistive-technology focus, not the finger coming
+		// back, and must not be marked as touch focus.
+		if (blurred && pointerOwnsFocus(this.pointerTarget, blurred))
+			this.pointerTarget = null;
 	}
 
 	isSuppressed(element: FocusRingElement | null): boolean {
