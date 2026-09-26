@@ -3,9 +3,10 @@ import type Phaser from 'phaser';
 import { siegeGatePose, siegeTravel } from './siegeGateTransition';
 import masks from './ui/siege/gate-masks.json';
 const audio = vi.hoisted(()=>({gate:vi.fn(),hide:vi.fn()}));
+const cloud = vi.hoisted(()=>({beat: async(): Promise<number|null> => null}));
 vi.mock('./menuAudio', () => ({ createMenuAudio: () => new Proxy(audio, {get: (target,key) => target[key as keyof typeof target] ?? vi.fn()}) }));
 vi.mock('./matchHistoryUi', () => ({bindMatchHistory: vi.fn()}));
-vi.mock('@/online/cloud', () => ({ensureGuest:async()=>null,loadColorStats:async()=>null,loadPresence:async()=>null,beatPresence:async()=>null}));
+vi.mock('@/online/cloud', () => ({ensureGuest:async()=>null,loadColorStats:async()=>null,loadPresence:async()=>null,beatPresence:()=>cloud.beat()}));
 vi.mock('./siegeSelection', () => ({siegeSide:()=> 'white',setSiegeSide:vi.fn()}));
 import { createOpeningOverlay } from './openingOverlay';
 import { paintOpeningStats } from './openingStats';
@@ -42,7 +43,7 @@ function setup(reduced=false, decoded=true) {
  const overlay=createOpeningOverlay(scene as unknown as Phaser.Scene,{onPlayBot,isPaused:()=>paused.value});
  return {root,overlay,scene,get,onPlayBot,media,doc,events,paused,resizeListeners,visual:(ms:number)=>{for(const node of [root,...root.children.values()])for(const a of node.animations)if(a.playState==='running')a.currentTime+=ms;},advance:(ms:number)=>{scene.time.now+=ms;tick();}};
 }
-afterEach(()=>{vi.unstubAllGlobals();vi.clearAllMocks();});
+afterEach(()=>{vi.unstubAllGlobals();vi.clearAllMocks();cloud.beat=async()=>null;});
 it('keeps the original complementary tooth path and samples arbitrary travel',()=>{
  expect(new Set(masks.seam_xy.map(p=>p[0])).size).toBeGreaterThan(3);
  for(let i=1;i<masks.seam_xy.length;i++)expect(masks.seam_xy[i][1]).toBeGreaterThan(masks.seam_xy[i-1][1]);
@@ -206,15 +207,34 @@ it('keeps chronicle labels and refuses a fake zero or sample online count', asyn
  expect(black.textContent).toBe('—');
  expect(unavailable.hidden).toBe(false);
  expect(unavailable.textContent).toBe('Статистика недоступна');
- const live=get('opening-live-count');
+ const live=get('opening-online-count');
  live.hidden=false;
- live.textContent='Онлайн: 12 · пример';
+ live.textContent='Сейчас в сети: 12 · пример';
  overlay.show();
  await Promise.resolve();
  await Promise.resolve();
  expect(live.hidden).toBe(true);
  expect(live.textContent).not.toContain('12');
  expect(live.textContent).not.toContain('пример');
+});
+it('shows the live count as text inside the search screen when players are present', async ()=>{
+ const {overlay,get}=setup();
+ cloud.beat=async()=>3;
+ overlay.show();
+ await Promise.resolve();
+ await Promise.resolve();
+ const count=get('opening-online-count');
+ expect(count.hidden).toBe(false);
+ expect(count.textContent).toBe('Сейчас в сети: 3');
+ // Zero or unknown never leaves a placeholder behind.
+ cloud.beat=async()=>0;
+ const {overlay:second,get:getSecond}=setup();
+ second.show();
+ await Promise.resolve();
+ await Promise.resolve();
+ const zero=getSecond('opening-online-count');
+ expect(zero.hidden).toBe(true);
+ expect(zero.textContent).toBe('');
 });
 it('falls back immediately if animation creation fails, cleaning partial effects',()=>{
  const {root,overlay}=setup();const done=vi.fn();

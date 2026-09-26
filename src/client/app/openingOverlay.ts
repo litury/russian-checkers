@@ -194,18 +194,15 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  if(window.checkersStartup.pendingPlay || window.checkersStartup.playCommitted) window.checkersStartup.waitPlay();
  else { window.checkersStartup.unlock(); window.checkersStartup.ready(); }
  void ensureGuest();
- const liveDot = document.getElementById('opening-live-dot');
- const liveCount = document.getElementById('opening-live-count');
+ const liveCount = document.getElementById('opening-online-count');
  let presenceTimer: number | undefined;
  let beatTimer: number | undefined;
  const showLive = (live: number | null) => {
   const n = live ?? 0;
   const on = presenceLit(n);
-  online?.classList.toggle('is-live', on);
-  if (liveDot) liveDot.hidden = !on;
   if (liveCount) {
    liveCount.hidden = !on;
-   liveCount.textContent = on ? `Онлайн: ${n}` : '';
+   liveCount.textContent = on ? `Сейчас в сети: ${n}` : '';
   }
  };
  const paintPresence = () => {
