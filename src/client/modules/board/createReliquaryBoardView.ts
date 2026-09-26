@@ -23,7 +23,7 @@ import { type MarkTone, planMoveMarks } from './moveMarks';
 import { markerMoves } from './reliquaryHints';
 import {
 	ARROW_CELL,
-	ARROW_CORNER,
+	ARROW_INSET,
 	ARROW_TEXTURE,
 	arrowRotation,
 	drawReliquaryMarker,
@@ -219,21 +219,35 @@ export function createBoardView(
 			.setDisplaySize(box.w, box.h)
 			.setAlpha(alpha);
 	};
+	/**
+	 * The arrow is drawn inside the next free cell of its own diagonal, one
+	 * ARROW_INSET short of that cell's centre.  On the shared corner (0.5 cell
+	 * from the centre) its ink landed on the corner brackets of both cells, and
+	 * the cell right next to the source can hold a captured piece, so the walk
+	 * skips occupied squares and stops on the first free one.
+	 */
 	const placeArrow = (from: ISquare, to: ISquare, texture: string): void => {
 		if (!hasTexture(texture)) return;
 		const step = screenStep(from, to, facing);
 		if (!step.dx || !step.dy) return;
 		const box = cellBox(from);
+		const dr = Math.sign(to.row - from.row);
+		const dc = Math.sign(to.col - from.col);
+		const cells = Math.abs(to.col - from.col);
+		let reach = 1;
+		while (reach < cells) {
+			const square = { row: from.row + dr * reach, col: from.col + dc * reach };
+			if (!position?.squares[square.row]?.[square.col]) break;
+			reach += 1;
+		}
+		const d = reach - ARROW_INSET;
 		const long = Math.max(box.w, box.h) * ARROW_CELL;
 		const scale = long / Math.max(ARROW_TEXTURE.w, ARROW_TEXTURE.h);
 		take('marks', texture, 8.2)
 			.setOrigin(0.5, 0.5)
 			.setDisplaySize(ARROW_TEXTURE.w * scale, ARROW_TEXTURE.h * scale)
 			.setRotation(arrowRotation(step.dx, step.dy))
-			.setPosition(
-				box.x + step.dx * box.w * ARROW_CORNER,
-				box.y + step.dy * box.h * ARROW_CORNER,
-			);
+			.setPosition(box.x + step.dx * box.w * d, box.y + step.dy * box.h * d);
 	};
 	const placeCut = (square: ISquare, from: ISquare, to: ISquare): void => {
 		if (!hasTexture(MARKER_CUT)) return;

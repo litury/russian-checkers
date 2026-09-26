@@ -23,8 +23,13 @@ export const STAPLE_SOURCE_PX = 176;
 /** arrow.png size. Long side is drawn at ARROW_CELL of the live cell. */
 export const ARROW_TEXTURE = { w: 194, h: 183 } as const;
 export const ARROW_CELL = 0.38;
-/** Center sits just outside the cell corner so the tip does not cover the face. */
-export const ARROW_CORNER = 0.55;
+/**
+ * How far back from the centre of the free cell the arrow points into it.
+ * The arrow is drawn inside the next free cell of its diagonal - 0.9 cell from
+ * the source centre on a plain step.  Sitting on the shared corner (0.5) put its
+ * ink on the corner brackets of both cells.
+ */
+export const ARROW_INSET = 0.1;
 /**
  * Direction of the ivory tip in arrow.png, measured from the image center.
  * Screen y grows downward. The authored arrow points down-right.
