@@ -22,6 +22,8 @@ export class KingFire {
  private motionReduced = false;
  private owner: object | null = null;
  private serial = 0;
+ /** Owner whose fire survives the presentation reset that ends a match. */
+ private kept: object | null = null;
  constructor(private scene: Phaser.Scene) {}
 
  private has(texture: string): boolean {
@@ -43,7 +45,9 @@ export class KingFire {
   if (!king) { this.remove(id); return; }
   // Sheets may still be background-loading; skip VFX until ready.
   if (!(reduced ? this.has('static') : this.has('idle-back') && this.has('idle-front'))) return;
-  if (this.idle.get(id)?.reduced !== reduced) this.dropIdle(id);
+  const existing = this.idle.get(id);
+  const previous = existing ? { x: existing.point.x, y: existing.point.y, cell: existing.cell } : null;
+  if (existing?.reduced !== reduced) this.dropIdle(id);
   if (!this.idle.has(id)) this.idle.set(id, {
    point: { x: p.x, y: p.y }, cell, reduced,
    sprites: reduced ? [this.sprite('static', p, cell, 3.9, 'static')]
@@ -51,6 +55,15 @@ export class KingFire {
   });
   const rest = this.idle.get(id)!;
   rest.point = { x: p.x, y: p.y }; rest.cell = cell;
+  // A kept flame outlives its piece view, so when the owner is laid out again (resize, a
+  // hidden field, the presentation sync) its ignition must travel and scale with it; else
+  // it is stranded at the old cell as a second hearth outside the board.
+  if (previous && (previous.x !== p.x || previous.y !== p.y || previous.cell !== cell))
+   for (const burst of this.bursts)
+    if (burst.owner === id && burst.point.x === previous.x && burst.point.y === previous.y) {
+     burst.point = { x: p.x, y: p.y };
+     for (const s of burst.sprites) s.setPosition(p.x, p.y).setScale(cell / 44);
+    }
   const igniting = this.bursts.some(b => b.owner === id && b.point.x === p.x && b.point.y === p.y);
   for (const s of rest.sprites) s.setPosition(p.x, p.y).setScale(cell / 44).setVisible(!igniting);
  }
@@ -136,6 +149,8 @@ export class KingFire {
   }
  }
  remove(id: object) {
+  // A kept owner outlives its piece view: the final promotion keeps its flame.
+  if (id === this.kept) return;
   this.dropIdle(id);
   for (const burst of this.bursts) if (burst.owner === id) burst.sprites.forEach(s => s.destroy());
   this.bursts = this.bursts.filter(b => b.owner !== id);
@@ -146,8 +161,24 @@ export class KingFire {
   this.bursts.forEach(b => b.sprites.forEach(s => s.destroy())); this.bursts = [];
   this.pool.forEach(d => d.sprite.destroy()); this.pool = [];
  }
- clear() {
-  this.clearTransient();
-  for (const id of this.idle.keys()) this.dropIdle(id);
+ /**
+  * Marks the owner of the final promotion. Its ignition, trail residue and standing flame
+  * then survive `clear(true)` and `remove()`, so the presentation reset at the end of a
+  * match cannot extinguish a fire the player has not seen yet.
+  */
+ keep(id: object) { this.kept = id; }
+ /** Full clear unless `keepOwned`, which spares the kept owner only. */
+ clear(keepOwned = false) {
+  const kept = keepOwned ? this.kept : null;
+  if (!kept) {
+   this.clearTransient();
+   this.kept = null;
+  } else {
+   for (const burst of this.bursts)
+    if (burst.owner !== kept) for (const s of burst.sprites) s.destroy();
+   this.bursts = this.bursts.filter(b => b.owner === kept);
+  }
+  // The trail residue of the final capture ages out on its own, like any landing.
+  for (const id of [...this.idle.keys()]) if (id !== kept) this.dropIdle(id);
  }
 }

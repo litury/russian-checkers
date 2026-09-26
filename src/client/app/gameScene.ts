@@ -1542,7 +1542,8 @@ export class GameScene extends Phaser.Scene {
 
 	private endMatch(side: Side | 'draw', kind: 'flag' | 'rules' = 'rules'): void {
 		if (!this.board) return;
-		this.board.reset();
+		// The reset presents the final position; a promotion on this last move keeps its fire.
+		this.board.reset({ keepPromotionFire: true });
 		this.moving = false;
 		this.botTimer?.remove(false);
 		this.board.clearOpeningHint();

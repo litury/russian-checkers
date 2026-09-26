@@ -47,6 +47,15 @@ it('late result loader cannot reopen after leaving result phase',async()=>{
  s.ensureResultOverlay=()=>new Promise(resolve=>loaded=resolve);s.resignMatch();
  s.phase='title';loaded(s.overlay);await Promise.resolve();expect(s.overlay.show).not.toHaveBeenCalled();
 });
+it('presents the final position with the last promotion fire kept, and clears fire on resignation',async()=>{
+ const {s}=setup();s.title={resultSting:vi.fn(),speakOrcTurn:vi.fn()};
+ s.ensureResultOverlay=vi.fn(async()=>s.overlay);
+ s.endMatch('white');
+ expect(s.board.reset).toHaveBeenCalledWith({keepPromotionFire:true});
+ s.board.reset.mockClear();
+ s.phase='human';s.resignMatch();
+ expect(s.board.reset).toHaveBeenCalledWith();
+});
 function human(s: any) { s.onSquare(sq('c3')); s.onSquare(sq('d4')); }
 it('manual move plus bot reply undo restores position, clocks and history', () => {
  const { s } = setup(); const origin = structuredClone(s.position);

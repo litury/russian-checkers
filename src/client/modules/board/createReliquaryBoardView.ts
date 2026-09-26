@@ -146,12 +146,26 @@ export function createBoardView(
 	let focus: ISquare = { row: 2, col: 0 };
 	let facing: Side = 'white';
 	let keyboard = false;
+	/**
+	 * The promotion that ended the match keeps its fire under the result window, after the
+	 * reset that clears the position, so one stable owner covers both phases.
+	 */
+	let finale: { owner: PieceView; square: ISquare } | null = null;
+	/** Promotion of the most recent `playMove`; only the final move may arm the finale. */
+	let lastPromotion: { view: PieceView; square: ISquare } | null = null;
 	const cellBox = (s: ISquare) => ({
 		x: field.originX + (s.col + 0.5) * field.cell,
 		y: boardCellY(field.originY, field.cell, s.row, facing),
 		w: field.cell,
 		h: field.cell,
 	});
+	// The final promotion keeps the owner its fire was born with, so re-syncing the position
+	// after the presentation reset resumes that same flame instead of stacking a second one.
+	const fireOwner = (view: PieceView): object =>
+		finale && sameSquare(finale.square, view.square) ? finale.owner : view;
+	// Input is blocked while the result window is up, but that window is a DOM layer: the
+	// board and the final flame stay on screen. Only a hidden playfield extinguishes it.
+	const fireBlocked = (): boolean => !visible || (isInputBlocked() && !finale);
 	type MarkerImage = Phaser.GameObjects.Image;
 	const pools = {
 		intro: [] as MarkerImage[],
@@ -694,8 +708,8 @@ export function createBoardView(
 				view.group.setVisible(visible);
 				place(view);
 				kingFire.rest(
-					view,
-					visible && !isInputBlocked() && view.kind === 'king',
+					fireOwner(view),
+					visible && !fireBlocked() && view.kind === 'king',
 					cellBox(square),
 					field.cell,
 					reduced(),
@@ -784,7 +798,7 @@ export function createBoardView(
 	canvas.addEventListener('blur', drawInteraction);
 	label();
 	const layout: IBoardView['layout'] = (width, height) => {
-		kingFire.clear();
+		kingFire.clear(finale !== null);
 		field = reliquaryLayout(width, height);
 		ground.setSize(width, height);
 
@@ -826,8 +840,8 @@ export function createBoardView(
 			for (const view of pieces.values()) {
 				place(view);
 				kingFire.rest(
-					view,
-					visible && !isInputBlocked() && view.kind === 'king',
+					fireOwner(view),
+					visible && !fireBlocked() && view.kind === 'king',
 					cellBox(view.square),
 					field.cell,
 					reduced(),
@@ -835,8 +849,26 @@ export function createBoardView(
 			}
 		draw();
 	};
-	const reset = (): void => {
-		kingFire.clear();
+	const reset = (options?: { keepPromotionFire?: boolean }): void => {
+		// A promotion on the last move must be seen: hand its fire to the presentation instead
+		// of destroying it. Anything else (a new match, a hidden playfield, undo) clears it.
+		const promotion = lastPromotion;
+		const keep =
+			options?.keepPromotionFire === true &&
+			promotion !== null &&
+			promotion.view.kind === 'king' &&
+			sameSquare(promotion.view.square, promotion.square) &&
+			pieces.get(key(promotion.square)) === promotion.view
+				? promotion
+				: null;
+		if (keep) {
+			finale = { owner: keep.view, square: { ...keep.square } };
+			kingFire.keep(keep.view);
+		} else {
+			finale = null;
+		}
+		lastPromotion = null;
+		kingFire.clear(keep !== null);
 		intro.clear();
 		introMarks.clear();
 		release('intro');
@@ -872,6 +904,8 @@ export function createBoardView(
 		retainCaptured = false,
 	) => {
 		if (moving) return;
+		// Only a promotion made by the move that ends the match may arm the finale.
+		lastPromotion = null;
 		const view = pieces.get(key(move.from));
 		intro.clear();
 		drawIntro();
@@ -968,6 +1002,7 @@ export function createBoardView(
 					land.row === (view.side === 'white' ? 7 : 0)
 				) {
 					view.kind = 'king';
+					lastPromotion = { view, square: { ...land } };
 					kingFire.ignite(view, cellBox(land), field.cell, reduced());
 				}
 				place(view);
@@ -1008,12 +1043,12 @@ export function createBoardView(
 		step(0);
 	};
 	const updateHints = (_time: number, delta: number): void => {
-		if (!visible || isInputBlocked()) kingFire.clear();
+		if (fireBlocked()) kingFire.clear();
 		kingFire.update(delta, reduced());
 		for (const view of pieces.values()) {
-			if (visible && !isInputBlocked())
+			if (!fireBlocked())
 				kingFire.rest(
-					view,
+					fireOwner(view),
 					view.kind === 'king',
 					cellBox(view.square),
 					field.cell,
