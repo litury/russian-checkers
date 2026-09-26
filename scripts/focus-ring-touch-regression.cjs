@@ -379,6 +379,18 @@ const tapFocused = async (page) => {
 				opener.active && noRing(opener),
 				JSON.stringify(opener),
 			);
+
+			// N. The hand-off ends at the app's own return focus. A later,
+			// unrelated scripted/screen-reader focus must get its ring back —
+			// the round-6 defect swallowed it with a stale continuation.
+			await page.locator('#opening-play').evaluate((el) => el.focus());
+			const later = await styleOf(page.locator('#opening-play'));
+			await page.screenshot({ path: `${OUT}/regression-later-scripted-focus.png` });
+			check(
+				'N a later scripted focus after the hand-off shows its ring',
+				later.active && !later.marked && hasRing(later),
+				JSON.stringify(later),
+			);
 		}
 
 		// M. Same hand-off through the help dialog, which restores focus hop by
@@ -400,6 +412,16 @@ const tapFocused = async (page) => {
 				'M a finger closing the help dialog leaves no ring on the opener',
 				opener.active && noRing(opener),
 				JSON.stringify(opener),
+			);
+
+			// M2. Same bound through the multi-hop restore: the continuation
+			// must end at the opener, not swallow the next scripted focus.
+			await page.locator('#opening-settings').evaluate((el) => el.focus());
+			const laterHelp = await styleOf(page.locator('#opening-settings'));
+			check(
+				'M2 a later scripted focus after the nested hand-off shows its ring',
+				laterHelp.active && !laterHelp.marked && hasRing(laterHelp),
+				JSON.stringify(laterHelp),
 			);
 		}
 	} finally {

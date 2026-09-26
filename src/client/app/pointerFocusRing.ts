@@ -30,8 +30,19 @@
  * `:focus-visible` (it carries the state over from the element that had it),
  * so without help the ring comes back on the button under a finger. When the
  * element that just lost focus stopped rendering while the pointer was still
- * the last input, the next focus is the gesture's continuation and is marked
- * as pointer focus too.
+ * the last input, the focus moves that follow are the gesture's continuation
+ * and are marked as pointer focus too.
+ *
+ * That continuation is bounded: it ends at the app's own return request.
+ * Closing a dialog focuses the opener with an explicit `opener.focus()` call
+ * (`matchHistoryUi.close`, the help/settings dialogs, `resultCeremony.hide`),
+ * and that call is the end of the hand-off — the elements the browser focuses
+ * in between are the dialogs' own focus shuffling, not a new focus. An
+ * unbounded "the finger owned the last focus" flag would instead swallow every
+ * later scripted or screen-reader focus (`#opening-play.focus()` after the
+ * history dialog closed), hiding the ring those users need. Keyboard input,
+ * `pointercancel` and an explicit visible-focus request end the continuation
+ * as well.
  */
 export const POINTER_FOCUS_ATTR = 'data-pointer-focus';
 
@@ -111,18 +122,28 @@ export class FocusRingState {
 	 */
 	private pointerInput = false;
 
-	/** The next focus continues a gesture whose element stopped rendering. */
-	private pointerReturn = false;
+	/**
+	 * A marked element stopped rendering while the pointer was the last input:
+	 * the focus moves that follow are the continuation of that gesture (the
+	 * opener a closing dialog restores focus to). Bounded — see the module
+	 * comment: the app's own `opener.focus()` ends it.
+	 */
+	private returnPending = false;
 
-	/** The current mark came from a pointer hand-off, not from a direct press. */
-	private handoffMark = false;
+	/**
+	 * The explicit focus the app's close path asked for while the finger's
+	 * mark was still in place. `close()` runs `root.close(); open.focus()`, so
+	 * the request arrives before the browser blurs the vanished button; the
+	 * blur that follows is that request's doing and ends the gesture.
+	 */
+	private returnTarget: FocusRingElement | null = null;
 
 	/** A pointer press landed on `target`. */
 	pointerDown(target: FocusRingElement | null): void {
 		this.pointerTarget = target;
 		this.pointerInput = true;
-		this.pointerReturn = false;
-		this.handoffMark = false;
+		this.returnPending = false;
+		this.returnTarget = null;
 		// A touch anywhere else revokes the previous tap's ring immediately:
 		// the engine may keep the old element focused and still matching
 		// `:focus-visible`, so waiting for a focusout is not enough.
@@ -138,8 +159,8 @@ export class FocusRingState {
 	keyDown(): void {
 		this.pointerTarget = null;
 		this.pointerInput = false;
-		this.pointerReturn = false;
-		this.handoffMark = false;
+		this.returnPending = false;
+		this.returnTarget = null;
 		// Keyboard takeover also revokes a ring already handed to a finger,
 		// even when focus does not move: tapping a field and then typing on a
 		// physical keyboard is keyboard use, and the focused element must show
@@ -152,8 +173,8 @@ export class FocusRingState {
 	pointerCancel(): void {
 		this.pointerTarget = null;
 		this.pointerInput = false;
-		this.pointerReturn = false;
-		this.handoffMark = false;
+		this.returnPending = false;
+		this.returnTarget = null;
 	}
 
 	/**
@@ -174,46 +195,77 @@ export class FocusRingState {
 	explicitVisibleFocus(element: FocusRingElement | null): void {
 		this.pointerTarget = null;
 		this.pointerInput = false;
-		this.pointerReturn = false;
-		this.handoffMark = false;
+		this.returnPending = false;
+		this.returnTarget = null;
 		if (this.marked && focusOwnerOf(element) === this.marked) this.unmark();
+	}
+
+	/**
+	 * A plain scripted focus request (`element.focus()`, no `focusVisible`)
+	 * that arrives while a finger gesture is still the last input is the app's
+	 * own return focus — `matchHistoryUi.close`, the help/settings dialogs,
+	 * `resultCeremony.hide` all end their close path with `opener.focus()`.
+	 *
+	 * Those close paths run `root.close(); opener.focus()`, so the request
+	 * arrives *before* the browser blurs the button the finger vanished: the
+	 * hand-off is not open yet. Rather than let that blur start an open-ended
+	 * continuation, the request is remembered (`returnTarget`) and the blur it
+	 * causes settles it — the opener takes the mark and the gesture ends. A
+	 * request that arrives while the continuation *is* already open (a nested
+	 * dialog restoring focus through several elements) is its last hop and
+	 * ends it here.
+	 */
+	explicitReturnFocus(element: FocusRingElement | null): void {
+		const owner = focusOwnerOf(element) ?? element;
+		if (this.returnPending) {
+			this.returnPending = false;
+			this.pointerInput = false;
+			this.pointerTarget = null;
+			this.returnTarget = null;
+			this.mark(owner);
+			return;
+		}
+		// Focus can only be the gesture's return when it moves to another
+		// element: focusing the pressed element again is the finger staying.
+		if (this.pointerInput && this.marked && owner && owner !== this.marked)
+			this.returnTarget = owner;
 	}
 
 	/** Focus moved (or was set) on `focused`. */
 	focusIn(focused: FocusRingElement | null): void {
-		this.focused = focusOwnerOf(focused) ?? focused;
-		const handingOver = this.pointerReturn;
-		this.pointerReturn = false;
+		const owner = focusOwnerOf(focused) ?? focused;
+		this.focused = owner;
+		const handingOver = this.returnPending;
+		this.returnPending = false;
 		if (pointerOwnsFocus(this.pointerTarget, focused)) {
 			this.mark(focused);
 			// Owned focus is spent: a later screen-reader/scripted focus of the
 			// same element must get its ring back.
 			this.pointerTarget = null;
-			this.handoffMark = false;
 			return;
 		}
 		if (handingOver) {
 			// The gesture's element vanished (a dialog closed under the finger)
-			// and this focus is the rest of the same hand-off: no ring. Closing
-			// a nested dialog can restore focus through several elements, so the
-			// mark remembers it came from the hand-off and keeps suppressing the
-			// next hop too.
+			// and this focus is a hop of the same hand-off: no ring. Closing a
+			// nested dialog restores focus through several elements (the one
+			// under the finger, the dialog it reopens, its first control), so
+			// the continuation stays open until `explicitReturnFocus` ends it.
 			this.mark(focused);
-			this.pointerTarget = null;
-			this.handoffMark = true;
+			this.returnPending = true;
 			return;
 		}
-		this.handoffMark = false;
+		// The mark may already sit on this element: the return request ran
+		// just before the native focus landed and marked it deliberately.
+		if (this.marked === owner) return;
 		this.unmark();
 	}
 
 	focusOut(blurred: FocusRingElement | null): void {
 		if (blurred && this.focused === blurred) this.focused = null;
 		const wasMarked = !!blurred && this.marked === blurred;
-		// Closing a nested dialog restores focus hop by hop; the mark set by an
-		// earlier hop is the only thing that ties the hops of one tap together,
-		// so it also keeps the hand-off alive for the next focus.
-		const continues = wasMarked && this.handoffMark;
+		// An open hand-off continues through the elements the browser restores
+		// focus to; the hops are only tied together by the mark left on each.
+		const continues = wasMarked && this.returnPending;
 		if (wasMarked) this.unmark();
 		// A press on the element that already held focus set the mark without
 		// any `focusin`, so that gesture's ownership was never spent. Once
@@ -228,9 +280,19 @@ export class FocusRingState {
 		// cannot claim it; the vanished element is the only signal that the
 		// hand-off is still part of the tap. Keyboard and explicit requests
 		// clear `pointerInput`, so their hand-offs keep the ring.
-		this.pointerReturn =
+		const opens =
 			!!blurred && this.pointerInput && (continues || !isRendered(blurred));
-		if (!this.pointerReturn) this.handoffMark = false;
+		// The app asked for the opener before this blur; the blur is that
+		// request completing, not the start of an open-ended continuation.
+		if (opens && this.returnTarget) {
+			this.mark(this.returnTarget);
+			this.returnTarget = null;
+			this.returnPending = false;
+			this.pointerInput = false;
+			return;
+		}
+		this.returnPending = opens;
+		if (!opens) this.returnTarget = null;
 	}
 
 	isSuppressed(element: FocusRingElement | null): boolean {
@@ -270,7 +332,8 @@ type FocusableProto = {
 /**
  * Wraps `HTMLElement.prototype.focus` once so an explicit visible-focus
  * request can lift a pointer mark on the active element — the one request no
- * DOM event reports. Exported for the behavioural regression.
+ * DOM event reports — and so a plain scripted focus can close a
+ * finger-started hand-off. Exported for the behavioural regression.
  */
 export function installExplicitFocusHook(
 	state: FocusRingState,
@@ -287,6 +350,7 @@ export function installExplicitFocusHook(
 	proto.focus = function (this: EventTarget, options?: FocusOptions) {
 		if (options?.focusVisible === true)
 			state.explicitVisibleFocus(this as unknown as FocusRingElement);
+		else state.explicitReturnFocus(this as unknown as FocusRingElement);
 		return original.call(this, options);
 	};
 }

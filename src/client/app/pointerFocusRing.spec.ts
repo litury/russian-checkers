@@ -480,6 +480,89 @@ describe('handing focus off after the finger closed a dialog', () => {
 		expect(state.isSuppressed(s.other)).toBe(false);
 	});
 
+	it('ends the hand-off at the app return focus, so a later focus keeps its ring', () => {
+		const s = scene();
+		const state = new FocusRingState();
+
+		// Tab focused the dialog's back button, then the finger landed on it.
+		state.focusIn(s.menuButton);
+		state.pointerDown(s.menuButton);
+		// Close handler: the dialog vanishes, the browser restores focus to
+		// the opener, and the app closes its path with `opener.focus()`.
+		s.menuButton.visible = false;
+		state.focusOut(s.menuButton);
+		state.focusIn(s.opener);
+		expect(state.isSuppressed(s.opener)).toBe(true);
+		state.explicitReturnFocus(s.opener);
+
+		// The round-6 defect: a later unrelated scripted/screen-reader focus
+		// must not inherit the finished hand-off.
+		state.focusOut(s.opener);
+		state.focusIn(s.email);
+
+		expect(state.isSuppressed(s.email)).toBe(false);
+		expect(s.email.hasAttribute(POINTER_FOCUS_ATTR)).toBe(false);
+	});
+
+	it('ends a multi-hop hand-off at the return focus, not at the next plain focus', () => {
+		const s = scene();
+		const state = new FocusRingState();
+
+		state.focusIn(s.menuButton);
+		state.pointerDown(s.menuButton);
+		s.menuButton.visible = false;
+		state.focusOut(s.menuButton);
+		state.focusIn(s.other); // browser-driven hop
+		state.focusOut(s.other);
+		state.focusIn(s.opener); // browser-driven hop
+		expect(state.isSuppressed(s.opener)).toBe(true);
+		state.explicitReturnFocus(s.opener);
+
+		// A later scripted focus of another visible element is not a hop.
+		state.focusOut(s.opener);
+		state.focusIn(s.email);
+
+		expect(state.isSuppressed(s.email)).toBe(false);
+	});
+
+	it('leaves a scripted focus alone when no hand-off is pending', () => {
+		const s = scene();
+		const state = new FocusRingState();
+
+		state.focusIn(s.menuButton);
+		state.explicitReturnFocus(s.email);
+		state.focusIn(s.email);
+
+		expect(state.isSuppressed(s.email)).toBe(false);
+	});
+
+	it('ends the hand-off when the return focus is requested before the blur', () => {
+		const s = scene();
+		const state = new FocusRingState();
+
+		// Tab focused the back button and the finger landed on it.
+		state.focusIn(s.menuButton);
+		state.pointerDown(s.menuButton);
+
+		// `close()` is `root.close(); open.focus()`: the request reaches the
+		// opener while the button under the finger is still the active element.
+		state.explicitReturnFocus(s.opener);
+		// The native focus blurs the vanished button *after* the request.
+		s.menuButton.visible = false;
+		state.focusOut(s.menuButton);
+		state.focusIn(s.opener);
+
+		expect(state.isSuppressed(s.opener)).toBe(true);
+		expect(s.opener.hasAttribute(POINTER_FOCUS_ATTR)).toBe(true);
+
+		// The round-6 defect: a later unrelated focus must keep its ring.
+		state.focusOut(s.opener);
+		state.focusIn(s.email);
+
+		expect(state.isSuppressed(s.email)).toBe(false);
+		expect(s.email.hasAttribute(POINTER_FOCUS_ATTR)).toBe(false);
+	});
+
 	it('keeps the ring when the vanished element was blurred by the keyboard', () => {
 		const s = scene();
 		const state = new FocusRingState();
@@ -588,5 +671,32 @@ describe('installExplicitFocusHook', () => {
 
 		expect(proto.focus).toBe(wrapped);
 		expect((proto as Record<PropertyKey, unknown>)[FOCUS_HOOK]).toBe(true);
+	});
+
+	it('closes a finger-started hand-off through the plain focus() the app calls', () => {
+		const s = scene();
+		const state = new FocusRingState();
+		const original = vi.fn<(this: unknown, options?: FocusOptions) => void>();
+		const proto: FocusProto = { focus: original };
+		installExplicitFocusHook(state, viewOf(proto));
+
+		state.focusIn(s.menuButton);
+		state.pointerDown(s.menuButton);
+		s.menuButton.visible = false;
+		state.focusOut(s.menuButton);
+		state.focusIn(s.opener); // the browser's own hop
+
+		// `matchHistoryUi.close` settles the hand-off with a plain focus().
+		proto.focus.call(s.opener, { preventScroll: true });
+		expect(state.isSuppressed(s.opener)).toBe(true);
+		expect(s.opener.hasAttribute(POINTER_FOCUS_ATTR)).toBe(true);
+
+		// A later, unrelated scripted focus must not be swallowed by it.
+		state.focusOut(s.opener);
+		proto.focus.call(s.email);
+		state.focusIn(s.email);
+
+		expect(state.isSuppressed(s.email)).toBe(false);
+		expect(s.email.hasAttribute(POINTER_FOCUS_ATTR)).toBe(false);
 	});
 });
