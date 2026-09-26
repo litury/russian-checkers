@@ -13,8 +13,19 @@
  * focused with `data-pointer-focus`, and drop the mark as soon as focus leaves
  * it or moves on without a pointer. CSS then removes the outline for the
  * marked element only.
+ *
+ * One case has no event to listen to: a press on the element that already
+ * holds focus produces no `focusin` (the marker is set by the press itself),
+ * and a later explicit `element.focus({ focusVisible: true })` — the documented
+ * path for scripts and assistive technology — produces none either, because
+ * `focus()` on the active element moves nothing. The request is still
+ * non-pointer and has to win, so the module wraps `HTMLElement.prototype.focus`
+ * once and releases the mark for that element before delegating.
  */
 export const POINTER_FOCUS_ATTR = 'data-pointer-focus';
+
+/** Guards the one-time `focus()` wrap against a second install. */
+export const FOCUS_HOOK = Symbol.for('damka.pointer-focus-ring.focus-hook');
 
 /** Elements a tap can hand focus to (or that forward it to a control). */
 export const FOCUSABLE_SELECTOR =
@@ -91,6 +102,17 @@ export class FocusRingState {
 		this.pointerTarget = null;
 	}
 
+	/**
+	 * An explicit non-pointer focus request reached `element` —
+	 * `element.focus({ focusVisible: true })`, the documented path for scripts
+	 * and assistive technology. When the element is already active the request
+	 * fires no `focusin`, so the request itself has to lift a pointer mark:
+	 * the mark hides the ring, and only pointer input may do that.
+	 */
+	explicitVisibleFocus(element: FocusRingElement | null): void {
+		if (this.marked && focusOwnerOf(element) === this.marked) this.unmark();
+	}
+
 	/** Focus moved (or was set) on `focused`. */
 	focusIn(focused: FocusRingElement | null): void {
 		this.focused = focusOwnerOf(focused) ?? focused;
@@ -137,11 +159,42 @@ export class FocusRingState {
 const elementOf = (node: EventTarget | null): FocusRingElement | null =>
 	node instanceof Element ? (node as unknown as FocusRingElement) : null;
 
+/** The `focus()` signature the module wraps, plus room for the install guard. */
+type FocusableProto = {
+	focus(options?: FocusOptions): void;
+	[key: symbol]: unknown;
+};
+
+/**
+ * Wraps `HTMLElement.prototype.focus` once so an explicit visible-focus
+ * request can lift a pointer mark on the active element — the one request no
+ * DOM event reports. Exported for the behavioural regression.
+ */
+export function installExplicitFocusHook(
+	state: FocusRingState,
+	view: Window | null | undefined,
+): void {
+	const proto = (
+		view as unknown as {
+			HTMLElement?: { prototype: FocusableProto };
+		}
+	)?.HTMLElement?.prototype;
+	if (!proto || proto[FOCUS_HOOK]) return;
+	const original = proto.focus;
+	proto[FOCUS_HOOK] = true;
+	proto.focus = function (this: EventTarget, options?: FocusOptions) {
+		if (options?.focusVisible === true)
+			state.explicitVisibleFocus(this as unknown as FocusRingElement);
+		return original.call(this, options);
+	};
+}
+
 /** Wires the state to the live document. Call once at start-up. */
 export function installPointerFocusRing(
 	state: FocusRingState = new FocusRingState(),
 	root: Document = document,
 ): FocusRingState {
+	installExplicitFocusHook(state, root.defaultView);
 	root.addEventListener(
 		'pointerdown',
 		(event) => state.pointerDown(elementOf(event.target)),

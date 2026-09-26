@@ -1,7 +1,9 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
+	FOCUS_HOOK,
 	FOCUSABLE_SELECTOR,
 	FocusRingState,
+	installExplicitFocusHook,
 	POINTER_FOCUS_ATTR,
 	pointerOwnsFocus,
 } from './pointerFocusRing';
@@ -311,5 +313,89 @@ describe('touch focus ring regression', () => {
 		expect(state.isSuppressed(s.email)).toBe(true);
 		expect(state.isSuppressed(s.menuButton)).toBe(false);
 		expect(s.menuButton.hasAttribute(POINTER_FOCUS_ATTR)).toBe(false);
+	});
+});
+
+describe('explicit non-pointer focus request', () => {
+	/**
+	 * The regression a finger-then-keyboard-then-finger sequence reaches:
+	 * the second press marks the button that still holds focus, so the press
+	 * fires no focusin, and `focus({focusVisible:true})` on the active element
+	 * fires none either. Nothing observable happens between the mark and the
+	 * request, so only the request itself can lift it.
+	 */
+	it('lifts the mark when a visible focus is requested on the marked element', () => {
+		const s = scene();
+		const state = new FocusRingState();
+
+		state.pointerDown(s.menuButton); // tap
+		state.focusIn(s.menuButton);
+		state.keyDown(); // physical key, focus does not move
+		state.pointerDown(s.menuButton); // finger returns to that button
+		expect(state.isSuppressed(s.menuButton)).toBe(true);
+
+		state.explicitVisibleFocus(s.menuButton);
+
+		expect(state.isSuppressed(s.menuButton)).toBe(false);
+		expect(s.menuButton.hasAttribute(POINTER_FOCUS_ATTR)).toBe(false);
+	});
+
+	it('keeps the mark when the request targets some other element', () => {
+		const s = scene();
+		const state = new FocusRingState();
+
+		state.pointerDown(s.menuButton);
+		state.focusIn(s.menuButton);
+
+		state.explicitVisibleFocus(s.email);
+
+		expect(state.isSuppressed(s.menuButton)).toBe(true);
+		expect(s.menuButton.hasAttribute(POINTER_FOCUS_ATTR)).toBe(true);
+	});
+});
+
+describe('installExplicitFocusHook', () => {
+	type FocusProto = { focus(this: unknown, options?: FocusOptions): void };
+
+	const viewOf = (proto: FocusProto) =>
+		({ HTMLElement: { prototype: proto } }) as unknown as Window;
+
+	it('releases the mark through focus({focusVisible:true}) and leaves it otherwise', () => {
+		const s = scene();
+		const state = new FocusRingState();
+		const original = vi.fn<(this: unknown, options?: FocusOptions) => void>();
+		const proto: FocusProto = { focus: original };
+		installExplicitFocusHook(state, viewOf(proto));
+
+		state.pointerDown(s.menuButton);
+		state.focusIn(s.menuButton);
+		expect(state.isSuppressed(s.menuButton)).toBe(true);
+
+		proto.focus.call(s.menuButton, { focusVisible: true });
+
+		expect(original).toHaveBeenCalledTimes(1);
+		expect(state.isSuppressed(s.menuButton)).toBe(false);
+		expect(s.menuButton.hasAttribute(POINTER_FOCUS_ATTR)).toBe(false);
+
+		// A press marks again; a plain or explicitly hidden focus request is
+		// pointer-compatible and must not bring the ring back under the finger.
+		state.pointerDown(s.menuButton);
+		expect(state.isSuppressed(s.menuButton)).toBe(true);
+
+		proto.focus.call(s.menuButton, undefined);
+		proto.focus.call(s.menuButton, { focusVisible: false });
+
+		expect(state.isSuppressed(s.menuButton)).toBe(true);
+	});
+
+	it('wraps focus() once, however often the module is installed', () => {
+		const proto: FocusProto = { focus: vi.fn() };
+		installExplicitFocusHook(new FocusRingState(), viewOf(proto));
+		const wrapped = proto.focus;
+
+		installExplicitFocusHook(new FocusRingState(), viewOf(proto));
+
+		expect(proto.focus).toBe(wrapped);
+		expect((proto as Record<PropertyKey, unknown>)[FOCUS_HOOK]).toBe(true);
 	});
 });
