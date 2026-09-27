@@ -37,7 +37,13 @@ export async function ensureGuest(): Promise<{ id: string; token: string } | nul
  } catch {}
  const res = await request('/players/guest', { method: 'POST', body: '{}' });
  if (!res?.ok) return null;
- const body = (await res.json()) as { id: string; token: string };
+ // Fetch resolves at headers; the body can still fail when its signal expires.
+ let body: { id: string; token: string };
+ try {
+  body = await res.json();
+ } catch {
+  return null;
+ }
  try {
   localStorage.setItem(tokenKey, body.token);
   localStorage.setItem(idKey, body.id);
@@ -129,7 +135,11 @@ export async function loadStats(): Promise<{ games: number; white_wins: number; 
  if (!guest) return null;
  const res = await request(`/players/${guest.id}/stats`);
  if (!res?.ok) return null;
- return res.json();
+ try {
+  return await res.json();
+ } catch {
+  return null;
+ }
 }
 
 export async function loadMatches(): Promise<import('./matchHistory').MatchRow[] | null> {
