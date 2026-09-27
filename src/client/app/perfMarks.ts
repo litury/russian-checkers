@@ -91,6 +91,9 @@ export function markPerf(name: PerfMarkName, at?: number): number {
 		// User Timing unavailable (older WebView): the bridge stays the source of truth.
 	}
 	recompute(name);
+	if (name === 'playfield-ready' && typeof document !== 'undefined') {
+		document.dispatchEvent(new Event('damka:playfield-ready'));
+	}
 	return state.marks[name] as number;
 }
 
