@@ -3,6 +3,8 @@ import { fileURLToPath } from 'node:url';
 import { inflateSync } from 'node:zlib';
 import { expect, it } from 'vitest';
 import css from './hangingChronicle.css?raw';
+import gates from './openingGates.css?raw';
+import html from '../../../index.html?raw';
 
 /**
  * The steel button frame is a raster stretched to the button box (`background-size:100% 100%`),
@@ -18,8 +20,6 @@ const PLATE_BOTTOM = 216 / RASTER_HEIGHT;
 
 const BASE_HEIGHT = Number(css.match(/--btn-h:(\d+)px/)![1]);
 const NAME_SIZE = Number(css.match(/opening-cta-label\{font-size:calc\(var\(--btn-h\) \* ([.\d]+)\)/)![1]);
-const BADGE_SIZE = Number(css.match(/opening-live-badge\{position:static;font-size:calc\(var\(--btn-h\) \* ([.\d]+)\)/)![1]);
-const ONLINE_GAP = Number(css.match(/opening-online\{flex-direction:[^}]*gap:calc\(var\(--btn-h\) \* ([.\d]+)\)/)![1]);
 const ONLINE_PAD_TOP = Number(css.match(/opening-online\{flex-direction:[^}]*padding-top:calc\(var\(--btn-h\) \* ([.\d]+)\)/)![1]);
 
 function readPng(path: string) {
@@ -83,23 +83,56 @@ it('gives all four menu buttons one height token and one fluid width token', () 
 	expect(css).toContain('top:calc(var(--play-y) + 2 * var(--btn-h) + 12px)');
 });
 
-it('keeps the online label inside the recessed plate with a >=6px gap above the inner rim', () => {
-	const content = BASE_HEIGHT * (NAME_SIZE * 1.15 + ONLINE_GAP + BADGE_SIZE);
+it('keeps the single online label inside the recessed plate with a >=6px rim gap', () => {
+	const labelHeight = BASE_HEIGHT * (NAME_SIZE * 1.15);
 	const top = BASE_HEIGHT * ONLINE_PAD_TOP;
-	const clearance = BASE_HEIGHT * PLATE_BOTTOM - (top + content);
-	expect(top).toBeGreaterThanOrEqual(BASE_HEIGHT * PLATE_TOP - 0.5);
-	expect(clearance).toBeGreaterThanOrEqual(6);
+	const above = top - BASE_HEIGHT * PLATE_TOP;
+	const below = BASE_HEIGHT * PLATE_BOTTOM - (top + labelHeight);
+	expect(above).toBeGreaterThanOrEqual(6);
+	expect(below).toBeGreaterThanOrEqual(6);
+	// Centred on the plate, so both rim gaps stay equal as the frame scales.
+	expect(Math.abs(above - below)).toBeLessThanOrEqual(0.5);
 	// Shrinking the button must not break the clearance: the frame fraction is linear in height.
-	const shortHeight = 56;
-	const shortClearance = shortHeight * (PLATE_BOTTOM - ONLINE_PAD_TOP) - shortHeight * (NAME_SIZE * 1.15 + ONLINE_GAP + BADGE_SIZE);
-	expect(shortClearance).toBeGreaterThanOrEqual(6);
+	for (const shortHeight of [56, 52]) {
+		const shortTop = shortHeight * ONLINE_PAD_TOP;
+		const shortAbove = shortTop - shortHeight * PLATE_TOP;
+		const shortBelow = shortHeight * PLATE_BOTTOM - (shortTop + shortHeight * NAME_SIZE * 1.15);
+		expect(shortAbove).toBeGreaterThanOrEqual(6);
+		expect(shortBelow).toBeGreaterThanOrEqual(6);
+	}
 });
 
-it('lays the online label out as two lines inside the frame instead of an absolute badge', () => {
+it('gives the online button one label only: no live dot, no second badge line', () => {
 	expect(css).toContain('#opening #opening-online{flex-direction:column;');
-	expect(css).toContain('opening-live-badge{position:static;');
-	expect(css).not.toContain('opening-live-badge{position:absolute');
 	expect(css).toContain('white-space:nowrap');
+	expect(css).not.toContain('opening-live-badge');
+	expect(css).not.toContain('opening-live-dot');
+});
+
+it('keeps the online button name without a number and puts the count inside the search screen', () => {
+	const button = html.match(/<button id="opening-online"[\s\S]*?<\/button>/)![0];
+	expect(button).toContain('opening-cta-label');
+	expect(button).toContain('В сети');
+	expect(button).not.toMatch(/opening-live|opening-online-count/);
+	const search = html.match(/<div id="opening-search"[\s\S]*?<div id="opening-search-actions">/)![0];
+	expect(search).toMatch(/<p id="opening-search-copy"[^>]*>[^<]*<\/p>\s*<p id="opening-online-count"[^>]*hidden><\/p>/);
+});
+
+it('keeps the search card and its buttons at the main geometry while the count row appears', () => {
+	// The count row belongs to the card but must not resize it (task acceptance: card and buttons
+	// keep the geometry of main). The header therefore reserves the row in every presence state and
+	// the row itself is taken out of flow, right under the heading: measured on 390x844 and
+	// 1440x900 the card stays 366x153.1875 / 370x153.1875 with action buttons at y=263.625 / 278.1875.
+	expect(gates).toMatch(/#opening-search \{ position:absolute[^}]*padding:0 12px 12px;/);
+	expect(gates).toMatch(/#opening-search-head \{ position:relative; margin:0 0 20px; \}/);
+	expect(gates).toMatch(/#opening-online-count \{ position:absolute; top:100%; left:0; right:0;/);
+	expect(gates).toMatch(/#opening-online-count\[hidden\] \{ display:none; \}/);
+	// The row sits between the heading and the buttons in the DOM, so a screen reader reads it as
+	// plain text of the card rather than as part of the menu button.
+	const panel = html.match(/<div id="opening-search"[\s\S]*?<button id="opening-retry"/)![0];
+	expect(panel).toMatch(
+		/<div id="opening-search-head">\s*<p id="opening-search-copy"[^>]*>[^<]*<\/p>\s*<p id="opening-online-count"[^>]*hidden><\/p>\s*<\/div>\s*<div id="opening-search-actions">/,
+	);
 });
 
 it('keeps the accepted steel raster geometry the frame fractions were read from', () => {
