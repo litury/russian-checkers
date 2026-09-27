@@ -133,10 +133,10 @@ it('keeps the search card and its buttons at the main geometry while the count r
 	expect(gates).toMatch(/#opening-search-actions button \{[^}]*height:var\(--btn-h\);/);
 	expect(gates).toContain("background:transparent url('./ui/siege/button-steel-rest.webp') center/100% 100% no-repeat;");
 	expect(gates).toContain("background-image:url('./ui/siege/button-steel-pressed.webp')");
-	// Короткие экраны: у половин «Летописи»/«Битв» нет запаса под карточку, поэтому они уступают
-	// место экрану «В сети», а не закрываются им (390x844 и 1440x900 сохраняют 13/21px запаса).
-	expect(gates).toContain('@media (max-height:820px) { #opening.is-searching .chronicle-half { visibility:hidden; } }');
-	expect(gates).toContain('@media (min-width:700px) and (max-height:863px) { #opening.is-searching .chronicle-half { visibility:hidden; } }');
+	// Короткие экраны: карточка не закрывает соседние половины «Летописи»/«Битв» и не прячет их.
+	// Она ограничена по высоте свободным местом над их верхом и прокручивается внутри.
+	expect(gates).toMatch(/#opening-search \{[^}]*max-height:calc\(100% - var\(--play-y\) - var\(--piece\) - 182px\)/);
+	expect(gates).not.toMatch(/chronicle-half\s*\{[^}]*visibility:hidden/);
 	// The row sits between the heading plate and the buttons in the DOM, so a screen reader reads it
 	// as plain text of the card rather than as part of the menu button.
 	const panel = html.match(/<div id="opening-search"[\s\S]*?<button id="opening-retry"/)![0];

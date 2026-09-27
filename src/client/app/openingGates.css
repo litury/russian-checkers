@@ -57,7 +57,10 @@
    Frame — the same nine-slice siege raster as «Летопись»/«Битвы» (slice 180, --frame-corner width),
    backplate — the existing gate cut, heading — the cassette plate of the main title,
    action plaques — the menu steel raster at the shared --btn-h token. */
-#opening-search { position:absolute; z-index:5; left:50%; top:var(--play-y); width:min(430px,calc(100% - 24px)); transform:translateX(-50%); margin:0; padding:calc(var(--frame-corner) + 4px) calc(var(--frame-corner) + 2px); border:0; border-radius:0; box-shadow:none; background:none; color:#e2d9c0; text-align:center; max-height:calc(100% - var(--play-y) - 8px); overflow:auto; isolation:isolate; container-type:inline-size; }
+#opening-search { position:absolute; z-index:5; left:50%; top:var(--play-y); width:min(430px,calc(100% - 24px)); transform:translateX(-50%); margin:0; padding:calc(var(--frame-corner) + 4px) calc(var(--frame-corner) + 2px); border:0; border-radius:0; box-shadow:none; background:none; color:#e2d9c0; text-align:center; max-height:calc(100% - var(--play-y) - var(--piece) - 182px); overflow:auto; isolation:isolate; container-type:inline-size; }
+/* The card is capped to the free space above the chronicle halves and scrolls inside instead of
+   reaching under them: the halves are bottom-anchored 24px up with a calc(var(--piece) + 150px)
+   body, so reserving that plus an 8px gap keeps their top edge clear. Nothing is hidden. */
 #opening-search::before { content:''; position:absolute; inset:10px; z-index:-2; background:linear-gradient(#141b20cc,#1a2226db),url('./ui/siege/gate.webp') 24% 56%/auto 700px; box-shadow:0 6px 8px #0009; }
 #opening-search::after { content:''; position:absolute; inset:0; z-index:-1; border:var(--frame-corner) solid transparent; border-image:url('./ui/siege/panel-revision2/frame.webp') 180 / var(--frame-corner) / 0 stretch; pointer-events:none; }
 /* Heading: the title cassette plate, the live panel copy sits on it instead of on bare background. */
@@ -86,12 +89,8 @@
 #opening-friend-code:focus-visible { outline:3px solid #bed9ec; outline-offset:0; }
 #opening-friend-code::placeholder { color:#8d8770; letter-spacing:.3em; }
 #opening.is-searching :is(#opening-play,#opening-online) { visibility:hidden; pointer-events:none; }
-/* Short screens leave no room above the chronicle halves for the card (measured: the overlap starts
-   below 821px on phone widths and below 864px on desktop widths), so the halves step aside while the
-   «В сети» screen is open instead of being covered by it. 390x844 keeps 13px and 1440x900 keeps 21px
-   of clearance, and there the approved arrangement is untouched. */
-@media (max-height:820px) { #opening.is-searching .chronicle-half { visibility:hidden; } }
-@media (min-width:700px) and (max-height:863px) { #opening.is-searching .chronicle-half { visibility:hidden; } }
+/* Short screens: the card is capped above the chronicle halves (see #opening-search) and scrolls
+   inside, so the halves keep their place and are never covered or hidden. */
 /* Door height fills the screen so welds match layout. Checkers in the last plate: below the lower weld, above the thick sill. */
 #opening { --column:min(184px,calc((100vw - 28px)/2)); --piece:min(181px,var(--column),16dvh); --play-y:clamp(210px,42dvh,46%); --piece-y:calc(71dvh); overflow:hidden; }
 #opening .opening-sheet { min-height:0; height:100%; }
@@ -105,7 +104,12 @@
 #opening :is(#opening-history,#opening-options) { top:calc(var(--play-y) + 64px); }
 
 #opening-status { top:auto; bottom:env(safe-area-inset-bottom,0px); }
-#opening-search { left:50%; right:auto; top:var(--play-y); transform:translateX(-50%); max-height:calc(100% - var(--play-y) - 8px); overflow:auto; }
+#opening-search { left:50%; right:auto; top:var(--play-y); transform:translateX(-50%); max-height:calc(100% - var(--play-y) - var(--piece) - 182px); overflow:auto; }
+/* Short landscape keeps the flanking arrangement: there the halves stand at the screen edges, so the
+   card narrows to the free centre and scrolls inside rather than hiding anything. */
+@media (min-width:600px) and (max-height:500px) {
+ #opening-search { width:min(430px,calc(100vw - 2 * clamp(140px,22vw,200px) - 48px)); max-height:calc(100% - var(--play-y) - 8px); }
+}
 #opening-options-dialog { width:320px; }
 #opening-options-dialog .opening-button { min-height:44px; margin-top:12px; }
 @media(max-width:699px) {
