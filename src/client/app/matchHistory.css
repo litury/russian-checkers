@@ -108,6 +108,7 @@
  #match-history .mh-row-detail { grid-column:1/-1; grid-row:3; font-size:14px; }
  #match-history .mh-row-info time { font-size:14px; }
  #match-history .mh-row-action { grid-column:2; grid-row:1; }
+ #match-history .mh-row-action .mh-button { font-size:14px; }
  #match-history .mh-button { min-width:100px; padding:1px; }
  #match-history .mh-replay-layout { display:flex; flex-direction:column; gap:18px; }
  #match-history .mh-board-column { max-width:none; }
