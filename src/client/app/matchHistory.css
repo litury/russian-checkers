@@ -101,14 +101,14 @@
  #match-history .mh-scroll { padding:12px 9px max(24px,env(safe-area-inset-bottom)); }
  #match-history .mh-toolbar { flex-wrap:wrap; gap:12px; margin-bottom:18px; }
  #match-history .mh-toolbar label { width:100%; justify-content:space-between; }
- #match-history .mh-row { grid-template-columns:minmax(0,1fr) 100px; gap:8px; padding:10px 6px; border-width:14px; border-image-width:14px; }
+ #match-history .mh-row { grid-template-columns:minmax(0,1fr) max-content; gap:8px; padding:10px 6px; border-width:14px; border-image-width:14px; }
  #match-history .mh-outcome { grid-column:1; grid-row:1; font-size:16px; padding-left:7px; }
  #match-history .mh-row-info { grid-column:1/-1; grid-row:2; }
  #match-history .mh-row-info h3 { font-size:17px; }
  #match-history .mh-row-detail { grid-column:1/-1; grid-row:3; font-size:14px; }
  #match-history .mh-row-info time { font-size:14px; }
  #match-history .mh-row-action { grid-column:2; grid-row:1; }
- #match-history .mh-row-action .mh-button { font-size:14px; }
+ #match-history .mh-row-action .mh-button { font-size:14px; padding-inline:12px; white-space:nowrap; overflow-wrap:normal; }
  #match-history .mh-button { min-width:100px; padding:1px; }
  #match-history .mh-replay-layout { display:flex; flex-direction:column; gap:18px; }
  #match-history .mh-board-column { max-width:none; }
@@ -128,7 +128,7 @@
  #match-history .mh-title-plate h2 { font-size:21px; }
  #match-history .mh-scroll { padding:8px 14px 18px; }
  #match-history .mh-replay-layout { grid-template-columns:minmax(290px,44%) minmax(0,1fr); gap:22px; }
- #match-history .mh-board-column { display:grid; grid-template-columns:minmax(0,1fr) 64px; gap:8px; max-width:360px; }
+ #match-history .mh-board-column { display:grid; grid-template-columns:minmax(0,1fr) 96px; gap:8px; max-width:360px; }
  #match-history .mh-board-frame { max-width:calc((100dvh - 145px) * 380 / 418); justify-self:center; }
  #match-history .mh-transport { display:flex; flex-direction:column; margin:0; justify-content:center; gap:3px; padding:0; border-width:8px; border-image-width:8px; }
  #match-history .mh-transport button { min-height:44px; padding:0; }
