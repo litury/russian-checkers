@@ -1,4 +1,5 @@
 import type {IYandexSdk} from './IYandexSdk';
+import {loadBytes} from './assetLoader';
 import {MenuAudioPolicy,menuMusicShouldPlay,menuMusicStopsInstantly,menuMusicFadeSec,matchMusicShouldPlay} from './menuAudioPolicy';
 import {matchMusicDuck,matchMusicLevel,menuOrganLevel,sfxBus,voiceBus} from './audioMix';
 import {menuClickLevel,menuBackSound} from './menuClickLevel';
@@ -51,6 +52,11 @@ export function createMenuAudio(sdk:IYandexSdk) {
  };
  const sync=()=>{
   policy.muted=settings().muted;policy.hidden=document.hidden;
+  if(prepared&&policy.audible){
+
+   if(settings().music&&policy.menu&&!policy.departing&&!window.checkersStartup?.pendingPlay&&!window.checkersStartup?.playCommitted)requestBuffer('menu_music_source');
+   if(settings().music&&policy.match&&!policy.menu)requestBuffer('match-b-90s');
+  }
   if(!policy.audible||!settings().effects||!settings().master){epoch++;stopEffects();}
   if(menuMusicShouldPlay(policy,unlocked,settings().music)){
    const level=settings().master*settings().music*menuOrganLevel;
@@ -74,23 +80,32 @@ export function createMenuAudio(sdk:IYandexSdk) {
    else startMatch();
   }else stopMatch();
  };
+ let prepared=false;
+ const requestBuffer=(name:string)=>{
+  if(!ctx||loading.has(name))return;
+  const url=Object.entries(urls).find(([path])=>path.split('/').pop()!.replace(/\.[^.]+$/,'')===name)?.[1];
+  if(!url)return;
+  const ready=loadBytes(url).then(b=>ctx!.decodeAudioData(b.slice(0))).then(b=>{
+   if(name==='menu_music_source'||name==='match-b-90s'){
+    const fade=Math.floor(b.sampleRate),out=ctx!.createBuffer(b.numberOfChannels,b.length-fade,b.sampleRate);
+    for(let c=0;c<b.numberOfChannels;c++)out.copyToChannel(previewLoop(b.getChannelData(c),fade) as Float32Array<ArrayBuffer>,c);
+    b=out;
+   }
+   buffers.set(name,b);sync();
+  }).catch(()=>{});
+  loading.set(name,ready);
+ };
  const prepare=()=>{
-  if(ctx)return;
-  try {ctx=new AudioContext();}catch{return;}
-  for(const [path,url] of Object.entries(urls)){
+  if(prepared)return;
+  if(!ctx)try {ctx=new AudioContext();}catch{return;}
+  prepared=true;
+  // Short cues warm only after activation. Music belongs to the active screen;
+  // never download the 1.4MB menu theme while leaving for a game.
+  for(const path of Object.keys(urls)){
    const name=path.split('/').pop()!.replace(/\.[^.]+$/,'');
-   // Optional audio must not take network priority from the first playable board.
-   const ready=fetch(url,{priority:'low'}).then(r=>{if(!r.ok)throw Error('audio unavailable');return r.arrayBuffer();})
-    .then(b=>ctx!.decodeAudioData(b)).then(b=>{
-     if(name==='menu_music_source'||name==='match-b-90s'){
-      const fade=Math.floor(b.sampleRate),out=ctx!.createBuffer(b.numberOfChannels,b.length-fade,b.sampleRate);
-      for(let c=0;c<b.numberOfChannels;c++)out.copyToChannel(previewLoop(b.getChannelData(c),fade) as Float32Array<ArrayBuffer>,c);
-      b=out;
-     }
-     buffers.set(name,b);sync();
-    }).catch(()=>{});
-   loading.set(name,ready);
+   if(name!=='menu_music_source'&&name!=='match-b-90s')requestBuffer(name);
   }
+  if(settings().music&&!policy.departing)requestBuffer('menu_music_source');
  };
  const sound=(name:string,level=1)=>{
   sync();if(!policy.audible||!unlocked||ctx?.state!=='running'||!settings().effects)return;
@@ -181,7 +196,16 @@ export function createMenuAudio(sdk:IYandexSdk) {
  window.addEventListener('checkers-settings-change',sync);
  sdk.onPause(()=>{policy.platform=true;sync();});sdk.onResume(()=>{policy.platform=false;sync();});
  for(const id of ['opening-help-dialog','opening-settings-dialog'])document.getElementById(id)!.addEventListener('close',()=>sound(menuBackSound,menuClickLevel));
- prepare();sync();
+ // No network before a native gesture. The engine itself is
+ // imported only after the menu's first frame and the two-second critical window.
+ try {ctx=new AudioContext();}catch{}
+ sync();
+ // A native Play may precede the deferred engine. The browser owns this flag;
+ // synthetic DOM events cannot set it, and it never clears persisted mute.
+ if(globalThis.navigator?.userActivation?.hasBeenActive && (window.checkersStartup?.pendingPlay || window.checkersStartup?.playCommitted)){
+  policy.departing=!!(window.checkersStartup?.pendingPlay||window.checkersStartup?.playCommitted);
+  prepare();void ctx?.resume().then(()=>{unlocked=ctx?.state==='running';sync();}).catch(()=>{});
+ }
  bindKingFireSfx(sound);
  bindPieceSfx(sound);
  bindPieceVoice(say,cutBark);

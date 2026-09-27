@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#161a1b" />
 <title>Русские шашки</title>
 <!-- One LCP image high. Extra font preloads steal the mobile pipe (web.dev Fetch Priority). -->
-<link rel="preload" href="/src/client/app/ui/siege/gate.webp" as="image" type="image/webp" fetchpriority="high" />
+<link rel="preload" href="/src/client/app/ui/delivery/gate-1536.avif" imagesrcset="/src/client/app/ui/delivery/gate-768.avif 768w, /src/client/app/ui/delivery/gate-1536.avif 1536w" imagesizes="max(100vw, 150vh)" as="image" type="image/avif" fetchpriority="high" />
 <link rel="preload" href="/src/client/app/ui/siege/button-steel-rest.webp" as="image" type="image/webp" fetchpriority="low" />
 <script>document.documentElement.dataset.titleFont = 'pending';</script>
 <style>
@@ -15,7 +15,7 @@
 @font-face{font-family:'Golos Text';src:url('/src/client/fonts/GolosText-600-cyrillic.woff2') format('woff2');font-weight:600;font-display:optional}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;width:100%;height:100%;background:#161a1b;overflow:hidden}#game{width:100%;height:100%;touch-action:none}button,input{font:inherit}button{cursor:pointer}button:disabled{cursor:wait}button:focus-visible,input:focus-visible{outline:3px solid #bed9ec;outline-offset:4px}[data-pointer-focus]:focus-visible,[data-pointer-focus]:focus{outline:none}[hidden]{display:none!important}
 #opening{position:fixed;inset:0;z-index:100;color:#e9e0ce;font:400 16px/1.45 'Golos Text',Arial,sans-serif;overflow:auto;background:#161a1b}
-#opening::before{content:'';position:fixed;inset:0;background:linear-gradient(#15191a70,#15191a70),url('/src/client/modules/board/reliquary/slate_tile.webp') center/cover;filter:brightness(.65);pointer-events:none}
+#opening::before{content:none}
 .opening-sheet{position:relative;max-width:390px;min-height:844px;margin:auto;padding:34px 28px 18px;isolation:isolate}
 #opening-play{height:56px;display:grid;place-items:center}
 #opening #opening-play .opening-cta-label{display:grid;place-items:center;width:100%;height:1.5em;white-space:nowrap}
@@ -110,14 +110,22 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   <p class="menu-loading" role="status">Загружаем меню…</p>
 
   <div class="gate-title-canopy"><div class="gate-title-clip"><div class="gate-title-plate">
-   <img class="siege-cartouche" src="/src/client/app/ui/siege/cassette-title.webp" srcset="/src/client/app/ui/siege/cassette-title-w560.webp 560w, /src/client/app/ui/siege/cassette-title-w780.webp 780w, /src/client/app/ui/siege/cassette-title-w1120.webp 1120w, /src/client/app/ui/siege/cassette-title.webp 1456w" sizes="(max-width:699px) 100vw, (max-height:440px) 270px, 560px" width="1456" height="570" alt="" decoding="async" fetchpriority="low" />
+   <picture>
+    <source type="image/avif" srcset="/src/client/app/ui/delivery/cassette-title-560.avif 560w, /src/client/app/ui/delivery/cassette-title-1120.avif 1120w" sizes="(max-width:699px) 100vw, 510px" />
+    <img class="siege-cartouche" src="/src/client/app/ui/delivery/cassette-title-560.webp" srcset="/src/client/app/ui/delivery/cassette-title-560.webp 560w, /src/client/app/ui/delivery/cassette-title-1120.webp 1120w" sizes="(max-width:699px) 100vw, 510px" width="1456" height="570" alt="" decoding="async" fetchpriority="high" />
+   </picture>
+   <!-- Responsive source for both nine-sliced frames: hidden donor preserves corners. -->
+   <picture hidden>
+    <source type="image/avif" srcset="/src/client/app/ui/delivery/frame-334.avif 334w, /src/client/app/ui/delivery/frame-667.avif 667w" sizes="(max-width:699px) 171px, 253px" />
+    <img id="menu-frame-source" src="/src/client/app/ui/delivery/frame-334.webp" srcset="/src/client/app/ui/delivery/frame-334.webp 334w, /src/client/app/ui/delivery/frame-667.webp 667w" sizes="(max-width:699px) 171px, 253px" alt="" />
+   </picture>
    <h1 id="opening-title">РУССКИЕ <span>ШАШКИ</span></h1>
   </div></div></div>
   <div class="opening-art" role="group" aria-label="Ваша сторона">
    <div class="siege-housing" aria-hidden="true">
-   <img class="siege-gate" src="/src/client/app/ui/siege/gate.webp" width="1536" height="1024" alt="" fetchpriority="high" decoding="sync" loading="eager" />
-    <img class="siege-layer siege-left" src="/src/client/app/ui/siege/gate.webp" width="1536" height="1024" alt="" decoding="async" fetchpriority="low" loading="lazy" />
-    <img class="siege-layer siege-right" src="/src/client/app/ui/siege/gate.webp" width="1536" height="1024" alt="" decoding="async" fetchpriority="low" loading="lazy" />
+   <picture><source type="image/avif" srcset="/src/client/app/ui/delivery/gate-768.avif 768w, /src/client/app/ui/delivery/gate-1536.avif 1536w" sizes="max(100vw, 150vh)" /><img class="siege-gate" src="/src/client/app/ui/delivery/gate-1536.webp" srcset="/src/client/app/ui/delivery/gate-768.webp 768w, /src/client/app/ui/delivery/gate-1536.webp 1536w" sizes="max(100vw, 150vh)" width="1536" height="1024" alt="" fetchpriority="high" decoding="async" /></picture>
+   <picture><source type="image/avif" srcset="/src/client/app/ui/delivery/gate-768.avif 768w, /src/client/app/ui/delivery/gate-1536.avif 1536w" sizes="max(100vw, 150vh)" /><img class="siege-layer siege-left" src="/src/client/app/ui/delivery/gate-1536.webp" srcset="/src/client/app/ui/delivery/gate-768.webp 768w, /src/client/app/ui/delivery/gate-1536.webp 1536w" sizes="max(100vw, 150vh)" width="1536" height="1024" alt="" decoding="async" /></picture>
+   <picture><source type="image/avif" srcset="/src/client/app/ui/delivery/gate-768.avif 768w, /src/client/app/ui/delivery/gate-1536.avif 1536w" sizes="max(100vw, 150vh)" /><img class="siege-layer siege-right" src="/src/client/app/ui/delivery/gate-1536.webp" srcset="/src/client/app/ui/delivery/gate-768.webp 768w, /src/client/app/ui/delivery/gate-1536.webp 1536w" sizes="max(100vw, 150vh)" width="1536" height="1024" alt="" decoding="async" /></picture>
    </div>
    <section class="chronicle-half chronicle-left" data-chronicle-mount="left" aria-label="Летопись: победы белых в онлайне">
     <span class="chronicle-chain" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="chronicle-chain second" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
@@ -152,7 +160,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
    <div id="opening-search" data-siege-mount="right" hidden>
     <div id="opening-search-head">
      <div class="opening-search-title">
-      <img class="opening-search-plate" src="/src/client/app/ui/siege/cassette-title.webp" width="1456" height="570" alt="" decoding="async" />
+      <img class="opening-search-plate" src="/src/client/app/ui/delivery/cassette-title-560.webp" width="1456" height="570" alt="" decoding="async" loading="lazy" />
       <p id="opening-search-copy">Онлайн</p>
      </div>
      <p id="opening-online-count" class="opening-online-count" hidden></p>
@@ -385,7 +393,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
    window.checkersStartup.framePresented = true;
    // Record a native activation during the remaining module wait. Busy is not
    // ready: do not promise the engine until import resolves, or lose the tap.
-   setCta(play, 'С ботом', true);
+   setCta(play, 'С ботом', false);
    play.disabled = false;
    online.disabled = false;
    window.checkersStartup.unlock();
@@ -492,6 +500,12 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   // Search and other callers must not turn ordinary copy into a load error.
   status(message) {
    byId('opening-loading-status').textContent = message;
+   const waiting = window.checkersStartup.pendingPlay || window.checkersStartup.pendingOnline || window.checkersStartup.playCommitted;
+   if (waiting && !byId('opening').classList.contains('is-departing') && message.startsWith('Доска и шашки: ')) {
+    const button = window.checkersStartup.source === 'online' ? online : play;
+    const label = button.querySelector('.opening-cta-label');
+    if (label) label.textContent = 'Загрузка ' + message.split(': ')[1];
+   }
   }
  };
  play.onclick = (event) => {
@@ -541,8 +555,13 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   cleanup();
   if (state === 'ready') {
    // Keep this decoded responsive source on rotation; a new source would pop in late.
-   const source = title.currentSrc || title.src;
-   title.removeAttribute('srcset'); title.src = source;
+   for (const image of [...root.querySelectorAll('picture img')]) {
+    const source = image.currentSrc || image.src;
+    image.src = source; image.removeAttribute('srcset');
+    image.parentElement.querySelectorAll('source').forEach(node => node.remove());
+   }
+   root.style.setProperty('--menu-gate', `url("${root.querySelector('.siege-gate').src}")`);
+   root.style.setProperty('--menu-frame', `url("${root.querySelector('#menu-frame-source').src}")`);
    images.forEach(image => image.classList.add('is-decoded'));
   }
   document.documentElement.dataset.titleFont = state === 'ready' ? 'ready' : 'fallback';
@@ -593,7 +612,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   const image = new Image(); image.src = src; return image;
  });
  // Static endpoints only, never the six animation layers / fire / API / Phaser.
- const images = [...root.querySelectorAll('.siege-housing img,.gate-piece'), title, steel, ...cssImages];
+ const images = [...root.querySelectorAll('.siege-housing img,.gate-piece,#menu-frame-source'), title, steel, ...cssImages];
  const fonts = document.fonts?.load
   ? Promise.all(['600 42px Literata', '400 16px "Golos Text"', '600 16px "Golos Text"'].map(font =>
     document.fonts.load(font, 'РУССКИЕ ШАШКИ').then(faces => { if (!faces.length) throw new Error('font'); })))
@@ -608,10 +627,15 @@ const bootGame = () => requestAnimationFrame(() => requestAnimationFrame(() => {
  // Let the complete menu paint before a warm cached engine evaluates.
  performance.mark('damka:menu-presented');
  window.checkersStartup.presented();
- import('/src/client/app/main.ts').then(() => {
+ const importEngine = () => import('/src/client/app/main.ts').then(() => {
   performance.mark('damka:engine-ready');
   window.checkersStartup.engineReady();
  }).catch(() => window.checkersStartup.fail('Не удалось запустить игру. Проверьте соединение и повторите загрузку.'));
+ // Preserve the first two seconds for this screen, then quietly warm the board.
+ setTimeout(() => {
+  if ('requestIdleCallback' in window) window.requestIdleCallback(importEngine, {timeout:500});
+  else importEngine();
+ }, Math.max(0, 2000 - performance.now()));
 }));
 const menu = document.getElementById('opening');
 if (menu.dataset.menuState === 'loading') menu.addEventListener('menu-settled', bootGame, {once:true});

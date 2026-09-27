@@ -1,0 +1,210 @@
+[
+  {
+    "source": "src/client/app/ui/siege/gate.png",
+    "sourceSha256": "d7138da42c31eda0fee73df18fdf89baf03464de2f0f7a9a61bafb60bab33db6",
+    "file": "src/client/app/ui/delivery/gate-768.avif",
+    "width": 768,
+    "height": 512,
+    "bytes": 15246
+  },
+  {
+    "source": "src/client/app/ui/siege/gate.png",
+    "sourceSha256": "d7138da42c31eda0fee73df18fdf89baf03464de2f0f7a9a61bafb60bab33db6",
+    "file": "src/client/app/ui/delivery/gate-768.webp",
+    "width": 768,
+    "height": 512,
+    "bytes": 30150
+  },
+  {
+    "source": "src/client/app/ui/siege/gate.png",
+    "sourceSha256": "d7138da42c31eda0fee73df18fdf89baf03464de2f0f7a9a61bafb60bab33db6",
+    "file": "src/client/app/ui/delivery/gate-1536.avif",
+    "width": 1536,
+    "height": 1024,
+    "bytes": 64917
+  },
+  {
+    "source": "src/client/app/ui/siege/gate.png",
+    "sourceSha256": "d7138da42c31eda0fee73df18fdf89baf03464de2f0f7a9a61bafb60bab33db6",
+    "file": "src/client/app/ui/delivery/gate-1536.webp",
+    "width": 1536,
+    "height": 1024,
+    "bytes": 117444
+  },
+  {
+    "source": "src/client/app/ui/siege/panel-revision2/frame.png",
+    "sourceSha256": "25fd294e311102d1c60f5614961be65a521fe6755a436056e920f2274862d5cb",
+    "file": "src/client/app/ui/delivery/frame-334.avif",
+    "width": 334,
+    "height": 549,
+    "bytes": 15110
+  },
+  {
+    "source": "src/client/app/ui/siege/panel-revision2/frame.png",
+    "sourceSha256": "25fd294e311102d1c60f5614961be65a521fe6755a436056e920f2274862d5cb",
+    "file": "src/client/app/ui/delivery/frame-334.webp",
+    "width": 334,
+    "height": 549,
+    "bytes": 21368
+  },
+  {
+    "source": "src/client/app/ui/siege/panel-revision2/frame.png",
+    "sourceSha256": "25fd294e311102d1c60f5614961be65a521fe6755a436056e920f2274862d5cb",
+    "file": "src/client/app/ui/delivery/frame-667.avif",
+    "width": 667,
+    "height": 1097,
+    "bytes": 45349
+  },
+  {
+    "source": "src/client/app/ui/siege/panel-revision2/frame.png",
+    "sourceSha256": "25fd294e311102d1c60f5614961be65a521fe6755a436056e920f2274862d5cb",
+    "file": "src/client/app/ui/delivery/frame-667.webp",
+    "width": 667,
+    "height": 1097,
+    "bytes": 66634
+  },
+  {
+    "source": "src/client/app/ui/siege/cassette-title.png",
+    "sourceSha256": "195d3f696692cff919d1b477ab0aa04660cf20b15024073d8ac613ae1131051f",
+    "file": "src/client/app/ui/delivery/cassette-title-560.avif",
+    "width": 560,
+    "height": 219,
+    "bytes": 17070
+  },
+  {
+    "source": "src/client/app/ui/siege/cassette-title.png",
+    "sourceSha256": "195d3f696692cff919d1b477ab0aa04660cf20b15024073d8ac613ae1131051f",
+    "file": "src/client/app/ui/delivery/cassette-title-560.webp",
+    "width": 560,
+    "height": 219,
+    "bytes": 23932
+  },
+  {
+    "source": "src/client/app/ui/siege/cassette-title.png",
+    "sourceSha256": "195d3f696692cff919d1b477ab0aa04660cf20b15024073d8ac613ae1131051f",
+    "file": "src/client/app/ui/delivery/cassette-title-1120.avif",
+    "width": 1120,
+    "height": 438,
+    "bytes": 70729
+  },
+  {
+    "source": "src/client/app/ui/siege/cassette-title.png",
+    "sourceSha256": "195d3f696692cff919d1b477ab0aa04660cf20b15024073d8ac613ae1131051f",
+    "file": "src/client/app/ui/delivery/cassette-title-1120.webp",
+    "width": 1120,
+    "height": 438,
+    "bytes": 101318
+  },
+  {
+    "source": "src/client/app/ui/siege/panel-revision2/chain-tile.png",
+    "sourceSha256": "88d81516a77a8445fca6dc6f50aea2fbf03963b83bdb8501ca7574784fdd07f9",
+    "file": "src/client/app/ui/delivery/chain-tile-160.avif",
+    "width": 160,
+    "height": 121,
+    "bytes": 4402
+  },
+  {
+    "source": "src/client/app/ui/siege/panel-revision2/chain-tile.png",
+    "sourceSha256": "88d81516a77a8445fca6dc6f50aea2fbf03963b83bdb8501ca7574784fdd07f9",
+    "file": "src/client/app/ui/delivery/chain-tile-160.webp",
+    "width": 160,
+    "height": 121,
+    "bytes": 6690
+  },
+  {
+    "source": "src/client/app/ui/siege/panel-revision2/eyelet.png",
+    "sourceSha256": "e0ae32655bd77d9c70d1409666e1b2be7068f3bd7389a4effa25934d0c9814ad",
+    "file": "src/client/app/ui/delivery/eyelet-90.avif",
+    "width": 90,
+    "height": 101,
+    "bytes": 3414
+  },
+  {
+    "source": "src/client/app/ui/siege/panel-revision2/eyelet.png",
+    "sourceSha256": "e0ae32655bd77d9c70d1409666e1b2be7068f3bd7389a4effa25934d0c9814ad",
+    "file": "src/client/app/ui/delivery/eyelet-90.webp",
+    "width": 90,
+    "height": 101,
+    "bytes": 3594
+  },
+  {
+    "source": "src/client/modules/board/reliquary/black_disk.webp",
+    "sourceSha256": "dc2bfc2208d0df200d6753e48d743a31880b64630a0847d5ce52aa5ddebf6e52",
+    "file": "src/client/modules/board/reliquary/delivery/black_disk-128.webp",
+    "width": 128,
+    "height": 128,
+    "bytes": 4406
+  },
+  {
+    "source": "src/client/modules/board/reliquary/black_disk.webp",
+    "sourceSha256": "dc2bfc2208d0df200d6753e48d743a31880b64630a0847d5ce52aa5ddebf6e52",
+    "file": "src/client/modules/board/reliquary/delivery/black_disk-256.webp",
+    "width": 256,
+    "height": 256,
+    "bytes": 13524
+  },
+  {
+    "source": "src/client/modules/board/reliquary/ivory_disk.webp",
+    "sourceSha256": "4009bc9446b4a515355c3d249626aaadbb2c0ad6dfab35fe6df800ea305d6f95",
+    "file": "src/client/modules/board/reliquary/delivery/ivory_disk-128.webp",
+    "width": 128,
+    "height": 128,
+    "bytes": 3664
+  },
+  {
+    "source": "src/client/modules/board/reliquary/ivory_disk.webp",
+    "sourceSha256": "4009bc9446b4a515355c3d249626aaadbb2c0ad6dfab35fe6df800ea305d6f95",
+    "file": "src/client/modules/board/reliquary/delivery/ivory_disk-256.webp",
+    "width": 256,
+    "height": 256,
+    "bytes": 8728
+  },
+  {
+    "source": "src/client/modules/board/reliquary/black_king.webp",
+    "sourceSha256": "dbfb0ad37d7ed04e83cf291a47e9ce01036188673b7e07f65a134285f075c5b3",
+    "file": "src/client/modules/board/reliquary/delivery/black_king-128.webp",
+    "width": 128,
+    "height": 128,
+    "bytes": 4630
+  },
+  {
+    "source": "src/client/modules/board/reliquary/black_king.webp",
+    "sourceSha256": "dbfb0ad37d7ed04e83cf291a47e9ce01036188673b7e07f65a134285f075c5b3",
+    "file": "src/client/modules/board/reliquary/delivery/black_king-256.webp",
+    "width": 256,
+    "height": 256,
+    "bytes": 13224
+  },
+  {
+    "source": "src/client/modules/board/reliquary/ivory_king.webp",
+    "sourceSha256": "d50411a49e9746ee174af0703150048e98ae9c9c909ff1e8ef2fc062d2e859b3",
+    "file": "src/client/modules/board/reliquary/delivery/ivory_king-128.webp",
+    "width": 128,
+    "height": 128,
+    "bytes": 5166
+  },
+  {
+    "source": "src/client/modules/board/reliquary/ivory_king.webp",
+    "sourceSha256": "d50411a49e9746ee174af0703150048e98ae9c9c909ff1e8ef2fc062d2e859b3",
+    "file": "src/client/modules/board/reliquary/delivery/ivory_king-256.webp",
+    "width": 256,
+    "height": 256,
+    "bytes": 13278
+  },
+  {
+    "source": "src/client/modules/board/reliquary/board-frames.webp",
+    "sourceSha256": "3d95010cbb232be9cec3b4998e7dc716bcd16c8ee1d4f79ecf1fe5e7a053b224",
+    "file": "src/client/modules/board/reliquary/delivery/board-frames-760.webp",
+    "width": 760,
+    "height": 418,
+    "bytes": 33068
+  },
+  {
+    "source": "src/client/modules/board/reliquary/board-frames.webp",
+    "sourceSha256": "3d95010cbb232be9cec3b4998e7dc716bcd16c8ee1d4f79ecf1fe5e7a053b224",
+    "file": "src/client/modules/board/reliquary/delivery/board-frames-1520.webp",
+    "width": 1520,
+    "height": 836,
+    "bytes": 113940
+  }
+]

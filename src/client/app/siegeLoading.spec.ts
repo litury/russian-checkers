@@ -25,10 +25,11 @@ class Root extends EventTarget {
 const pending: { src: string; resolve: () => void; reject: () => void }[] = [];
 let media: EventTarget & { matches: boolean };
 beforeEach(() => {
+ vi.resetModules(); // Each renderer fixture represents a new page/cache.
  pending.length = 0;
  media = Object.assign(new EventTarget(), { matches: true });
  vi.stubGlobal('matchMedia', () => media);
- vi.stubGlobal('document', Object.assign(new EventTarget(), { hidden: false, getElementById: () => null }));
+ vi.stubGlobal('document', Object.assign(new EventTarget(), { hidden: false, getElementById: () => null, querySelectorAll:()=>[] }));
  vi.stubGlobal('requestAnimationFrame', vi.fn(() => 1));
  vi.stubGlobal('cancelAnimationFrame', vi.fn());
  vi.stubGlobal('MutationObserver', class { observe() {} disconnect() {} });
@@ -38,7 +39,7 @@ beforeEach(() => {
  });
 });
 afterEach(() => vi.unstubAllGlobals());
-const flush = async () => { for (let i = 0; i < 12; i++) await Promise.resolve(); };
+const flush = async () => { for (let i = 0; i < 24; i++) await Promise.resolve(); };
 
 describe('Siege delayed/failed decoration', () => {
  it('does not start invisible enhancement during a queued Play, resumes on menu return', async () => {
@@ -53,7 +54,7 @@ describe('Siege delayed/failed decoration', () => {
   expect(pending).toHaveLength(0);
   startup.playCommitted=false; root.hidden=true; changed();
   expect(pending).toHaveLength(0);
-  root.hidden=false; changed();
+  root.hidden=false; changed(); await flush();
   expect(pending).toHaveLength(7);
   changed(); expect(pending).toHaveLength(7);
   dispose();
@@ -64,11 +65,13 @@ describe('Siege delayed/failed decoration', () => {
   const marks: Record<string, number> = {};
   vi.stubGlobal('window', {__damkaPerf:{marks}});
   const dispose = mountSiegeOpening(root as unknown as HTMLElement);
+ await flush();
   expect(pending).toHaveLength(0);
   root.dataset.menuState='ready'; root.dispatchEvent(new Event('menu-settled'));
   expect(pending).toHaveLength(0);
   marks['playfield-ready']=100;
   document.dispatchEvent(new Event('damka:playfield-ready'));
+  await flush();
   expect(pending).toHaveLength(7);
   dispose();
   pending.length=0;
@@ -85,6 +88,8 @@ describe('Siege delayed/failed decoration', () => {
   const { mountSiegeOpening } = await import('./siegeOpening');
   const root = new Root();
   const dispose = mountSiegeOpening(root as unknown as HTMLElement);
+ await flush();
+  await flush();
   expect(pending.filter(load => /-(base|moving|front)\.webp/.test(load.src))).toHaveLength(6);
   expect(pending.filter(load => load.src.includes('menu-selection-fire'))).toHaveLength(1);
   pending[0].resolve(); pending[1].resolve();
@@ -109,8 +114,10 @@ describe('Siege delayed/failed decoration', () => {
   const { mountSiegeOpening } = await import('./siegeOpening');
   const root = new Root();
   const dispose = mountSiegeOpening(root as unknown as HTMLElement);
-  pending[0].reject();
-  for (const load of pending.slice(1)) load.resolve();
+ await flush();
+  const failed = pending.find(load=>load.src.endsWith('white-base.webp'));
+  expect(failed).toBeDefined();failed!.reject();
+  for (const load of pending) if(load!==failed)load.resolve();
   await flush();
   expect(root.buttons[0].dataset.art).toBe('static');
   expect(root.buttons[0].image.hidden).toBe(false);
@@ -122,6 +129,7 @@ describe('Siege delayed/failed decoration', () => {
   const { mountSiegeOpening } = await import('./siegeOpening');
   const root = new Root();
   const dispose = mountSiegeOpening(root as unknown as HTMLElement);
+ await flush();
   dispose();
   for (const load of pending) load.resolve();
   await flush();
@@ -132,6 +140,7 @@ describe('Siege delayed/failed decoration', () => {
 it('depresses only the moving disk, preserving fixed base and rim, and returns on cancel', async () => {
  const {mountSiegeOpening} = await import('./siegeOpening');
  const root = new Root(); const dispose = mountSiegeOpening(root as unknown as HTMLElement);
+ await flush();
  for (const load of pending) load.resolve(); await flush();
  const black=root.buttons[1]; black.context.drawImage.mockClear();
  root.dispatchEvent(new CustomEvent('menu-touch',{detail:{side:'black',held:true}}));
@@ -153,6 +162,7 @@ it('animates bounded fire while selected, stops in background and reduced motion
  const step = (time:number) => { const next = [...callbacks.values()]; callbacks.clear(); next.forEach(fn => fn(time)); };
  const {mountSiegeOpening} = await import('./siegeOpening');
  const root = new Root(); const dispose = mountSiegeOpening(root as unknown as HTMLElement);
+ await flush();
  for(const load of pending) load.resolve(); await flush();
  step(100); step(220);
  expect(root.buttons[0].context.drawImage.mock.calls.some(call => call.length === 9)).toBe(true);

@@ -1,4 +1,6 @@
 import Phaser from 'phaser';
+import {loadImage} from './assetLoader';
+import {boardDelivery} from './boardDelivery';
 import {
 	pieceSprites,
 } from '@/client/config/layout';
@@ -282,21 +284,22 @@ export class GameScene extends Phaser.Scene {
 		});
 	}
 
-	private queueTitleCritical(): void {
+	private async queueTitleCritical(): Promise<void> {
 		// Share exact lossless delivery copies with the HTML opening; runtime delivers WebP; PNG masters archived under asset-compress/originals.
 		const reliquaryAssets: Record<string, unknown> = {
 			...import.meta.glob(['../modules/board/reliquary/*.webp', '!../modules/board/reliquary/black_disk.webp', '!../modules/board/reliquary/ivory_disk.webp'], { eager: true, query: '?url', import: 'default' }),
 			'../modules/board/reliquary/black_disk.webp': new URL('./ui/opening/black_disk.webp', import.meta.url).href,
 			'../modules/board/reliquary/ivory_disk.webp': new URL('./ui/opening/ivory_disk.webp', import.meta.url).href,
 		};
-		for (const [path, url] of Object.entries(reliquaryAssets)) {
+		const aliases: Record<string, string> = {ivory_disk:pieceSprites.manLight, black_disk:pieceSprites.manDark, ivory_king:pieceSprites.kingLight, black_king:pieceSprites.kingDark};
+		let completed = 0;
+		await Promise.all(Object.entries(reliquaryAssets).map(async ([path, url]) => {
 			const name = path.split('/').pop()!.replace('.webp', '');
-			this.load.image(`reliquary_${name}`, url as string);
-		}
-		this.load.image(pieceSprites.manLight, reliquaryAssets['../modules/board/reliquary/ivory_disk.webp'] as string);
-		this.load.image(pieceSprites.manDark, reliquaryAssets['../modules/board/reliquary/black_disk.webp'] as string);
-		this.load.image(pieceSprites.kingLight, reliquaryAssets['../modules/board/reliquary/ivory_king.webp'] as string);
-		this.load.image(pieceSprites.kingDark, reliquaryAssets['../modules/board/reliquary/black_king.webp'] as string);
+			const image = await loadImage(boardDelivery(name, url as string));
+			this.textures.addImage(`reliquary_${name}`, image);
+			if (aliases[name]) this.textures.addImage(aliases[name], image);
+			window.checkersStartup?.status(`Доска и шашки: ${++completed}/${Object.keys(reliquaryAssets).length}`);
+		}));
 		this.load.image('marker_staples', new URL('../modules/board/markers/staples.png', import.meta.url).href);
 		this.load.image('marker_staples_amber', new URL('../modules/board/markers/staples-amber.png', import.meta.url).href);
 		this.load.image('marker_staples_copper', new URL('../modules/board/markers/staples-copper.png', import.meta.url).href);
@@ -341,7 +344,11 @@ export class GameScene extends Phaser.Scene {
 		if (this.startupFailed) return;
 		window.checkersStartup?.status('Загружаем доску и шашки…');
 		// Minimal pack to show board and accept first move; outside preload so HTML unlock is free.
-		this.queueTitleCritical();
+		try { await this.queueTitleCritical(); } catch {
+			this.startupFailed = true;
+			window.checkersStartup?.fail('Не удалось загрузить доску. Проверьте соединение и повторите загрузку.');
+			return;
+		}
 		// Bunker HUD faces are small and needed at depart — keep on critical path.
 		preloadBunkerPanels(this);
 		await this.flushLoader();

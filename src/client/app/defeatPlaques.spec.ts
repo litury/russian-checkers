@@ -14,7 +14,7 @@ describe('defeat title and button plaques', () => {
     expect(ceremony).toContain('Ещё партия');
     expect(ceremony).toContain('В меню');
     expect(ceremony).not.toContain('defeat-button-label');
-    expect(history).toContain('cassette-title.webp');
+    expect(history).toContain('cassette-title-560.webp');
     expect(history).toContain('mh-title-plate');
   });
 

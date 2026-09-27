@@ -10,6 +10,7 @@ function boot() {
  class ImagePort extends EventTarget {
   complete = true; naturalWidth = 724; src = 'art.webp'; currentSrc = 'responsive.webp'; loading = '';
   classList = { add: vi.fn() }; removeAttribute = vi.fn();
+  parentElement = {querySelectorAll: () => [{remove:vi.fn()}]};
   decode() { return new Promise<void>((resolve, reject) => pending.push({resolve, reject: () => reject(new Error('decode'))})); }
  }
  const images = Array.from({length:5}, () => new ImagePort());
@@ -17,9 +18,10 @@ function boot() {
  const classes = new Set<string>();
  const root = Object.assign(new EventTarget(), {
   hidden: false, dataset: {menuState:'loading', menuReason:''},
+  style: {setProperty:vi.fn()},
   classList: {add: (s: string) => classes.add(s), contains: (s: string) => classes.has(s)},
-  querySelectorAll: () => images,
-  querySelector: (s: string) => s === '.siege-cartouche' ? title : {classList:{add:vi.fn()}}
+  querySelectorAll: (s:string) => s === 'picture img' ? [title, ...images] : images,
+  querySelector: (s: string) => s === '.siege-cartouche' ? title : s === '.siege-gate' || s === '#menu-frame-source' ? images[0] : {classList:{add:vi.fn()}}
  });
  const window = new EventTarget();
  const doc = {getElementById: () => root, querySelector: () => ({href:'steel.webp'}), documentElement:{dataset:{titleFont:'pending'}}, fonts:{load:vi.fn(() => Promise.resolve([{}]))}};

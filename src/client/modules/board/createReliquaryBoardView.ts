@@ -45,8 +45,10 @@ import {
 function ensureBoardFrames(scene: Phaser.Scene) {
 	if (!scene.textures?.exists?.(boardFrameSheet)) return;
 	const tex = scene.textures.get(boardFrameSheet);
-	if (!tex.has('white')) tex.add('white', 0, 0, 0, 760, 836);
-	if (!tex.has('black')) tex.add('black', 0, 760, 0, 760, 836);
+	const source = tex.getSourceImage() as HTMLImageElement;
+	const width = source.width / 2, height = source.height;
+	if (!tex.has('white')) tex.add('white', 0, 0, 0, width, height);
+	if (!tex.has('black')) tex.add('black', 0, width, 0, width, height);
 }
 
 type PieceView = {
