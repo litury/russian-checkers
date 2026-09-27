@@ -1,6 +1,12 @@
 import {afterEach, beforeEach, expect, it, vi} from 'vitest';
 import {createMenuAudio} from './menuAudio';
 import type {IYandexSdk} from './IYandexSdk';
+// Each test is a fresh page; transport de-duplication has its own runtime tests.
+vi.mock('./assetLoader', () => ({loadBytes: async (url:string) => {
+ const response=await fetch(url,{priority:'low'});
+ if(!response.ok)throw Error('audio unavailable');
+ return response.arrayBuffer();
+}}));
 
 const deferred = <T>() => {
  let resolve!: (value:T)=>void, reject!: (reason?:unknown)=>void;
@@ -27,9 +33,13 @@ function fire(type:string,id='opening-play',trusted=true){
  handlers.get(type)?.({isTrusted:trusted,target:{closest:(selector:string)=>selector.split(',').includes(`#${id}`)}} as unknown as Event);
 }
 async function load(name:string){
+ // A warm buffer now requires a previous real activation. Cold-click tests
+ // already activated before calling this helper, and keep their first gesture.
+ if(!requests.size){fire('pointerdown','elsewhere');context.resume.mockClear();}
+ await flush();
  const entry=[...requests].find(([url])=>url.includes(`/${name}.`));
  expect(entry,`asset ${name}`).toBeDefined();
- entry![1].resolve({ok:true,arrayBuffer:async()=>({name,sampleRate:2,length:8,numberOfChannels:1,getChannelData:()=>new Float32Array(8)})} as unknown as Response);
+ entry![1].resolve({ok:true,arrayBuffer:async()=>({slice(){return this;},name,sampleRate:2,length:8,numberOfChannels:1,getChannelData:()=>new Float32Array(8)})} as unknown as Response);
  await flush();
 }
 beforeEach(()=>{
@@ -44,6 +54,14 @@ beforeEach(()=>{
  audio=createMenuAudio({onPause:(fn:()=>void)=>{pause=fn;},onResume:(fn:()=>void)=>{resume=fn;}} as unknown as IYandexSdk);
 });
 afterEach(()=>{audio.dispose();vi.unstubAllGlobals();});
+
+it('does not request any audio on creation, synthetic gestures, or passive menu updates',async()=>{
+ fire('pointerdown','elsewhere',false);fire('click','opening-play',false);
+ audio.show();fire('checkers-settings-change');await flush();
+ expect(requests.size).toBe(0);expect(context.resume).not.toHaveBeenCalled();
+ fire('pointerdown','elsewhere');await flush();expect(requests.size).toBeGreaterThan(0);
+ const count=requests.size;fire('pointerdown','elsewhere');await flush();expect(requests.size).toBe(count);
+});
 
 it.each(['mute','hidden','pause'])('stops active menu music immediately on %s',async(reason)=>{
  settings.music=1;await load('menu_music_source');

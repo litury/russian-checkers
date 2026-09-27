@@ -116,7 +116,7 @@ it('keeps the online button name without a number and puts the count inside the 
 	expect(button).not.toMatch(/opening-live|opening-online-count/);
 	const search = html.match(/<div id="opening-search"[\s\S]*?<div id="opening-search-actions">/)![0];
 	// Заголовок стоит на спрайт-пластине главного названия, счёт — отдельная строка под ней.
-	expect(search).toMatch(/<div class="opening-search-title">\s*<img class="opening-search-plate" src="\/src\/client\/app\/ui\/siege\/cassette-title\.webp"[^>]*\/>\s*<p id="opening-search-copy"[^>]*>[^<]*<\/p>\s*<\/div>\s*<p id="opening-online-count"[^>]*hidden><\/p>/);
+	expect(search).toMatch(/<div class="opening-search-title">\s*<img class="opening-search-plate" src="\/src\/client\/app\/ui\/delivery\/cassette-title-560\.webp"[^>]*\/>\s*<p id="opening-search-copy"[^>]*>[^<]*<\/p>\s*<\/div>\s*<p id="opening-online-count"[^>]*hidden><\/p>/);
 });
 
 it('keeps the search card and its buttons at the main geometry while the count row appears', () => {

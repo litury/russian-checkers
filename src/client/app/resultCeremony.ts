@@ -1,4 +1,5 @@
 import type Phaser from 'phaser';
+import {loadImage} from './assetLoader';
 import type { Side } from '@/rules';
 import white from '../modules/board/selection-v2/frames/white/white-55.webp?url';
 import black from '../modules/board/selection-v2/frames/black/black-55.webp?url';
@@ -46,7 +47,7 @@ export function createResultOverlay(scene:Phaser.Scene,handlers:{onPlayAgain:()=
  document.body.append(root);
  const panel=root.querySelector('section')!;const canvas=root.querySelector('canvas')!;const ctx=canvas.getContext('2d')!;
  const images:Record<string,HTMLImageElement>={};
- const ready=Promise.all([...Object.entries(assets),['white',white],['black',black]].map(async ([key,url])=>{const im=new Image();images[key]=im;im.src=url;try{await im.decode();return true;}catch{return false;}}));
+ const ready=Promise.all([...Object.entries(assets),['white',white],['black',black]].map(async ([key,url])=>{try{images[key]=await loadImage(url);return true;}catch{return false;}}));
  let generation=0;
  let frame=0,start=0,last=0,won=false,draw=false,side:Side='white',shown=false,reduced=false,previous:HTMLElement|null=null;
  const inert=new Map<HTMLElement,boolean>();

@@ -6,7 +6,7 @@ import { optionalPack, warmImages, whenIdle } from './idleWork';
 const scope = globalThis as unknown as Record<string, unknown>;
 
 const saved = new Map<string, { has: boolean; value: unknown }>();
-for (const name of ['requestIdleCallback', 'cancelIdleCallback', 'Image']) {
+for (const name of ['requestIdleCallback', 'cancelIdleCallback', 'Image', 'document']) {
 	saved.set(name, { has: name in scope, value: scope[name] });
 }
 
@@ -16,6 +16,7 @@ function install(name: string, value: unknown): void {
 }
 
 function installIdleQueue() {
+	install('document', {querySelectorAll:()=>[]});
 	const queue = new Map<number, () => void>();
 	let nextHandle = 1;
 	install('requestIdleCallback', (cb: () => void) => {
@@ -39,7 +40,7 @@ function installIdleQueue() {
 			for (let i = 0; i < 50; i++) {
 				if (queue.size === 0) return;
 				this.slot();
-				await Promise.resolve();
+				for (let n=0;n<12;n++) await Promise.resolve();
 			}
 		},
 	};

@@ -1,6 +1,7 @@
 import { SiegeSelection, setSiegeSide, siegeSide, type SiegeSide } from './siegeSelection';
 import { drawMenuFire, MENU_FIRE } from './menuSelectionFire';
 import { MenuTouchMotion } from './menuTouchMotion';
+import {loadImage as decode} from './assetLoader';
 
 const layers = import.meta.glob('./ui/siege/{white,black}-{base,moving,front}.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
 const fireUrls = [
@@ -8,13 +9,7 @@ const fireUrls = [
 ];
 const endpoints = import.meta.glob('../modules/board/selection-v2/frames/*/*-{00,55}.webp', { query: '?url', import: 'default' });
 
-/** Decode before revealing; a failed decoration never changes startup readiness. */
-async function decode(src: string) {
- const image = new Image();
- image.src = src;
- await image.decode();
- return image;
-}
+
 export function mountSiegeOpening(root: HTMLElement, isPlayRequested: () => boolean = () => false) {
  const media = matchMedia('(prefers-reduced-motion: reduce)');
  const state = new SiegeSelection(siegeSide(root));
@@ -76,6 +71,7 @@ export function mountSiegeOpening(root: HTMLElement, isPlayRequested: () => bool
    const selected = side === state.side;
    const key = `../modules/board/selection-v2/frames/${side}/${side}-${selected ? '55' : '00'}.webp`;
    if (canDecorate() && !painters[side]) void endpoints[key]().then(async url => {
+    if (disposed || (side === state.side) !== selected || painters[side]) return;
     const loaded = await decode(url as string);
     if (disposed || (side === state.side) !== selected || painters[side]) return;
     image.src = loaded.src;

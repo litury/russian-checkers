@@ -313,6 +313,11 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
    closeDialogs();root.inert=true;play.disabled=true;
    frozenScroll = root.scrollTop;
    root.classList.add('is-departing');
+   // Loading is finished; the following time belongs to the approved gate motion.
+   const activeButton = window.checkersStartup.source === 'online' ? online : play;
+   const activeLabel = activeButton?.querySelector('.opening-cta-label');
+   if (activeLabel) activeLabel.textContent = 'Начинаем…';
+   activeButton?.setAttribute('aria-busy', 'false');
    root.scrollTop = frozenScroll;
    // Decoration failure cannot block a ready game; normal decoded art always slides.
    const leaves = [...root.querySelectorAll<HTMLImageElement>('.siege-left,.siege-right')];

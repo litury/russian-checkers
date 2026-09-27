@@ -6,7 +6,7 @@ import { notePlayIntent, playIntentEvent } from './playIntent';
 function boot(presented = true) {
  const nodes = new Map<string, any>();
  const byId = (id: string) => {
-  if (!nodes.has(id)) nodes.set(id, { hidden: false, disabled: true, textContent: '', setAttribute: vi.fn(), removeAttribute: vi.fn() });
+  if (!nodes.has(id)) nodes.set(id, { hidden: false, disabled: true, textContent: '', classList:{contains:()=>false}, setAttribute: vi.fn(), removeAttribute: vi.fn() });
   return nodes.get(id);
  };
  const window: any = { checkersFlavor: { setState: vi.fn() } };
@@ -24,7 +24,7 @@ it('a presented menu allows queued play but never announces a loaded engine or a
  expect(byId('opening-status').hidden).toBe(true);
  expect(byId('opening-error').textContent).not.toContain('Загружаем');
 });
-it.each(['frame-first', 'engine-first'])('requires frame and engine before showing ready Play: %s', order => {
+it.each(['frame-first', 'engine-first'])('enables intent after the frame, without claiming engine readiness: %s', order => {
  vi.useFakeTimers(); const { startup, byId } = boot(false);
  const play = byId('opening-play');
  expect(play.disabled).toBe(true);
@@ -33,7 +33,8 @@ it.each(['frame-first', 'engine-first'])('requires frame and engine before showi
  if (order === 'frame-first') {
   startup.presented();
   expect(play.disabled).toBe(false); // accepts intent, does not promise a ready engine
-  expect(play.textContent).toBe('Загрузка…');
+  expect(play.textContent).toBe('С ботом');
+  expect(startup.engineLoaded).toBe(false);
   startup.engineReady();
  } else {
   startup.engineReady(); expect(play.disabled).toBe(true);

@@ -17,7 +17,7 @@ it('keeps four named leaf actions and no visible side labels or slogan', () => {
 it('initial reveal includes decoded leaves, not independent early CTA (new menu contract)', () => {
  // Async state/decode/error/cleanup are exercised by menuReadiness.spec.ts.
  const script = html.match(/<script id="opening-menu-readiness">([\s\S]*?)<\/script>/)![1];
- expect(script).toContain("root.querySelectorAll('.siege-housing img,.gate-piece')");
+ expect(script).toContain("root.querySelectorAll('.siege-housing img,.gate-piece,#menu-frame-source')");
  expect(script).toContain("images.forEach(image => image.classList.add('is-decoded'))");
  expect(script.indexOf("images.forEach")).toBeLessThan(script.indexOf('root.dataset.menuState = state'));
  expect(html).toContain(':not(.menu-loading):not(noscript) *{visibility:hidden!important}');

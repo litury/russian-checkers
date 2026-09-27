@@ -4,6 +4,7 @@
  * Everything here runs in browser idle time and yields between items, so a
  * reveal animation or a move animation keeps the main thread.
  */
+import {loadImage} from './assetLoader';
 type IdleScope = typeof globalThis & {
 	requestIdleCallback?: (
 		callback: (deadline: { timeRemaining(): number }) => void,
@@ -67,23 +68,11 @@ export function warmImages(
 		const url = queue.shift();
 		if (url === undefined) return;
 		if (typeof Image !== 'function') return;
-		const image = new Image();
-		image.decoding = 'async';
-		image.src = url;
 		const next = (): void => {
 			if (!stopped) onWarm?.(url);
 			whenIdle(step);
 		};
-		try {
-			if (typeof image.decode === 'function')
-				void image.decode().then(next, next);
-			else {
-				image.onload = next;
-				image.onerror = next;
-			}
-		} catch {
-			next();
-		}
+		void loadImage(url).then(next, next);
 	};
 	whenIdle(step);
 	return () => {

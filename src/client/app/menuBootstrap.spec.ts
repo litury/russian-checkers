@@ -10,12 +10,12 @@ function boot(state = 'loading') {
  let resolve!: () => void, reject!: () => void;
  const loadEngine = vi.fn(() => new Promise<void>((ok,no) => {resolve=ok;reject=()=>no(new Error('offline'));}));
  const frames: Array<() => void> = [];
- const mark = vi.fn();
- new Function('document','window','requestAnimationFrame','performance','loadEngine',source)(
-  {getElementById:()=>menu},{checkersStartup:startup},(fn:()=>void)=>frames.push(fn),{mark},loadEngine);
- return {menu,startup,frames,mark,loadEngine,step:()=>frames.shift()?.(),resolve:()=>resolve(),reject:()=>reject()};
+ const mark = vi.fn(), timers: Array<{fn:()=>void;ms:number}> = [];
+ new Function('document','window','requestAnimationFrame','performance','loadEngine','setTimeout',source)(
+  {getElementById:()=>menu},{checkersStartup:startup},(fn:()=>void)=>frames.push(fn),{mark,now:()=>500},loadEngine,(fn:()=>void,ms:number)=>timers.push({fn,ms}));
+ return {menu,startup,frames,mark,loadEngine,timers,runTimer:()=>timers.shift()?.fn(),step:()=>frames.shift()?.(),resolve:()=>resolve(),reject:()=>reject()};
 }
-it.each(['ready','fallback'])('presents a complete %s frame before engine evaluation; no minimum timed wait', async state => {
+it.each(['ready','fallback'])('presents a complete %s frame immediately, reserving the first 2s for menu only', async state => {
  const b = boot();
  expect(b.frames).toHaveLength(0); expect(b.loadEngine).not.toHaveBeenCalled();
  b.menu.dataset.menuState=state;
@@ -25,6 +25,9 @@ it.each(['ready','fallback'])('presents a complete %s frame before engine evalua
  expect(b.startup.presented).not.toHaveBeenCalled();
  b.step();
  expect(b.startup.presented).toHaveBeenCalledOnce();
+ expect(b.loadEngine).not.toHaveBeenCalled();
+ expect(b.timers[0].ms).toBe(1500);
+ b.runTimer();
  expect(b.loadEngine).toHaveBeenCalledOnce();
  expect(b.startup.engineReady).not.toHaveBeenCalled();
  b.resolve(); await Promise.resolve();
@@ -35,7 +38,7 @@ it.each(['ready','fallback'])('presents a complete %s frame before engine evalua
  expect(b.frames).toHaveLength(0);
 });
 it('a module arriving after menu settlement still yields a paint and reports import failure honestly', async () => {
- const b=boot('ready'); b.step(); b.step(); b.reject();
+ const b=boot('ready'); b.step(); b.step(); b.runTimer(); b.reject();
  await Promise.resolve(); await Promise.resolve();
  expect(b.startup.engineReady).not.toHaveBeenCalled();
  expect(b.startup.fail).toHaveBeenCalledWith('Не удалось запустить игру. Проверьте соединение и повторите загрузку.');
