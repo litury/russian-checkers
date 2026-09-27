@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { inflateSync } from 'node:zlib';
 import { expect, it } from 'vitest';
 import css from './hangingChronicle.css?raw';
+import gates from './openingGates.css?raw';
 import html from '../../../index.html?raw';
 
 /**
@@ -115,6 +116,23 @@ it('keeps the online button name without a number and puts the count inside the 
 	expect(button).not.toMatch(/opening-live|opening-online-count/);
 	const search = html.match(/<div id="opening-search"[\s\S]*?<div id="opening-search-actions">/)![0];
 	expect(search).toMatch(/<p id="opening-search-copy"[^>]*>[^<]*<\/p>\s*<p id="opening-online-count"[^>]*hidden><\/p>/);
+});
+
+it('keeps the search card and its buttons at the main geometry while the count row appears', () => {
+	// The count row belongs to the card but must not resize it (task acceptance: card and buttons
+	// keep the geometry of main). The header therefore reserves the row in every presence state and
+	// the row itself is taken out of flow, right under the heading: measured on 390x844 and
+	// 1440x900 the card stays 366x153.1875 / 370x153.1875 with action buttons at y=263.625 / 278.1875.
+	expect(gates).toMatch(/#opening-search \{ position:absolute[^}]*padding:0 12px 12px;/);
+	expect(gates).toMatch(/#opening-search-head \{ position:relative; margin:0 0 20px; \}/);
+	expect(gates).toMatch(/#opening-online-count \{ position:absolute; top:100%; left:0; right:0;/);
+	expect(gates).toMatch(/#opening-online-count\[hidden\] \{ display:none; \}/);
+	// The row sits between the heading and the buttons in the DOM, so a screen reader reads it as
+	// plain text of the card rather than as part of the menu button.
+	const panel = html.match(/<div id="opening-search"[\s\S]*?<button id="opening-retry"/)![0];
+	expect(panel).toMatch(
+		/<div id="opening-search-head">\s*<p id="opening-search-copy"[^>]*>[^<]*<\/p>\s*<p id="opening-online-count"[^>]*hidden><\/p>\s*<\/div>\s*<div id="opening-search-actions">/,
+	);
 });
 
 it('keeps the accepted steel raster geometry the frame fractions were read from', () => {

@@ -53,10 +53,14 @@
 }
 #opening .opening-actions button:disabled { filter:saturate(.35); cursor:wait; }
 #opening-status { position:absolute; z-index:6; top:calc(var(--play-y) + 252px); left:50%; transform:translateX(-50%); width:min(370px,calc(100% - 24px)); margin:0; padding:8px; background:#161a1bf2; color:#f1d9ad; font-size:14px; }
-#opening-search { position:absolute; z-index:5; left:50%; top:var(--play-y); width:min(370px,calc(100% - 24px)); transform:translateX(-50%); padding:12px; border:1px solid #8b8878; background:#252b2bf5; color:#e2d9c0; text-align:center; }
-#opening-search-copy { margin:0 0 8px; font-size:16px; }
+#opening-search { position:absolute; z-index:5; left:50%; top:var(--play-y); width:min(370px,calc(100% - 24px)); transform:translateX(-50%); padding:0 12px 12px; border:1px solid #8b8878; background:#252b2bf5; color:#e2d9c0; text-align:center; }
+/* The count line lives inside the screen but must not resize the card or shift its buttons:
+   the header reserves the count row unconditionally and the row itself is absolutely placed
+   right under the heading, so the panel keeps the exact geometry it has on main. */
+#opening-search-head { position:relative; margin:0 0 20px; }
+#opening-search-copy { margin:0; font-size:16px; }
 /* Online count inside the «В сети» screen: plain readable text under the heading, never part of a button. */
-#opening-online-count { margin:-4px 0 8px; font-size:14px; line-height:1.25; color:#bedcae; }
+#opening-online-count { position:absolute; top:100%; left:0; right:0; margin:0; font-size:14px; line-height:1.25; color:#bedcae; }
 #opening-online-count[hidden] { display:none; }
 #opening-search-actions { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
 #opening-search-actions button { min-height:44px; min-width:120px; padding:8px 12px; border:1px solid #c5b28e; background:#ddd0ab; color:#292b28; font-size:16px; }
