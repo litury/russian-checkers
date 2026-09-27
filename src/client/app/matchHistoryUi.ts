@@ -4,6 +4,11 @@ import { canOpenBoard, type MatchRow } from '@/online/matchHistory';
 import { buildHistoryReplay, halfMoveCount, incompleteReplayCopy, outcomeLabel } from '@/online/historyReplay';
 import { squareAlg } from '@/online/notation';
 import type { Side } from '@/rules';
+import boardArt from '../modules/board/reliquary/board-frames.webp';
+import whiteArt from '../modules/board/reliquary/ivory_disk.webp';
+import blackArt from '../modules/board/reliquary/black_disk.webp';
+import whiteKingArt from '../modules/board/reliquary/ivory_king.webp';
+import blackKingArt from '../modules/board/reliquary/black_king.webp';
 
 const dateLabel = (value: string) => {
  const date = new Date(value);
@@ -43,6 +48,21 @@ export function bindMatchHistory() {
  const prev = el<HTMLButtonElement>('mh-prev');
  const next = el<HTMLButtonElement>('mh-next');
  const end = el<HTMLButtonElement>('mh-end');
+ // Decoration never gates data or controls. Fixed geometry also serves the CSS fallback.
+ let boardArtLoading: Promise<boolean> | null = null;
+ const loadBoardArt = () => {
+  boardArtLoading ??= Promise.all([boardArt, whiteArt, blackArt, whiteKingArt, blackKingArt].map(src => new Promise<boolean>(resolve => {
+   const image = new Image();
+   image.onload = () => { void image.decode().then(() => resolve(true), () => resolve(false)); };
+   image.onerror = () => resolve(false);
+   image.src = src;
+  }))).then(results => results.every(Boolean));
+  void boardArtLoading.then(ready => {
+   const frame = board.parentElement;
+   if (frame) frame.dataset.art = ready ? 'ready' : 'fallback';
+   el('match-history-art-status').textContent = ready ? '' : 'Упрощённая доска: изображения недоступны. Дамки отмечены буквой Д.';
+  });
+ };
  let rows: MatchRow[] = [];
  let selected: MatchRow | null = null;
  let replay: ReturnType<typeof buildHistoryReplay> | null = null;
@@ -150,10 +170,14 @@ export function bindMatchHistory() {
     const square = squareAlg({ row, col });
     const cell = element('i', 'mh-cell');
     cell.dataset.square = square;
+    if ((row + col) % 2 === 0) cell.dataset.dark = '';
     const piece = position.squares[row][col];
     if (piece) {
      cell.dataset.side = piece.side;
      cell.dataset.kind = piece.kind;
+     const fallback = element('span', 'mh-fallback-piece', piece.kind === 'king' ? 'Д' : '');
+     fallback.setAttribute('aria-hidden', 'true');
+     cell.append(fallback);
      description.push(`${square}: ${piece.side === 'white' ? 'белая' : 'чёрная'} ${piece.kind === 'king' ? 'дамка' : 'шашка'}`);
     }
     if (last && (last.from === square || last.path.at(-1) === square)) cell.classList.add('mh-last');
@@ -163,7 +187,13 @@ export function bindMatchHistory() {
   board.setAttribute('aria-label', `Полуход ${ply}. ${description.join('; ')}`);
   first.disabled = prev.disabled = ply === 0;
   next.disabled = end.disabled = ply === replay.plies.length;
-  el('match-history-ply').textContent = `Полуход ${ply} из ${replay.plies.length} · ${ply ? replay.notation[ply - 1] : 'Начальная позиция'}`;
+  const current = ply
+   ? `Ход ${Math.ceil(ply / 2)} · ${last.side === 'white' ? 'Белые' : 'Чёрные'} · ${replay.notation[ply - 1]}`
+   : 'Начальная позиция · Ход белых';
+  el('match-history-ply').replaceChildren(
+   element('span', '', current),
+   element('span', 'mh-muted', `${ply} из ${replay.plies.length} ходов сторон`),
+  );
   notation.querySelectorAll('button').forEach((button, i) => {
    if (i + 1 === ply) button.setAttribute('aria-current', 'step');
    else button.removeAttribute('aria-current');
@@ -217,6 +247,9 @@ export function bindMatchHistory() {
   state.hidden = true;
   boardWrap.hidden = false;
   paintPosition(0);
+  el('match-history-art-status').textContent = board.parentElement?.dataset.art === 'ready'
+   ? '' : 'Упрощённая доска: оформление загружается. Дамки отмечены буквой Д.';
+  loadBoardArt();
  }
  open.addEventListener('click', () => {
   if (root.open) return;

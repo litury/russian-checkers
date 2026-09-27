@@ -182,7 +182,8 @@ it('does not hang vector staples or circles under the sprite, and does not grow 
 	expect(board).not.toContain("paint(land, victim ? 'landing' : 'move')");
 	expect(board).not.toContain('selectionV2Frame');
 	expect(board).not.toContain('selectionReady');
-	expect((board.match(/setTint/g) ?? []).length).toBe(1);
+	// Neither the traveling disk nor its stationary lower tier is tinted.
+	expect(board).not.toContain('setTint');
 	expect(scene).toContain("this.load.image('marker_staples'");
 	expect(scene).toContain("this.load.image('marker_staples_amber'");
 	expect(scene).toContain("this.load.image('marker_arrow_amber'");
