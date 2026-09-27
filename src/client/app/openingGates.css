@@ -12,7 +12,7 @@
 #opening.is-departing :is(.siege-left,.siege-right) { visibility:visible; will-change:transform; }
 #opening.is-departing .siege-gate { visibility:hidden; }
 #opening .siege-frame { display:none; }
-/* Buttons stay visible (CSS steel). Only decorative layers wait for the LCP gate. */
+/* The HTML menu barrier reveals the complete minimal set, or a fixed fallback. */
 #opening:not(.is-gate-ready) :is(.gate-piece-slot,.gate-title-canopy) { visibility:hidden; }
 .gate-title-canopy { position:absolute; z-index:2; left:50%; top:24px; width:min(560px,100%); aspect-ratio:1456/570; translate:-50% 0; pointer-events:none; container-type:inline-size; }
 .gate-title-plate { position:relative; aspect-ratio:1456/570; padding-top:10.6%; box-sizing:border-box; }

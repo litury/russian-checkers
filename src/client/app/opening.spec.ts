@@ -35,12 +35,11 @@ describe('HTML-first opening', () => {
   expect(html).toContain('id="opening-online"');
   expect(html).toContain('В сети');
  });
- it('unlocks Play from the HTML gate before Phaser preload packs', () => {
+ it('retains queued intent without coupling menu readiness to match decoration packs', () => {
   expect(html).toContain('unlock()');
   expect(html).toContain('waitPlay()');
   expect(html).toContain('playIntent');
   expect(html).toContain('window.checkersStartup.unlock()');
-  expect(html.indexOf('window.checkersStartup.unlock()')).toBeLessThan(html.indexOf("import('/src/client/app/main.ts')"));
   expect(overlay).toContain('playIntent');
   expect(overlay).toContain('pendingPlay');
   expect(scene).toContain('requestStartFromOpening');
@@ -92,7 +91,7 @@ describe('HTML-first opening', () => {
  });
 
  it('one-tap play intent auto-starts without a second click', () => {
-  // Early unlock stays; click queues intent and honest wait — never idle «Играть» again.
+  // A press during residual loading queues intent and honest wait — never idle «Играть» again.
   expect(html).toContain('pendingPlay');
   expect(html).toContain('playCommitted');
   expect(html).toContain('playIntent');

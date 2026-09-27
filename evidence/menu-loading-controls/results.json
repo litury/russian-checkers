@@ -1,0 +1,42 @@
+[
+  {
+    "terminal": "ready",
+    "child": "help",
+    "input": "pointer",
+    "hiddenBeforeFrame": true,
+    "availableBeforeEngine": true,
+    "dialogSurvivesEngine": true,
+    "focusRestored": true,
+    "errors": []
+  },
+  {
+    "terminal": "ready",
+    "child": "settings",
+    "input": "keyboard",
+    "hiddenBeforeFrame": true,
+    "availableBeforeEngine": true,
+    "dialogSurvivesEngine": true,
+    "focusRestored": true,
+    "errors": []
+  },
+  {
+    "terminal": "fallback",
+    "child": "help",
+    "input": "pointer",
+    "hiddenBeforeFrame": true,
+    "availableBeforeEngine": true,
+    "dialogSurvivesEngine": true,
+    "focusRestored": true,
+    "errors": []
+  },
+  {
+    "terminal": "fallback",
+    "child": "settings",
+    "input": "keyboard",
+    "hiddenBeforeFrame": true,
+    "availableBeforeEngine": true,
+    "dialogSurvivesEngine": true,
+    "focusRestored": true,
+    "errors": []
+  }
+]

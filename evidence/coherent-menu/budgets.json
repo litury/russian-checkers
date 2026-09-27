@@ -1,0 +1,7 @@
+{
+  "source": "evidence/coherent-menu/timing-1/summary.json",
+  "policy": "Local software-Chrome regression ceiling: twice measured maximum, rounded up to 100ms. Not a mobile-device UX target.",
+  "canAcceptAfter": 200,
+  "tapAcceptedAfter": 5700,
+  "inputHandling": 2000
+}

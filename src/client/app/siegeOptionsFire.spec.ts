@@ -14,24 +14,13 @@ it('keeps four named leaf actions and no visible side labels or slogan', () => {
  }
 });
 
-it('marks decoded required leaves ready before unrelated art resolves (early-click race)', async () => {
- const start = html.indexOf(' const art = document.querySelector');
- const end = html.indexOf(" for (const name of ['help', 'settings'])", start);
- expect(start).toBeGreaterThan(0); expect(end).toBeGreaterThan(start);
- const pending: (() => void)[] = [];
- const image = () => ({complete:true,naturalWidth:1536,classList:{add:vi.fn(),remove:vi.fn()},addEventListener:vi.fn(),removeEventListener:vi.fn(),decode:() => new Promise<void>(resolve => pending.push(resolve))});
- const images = Array.from({length:4}, image);
- // The gate is a separate leaf under .opening-art; it must stay pending so the
- // ready-marking of decoded images stays observable independently of gate art.
- const gate = image();
- const art = {querySelectorAll:() => images.slice(0,3),querySelector:(selector:string) => selector === '.siege-gate' ? gate : null,classList:{add:vi.fn()}};
- const timers: unknown[] = [];
- new Function('document','setTimeout','clearTimeout',html.slice(start,end))({querySelector:(s:string) => s === '.opening-art' ? art : images[3]},(fn:unknown) => {timers.push(fn); return timers.length;},vi.fn());
- pending[0](); pending[1]();
- for(let i=0;i<10;i++) await Promise.resolve();
- expect(images[0].classList.add).toHaveBeenCalledWith('is-decoded');
- expect(images[1].classList.add).toHaveBeenCalledWith('is-decoded');
- expect(images[3].classList.add).not.toHaveBeenCalled();
+it('initial reveal includes decoded leaves, not independent early CTA (new menu contract)', () => {
+ // Async state/decode/error/cleanup are exercised by menuReadiness.spec.ts.
+ const script = html.match(/<script id="opening-menu-readiness">([\s\S]*?)<\/script>/)![1];
+ expect(script).toContain("root.querySelectorAll('.siege-housing img,.gate-piece')");
+ expect(script).toContain("images.forEach(image => image.classList.add('is-decoded'))");
+ expect(script.indexOf("images.forEach")).toBeLessThan(script.indexOf('root.dataset.menuState = state'));
+ expect(html).toContain(':not(.menu-loading):not(noscript) *{visibility:hidden!important}');
 });
 
 it('options reuses existing handlers and returns focus after child close/Escape and menu close', () => {

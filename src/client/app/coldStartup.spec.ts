@@ -3,7 +3,7 @@ import html from '../../../index.html?raw';
 import { readPerf, resetPerf } from './perfMarks';
 import { notePlayIntent, playIntentEvent } from './playIntent';
 
-function boot() {
+function boot(presented = true) {
  const nodes = new Map<string, any>();
  const byId = (id: string) => {
   if (!nodes.has(id)) nodes.set(id, { hidden: false, disabled: true, textContent: '', setAttribute: vi.fn(), removeAttribute: vi.fn() });
@@ -12,16 +12,48 @@ function boot() {
  const window: any = { checkersFlavor: { setState: vi.fn() } };
  const code = html.slice(html.indexOf(" const play = byId('opening-play');"), html.indexOf('})();\n</script>', html.indexOf(" const play = byId('opening-play');")));
  new Function('window','byId', code)(window, byId);
+ if (presented) window.checkersStartup.presented();
  return { startup: window.checkersStartup, byId };
 }
 afterEach(() => vi.useRealTimers());
-it('CS-01 early HTML allows queued play but never announces loaded engine or a load plaque', () => {
+it('a presented menu allows queued play but never announces a loaded engine or a load plaque', () => {
  vi.useFakeTimers(); const { byId } = boot();
  expect(byId('opening-play').disabled).toBe(false);
  expect(byId('opening-play').hidden).toBe(false);
  expect(byId('opening-loading-status').textContent).toContain('Загружаем');
  expect(byId('opening-status').hidden).toBe(true);
  expect(byId('opening-error').textContent).not.toContain('Загружаем');
+});
+it.each(['frame-first', 'engine-first'])('requires frame and engine before showing ready Play: %s', order => {
+ vi.useFakeTimers(); const { startup, byId } = boot(false);
+ const play = byId('opening-play');
+ expect(play.disabled).toBe(true);
+ startup.unlock();
+ expect(play.disabled).toBe(true);
+ if (order === 'frame-first') {
+  startup.presented();
+  expect(play.disabled).toBe(false); // accepts intent, does not promise a ready engine
+  expect(play.textContent).toBe('Загрузка…');
+  startup.engineReady();
+ } else {
+  startup.engineReady(); expect(play.disabled).toBe(true);
+  startup.presented();
+ }
+ expect(play.disabled).toBe(false);
+ expect(play.textContent).toBe('С ботом');
+ expect(play.setAttribute).toHaveBeenLastCalledWith('aria-busy', 'false');
+});
+it('a wait-state tap is retained exactly once across engine readiness', () => {
+ vi.useFakeTimers(); const {startup, byId} = boot();
+ const play = byId('opening-play');
+ play.onclick({timeStamp:137});
+ play.onclick({timeStamp:138});
+ startup.engineReady();
+ expect(startup.pendingPlay).toBe(true);
+ expect(startup.playCommitted).toBe(true);
+ expect(startup.playIntentAt).toBe(137);
+ expect(play.disabled).toBe(true);
+ expect(play.textContent).toBe('Загрузка…');
 });
 it('pressed machine CTA waits on itself and leaves the other button alone', () => {
  vi.useFakeTimers(); const { startup, byId } = boot();

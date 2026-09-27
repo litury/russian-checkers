@@ -79,7 +79,8 @@ export function createMenuAudio(sdk:IYandexSdk) {
   try {ctx=new AudioContext();}catch{return;}
   for(const [path,url] of Object.entries(urls)){
    const name=path.split('/').pop()!.replace(/\.[^.]+$/,'');
-   const ready=fetch(url).then(r=>{if(!r.ok)throw Error('audio unavailable');return r.arrayBuffer();})
+   // Optional audio must not take network priority from the first playable board.
+   const ready=fetch(url,{priority:'low'}).then(r=>{if(!r.ok)throw Error('audio unavailable');return r.arrayBuffer();})
     .then(b=>ctx!.decodeAudioData(b)).then(b=>{
      if(name==='menu_music_source'||name==='match-b-90s'){
       const fade=Math.floor(b.sampleRate),out=ctx!.createBuffer(b.numberOfChannels,b.length-fade,b.sampleRate);

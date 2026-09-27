@@ -1,0 +1,38 @@
+[
+  {
+    "size": "mobile",
+    "scenario": "engine-error",
+    "state": "ready",
+    "firstCTA": {
+      "at": 447.69999998807907,
+      "state": "ready",
+      "cta": true,
+      "gate": true,
+      "title": true
+    },
+    "firstWhole": {
+      "at": 447.69999998807907,
+      "state": "ready",
+      "cta": true,
+      "gate": true,
+      "title": true
+    },
+    "menuMarks": [
+      {
+        "name": "damka:menu-first-frame",
+        "at": 194.90000000596046
+      },
+      {
+        "name": "damka:menu-ready",
+        "at": 439.59999999403954
+      },
+      {
+        "name": "damka:menu-presented",
+        "at": 497.5
+      }
+    ],
+    "shifts": [],
+    "errors": [],
+    "retryStarted": true
+  }
+]

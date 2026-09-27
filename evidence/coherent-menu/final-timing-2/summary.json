@@ -1,0 +1,134 @@
+[
+  {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "scenario": "cold",
+    "record": false,
+    "metrics": {
+      "firstWhole": 474.5,
+      "canAcceptAfter": 60.70000001788139,
+      "tapAcceptedAfter": 305.59999999403954,
+      "inputHandling": 29.299999982118607,
+      "queued": true,
+      "engineAtTap": false
+    },
+    "gate": {
+      "name": "http://127.0.0.1:4262/assets/gate-BYcpQk93.webp",
+      "bytes": 304164,
+      "body": 303864
+    },
+    "frames": 0
+  },
+  {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "scenario": "warm",
+    "record": false,
+    "metrics": {
+      "firstWhole": 293.90000000596046,
+      "canAcceptAfter": 38.19999998807907,
+      "tapAcceptedAfter": 1223.9000000059605,
+      "inputHandling": 166,
+      "queued": false,
+      "engineAtTap": true
+    },
+    "gate": {
+      "name": "http://127.0.0.1:4262/assets/gate-BYcpQk93.webp",
+      "bytes": 0,
+      "body": 303864
+    },
+    "frames": 0
+  },
+  {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "scenario": "queued",
+    "record": false,
+    "metrics": {
+      "firstWhole": 536.8000000119209,
+      "canAcceptAfter": 44.19999998807907,
+      "tapAcceptedAfter": 169.09999999403954,
+      "inputHandling": 34.400000005960464,
+      "queued": true,
+      "engineAtTap": false
+    },
+    "gate": {
+      "name": "http://127.0.0.1:4262/assets/gate-BYcpQk93.webp",
+      "bytes": 304164,
+      "body": 303864
+    },
+    "frames": 0
+  },
+  {
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "scenario": "cold",
+    "record": false,
+    "metrics": {
+      "firstWhole": 687.3000000119209,
+      "canAcceptAfter": 86,
+      "tapAcceptedAfter": 1540.0999999940395,
+      "inputHandling": 1135.4000000059605,
+      "queued": false,
+      "engineAtTap": true
+    },
+    "gate": {
+      "name": "http://127.0.0.1:4262/assets/gate-BYcpQk93.webp",
+      "bytes": 304164,
+      "body": 303864
+    },
+    "frames": 0
+  },
+  {
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "scenario": "warm",
+    "record": false,
+    "metrics": {
+      "firstWhole": 672.7000000178814,
+      "canAcceptAfter": 80.59999999403954,
+      "tapAcceptedAfter": 4695,
+      "inputHandling": 1560.7000000178814,
+      "queued": false,
+      "engineAtTap": true
+    },
+    "gate": {
+      "name": "http://127.0.0.1:4262/assets/gate-BYcpQk93.webp",
+      "bytes": 0,
+      "body": 303864
+    },
+    "frames": 0
+  },
+  {
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "scenario": "queued",
+    "record": false,
+    "metrics": {
+      "firstWhole": 790.5,
+      "canAcceptAfter": 73.5,
+      "tapAcceptedAfter": 221.09999999403954,
+      "inputHandling": 32.900000005960464,
+      "queued": true,
+      "engineAtTap": false
+    },
+    "gate": {
+      "name": "http://127.0.0.1:4262/assets/gate-BYcpQk93.webp",
+      "bytes": 304164,
+      "body": 303864
+    },
+    "frames": 0
+  }
+]

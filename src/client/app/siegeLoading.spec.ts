@@ -41,6 +41,46 @@ afterEach(() => vi.unstubAllGlobals());
 const flush = async () => { for (let i = 0; i < 12; i++) await Promise.resolve(); };
 
 describe('Siege delayed/failed decoration', () => {
+ it('does not start invisible enhancement during a queued Play, resumes on menu return', async () => {
+  let changed = () => {};
+  vi.stubGlobal('MutationObserver', class { constructor(fn:()=>void){changed=fn;} observe(){} disconnect(){} });
+  const {mountSiegeOpening}=await import('./siegeOpening');
+  const root=Object.assign(new Root(),{dataset:{menuState:'ready'},inert:false});
+  const startup={playCommitted:true};
+  vi.stubGlobal('window',{__damkaPerf:{marks:{'playfield-ready':100}}});
+  const dispose=mountSiegeOpening(root as unknown as HTMLElement, () => startup.playCommitted);
+  document.dispatchEvent(new Event('damka:playfield-ready'));
+  expect(pending).toHaveLength(0);
+  startup.playCommitted=false; root.hidden=true; changed();
+  expect(pending).toHaveLength(0);
+  root.hidden=false; changed();
+  expect(pending).toHaveLength(7);
+  changed(); expect(pending).toHaveLength(7);
+  dispose();
+ });
+ it('starts heavy enhancement only after menu and playfield, never for fallback', async () => {
+  const { mountSiegeOpening } = await import('./siegeOpening');
+  const root = Object.assign(new Root(), {dataset:{menuState:'loading'}});
+  const marks: Record<string, number> = {};
+  vi.stubGlobal('window', {__damkaPerf:{marks}});
+  const dispose = mountSiegeOpening(root as unknown as HTMLElement);
+  expect(pending).toHaveLength(0);
+  root.dataset.menuState='ready'; root.dispatchEvent(new Event('menu-settled'));
+  expect(pending).toHaveLength(0);
+  marks['playfield-ready']=100;
+  document.dispatchEvent(new Event('damka:playfield-ready'));
+  expect(pending).toHaveLength(7);
+  dispose();
+  pending.length=0;
+  root.dataset.menuState='fallback';
+  const disposeFallback = mountSiegeOpening(root as unknown as HTMLElement);
+  root.dispatchEvent(new Event('menu-settled'));
+  document.dispatchEvent(new Event('damka:playfield-ready'));
+  setSiegeSide(root as unknown as HTMLElement, 'black'); await flush();
+  expect(pending).toHaveLength(0);
+  expect(root.buttons[1].getAttribute('aria-pressed')).toBe('true');
+  disposeFallback();
+ });
  it('reveals only after all three layers decode, using latest side after rapid reversal', async () => {
   const { mountSiegeOpening } = await import('./siegeOpening');
   const root = new Root();

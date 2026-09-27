@@ -15,12 +15,16 @@ async function decode(src: string) {
  await image.decode();
  return image;
 }
-export function mountSiegeOpening(root: HTMLElement) {
+export function mountSiegeOpening(root: HTMLElement, isPlayRequested: () => boolean = () => false) {
  const media = matchMedia('(prefers-reduced-motion: reduce)');
  const state = new SiegeSelection(siegeSide(root));
  const touch = { white: new MenuTouchMotion(), black: new MenuTouchMotion() };
  const touchMoving = () => touch.white.moving || touch.black.moving;
  const buttons = [...root.querySelectorAll<HTMLButtonElement>('.gate-piece-slot')];
+ // Static HTML endpoints own the first paint. Enhancement waits for the menu
+ // and the board's critical textures, and never replaces a terminal fallback.
+ const canDecorate = () => !root.dataset?.menuState || root.dataset.menuState === 'ready';
+ let decorationsStarted = false;
  const painters: Partial<Record<SiegeSide, (displacement: number) => void>> = {};
  let frame = 0, previous = 0, disposed = false;
  let fire: HTMLImageElement[] = [], elapsed = 0, burst = 0, lastPaint = -Infinity;
@@ -29,7 +33,7 @@ export function mountSiegeOpening(root: HTMLElement) {
   drawMenuFire(context, fire[0], elapsed, burst, media.matches);
  };
  const loadFire = () => {
-  if (fire.length || fireLoading) return;
+  if (!decorationsStarted || !canDecorate() || fire.length || fireLoading) return;
   fireLoading = true;
   void Promise.all(fireUrls.map(decode)).then(images => {
    if (disposed) return;
@@ -71,7 +75,7 @@ export function mountSiegeOpening(root: HTMLElement) {
    const image = button.querySelector('img')!;
    const selected = side === state.side;
    const key = `../modules/board/selection-v2/frames/${side}/${side}-${selected ? '55' : '00'}.webp`;
-   if (!painters[side]) void endpoints[key]().then(async url => {
+   if (canDecorate() && !painters[side]) void endpoints[key]().then(async url => {
     const loaded = await decode(url as string);
     if (disposed || (side === state.side) !== selected || painters[side]) return;
     image.src = loaded.src;
@@ -96,6 +100,11 @@ export function mountSiegeOpening(root: HTMLElement) {
  for (const button of buttons) {
   button.addEventListener('click', choose);
   button.addEventListener('keydown', keyboard);
+ }
+ const startDecorations = () => {
+  if (disposed || decorationsStarted || !canDecorate() || root.hidden || root.inert) return;
+  decorationsStarted = true;
+  for (const button of buttons) {
   const side = button.dataset.side as SiegeSide;
   // Only six small source layers; no frame sequence fetched. Latest state wins on decode.
   void Promise.all(['base', 'moving', 'front'].map(name => decode(layers[`./ui/siege/${side}-${name}.webp`]))).then(images => {
@@ -123,8 +132,17 @@ export function mountSiegeOpening(root: HTMLElement) {
    button.querySelector('img')!.hidden = true;
    wake();
   }).catch(() => { if (!disposed) button.dataset.art = 'static'; });
- }
- loadFire();
+  }
+  loadFire();
+ };
+ const tryDecorations = () => {
+  if (isPlayRequested()) return;
+  if (root.dataset?.menuState && !window.__damkaPerf?.marks['playfield-ready']) return;
+  startDecorations();
+ };
+ root.addEventListener('menu-settled', tryDecorations);
+ document.addEventListener('damka:playfield-ready', tryDecorations);
+ tryDecorations();
  root.addEventListener('siege-side', update);
  const contact = (event: Event) => {
   const { side, held } = (event as CustomEvent<{side: SiegeSide; held: boolean}>).detail;
@@ -135,8 +153,8 @@ export function mountSiegeOpening(root: HTMLElement) {
  root.addEventListener('menu-touch', contact);
  media.addEventListener('change', update);
  document.addEventListener('visibilitychange', wake);
- const observer = new MutationObserver(wake);
- observer.observe(root, { attributes: true, attributeFilter: ['hidden'] });
+ const observer = new MutationObserver(() => { tryDecorations(); wake(); });
+ observer.observe(root, { attributes: true, attributeFilter: ['hidden', 'inert'] });
  return () => {
   disposed = true;
   fire = [];
@@ -144,6 +162,8 @@ export function mountSiegeOpening(root: HTMLElement) {
   cancelAnimationFrame(frame);
   observer.disconnect();
   root.removeEventListener('siege-side', update);
+  root.removeEventListener('menu-settled', tryDecorations);
+  document.removeEventListener('damka:playfield-ready', tryDecorations);
   root.removeEventListener('menu-touch', contact);
   media.removeEventListener('change', update);
   document.removeEventListener('visibilitychange', wake);
@@ -152,9 +172,4 @@ export function mountSiegeOpening(root: HTMLElement) {
    button.removeEventListener('keydown', keyboard);
   }
  };
-}
-const root = document.getElementById('opening');
-if (root) {
- const dispose = mountSiegeOpening(root);
- if (import.meta.hot) import.meta.hot.dispose(dispose);
 }
