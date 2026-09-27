@@ -73,6 +73,8 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 /* One paint commits the critical menu, including descendants with explicit visibility. */
 #opening[data-menu-state=loading] .opening-sheet > :not(.menu-loading):not(noscript),
 #opening[data-menu-state=loading] .opening-sheet > :not(.menu-loading):not(noscript) *{visibility:hidden!important}
+/* Utility access is independent of the critical art and game CTA barrier. */
+#opening[data-menu-state=loading] #opening-options{visibility:visible!important}
 .menu-loading{position:absolute;inset:45% 12px auto;margin:0;text-align:center;color:#d0c9bb;font:16px/1.5 Arial,sans-serif}
 #opening:not([data-menu-state=loading]) .menu-loading{display:none}
 #opening noscript{position:absolute;inset:35% 20px auto;z-index:10;text-align:center}
