@@ -26,6 +26,8 @@ const origin=target==='baseline'?'http://127.0.0.1:4187':'http://127.0.0.1:4186'
   }
   if(variant==='piece-error'&&/white-55-.*\.webp/.test(url.pathname))return route.abort();
   if(variant==='engine-error'&&/\/main-[^/]+\.js/.test(url.pathname))return route.abort();
+  if(variant==='font-error'&&/\.woff2$/.test(url.pathname))return route.abort();
+  if(variant==='audio-error'&&/\.(mp3|ogg|wav)$/.test(url.pathname))return route.abort();
   return route.continue();
  });
  await context.routeWebSocket(/.*/,ws=>ws.close());
@@ -46,8 +48,8 @@ const origin=target==='baseline'?'http://127.0.0.1:4187':'http://127.0.0.1:4186'
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  const cdp=await context.newCDPSession(page);
  await cdp.send('Network.enable');
- const scenarios=target==='baseline'?['cold','warm']:(size==='mobile'?['cold','warm','delay','gate-error','piece-error','late','slow','rotate','engine-error']:['cold','warm']);
- for(const scenario of scenarios){
+ const scenarios=target==='baseline'?['cold','warm']:(size==='mobile'?['cold','warm','delay','gate-error','piece-error','font-error','audio-error','late','slow','rotate','engine-error']:['cold','warm']);
+ for(const scenario of scenarios.filter(s=>!process.env.SCENARIO||s===process.env.SCENARIO)){
   variant=scenario;
   await page.setViewportSize(viewport);
   // Fresh navigations except warm. CDP overrides Playwright route's cache default;
@@ -74,25 +76,25 @@ const origin=target==='baseline'?'http://127.0.0.1:4187':'http://127.0.0.1:4186'
    await page.evaluate(()=>document.getElementById('opening-play').click());
    await page.waitForFunction(()=>window.__damkaPerf?.marks['first-move-allowed']!==undefined,{},{timeout:25000});
    await page.locator('#opening').waitFor({state:'hidden'});
-   if(size==='mobile'&&scenario==='cold'){
+   if(size==='mobile'&&['cold','font-error','audio-error'].includes(scenario)){
     await page.mouse.click(38,439);await page.mouse.click(83,395);
     await page.waitForFunction(()=>window.__damkaPerf?.marks['first-move-played']!==undefined);
-    await page.screenshot({path:path.join(out,'mobile-first-move.png')});
+    await page.screenshot({path:path.join(out,`mobile-${scenario}-first-move.png`)});
    }
   }
   const data=await page.evaluate(()=>({check:window.check,perf:window.__damkaPerf,marks:performance.getEntriesByType('mark').filter(e=>e.name.startsWith('damka:')).map(e=>({name:e.name,at:e.startTime})),state:document.getElementById('opening').dataset.menuState,resources:performance.getEntriesByType('resource').map(e=>({name:e.name,start:e.startTime,end:e.responseEnd,bytes:e.transferSize}))}));
   const firstCTA=data.check.frames.find(f=>f.cta),firstWhole=data.check.frames.find(f=>f.cta&&f.gate&&f.title);
   const summary={size,scenario,state:data.state,firstCTA,firstWhole,marks:data.perf?.marks,menuMarks:data.marks.filter(m=>m.name.includes('menu-')),shifts:data.check.shifts,errors:[...errors]};
+  await fs.writeFile(path.join(out,`${size}-${scenario}.json`),JSON.stringify({...data,errors:[...errors]},null,2));
+  console.log(JSON.stringify(summary));
   if(target!=='baseline'){
    assert.equal(data.check.frames.some(f=>f.cta&&f.state!=='fallback'&&!f.gate),false,'no isolated CTA before gate');
-   if(['cold','warm','delay','slow','rotate'].includes(scenario))assert.equal(data.state,'ready');
-   if(['gate-error','piece-error','late'].includes(scenario))assert.equal(data.state,'fallback');
+   if(['cold','warm','delay','slow','rotate','audio-error'].includes(scenario))assert.equal(data.state,'ready');
+   if(['gate-error','piece-error','font-error','late'].includes(scenario))assert.equal(data.state,'fallback');
    assert.equal(errors.length,0,'no uncaught errors');
    assert.equal(data.check.shifts.some(s=>!s.input),false,'no unprompted layout shifts');
   }
   results.push(summary);
-  await fs.writeFile(path.join(out,`${size}-${scenario}.json`),JSON.stringify(data,null,2));
-  console.log(JSON.stringify(summary));
  }
  await context.close();
  }

@@ -41,6 +41,23 @@ afterEach(() => vi.unstubAllGlobals());
 const flush = async () => { for (let i = 0; i < 12; i++) await Promise.resolve(); };
 
 describe('Siege delayed/failed decoration', () => {
+ it('does not start invisible enhancement during a queued Play, resumes on menu return', async () => {
+  let changed = () => {};
+  vi.stubGlobal('MutationObserver', class { constructor(fn:()=>void){changed=fn;} observe(){} disconnect(){} });
+  const {mountSiegeOpening}=await import('./siegeOpening');
+  const root=Object.assign(new Root(),{dataset:{menuState:'ready'},inert:false});
+  const startup={playCommitted:true};
+  vi.stubGlobal('window',{__damkaPerf:{marks:{'playfield-ready':100}},checkersStartup:startup});
+  const dispose=mountSiegeOpening(root as unknown as HTMLElement);
+  document.dispatchEvent(new Event('damka:playfield-ready'));
+  expect(pending).toHaveLength(0);
+  startup.playCommitted=false; root.hidden=true; changed();
+  expect(pending).toHaveLength(0);
+  root.hidden=false; changed();
+  expect(pending).toHaveLength(7);
+  changed(); expect(pending).toHaveLength(7);
+  dispose();
+ });
  it('starts heavy enhancement only after menu and playfield, never for fallback', async () => {
   const { mountSiegeOpening } = await import('./siegeOpening');
   const root = Object.assign(new Root(), {dataset:{menuState:'loading'}});

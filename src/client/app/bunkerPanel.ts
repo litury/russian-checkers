@@ -176,7 +176,7 @@ export function createBunkerPanel(scene: Phaser.Scene, own: boolean) {
 		if (disposed) return;
 		movingText.forEach((go) => go.setFontFamily('"Golos Text", sans-serif'));
 		paint();
-	});
+	}).catch(() => { /* Keep the existing system-font canvas; font failure is nonfatal. */ });
 	scene.events.on('update', tickFrame);
 	scene.events.once('shutdown', () => {
 		disposed = true;

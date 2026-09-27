@@ -102,7 +102,7 @@ export function mountSiegeOpening(root: HTMLElement) {
   button.addEventListener('keydown', keyboard);
  }
  const startDecorations = () => {
-  if (disposed || decorationsStarted || !canDecorate() || root.hidden) return;
+  if (disposed || decorationsStarted || !canDecorate() || root.hidden || root.inert) return;
   decorationsStarted = true;
   for (const button of buttons) {
   const side = button.dataset.side as SiegeSide;
@@ -136,6 +136,7 @@ export function mountSiegeOpening(root: HTMLElement) {
   loadFire();
  };
  const tryDecorations = () => {
+  if (typeof window !== 'undefined' && window.checkersStartup?.playCommitted) return;
   if (root.dataset?.menuState && !window.__damkaPerf?.marks['playfield-ready']) return;
   startDecorations();
  };
@@ -152,8 +153,8 @@ export function mountSiegeOpening(root: HTMLElement) {
  root.addEventListener('menu-touch', contact);
  media.addEventListener('change', update);
  document.addEventListener('visibilitychange', wake);
- const observer = new MutationObserver(wake);
- observer.observe(root, { attributes: true, attributeFilter: ['hidden'] });
+ const observer = new MutationObserver(() => { tryDecorations(); wake(); });
+ observer.observe(root, { attributes: true, attributeFilter: ['hidden', 'inert'] });
  return () => {
   disposed = true;
   fire = [];
