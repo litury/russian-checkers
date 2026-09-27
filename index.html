@@ -157,7 +157,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 <dialog id="match-history" aria-labelledby="match-history-title">
  <div class="mh-panel">
   <header class="mh-header">
-   <div class="mh-title-plate"><img class="siege-cartouche" src="/src/client/app/ui/siege/cassette-title.webp" srcset="/src/client/app/ui/siege/cassette-title-w560.webp 560w, /src/client/app/ui/siege/cassette-title-w780.webp 780w, /src/client/app/ui/siege/cassette-title-w1120.webp 1120w, /src/client/app/ui/siege/cassette-title.webp 1456w" sizes="340px" width="1456" height="570" alt="" /><div><p class="mh-eyebrow">Архив игры</p><h2 id="match-history-title" tabindex="-1">Мои партии</h2></div></div>
+   <div class="mh-title-plate"><p class="mh-eyebrow">Архив игры</p><h2 id="match-history-title" tabindex="-1">Мои партии</h2></div>
    <button type="button" id="match-history-back" class="mh-button">В меню</button>
   </header>
   <div id="match-history-scroll" class="mh-scroll">
@@ -166,6 +166,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
      <label id="match-history-filter-label" hidden>Соперник <select id="match-history-filter"><option value="all">Все</option><option value="online">Онлайн</option><option value="bot">Компьютер</option></select></label>
     </div>
     <div id="match-history-list"></div>
+    <p class="mh-profile-note mh-muted">Записи связаны с профилем в этом браузере. На другом устройстве история может отличаться.</p>
     <p id="match-history-limit" class="mh-muted" hidden>Показаны последние 50 партий. Более ранние записи пока недоступны в этом списке.</p>
    </section>
    <section id="match-history-state" class="mh-state" role="status" aria-live="polite" hidden>
@@ -185,9 +186,11 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
       <p id="match-history-ply" role="status" aria-live="polite"></p>
      </div>
      <aside class="mh-record">
-      <h3 id="match-history-result"></h3><p id="match-history-meta"></p>
+      <p class="mh-eyebrow">Результат партии</p><h3 id="match-history-result"></h3><p id="match-history-meta"></p>
+      <p id="match-history-art-status" class="mh-muted" role="status"></p>
       <p id="match-history-warning" class="mh-warning" hidden></p>
       <h4>Ходы партии</h4><p class="mh-muted">Один полуход — ход одной стороны.</p>
+      <div class="mh-notation-heading" aria-hidden="true"><span>Белые</span><span>Чёрные</span></div>
       <div id="match-history-notation" aria-label="Записанные ходы"></div>
       <p class="mh-key-hint">← → по ходам · Home / End · Esc назад</p>
      </aside>
