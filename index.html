@@ -126,7 +126,10 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
    <button id="opening-online" data-siege-mount="right" class="opening-button" type="button"><span class="opening-cta-label">В сети</span></button>
    <div id="opening-search" data-siege-mount="right" hidden>
     <div id="opening-search-head">
-     <p id="opening-search-copy">Ищем соперника</p>
+     <div class="opening-search-title">
+      <img class="opening-search-plate" src="/src/client/app/ui/siege/cassette-title.webp" width="1456" height="570" alt="" decoding="async" />
+      <p id="opening-search-copy">Онлайн</p>
+     </div>
      <p id="opening-online-count" class="opening-online-count" hidden></p>
     </div>
     <div id="opening-search-actions">
@@ -134,8 +137,8 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
      <button type="button" id="opening-search-find" hidden>Найти</button>
      <button type="button" id="opening-search-create" hidden>Создать</button>
      <button type="button" id="opening-search-enter" hidden>Ввести код</button>
-     <input id="opening-friend-code" hidden maxlength="6" inputmode="numeric" autocomplete="one-time-code" />
      <button type="button" id="opening-search-go" hidden>Войти</button>
+     <input id="opening-friend-code" hidden maxlength="6" inputmode="numeric" autocomplete="one-time-code" />
      <button type="button" id="opening-search-stay" hidden>Остаться</button>
      <button type="button" id="opening-search-bot" hidden>Играть с ботом</button>
     </div>
