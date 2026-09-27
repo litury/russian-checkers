@@ -28,7 +28,7 @@
 .opening-utility:hover{color:#eadbbc;border-color:#776c56;background:#242828}
 .opening-utility svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 h1{font:600 42px/1.16 Georgia,serif;letter-spacing:-.035em;text-align:center;margin:36px -12px 0;height:116px}h1 span{display:block;font-size:57px}
-#opening-title{opacity:1;transition:opacity .24s ease-out}
+#opening-title{opacity:1}
 html[data-title-font=pending] #opening-title{opacity:0}
 html[data-title-font=ready] #opening-title{font-family:Literata,Georgia,serif}
 .opening-slogan{position:relative;margin:15px -10px 0;text-align:center;font-size:14px;color:#ddd4c3;line-height:1.6;background:#191d1ec9}
@@ -70,6 +70,28 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 @media(max-width:699px){.opening-status{display:flex;align-items:center;justify-content:center;font-size:14px;padding:4px 8px}}
 @media(max-width:389px){.opening-sheet{padding-left:20px;padding-right:20px}.opening-art{margin-left:-20px;margin-right:-20px}.opening-iron{left:calc(100% - 237px)}h1{font-size:38px}h1 span{font-size:52px}}
 @media(max-height:760px) and (max-width:699px){.opening-sheet{min-height:740px;padding-top:24px}h1{margin-top:24px}.opening-art{height:254px}.opening-iron{top:4px;width:190px;height:190px}.opening-bone{top:52px;width:209px;height:209px}.opening-actions{margin-top:0}}
+/* One paint commits the critical menu, including descendants with explicit visibility. */
+#opening[data-menu-state=loading] .opening-sheet > :not(.menu-loading):not(noscript),
+#opening[data-menu-state=loading] .opening-sheet > :not(.menu-loading):not(noscript) *{visibility:hidden!important}
+.menu-loading{position:absolute;inset:45% 12px auto;margin:0;text-align:center;color:#d0c9bb;font:16px/1.5 Arial,sans-serif}
+#opening:not([data-menu-state=loading]) .menu-loading{display:none}
+#opening noscript{position:absolute;inset:35% 20px auto;z-index:10;text-align:center}
+/* Fallback is a terminal visual choice, not an intermediate unstyled menu. */
+#opening[data-menu-state=fallback] .siege-housing,
+#opening[data-menu-state=fallback] .siege-cartouche,
+#opening[data-menu-state=fallback] .gate-piece-visual,
+#opening[data-menu-state=fallback] .chronicle-chain{visibility:hidden!important}
+#opening[data-menu-state=fallback] :is(.chronicle-half,.chronicle-half *){font-family:Arial,sans-serif!important}
+#opening[data-menu-state=fallback] h1{font-family:Georgia,serif!important;opacity:1}
+#opening[data-menu-state=fallback] :is(.chronicle-half::before,.chronicle-half::after){background:#1b2021!important;border-image:none!important;box-shadow:none!important}
+#opening[data-menu-state=fallback] .chronicle-half::after{border:1px solid #62635b!important}
+#opening[data-menu-state=fallback] .opening-actions button{background:#242828!important;border:1px solid #8e8065!important;font-family:Arial,sans-serif!important}
+#opening[data-menu-state=fallback] .gate-piece-slot::before{content:'';position:absolute;inset:12%;border-radius:50%;background:#dfd4bd;border:4px double #8e8065}
+#opening[data-menu-state=fallback] .gate-piece-black::before{background:#303537}
+#opening[data-menu-state=fallback] .gate-piece-slot[aria-pressed=true]::before{outline:3px solid #e1b570;outline-offset:4px}
+/* Pending/dash/numeric counters occupy exactly the same row; API never resizes it. */
+#opening .chronicle-half .chronicle-total strong{height:32px;line-height:32px;display:flex;align-items:center;justify-content:center}
+#opening .chronicle-half .chronicle-total strong::after{margin:0}
 </style>
 <link rel="stylesheet" href="/src/client/app/openingGates.css" />
 <link rel="stylesheet" href="/src/client/app/menuFireReadability.css" />
@@ -81,8 +103,9 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 <button type="button" id="match-undo" class="opening-utility" aria-label="Отменить ход" hidden><span aria-hidden="true">↶</span> Отменить</button>
 <button type="button" id="match-resign" class="opening-utility">Сдаться</button>
 </div>
-<main id="opening" aria-labelledby="opening-title">
+<main id="opening" aria-labelledby="opening-title" data-menu-state="loading">
  <div class="opening-sheet">
+  <p class="menu-loading" role="status">Загружаем меню…</p>
 
   <div class="gate-title-canopy"><div class="gate-title-clip"><div class="gate-title-plate">
    <img class="siege-cartouche" src="/src/client/app/ui/siege/cassette-title.webp" srcset="/src/client/app/ui/siege/cassette-title-w560.webp 560w, /src/client/app/ui/siege/cassette-title-w780.webp 780w, /src/client/app/ui/siege/cassette-title-w1120.webp 1120w, /src/client/app/ui/siege/cassette-title.webp 1456w" sizes="(max-width:699px) 100vw, (max-height:440px) 270px, 560px" width="1456" height="570" alt="" decoding="async" fetchpriority="low" />
@@ -248,53 +271,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 <script>
 (() => {
  const byId = id => document.getElementById(id);
- // Technical loading status stays separate from menu labels.
- // Commit the title once: a late font must never replace a visible fallback.
- // Opacity leaves the live heading and its accessible name in the tree.
- const titleDeadline = setTimeout(() => finishTitle(false), 1800);
- function finishTitle(loaded) {
-  if (document.documentElement.dataset.titleFont !== 'pending') return;
-  clearTimeout(titleDeadline);
-  document.documentElement.dataset.titleFont = loaded ? 'ready' : 'fallback';
- }
- if (document.fonts?.load) document.fonts.load('600 42px Literata', 'РУССКИЕ ШАШКИ').then(faces => finishTitle(faces.length > 0), () => finishTitle(false));
- else finishTitle(false);
- // Each decoded decoration becomes ready independently; unrelated art must not
- // mask ready leaves on an early Play click. Decoration never gates the game.
- const art = document.querySelector('.opening-art');
- const prepareImage = image => new Promise(resolve => {
-  let settled = false;
-  const finish = decoded => {
-   if (settled) return;
-   settled = true;
-   clearTimeout(deadline);
-   image.removeEventListener('load', decode);
-   image.removeEventListener('error', failed);
-   resolve(decoded ? image : null);
-  };
-  const decode = () => { try { image.decode().then(() => finish(image.naturalWidth > 0), () => finish(false)); } catch { finish(false); } };
-  const failed = () => finish(false);
-  const deadline = setTimeout(failed, 2500);
-  if (image.complete) decode();
-  else { image.addEventListener('load', decode, {once:true}); image.addEventListener('error', failed, {once:true}); }
- });
- const artImages = [...art.querySelectorAll('img'), document.querySelector('.siege-cartouche')];
- const gate = art.querySelector('.siege-gate');
- const markGateReady = () => document.getElementById('opening')?.classList.add('is-gate-ready');
- // Picture sources may change on rotation; never expose a replacement before decode.
- artImages.forEach(image => image.addEventListener('load', () => {
-  image.classList.remove('is-decoded');
-  prepareImage(image).then(decoded => decoded?.classList.add('is-decoded'));
- }));
- Promise.all(artImages.map(image => prepareImage(image).then(decoded => {
-  decoded?.classList.add('is-decoded');
- }))).then(() => {
-  art.classList.add('is-prepared');
- });
- prepareImage(gate).then(decoded => {
-  decoded?.classList.add('is-decoded');
-  markGateReady();
- });
+ // Critical reveal is owned by opening-menu-readiness, independently of the engine.
  for (const name of ['help', 'settings']) byId('opening-' + name).onclick = () => {
   const dialog = byId('opening-' + name + '-dialog');
   dialog.querySelectorAll('template').forEach(template => template.replaceWith(template.content.cloneNode(true)));
@@ -525,8 +502,93 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
  window.checkersStartup.watchdog = setTimeout(() => window.checkersStartup.slow(), 12000);
 })();
 </script>
+<script id="opening-menu-readiness">
+(() => {
+ const root = document.getElementById('opening');
+ const title = root.querySelector('.siege-cartouche');
+ // Upper bound on waiting for this screen's art, not a minimum animation delay.
+ // 2.5s preserves the former image timeout while making a slow/error path usable.
+ const MENU_DEADLINE_MS = 2500;
+ let settled = false;
+ const mark = name => { try { performance.mark('damka:' + name); } catch {} };
+ requestAnimationFrame(() => mark('menu-first-frame'));
+ const cleanups = [];
+ const cleanup = () => { clearTimeout(deadline); cleanups.splice(0).forEach(fn => fn()); };
+ const cancel = () => { settled = true; cleanup(); };
+ const finish = (state, reason) => {
+  if (settled) return;
+  if (root.hidden || root.classList.contains('is-departing')) { cancel(); return; }
+  settled = true;
+  cleanup();
+  if (state === 'ready') {
+   // Keep this decoded responsive source on rotation; a new source would pop in late.
+   const source = title.currentSrc || title.src;
+   title.removeAttribute('srcset'); title.src = source;
+   images.forEach(image => image.classList.add('is-decoded'));
+  }
+  document.documentElement.dataset.titleFont = state === 'ready' ? 'ready' : 'fallback';
+  root.classList.add('is-gate-ready');
+  root.querySelector('.opening-art').classList.add('is-prepared');
+  root.dataset.menuReason = reason;
+  root.dataset.menuState = state;
+  mark('menu-' + state);
+  root.dispatchEvent(new CustomEvent('menu-settled'));
+ };
+ const deadline = setTimeout(() => finish('fallback', 'deadline'), MENU_DEADLINE_MS);
+ window.addEventListener('pagehide', cancel, {once:true});
+ cleanups.push(() => window.removeEventListener('pagehide', cancel));
+ // BFCache restoration gets a stable fallback, never the abandoned async reveal.
+ window.addEventListener('pageshow', event => {
+  if (event.persisted && root.dataset.menuState === 'loading') {
+   settled = false; finish('fallback', 'restored');
+  }
+ });
+ const observer = new MutationObserver(() => {
+  if (root.hidden || root.classList.contains('is-departing')) cancel();
+ });
+ observer.observe(root, {attributes:true, attributeFilter:['hidden','class']});
+ cleanups.push(() => observer.disconnect());
+ const prepareImage = image => new Promise((resolve, reject) => {
+  let done = false;
+  const stop = () => { image.removeEventListener('load', decode); image.removeEventListener('error', failed); };
+  const failed = () => { if (!done) { done = true; stop(); reject(new Error('image')); } };
+  const decode = () => {
+   try { image.decode().then(() => {
+    if (done) return;
+    if (!image.naturalWidth) { failed(); return; }
+    done = true; stop(); resolve(image);
+   }, failed); } catch { failed(); }
+  };
+  cleanups.push(() => { done = true; stop(); });
+  image.loading = 'eager';
+  if (image.complete) decode();
+  else { image.addEventListener('load', decode); image.addEventListener('error', failed); }
+ });
+ const steel = new Image();
+ steel.src = document.querySelector('link[rel=preload][href*="button-steel-rest"]').href;
+ // Include the visible CSS frame/chain group; otherwise it would arrive piecemeal too.
+ const panel = root.querySelector('.chronicle-half'), chain = root.querySelector('.chronicle-chain');
+ const styles = [getComputedStyle(panel, '::after').borderImageSource,
+  getComputedStyle(chain).backgroundImage, getComputedStyle(chain, '::after').backgroundImage];
+ const cssImages = [...new Set(styles.flatMap(value => [...value.matchAll(/url\(["']?([^"')]+)["']?\)/g)].map(match => match[1])))].map(src => {
+  const image = new Image(); image.src = src; return image;
+ });
+ // Static endpoints only, never the six animation layers / fire / API / Phaser.
+ const images = [...root.querySelectorAll('.siege-housing img,.gate-piece'), title, steel, ...cssImages];
+ const fonts = document.fonts?.load
+  ? Promise.all(['600 42px Literata', '400 16px "Golos Text"', '600 16px "Golos Text"'].map(font =>
+    document.fonts.load(font, 'РУССКИЕ ШАШКИ').then(faces => { if (!faces.length) throw new Error('font'); })))
+  : Promise.reject(new Error('font-api'));
+ Promise.all([...images.map(prepareImage), fonts]).then(() => finish('ready', 'decoded'), () => finish('fallback', 'asset-error'));
+})();
+</script>
 <script type="module">
-import('/src/client/app/main.ts').catch(() => window.checkersStartup.fail('Не удалось запустить игру. Проверьте соединение и повторите загрузку.'));
+// Critical menu first; engine evaluation must not monopolize the first reveal's
+// main thread or delay its fallback timer. There is no additional timed pause.
+const bootGame = () => import('/src/client/app/main.ts').catch(() => window.checkersStartup.fail('Не удалось запустить игру. Проверьте соединение и повторите загрузку.'));
+const menu = document.getElementById('opening');
+if (menu.dataset.menuState === 'loading') menu.addEventListener('menu-settled', bootGame, {once:true});
+else bootGame();
 </script>
 <script id="opening-options-navigation">
 (() => {
