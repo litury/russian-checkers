@@ -15,7 +15,7 @@ async function decode(src: string) {
  await image.decode();
  return image;
 }
-export function mountSiegeOpening(root: HTMLElement) {
+export function mountSiegeOpening(root: HTMLElement, isPlayRequested: () => boolean = () => false) {
  const media = matchMedia('(prefers-reduced-motion: reduce)');
  const state = new SiegeSelection(siegeSide(root));
  const touch = { white: new MenuTouchMotion(), black: new MenuTouchMotion() };
@@ -136,7 +136,7 @@ export function mountSiegeOpening(root: HTMLElement) {
   loadFire();
  };
  const tryDecorations = () => {
-  if (typeof window !== 'undefined' && window.checkersStartup?.playCommitted) return;
+  if (isPlayRequested()) return;
   if (root.dataset?.menuState && !window.__damkaPerf?.marks['playfield-ready']) return;
   startDecorations();
  };
@@ -172,9 +172,4 @@ export function mountSiegeOpening(root: HTMLElement) {
    button.removeEventListener('keydown', keyboard);
   }
  };
-}
-const root = document.getElementById('opening');
-if (root) {
- const dispose = mountSiegeOpening(root);
- if (import.meta.hot) import.meta.hot.dispose(dispose);
 }

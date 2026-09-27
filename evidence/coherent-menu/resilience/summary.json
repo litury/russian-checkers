@@ -1,0 +1,559 @@
+[
+  {
+    "size": "mobile",
+    "scenario": "cold",
+    "state": "ready",
+    "firstCTA": {
+      "at": 473.2000000178814,
+      "state": "ready",
+      "cta": true,
+      "gate": true,
+      "title": true
+    },
+    "firstWhole": {
+      "at": 473.2000000178814,
+      "state": "ready",
+      "cta": true,
+      "gate": true,
+      "title": true
+    },
+    "marks": {
+      "play-intent": 666.8,
+      "play-handled": 1217.4,
+      "playfield-ready": 2717.1,
+      "counting-in-false": 2738.1,
+      "first-move-allowed": 2738.9,
+      "board-first-frame": 2878,
+      "first-move-played": 3893.9
+    },
+    "menuMarks": [
+      {
+        "name": "damka:menu-first-frame",
+        "at": 253.80000001192093
+      },
+      {
+        "name": "damka:menu-ready",
+        "at": 460.59999999403954
+      },
+      {
+        "name": "damka:menu-presented",
+        "at": 522.8000000119209
+      }
+    ],
+    "shifts": [],
+    "errors": []
+  },
+  {
+    "size": "mobile",
+    "scenario": "warm",
+    "state": "ready",
+    "firstCTA": {
+      "at": 565.2000000178814,
+      "state": "ready",
+      "cta": true,
+      "gate": true,
+      "title": true
+    },
+    "firstWhole": {
+      "at": 565.2000000178814,
+      "state": "ready",
+      "cta": true,
+      "gate": true,
+      "title": true
+    },
+    "marks": {
+      "play-intent": 701.6,
+      "play-handled": 1029.2,
+      "playfield-ready": 3575.1,
+      "counting-in-false": 3646.9,
+      "first-move-allowed": 3647.2,
+      "board-first-frame": 4022.5
+    },
+    "menuMarks": [
+      {
+        "name": "damka:menu-first-frame",
+        "at": 396.30000001192093
+      },
+      {
+        "name": "damka:menu-ready",
+        "at": 558.5
+      },
+      {
+        "name": "damka:menu-presented",
+        "at": 605.5
+      }
+    ],
+    "shifts": [],
+    "errors": []
+  },
+  {
+    "size": "mobile",
+    "scenario": "delay",
+    "state": "ready",
+    "firstCTA": {
+      "at": 1889.2000000178814,
+      "state": "ready",
+      "cta": true,
+      "gate": true,
+      "title": true
+    },
+    "firstWhole": {
+      "at": 1889.2000000178814,
+      "state": "ready",
+      "cta": true,
+      "gate": true,
+      "title": true
+    },
+    "marks": {
+      "play-intent": 2243.7,
+      "play-handled": 2679.4,
+      "playfield-ready": 5491.7,
+      "counting-in-false": 5512.7,
+      "first-move-allowed": 5513,
+      "board-first-frame": 5707.8
+    },
+    "menuMarks": [
+      {
+        "name": "damka:menu-first-frame",
+        "at": 696
+      },
+      {
+        "name": "damka:menu-ready",
+        "at": 1880.0999999940395
+      },
+      {
+        "name": "damka:menu-presented",
+        "at": 1909.5999999940395
+      }
+    ],
+    "shifts": [],
+    "errors": []
+  },
+  {
+    "size": "mobile",
+    "scenario": "gate-error",
+    "state": "fallback",
+    "firstCTA": {
+      "at": 332.69999998807907,
+      "state": "fallback",
+      "cta": true,
+      "gate": false,
+      "title": true
+    },
+    "marks": {
+      "play-intent": 1840.7,
+      "play-handled": 1860.7,
+      "playfield-ready": 2395.4,
+      "counting-in-false": 2410.4,
+      "first-move-allowed": 2410.6,
+      "board-first-frame": 2555.3
+    },
+    "menuMarks": [
+      {
+        "name": "damka:menu-fallback",
+        "at": 295.19999998807907
+      },
+      {
+        "name": "damka:menu-first-frame",
+        "at": 332.7999999821186
+      },
+      {
+        "name": "damka:menu-presented",
+        "at": 479.19999998807907
+      }
+    ],
+    "shifts": [],
+    "errors": []
+  },
+  {
+    "size": "mobile",
+    "scenario": "piece-error",
+    "state": "fallback",
+    "firstCTA": {
+      "at": 242.69999998807907,
+      "state": "fallback",
+      "cta": true,
+      "gate": false,
+      "title": true
+    },
+    "marks": {
+      "play-intent": 581.1,
+      "play-handled": 877.9,
+      "playfield-ready": 2002.2,
+      "counting-in-false": 2013.5,
+      "first-move-allowed": 2013.8,
+      "board-first-frame": 2162.9
+    },
+    "menuMarks": [
+      {
+        "name": "damka:menu-fallback",
+        "at": 233
+      },
+      {
+        "name": "damka:menu-first-frame",
+        "at": 245
+      },
+      {
+        "name": "damka:menu-presented",
+        "at": 403.59999999403954
+      }
+    ],
+    "shifts": [],
+    "errors": []
+  },
+  {
+    "size": "mobile",
+    "scenario": "font-error",
+    "state": "fallback",
+    "firstCTA": {
+      "at": 404.69999998807907,
+      "state": "fallback",
+      "cta": true,
+      "gate": false,
+      "title": true
+    },
+    "marks": {
+      "play-intent": 640.4,
+      "play-handled": 912.4,
+      "playfield-ready": 2601.5,
+      "counting-in-false": 2623.1,
+      "first-move-allowed": 2623.4,
+      "board-first-frame": 2759.4,
+      "first-move-played": 3491.4
+    },
+    "menuMarks": [
+      {
+        "name": "damka:menu-fallback",
+        "at": 404
+      },
+      {
+        "name": "damka:menu-first-frame",
+        "at": 407.7999999821186
+      },
+      {
+        "name": "damka:menu-presented",
+        "at": 550.2999999821186
+      }
+    ],
+    "shifts": [],
+    "errors": []
+  },
+  {
+    "size": "mobile",
+    "scenario": "audio-error",
+    "state": "ready",
+    "firstCTA": {
+      "at": 413.69999998807907,
+      "state": "ready",
+      "cta": true,
+      "gate": true,
+      "title": true
+    },
+    "firstWhole": {
+      "at": 413.69999998807907,
+      "state": "ready",
+      "cta": true,
+      "gate": true,
+      "title": true
+    },
+    "marks": {
+      "play-intent": 575.9,
+      "play-handled": 930.9,
+      "playfield-ready": 1805.5,
+      "counting-in-false": 1820.4,
+      "first-move-allowed": 1820.7,
+      "board-first-frame": 1957.2,
+      "first-move-played": 2722.2
+    },
+    "menuMarks": [
+      {
+        "name": "damka:menu-first-frame",
+        "at": 282.80000001192093
+      },
+      {
+        "name": "damka:menu-ready",
+        "at": 404.90000000596046
+      },
+      {
+        "name": "damka:menu-presented",
+        "at": 455.30000001192093
+      }
+    ],
+    "shifts": [],
+    "errors": []
+  },
+  {
+    "size": "mobile",
+    "scenario": "late",
+    "state": "fallback",
+    "firstCTA": {
+      "at": 2715.300000011921,
+      "state": "fallback",
+      "cta": true,
+      "gate": false,
+      "title": true
+    },
+    "marks": {
+      "playfield-ready": 4731.2,
+      "play-intent": 6434.2,
+      "play-handled": 6468.6,
+      "counting-in-false": 6480.5,
+      "first-move-allowed": 6480.7,
+      "board-first-frame": 6594.5
+    },
+    "menuMarks": [
+      {
+        "name": "damka:menu-first-frame",
+        "at": 219.40000000596046
+      },
+      {
+        "name": "damka:menu-fallback",
+        "at": 2699.800000011921
+      },
+      {
+        "name": "damka:menu-presented",
+        "at": 2739.4000000059605
+      }
+    ],
+    "shifts": [],
+    "errors": []
+  },
+  {
+    "size": "mobile",
+    "scenario": "slow",
+    "state": "ready",
+    "firstCTA": {
+      "at": 897.3000000119209,
+      "state": "ready",
+      "cta": true,
+      "gate": true,
+      "title": true
+    },
+    "firstWhole": {
+      "at": 897.3000000119209,
+      "state": "ready",
+      "cta": true,
+      "gate": true,
+      "title": true
+    },
+    "marks": {
+      "play-intent": 1008.8,
+      "play-handled": 1444.5,
+      "playfield-ready": 2848.3,
+      "counting-in-false": 2866,
+      "first-move-allowed": 2866.3,
+      "board-first-frame": 2965.7
+    },
+    "menuMarks": [
+      {
+        "name": "damka:menu-first-frame",
+        "at": 601.0999999940395
+      },
+      {
+        "name": "damka:menu-ready",
+        "at": 890.3000000119209
+      },
+      {
+        "name": "damka:menu-presented",
+        "at": 939.0999999940395
+      }
+    ],
+    "shifts": [],
+    "errors": []
+  },
+  {
+    "size": "mobile",
+    "scenario": "rotate",
+    "state": "ready",
+    "firstCTA": {
+      "at": 565.6999999880791,
+      "state": "ready",
+      "cta": true,
+      "gate": true,
+      "title": true
+    },
+    "firstWhole": {
+      "at": 565.6999999880791,
+      "state": "ready",
+      "cta": true,
+      "gate": true,
+      "title": true
+    },
+    "marks": {
+      "play-intent": 749.7,
+      "play-handled": 1104.7,
+      "playfield-ready": 2430.5,
+      "counting-in-false": 2446.4,
+      "first-move-allowed": 2446.6,
+      "board-first-frame": 2568.2
+    },
+    "menuMarks": [
+      {
+        "name": "damka:menu-first-frame",
+        "at": 374.69999998807907
+      },
+      {
+        "name": "damka:menu-ready",
+        "at": 550.9000000059605
+      },
+      {
+        "name": "damka:menu-presented",
+        "at": 605.5
+      }
+    ],
+    "shifts": [
+      {
+        "at": 612.5,
+        "value": 0.566350710900474,
+        "input": true,
+        "sources": [
+          {
+            "node": "siege-gate is-decoded",
+            "old": {
+              "x": 0,
+              "y": 0,
+              "width": 828,
+              "height": 390,
+              "top": 0,
+              "right": 828,
+              "bottom": 390,
+              "left": 0
+            },
+            "next": {
+              "x": 0,
+              "y": 0,
+              "width": 844,
+              "height": 390,
+              "top": 0,
+              "right": 844,
+              "bottom": 390,
+              "left": 0
+            }
+          }
+        ]
+      }
+    ],
+    "errors": []
+  },
+  {
+    "size": "mobile",
+    "scenario": "engine-error",
+    "state": "ready",
+    "firstCTA": {
+      "at": 584.5999999940395,
+      "state": "ready",
+      "cta": true,
+      "gate": true,
+      "title": true
+    },
+    "firstWhole": {
+      "at": 584.5999999940395,
+      "state": "ready",
+      "cta": true,
+      "gate": true,
+      "title": true
+    },
+    "menuMarks": [
+      {
+        "name": "damka:menu-first-frame",
+        "at": 351.7000000178814
+      },
+      {
+        "name": "damka:menu-ready",
+        "at": 583.2000000178814
+      },
+      {
+        "name": "damka:menu-presented",
+        "at": 625.7000000178814
+      }
+    ],
+    "shifts": [],
+    "errors": []
+  },
+  {
+    "size": "desktop",
+    "scenario": "cold",
+    "state": "ready",
+    "firstCTA": {
+      "at": 372.80000001192093,
+      "state": "ready",
+      "cta": true,
+      "gate": true,
+      "title": true
+    },
+    "firstWhole": {
+      "at": 372.80000001192093,
+      "state": "ready",
+      "cta": true,
+      "gate": true,
+      "title": true
+    },
+    "marks": {
+      "play-intent": 522.3,
+      "play-handled": 1028.2,
+      "playfield-ready": 2832.2,
+      "counting-in-false": 2850.7,
+      "first-move-allowed": 2851.4,
+      "board-first-frame": 3025.6
+    },
+    "menuMarks": [
+      {
+        "name": "damka:menu-first-frame",
+        "at": 178.2000000178814
+      },
+      {
+        "name": "damka:menu-ready",
+        "at": 365
+      },
+      {
+        "name": "damka:menu-presented",
+        "at": 430.30000001192093
+      }
+    ],
+    "shifts": [],
+    "errors": []
+  },
+  {
+    "size": "desktop",
+    "scenario": "warm",
+    "state": "ready",
+    "firstCTA": {
+      "at": 528.5,
+      "state": "ready",
+      "cta": true,
+      "gate": true,
+      "title": true
+    },
+    "firstWhole": {
+      "at": 528.5,
+      "state": "ready",
+      "cta": true,
+      "gate": true,
+      "title": true
+    },
+    "marks": {
+      "play-intent": 759.3,
+      "play-handled": 1195.2,
+      "playfield-ready": 3193.6,
+      "counting-in-false": 3211.1,
+      "first-move-allowed": 3211.7,
+      "board-first-frame": 3332.7
+    },
+    "menuMarks": [
+      {
+        "name": "damka:menu-first-frame",
+        "at": 334.5
+      },
+      {
+        "name": "damka:menu-ready",
+        "at": 513.9000000059605
+      },
+      {
+        "name": "damka:menu-presented",
+        "at": 600
+      }
+    ],
+    "shifts": [],
+    "errors": []
+  }
+]

@@ -5,7 +5,7 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const out=process.argv[2]||'evidence/menu-ready/check';
 const target=process.argv[3]||'candidate';
-const origin=target==='baseline'?'http://127.0.0.1:4187':'http://127.0.0.1:4186';
+const origin=process.env.ORIGIN||(target==='baseline'?'http://127.0.0.1:4187':'http://127.0.0.1:4186');
 (async()=>{
  await fs.mkdir(out,{recursive:true});
  const browser=await chromium.launch({headless:true,executablePath:'/usr/local/bin/google-chrome',args:['--no-sandbox']});
@@ -95,6 +95,15 @@ const origin=target==='baseline'?'http://127.0.0.1:4187':'http://127.0.0.1:4186'
    assert.equal(data.check.shifts.some(s=>!s.input),false,'no unprompted layout shifts');
   }
   results.push(summary);
+  if(scenario==='engine-error') {
+   variant='normal';
+   await Promise.all([page.waitForNavigation({waitUntil:'domcontentloaded'}),page.locator('#opening-retry').click()]);
+   await page.locator('#opening-play').click();
+   await page.waitForFunction(()=>window.__damkaPerf?.marks['first-move-allowed']!==undefined,{},{timeout:25000});
+   await page.locator('#opening').waitFor({state:'hidden'});
+   summary.retryStarted=true;
+   console.log(JSON.stringify({size,scenario,retryStarted:true}));
+  }
  }
  await context.close();
  }

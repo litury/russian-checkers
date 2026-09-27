@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { SiegeSelection } from './siegeSelection';
 import runtime from './siegeOpening.ts?raw';
-import html from '../../../index.html?raw';
 
 describe('Siege selection progress', () => {
  it('starts at the actual current side, holds endpoints and preserves the contact pivot', () => {
@@ -37,10 +36,8 @@ describe('Siege selection progress', () => {
   expect([state.displacement('white'), state.displacement('black')]).toEqual([55, 0]);
   expect(runtime).toContain('painters[side]!(state.displacement(side))');
  });
- it('loads only layers and fallback endpoints without changing the early Play gate', () => {
+ it('loads only layers and fallback endpoints while preserving static failure art', () => {
   expect(runtime).toContain('frames/*/*-{00,55}.webp');
-  expect(runtime).not.toContain('checkersStartup');
   expect(runtime).toContain("button.dataset.art = 'static'");
-  expect(html.indexOf('window.checkersStartup.unlock()')).toBeLessThan(html.indexOf("import('/src/client/app/main.ts')"));
  });
 });

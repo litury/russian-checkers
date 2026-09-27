@@ -18,6 +18,8 @@
 #opening::before{content:'';position:fixed;inset:0;background:linear-gradient(#15191a70,#15191a70),url('/src/client/modules/board/reliquary/slate_tile.webp') center/cover;filter:brightness(.65);pointer-events:none}
 .opening-sheet{position:relative;max-width:390px;min-height:844px;margin:auto;padding:34px 28px 18px;isolation:isolate}
 #opening-play{height:56px;display:grid;place-items:center}
+#opening #opening-play .opening-cta-label{display:grid;place-items:center;width:100%;height:1.5em;white-space:nowrap}
+#opening :is(#opening-play,#opening-online){touch-action:manipulation}
 #opening-play:disabled{background:linear-gradient(#272b2b,#171a1b);border-color:#776c56;box-shadow:inset 0 1px #474940,inset 0 -2px #0e1112,0 3px #0006}
 .opening-activity{display:flex;gap:6px;align-items:center;height:24px}
 .opening-activity i{display:block;width:18px;height:8px;background:#9b8865;border:1px solid #bdab86;box-shadow:inset 0 1px #d1bf9a55;animation:opening-segment 1.6s ease-in-out infinite;animation-delay:calc(var(--segment) * .16s)}
@@ -73,8 +75,6 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 /* One paint commits the critical menu, including descendants with explicit visibility. */
 #opening[data-menu-state=loading] .opening-sheet > :not(.menu-loading):not(noscript),
 #opening[data-menu-state=loading] .opening-sheet > :not(.menu-loading):not(noscript) *{visibility:hidden!important}
-/* Utility access is independent of the critical art and game CTA barrier. */
-#opening[data-menu-state=loading] #opening-options{visibility:visible!important}
 .menu-loading{position:absolute;inset:45% 12px auto;margin:0;text-align:center;color:#d0c9bb;font:16px/1.5 Arial,sans-serif}
 #opening:not([data-menu-state=loading]) .menu-loading{display:none}
 #opening noscript{position:absolute;inset:35% 20px auto;z-index:10;text-align:center}
@@ -267,7 +267,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 <form method="dialog"><button class="opening-button opening-primary">Готово</button></form>
 </dialog>
 <script type="module" src="/src/client/app/openingStats.ts"></script>
-<script type="module" src="/src/client/app/siegeOpening.ts"></script>
+<script type="module" src="/src/client/app/siegeOpeningBootstrap.ts"></script>
 <script type="module" src="/src/client/app/menuPressFeedback.ts"></script>
 <!-- Tap focus keeps no ring; the mark belongs to the one element a pointer
      focused, so keyboard and screen-reader focus still draw theirs. -->
@@ -379,6 +379,21 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   else button.removeAttribute('aria-label');
  };
  window.checkersStartup = {
+  framePresented: false,
+  engineLoaded: false,
+  presented() {
+   window.checkersStartup.framePresented = true;
+   // Record a native activation during the remaining module wait. Busy is not
+   // ready: do not promise the engine until import resolves, or lose the tap.
+   setCta(play, 'С ботом', true);
+   play.disabled = false;
+   online.disabled = false;
+   window.checkersStartup.unlock();
+  },
+  engineReady() {
+   window.checkersStartup.engineLoaded = true;
+   window.checkersStartup.unlock();
+  },
   pendingPlay: false,
   pendingOnline: false,
   playCommitted: false,
@@ -407,9 +422,9 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
    play.hidden = true;
    byId('opening-retry').hidden = false;
   },
-  // HTML-first: enable Play before Phaser/modules; residual loads wait after click.
+  // Ready means both a presented menu and an evaluated engine module.
   unlock() {
-   if (play.hidden) return;
+   if (play.hidden || !window.checkersStartup.framePresented || !window.checkersStartup.engineLoaded) return;
    // One-tap intent: queued or in-flight start must keep honest wait UI — never calm «Играть».
    if (window.checkersStartup.pendingPlay || window.checkersStartup.playCommitted) {
     window.checkersStartup.waitPlay();
@@ -490,7 +505,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
    window.checkersStartup.waitPlay();
   }
  };
- online.disabled = false;
+ online.disabled = true;
  online.onclick = (event) => {
   if (online.hidden || online.disabled) return;
   window.checkersStartup.source = 'online';
@@ -501,8 +516,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
    window.checkersStartup.waitOnline();
   }
  };
- window.checkersStartup.unlock();
- window.checkersStartup.progress('Загружаем игру… Можно выбрать сторону и нажать «С ботом».');
+ window.checkersStartup.progress('Загружаем игру…');
  // Slow transfer is not an import failure: keep a queued start, and do not cover Play.
  window.checkersStartup.watchdog = setTimeout(() => window.checkersStartup.slow(), 12000);
 })();
@@ -587,10 +601,18 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
  Promise.all([...images.map(prepareImage), fonts]).then(() => finish('ready', 'decoded'), () => finish('fallback', 'asset-error'));
 })();
 </script>
-<script type="module">
+<script type="module" id="opening-engine-bootstrap">
 // Critical menu first; engine evaluation must not monopolize the first reveal's
 // main thread or delay its fallback timer. There is no additional timed pause.
-const bootGame = () => import('/src/client/app/main.ts').catch(() => window.checkersStartup.fail('Не удалось запустить игру. Проверьте соединение и повторите загрузку.'));
+const bootGame = () => requestAnimationFrame(() => requestAnimationFrame(() => {
+ // Let the complete menu paint before a warm cached engine evaluates.
+ performance.mark('damka:menu-presented');
+ window.checkersStartup.presented();
+ import('/src/client/app/main.ts').then(() => {
+  performance.mark('damka:engine-ready');
+  window.checkersStartup.engineReady();
+ }).catch(() => window.checkersStartup.fail('Не удалось запустить игру. Проверьте соединение и повторите загрузку.'));
+}));
 const menu = document.getElementById('opening');
 if (menu.dataset.menuState === 'loading') menu.addEventListener('menu-settled', bootGame, {once:true});
 else bootGame();

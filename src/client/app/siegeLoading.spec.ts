@@ -47,8 +47,8 @@ describe('Siege delayed/failed decoration', () => {
   const {mountSiegeOpening}=await import('./siegeOpening');
   const root=Object.assign(new Root(),{dataset:{menuState:'ready'},inert:false});
   const startup={playCommitted:true};
-  vi.stubGlobal('window',{__damkaPerf:{marks:{'playfield-ready':100}},checkersStartup:startup});
-  const dispose=mountSiegeOpening(root as unknown as HTMLElement);
+  vi.stubGlobal('window',{__damkaPerf:{marks:{'playfield-ready':100}}});
+  const dispose=mountSiegeOpening(root as unknown as HTMLElement, () => startup.playCommitted);
   document.dispatchEvent(new Event('damka:playfield-ready'));
   expect(pending).toHaveLength(0);
   startup.playCommitted=false; root.hidden=true; changed();
