@@ -3,6 +3,7 @@ import { setSiegeSide, siegeSide } from './siegeSelection';
 import type Phaser from 'phaser';
 import {createMenuAudio} from './menuAudio';
 import {bindMatchHistory} from './matchHistoryUi';
+import {createOnlineHub} from './onlineHub';
 import {ensureGuest, loadPresence, beatPresence} from '@/online/cloud';
 
 import {presenceLit, HEARTBEAT_MS, PRESENCE_CACHE_MS} from '@/online/presence';
@@ -60,6 +61,12 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  const liveCount = document.getElementById('opening-online-count');
  let liveTotal: number | null = null;
  let heading = 'Онлайн';
+ const hub = createOnlineHub({
+  find: () => handlers.onSearchFind?.(),
+  create: () => handlers.onFriendCreate?.(),
+  enter: () => handlers.onFriendEnter?.(),
+  cancel: () => handlers.onSearchCancel?.(),
+ });
  /**
   * The visible count is «Онлайн: N», never the retired «сейчас в сети» wording. When the heading
   * itself already says «Онлайн» the number is folded into that line instead of repeating the word in
@@ -68,6 +75,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  const renderLive = () => {
   if (!searchCopyEl) return;
   const n = liveTotal;
+  hub.setCount(n);
   const inHeading = heading === 'Онлайн' && n !== null;
   searchCopyEl.textContent = inHeading ? `${heading}: ${n}` : heading;
   if (liveCount) {
@@ -184,7 +192,8 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   const view = searchCopy(phase, seconds, join);
   if (!search || !searchCopyEl) return;
   const on = phase !== 'idle';
-  search.hidden = !on;
+  search.hidden = !on || phase === 'online-hub';
+  hub.setVisible(phase === 'online-hub');
   root.classList.toggle('is-searching', view.hidePlay);
   heading = view.title;
   renderLive();
@@ -246,6 +255,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  scene.events.on('resume',resumeScene);
  motion.addEventListener?.('change',motionChange);
  scene.events.once('shutdown',()=>{
+  hub.dispose();
  stopBeat();
   void beatPresence(false);
   gates.cancel();audio.dispose();play.onclick=null;

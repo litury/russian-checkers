@@ -18,6 +18,7 @@ class Element extends EventTarget {
  style={setProperty:(k:string,v:string)=>this.values.set(k,v)};
  classList={add:(k:string)=>this.classes.add(k), remove:(k:string)=>this.classes.delete(k),contains:(k:string)=>this.classes.has(k),toggle:vi.fn()};
  focus=vi.fn(); close(){this.open=false;}
+ setAttribute=vi.fn(); append=vi.fn(); remove=vi.fn(); showModal(){this.open=true;}
  children=new Map<string,Element>();
  querySelector(selector:string){if(!this.children.has(selector))this.children.set(selector,new Element());return this.children.get(selector)!;}
  getBoundingClientRect(){return {left:0,right:1440,top:0,bottom:220};}
@@ -29,7 +30,7 @@ function setup(reduced=false, decoded=true) {
  const get=(id:string)=>{if(!nodes.has(id))nodes.set(id,new Element());return nodes.get(id)!;};
  const root=get('opening'); root.layers=Array.from({length:3},()=>new Element());
  if(decoded)root.layers.forEach(x=>x.classList.add('is-decoded'));
- const doc=Object.assign(new EventTarget(),{hidden:false,getElementById:get,timeline:{currentTime:123}});
+ const doc=Object.assign(new EventTarget(),{hidden:false,getElementById:get,timeline:{currentTime:123},createElement:()=>new Element(),body:new Element()});
  vi.stubGlobal('document',doc);
  const media=Object.assign(new EventTarget(),{matches:reduced});
  vi.stubGlobal('matchMedia',()=>media);

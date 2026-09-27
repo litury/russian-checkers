@@ -1,0 +1,40 @@
+/* Approved v2: archive tray/header/padding, independently scoped so «Партии» and menu stay unchanged. */
+#online-hub {
+ --oh-ink:#f1e8d4;
+ position:fixed; inset:50% auto auto 50%; transform:translate(-50%,-50%);
+ width:min(680px,calc(100% - 24px)); height:auto; max-width:none; max-height:calc(100dvh - 96px);
+ overflow:auto; margin:0; padding:0; border:0; border-radius:0; background:#181c1c;
+ color:var(--oh-ink); box-shadow:0 24px 90px #000c;
+ font:400 16px/1.5 'Golos Text',sans-serif; color-scheme:dark;
+}
+#online-hub::backdrop { background:#050807d9; }
+#online-hub::after { content:''; position:absolute; inset:0; border:30px solid transparent; border-image:url('./ui/siege/panel-revision2/frame.webp') 180 / 30px / 0 round; pointer-events:none; z-index:2; }
+#online-hub * { box-sizing:border-box; }
+#online-hub h2,#online-hub p { margin:0; }
+#online-hub h2:focus { outline:none; }
+#online-hub .oh-panel { display:flex; flex-direction:column; padding:14px; background:linear-gradient(#131919a8,#111716ba),url('../modules/board/reliquary/slate_tile.webp') repeat; background-size:auto,480px; }
+#online-hub .oh-header { flex:none; display:flex; align-items:center; justify-content:space-between; gap:16px; margin:12px 18px 0; padding:8px 16px; min-height:100px; border:18px solid transparent; border-image:url('./ui/siege/panel-revision2/frame.webp') 180 / 18px / 0 round; background:linear-gradient(#111717a8,#111717a8),url('../modules/board/reliquary/slate_tile.webp') center/480px repeat; background-clip:padding-box; }
+#online-hub .oh-title-plate { min-width:0; flex:1; overflow-wrap:anywhere; }
+#online-hub .oh-eyebrow { margin:0 0 4px; color:#f0e2c4; font-size:11px; letter-spacing:.12em; text-transform:uppercase; }
+#online-hub h2 { font:600 26px/1.2 Literata,serif; color:#f7f1e4; text-shadow:0 1px 2px #000; }
+#online-hub .oh-scroll { flex:none; padding:18px 24px 28px; }
+#online-hub .oh-actions { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+/* Constant corner scale: source sides 120 → 22 CSS px, top/bottom 65 → 12 CSS px. */
+#online-hub .oh-button { min-height:48px; min-width:112px; max-width:100%; padding:3px 12px; border:12px solid transparent; border-image:url('./ui/siege/button-steel-rest.webp') 65 120 fill / 12px 22px / 0 stretch; border-radius:0; background:transparent; color:var(--oh-ink); font:500 16px/1.3 'Golos Text',sans-serif; text-shadow:0 2px 2px #000; cursor:pointer; overflow-wrap:anywhere; }
+#online-hub .oh-actions .oh-button { height:64px; min-width:0; padding:3px 16px; font-size:18px; font-weight:600; }
+#online-hub .oh-code { grid-column:1/-1; }
+#online-hub .oh-button span { background:#151b1be6; padding:2px 4px; border-radius:2px; }
+#online-hub .oh-button:hover:not(:disabled) { filter:brightness(1.2); }
+#online-hub .oh-button:active:not(:disabled) { border-image-source:url('./ui/siege/button-steel-pressed.webp'); }
+#online-hub .oh-button:focus-visible { outline:3px solid #edc476; outline-offset:3px; }
+@media(max-width:600px) {
+ #online-hub::after { border-width:16px; border-image-width:16px; }
+ #online-hub .oh-panel { padding:7px; }
+ #online-hub .oh-header { margin:max(8px,env(safe-area-inset-top)) 7px 0; padding:8px 5px; gap:6px; min-height:90px; border-width:14px; border-image-width:14px; }
+ #online-hub h2 { font-size:19px; }
+ #online-hub .oh-eyebrow { font-size:9px; }
+ #online-hub .oh-header .oh-button { min-width:94px; padding:1px; font-size:14px; }
+ #online-hub .oh-scroll { padding:12px 9px max(24px,env(safe-area-inset-bottom)); }
+ #online-hub .oh-actions { gap:10px; }
+ #online-hub .oh-actions .oh-button { padding:1px 12px; }
+}
