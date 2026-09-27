@@ -501,10 +501,12 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   status(message) {
    byId('opening-loading-status').textContent = message;
    const waiting = window.checkersStartup.pendingPlay || window.checkersStartup.pendingOnline || window.checkersStartup.playCommitted;
-   if (waiting && !byId('opening').classList.contains('is-departing') && message.startsWith('Доска и шашки: ')) {
+   if (waiting && !byId('opening').classList.contains('is-departing') && (message.startsWith('Доска и шашки: ') || message.startsWith('Загрузка: '))) {
     const button = window.checkersStartup.source === 'online' ? online : play;
     const label = button.querySelector('.opening-cta-label');
-    if (label) label.textContent = 'Загрузка ' + message.split(': ')[1];
+    // Keep named stages short enough for the narrow mobile steel button.
+    const stageLabels = { 'Загрузка: маркеры и панели…': 'Панели…', 'Загрузка: подготовка взаимодействия…': 'Управление…' };
+    if (label) label.textContent = stageLabels[message] || 'Загрузка ' + message.split(': ')[1];
    }
   }
  };

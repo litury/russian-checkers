@@ -296,6 +296,8 @@ export class GameScene extends Phaser.Scene {
 		await Promise.all(Object.entries(reliquaryAssets).map(async ([path, url]) => {
 			const name = path.split('/').pop()!.replace('.webp', '');
 			const image = await loadImage(boardDelivery(name, url as string));
+			// Promise.all rejects before its siblings settle: never publish stale work.
+			if (this.startupFailed) return;
 			this.textures.addImage(`reliquary_${name}`, image);
 			if (aliases[name]) this.textures.addImage(aliases[name], image);
 			window.checkersStartup?.status(`Доска и шашки: ${++completed}/${Object.keys(reliquaryAssets).length}`);
@@ -350,6 +352,8 @@ export class GameScene extends Phaser.Scene {
 			return;
 		}
 		// Bunker HUD faces are small and needed at depart — keep on critical path.
+		if (this.startupFailed) return;
+		window.checkersStartup?.status('Загрузка: маркеры и панели…');
 		preloadBunkerPanels(this);
 		await this.flushLoader();
 		if (this.startupFailed) return;
@@ -363,6 +367,7 @@ export class GameScene extends Phaser.Scene {
 		if (this.startupFailed) return;
 		await this.playfieldReady;
 		if (this.startupFailed || !this.playfieldBuilt) return;
+		window.checkersStartup?.status('Загрузка: подготовка взаимодействия…');
 		this.queueMatchInteractive();
 		await this.flushLoader();
 		if (this.startupFailed) return;
