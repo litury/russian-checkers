@@ -2,7 +2,10 @@
 /* --btn-w: fluid column width. The card's 21vw yielded 177px at 740px (a regression: narrower than
    before and narrower than the chronicle panels), so 33vw is used with a 177px floor and a 320px
    ceiling. The min() keeps the previous guarantee that two buttons plus the 12px gap always fit. */
-#opening{--btn-h:70px;--btn-w:min(clamp(177px,33vw,320px),calc((100vw - 36px)/2));--piece:135px;--column:174px;--play-y:214px;--chain-reach:52px;--frame-corner:24px;overflow:auto;overflow-x:hidden;overscroll-behavior:contain}
+/* Height/width tokens live on :root: the menu and the match rail are siblings, so the
+   rail reads the very same --btn-h instead of carrying a second control size. */
+:root{--btn-h:70px;--btn-w:min(clamp(177px,33vw,320px),calc((100vw - 36px)/2))}
+#opening{--piece:135px;--column:174px;--play-y:214px;--chain-reach:52px;--frame-corner:24px;overflow:auto;overflow-x:hidden;overscroll-behavior:contain}
 #opening .opening-sheet{height:max(844px,100%);min-height:844px;padding:0}
 #opening .gate-title-canopy{top:55px;width:366px;max-width:100%}
 #opening h1{font-size:27px;line-height:1.08}#opening h1 span{font-size:37px}
@@ -82,12 +85,13 @@ body:has(#opening:not([hidden])) #match-rail{visibility:hidden}
 #opening #opening-status{top:calc(var(--play-y) + 2 * var(--btn-h) + 12px);bottom:auto;padding:0 4px;font-size:12px;line-height:16px}
 /* Keep the two-line loading/error status clear of the frame on short portrait. */
 @media(max-width:599px) and (max-height:620px){
- #opening{--btn-h:56px}
+ :root{--btn-h:56px}
  #opening .chronicle-half{bottom:8px}
 }
 /* Short landscape: title/actions occupy the centre, panels flank them. */
 @media(min-width:600px) and (max-height:500px){
- #opening{--panel-w:clamp(140px,22vw,200px);--piece:104px;--column:132px;--play-y:142px;--chain-reach:24px;--frame-corner:24px;--btn-h:52px;--btn-w:132px}
+ :root{--btn-h:52px;--btn-w:132px}
+ #opening{--panel-w:clamp(140px,22vw,200px);--piece:104px;--column:132px;--play-y:142px;--chain-reach:24px;--frame-corner:24px}
  #opening .opening-sheet{min-height:360px}
  #opening .gate-title-canopy{width:280px;top:8px}
  #opening h1{font-size:24px}#opening h1 span{font-size:33px}

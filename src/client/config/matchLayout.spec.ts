@@ -1,8 +1,9 @@
-import { expect, it } from 'vitest';
+import { expect, it, vi } from 'vitest';
 import { computeFieldLayout } from './fieldLayout';
 import {
 	clockFrameWidthPx,
 	matchLayout,
+	matchRailBottom,
 	mobileEdgeInsetPx,
 } from './matchLayout';
 
@@ -172,4 +173,23 @@ it('fits the button lip and safe areas by shrinking timers, not the board', () =
 	expect(lip.fieldSize).toBeCloseTo(matchLayout(360, 740).fieldSize, 5);
 	expect(lip.fieldSize).toBeGreaterThan(baselineField(360, 676));
 	expect(lip.you.y + 128 * lip.panelScale).toBeLessThanOrEqual(740 - 64 + 0.01);
+});
+
+it('reserves the rail box it really draws, with the old constant as the floor', () => {
+	// The rail is now a real steel plate at the shared --btn-h: a stale 64px reserve
+	// would let a taller control cover the bottom of the field.
+	const rail = { hidden: false, getBoundingClientRect: () => ({ height: 70 }) };
+	vi.stubGlobal('document', { getElementById: () => rail });
+	try {
+		expect(matchRailBottom()).toBe(82);
+		rail.hidden = true;
+		expect(matchRailBottom()).toBe(0);
+		rail.hidden = false;
+		rail.getBoundingClientRect = () => ({ height: 0 });
+		expect(matchRailBottom()).toBe(64);
+		rail.getBoundingClientRect = () => ({ height: 44 });
+		expect(matchRailBottom()).toBe(64);
+	} finally {
+		vi.unstubAllGlobals();
+	}
 });

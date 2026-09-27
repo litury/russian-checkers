@@ -109,7 +109,8 @@
 }
 
 #match-rail{position:fixed;z-index:10000;left:50%;bottom:calc(12px + env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;gap:8px;pointer-events:none}
-#match-rail .opening-utility{min-height:44px;min-width:132px;padding:8px 12px;gap:6px;border:1px solid #62635b;background:#202526;box-shadow:none;color:#d0c9bb;font:400 16px/1 "Golos Text",sans-serif;pointer-events:auto;touch-action:manipulation}
+#match-rail .opening-utility{display:flex;align-items:center;justify-content:center;height:var(--btn-h);min-height:44px;min-width:132px;padding:0 14px;gap:6px;border:0;border-radius:0;box-shadow:none;background:transparent url('./ui/siege/button-steel-rest.webp') center/100% 100% no-repeat;color:#e9e0ce;font:600 16px/1.15 "Golos Text",sans-serif;text-shadow:0 1px 2px #000;transition:none;transform:none;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+#match-rail .opening-utility:active{filter:none;background-image:url('./ui/siege/button-steel-pressed.webp');transform:translateY(2px)}
 @media (orientation:landscape) and (max-height:500px){
 #match-rail{left:auto;right:calc(12px + env(safe-area-inset-right));transform:none}
 }
