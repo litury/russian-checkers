@@ -115,23 +115,33 @@ it('keeps the online button name without a number and puts the count inside the 
 	expect(button).toContain('В сети');
 	expect(button).not.toMatch(/opening-live|opening-online-count/);
 	const search = html.match(/<div id="opening-search"[\s\S]*?<div id="opening-search-actions">/)![0];
-	expect(search).toMatch(/<p id="opening-search-copy"[^>]*>[^<]*<\/p>\s*<p id="opening-online-count"[^>]*hidden><\/p>/);
+	// Заголовок стоит на спрайт-пластине главного названия, счёт — отдельная строка под ней.
+	expect(search).toMatch(/<div class="opening-search-title">\s*<img class="opening-search-plate" src="\/src\/client\/app\/ui\/siege\/cassette-title\.webp"[^>]*\/>\s*<p id="opening-search-copy"[^>]*>[^<]*<\/p>\s*<\/div>\s*<p id="opening-online-count"[^>]*hidden><\/p>/);
 });
 
 it('keeps the search card and its buttons at the main geometry while the count row appears', () => {
 	// The count row belongs to the card but must not resize it (task acceptance: card and buttons
-	// keep the geometry of main). The header therefore reserves the row in every presence state and
-	// the row itself is taken out of flow, right under the heading: measured on 390x844 and
-	// 1440x900 the card stays 366x153.1875 / 370x153.1875 with action buttons at y=263.625 / 278.1875.
-	expect(gates).toMatch(/#opening-search \{ position:absolute[^}]*padding:0 12px 12px;/);
+	// keep the geometry of main). The header reserves the row in every presence state and the row
+	// itself is taken out of flow, right under the heading: measured on 390x844 and 1440x900 the
+	// card stays 366x283 / 430x307 and the action row keeps --btn-h.
+	expect(gates).toMatch(/#opening-search \{ position:absolute[^}]*width:min\(430px,calc\(100% - 24px\)\)[^}]*padding:calc\(var\(--frame-corner\) \+ 4px\) calc\(var\(--frame-corner\) \+ 2px\);/);
 	expect(gates).toMatch(/#opening-search-head \{ position:relative; margin:0 0 20px; \}/);
 	expect(gates).toMatch(/#opening-online-count \{ position:absolute; top:100%; left:0; right:0;/);
 	expect(gates).toMatch(/#opening-online-count\[hidden\] \{ display:none; \}/);
-	// The row sits between the heading and the buttons in the DOM, so a screen reader reads it as
-	// plain text of the card rather than as part of the menu button.
+	// Рамка, плашки и поле кода — существующие спрайты меню: тот же девять-слайс, тот же растр стали.
+	expect(gates).toContain("border-image:url('./ui/siege/panel-revision2/frame.webp') 180 / var(--frame-corner) / 0 stretch;");
+	expect(gates).toMatch(/#opening-search-actions button \{[^}]*height:var\(--btn-h\);/);
+	expect(gates).toContain("background:transparent url('./ui/siege/button-steel-rest.webp') center/100% 100% no-repeat;");
+	expect(gates).toContain("background-image:url('./ui/siege/button-steel-pressed.webp')");
+	// Короткие экраны: карточка не закрывает соседние половины «Летописи»/«Битв» и не прячет их.
+	// Она ограничена по высоте свободным местом над их верхом и прокручивается внутри.
+	expect(gates).toMatch(/#opening-search \{[^}]*max-height:calc\(100% - var\(--play-y\) - var\(--piece\) - 182px\)/);
+	expect(gates).not.toMatch(/chronicle-half\s*\{[^}]*visibility:hidden/);
+	// The row sits between the heading plate and the buttons in the DOM, so a screen reader reads it
+	// as plain text of the card rather than as part of the menu button.
 	const panel = html.match(/<div id="opening-search"[\s\S]*?<button id="opening-retry"/)![0];
 	expect(panel).toMatch(
-		/<div id="opening-search-head">\s*<p id="opening-search-copy"[^>]*>[^<]*<\/p>\s*<p id="opening-online-count"[^>]*hidden><\/p>\s*<\/div>\s*<div id="opening-search-actions">/,
+		/<p id="opening-search-copy"[^>]*>[^<]*<\/p>\s*<\/div>\s*<p id="opening-online-count"[^>]*hidden><\/p>\s*<\/div>\s*<div id="opening-search-actions">/,
 	);
 });
 

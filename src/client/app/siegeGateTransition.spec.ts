@@ -217,24 +217,41 @@ it('keeps chronicle labels and refuses a fake zero or sample online count', asyn
  expect(live.textContent).not.toContain('12');
  expect(live.textContent).not.toContain('пример');
 });
-it('shows the live count as text inside the search screen when players are present', async ()=>{
+it('reads «Онлайн: N» once: folded into the heading, never a second word', async ()=>{
  const {overlay,get}=setup();
  cloud.beat=async()=>3;
  overlay.show();
  await Promise.resolve();
  await Promise.resolve();
+ const heading=get('opening-search-copy');
+ expect(heading.textContent).toBe('Онлайн: 3');
+ // The panel already says «Онлайн», so the count row must not repeat the word — and must not
+ // stay as an empty line either.
  const count=get('opening-online-count');
- expect(count.hidden).toBe(false);
- expect(count.textContent).toBe('Сейчас в сети: 3');
+ expect(count.hidden).toBe(true);
+ expect(count.textContent).toBe('');
  // Zero or unknown never leaves a placeholder behind.
  cloud.beat=async()=>0;
  const {overlay:second,get:getSecond}=setup();
  second.show();
  await Promise.resolve();
  await Promise.resolve();
+ expect(getSecond('opening-search-copy').textContent).toBe('Онлайн');
  const zero=getSecond('opening-online-count');
  expect(zero.hidden).toBe(true);
  expect(zero.textContent).toBe('');
+});
+it('keeps the count as its own «Онлайн: N» row when the heading says something else', async ()=>{
+ const {overlay,get}=setup();
+ cloud.beat=async()=>3;
+ overlay.show();
+ await Promise.resolve();
+ await Promise.resolve();
+ overlay.setSearch('searching',3);
+ expect(get('opening-search-copy').textContent).toBe('Ищем соперника · 3 с');
+ const count=get('opening-online-count');
+ expect(count.hidden).toBe(false);
+ expect(count.textContent).toBe('Онлайн: 3');
 });
 it('falls back immediately if animation creation fails, cleaning partial effects',()=>{
  const {root,overlay}=setup();const done=vi.fn();

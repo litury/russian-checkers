@@ -57,6 +57,25 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  const searchCancel = document.getElementById('opening-search-cancel') as HTMLButtonElement | null;
  const searchStay = document.getElementById('opening-search-stay') as HTMLButtonElement | null;
  const searchBot = document.getElementById('opening-search-bot') as HTMLButtonElement | null;
+ const liveCount = document.getElementById('opening-online-count');
+ let liveTotal: number | null = null;
+ let heading = 'Онлайн';
+ /**
+  * The visible count is «Онлайн: N», never the retired «сейчас в сети» wording. When the heading
+  * itself already says «Онлайн» the number is folded into that line instead of repeating the word in
+  * a second row; an unknown or zero count leaves no row and no placeholder behind.
+  */
+ const renderLive = () => {
+  if (!searchCopyEl) return;
+  const n = liveTotal;
+  const inHeading = heading === 'Онлайн' && n !== null;
+  searchCopyEl.textContent = inHeading ? `${heading}: ${n}` : heading;
+  if (liveCount) {
+   const row = n !== null && !inHeading;
+   liveCount.hidden = !row;
+   liveCount.textContent = row ? `Онлайн: ${n}` : '';
+  }
+ };
  const ivory = root.querySelector('.gate-piece-ivory') as HTMLElement | null;
  const ebony = root.querySelector('.gate-piece-black') as HTMLElement | null;
  const paintSide = (next: 'white' | 'black') => {
@@ -167,7 +186,8 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   const on = phase !== 'idle';
   search.hidden = !on;
   root.classList.toggle('is-searching', view.hidePlay);
-  searchCopyEl.textContent = view.title;
+  heading = view.title;
+  renderLive();
   if (searchCancel) searchCancel.hidden = !view.showCancel;
   if (searchStay) searchStay.hidden = !view.showStay;
   if (searchBot) searchBot.hidden = !view.showBot;
@@ -194,16 +214,12 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  if(window.checkersStartup.pendingPlay || window.checkersStartup.playCommitted) window.checkersStartup.waitPlay();
  else { window.checkersStartup.unlock(); window.checkersStartup.ready(); }
  void ensureGuest();
- const liveCount = document.getElementById('opening-online-count');
  let presenceTimer: number | undefined;
  let beatTimer: number | undefined;
  const showLive = (live: number | null) => {
   const n = live ?? 0;
-  const on = presenceLit(n);
-  if (liveCount) {
-   liveCount.hidden = !on;
-   liveCount.textContent = on ? `Сейчас в сети: ${n}` : '';
-  }
+  liveTotal = presenceLit(n) ? n : null;
+  renderLive();
  };
  const paintPresence = () => {
   void loadPresence().then(showLive).catch(() => showLive(0));

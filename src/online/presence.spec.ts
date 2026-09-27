@@ -40,6 +40,7 @@ it('counts unique visible tabs by heartbeat, drops immediately', () => {
  expect(html).toContain('id="opening-online-count"');
  expect(html).toMatch(/opening-online-count[^>]*hidden/);
  expect(html).not.toMatch(/opening-live-(count|dot)/);
- expect(overlay).toContain('Сейчас в сети: ');
+ expect(overlay).toContain('Онлайн: ');
+ expect(overlay).not.toContain('Сейчас в сети');
  expect(html).not.toContain('0 игроков');
 });
