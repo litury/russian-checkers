@@ -363,7 +363,12 @@ export function createBoardView(
 				.setOrigin(0.5, 0.5)
 				.setPosition(0, 0)
 				.setDisplaySize(field.cell * 0.86, field.cell * 0.86);
-		view.outline.setVisible(false);
+		// Reuse the disk as a stationary lower tier. Only a man's upper disk
+		// travels; the real king already has two tiers, a seal and its own fire.
+		// Keep fractional progress (not motion.frame) so reversals never snap.
+		const lift = king ? 0 : field.cell * 0.12 * view.motion.progress;
+		view.sprite.setPosition(0, 0 - lift);
+		view.outline.setVisible(lift > 0);
 		view.seal
 			.setPosition(0, 0)
 			.setDisplaySize(field.cell, field.cell)
@@ -689,7 +694,9 @@ export function createBoardView(
 				let view = pieces.get(id);
 				if (!view) {
 					const sprite = scene.add.image(0, 0, texture);
-					const outline = scene.add.image(0, 0, texture).setTint(0x141210);
+					const outline = scene.add
+						.image(0, 0, texture)
+						.setName('piece-lower-tier');
 					const sealKey = hasTexture('selection_king-seal')
 						? 'selection_king-seal'
 						: texture;

@@ -207,6 +207,8 @@ it('moves the sole selected group without closing at departure, then closes at t
  expect(piece.texture.key).toBe('manLight');
  expect(piece.texture.key).not.toMatch(/^selection_/);
  expect(piece.data.progress).toBe(0);
+ expect(piece.y).toBe(0);
+ expect(h.objects.find(o => o.name === 'piece-lower-tier' && !o.destroyed).visible).toBe(false);
  // GameScene must not clear selection in a pre-departure sync (especially reduced motion).
  expect(sceneSource).not.toContain('this.board.sync(visual, [], null)');
  expect(sceneSource).not.toContain('this.board.sync(this.position, [], null)');
@@ -247,6 +249,8 @@ it.each(['white', 'black'] as const)('promotes %s using logical kind, with the o
  expect(h.sprite().texture.key).toBe(side === 'white' ? 'kingLight' : 'kingDark');
  expect(h.sprite().texture.key).not.toMatch(/^selection_/);
  expect(h.sprite().originX).toBe(0.5);
+ expect(h.sprite().y).toBe(0);
+ expect(h.objects.find(o => o.name === 'piece-lower-tier' && !o.destroyed).visible).toBe(false);
  expect(h.objects.find(o => o.name === 'king-seal' && !o.destroyed).visible).toBe(true);
 });
 it.each(['reset', 'hide', 'shutdown'] as const)('%s invalidates a late move completion without touching a newly selected piece', action => {
@@ -423,13 +427,15 @@ it('keeps the real king texture and a still seal; selection does not lift or ble
  h.board.sync(position('king'),[from],null);h.tick(650);
  expect(h.sprite().texture.key).toBe('kingLight');expect(seal.y).toBeCloseTo(y);
 });
-it('keeps the real piece texture while selected, at a fixed pivot, and preserves kind', () => {
+it('keeps the real piece texture while its upper tier rises, and preserves kind', () => {
  const h = harness();
  h.board.sync(position(), [from], from);
  expect(h.sprite()?.texture.key).toBe('manLight');
  expect(h.sprite().originX).toBe(0.5);
  expect(h.sprite().originY).toBe(0.5);
+ expect(h.sprite().y).toBe(0);
  h.tick(650);
+ expect(h.sprite().y).toBeCloseTo(-44 * 0.12);
  expect(h.sprite().texture.key).toBe('manLight');
  expect(h.sprite().data.kind).toBe('man');
  const y = h.sprite().y, w = h.sprite().displayWidth;
@@ -442,6 +448,82 @@ const overlay = (h: ReturnType<typeof harness>) =>
  h.objects.find(o => o.name === 'selection-overlay' && !o.destroyed);
 const group = (h: ReturnType<typeof harness>) =>
  h.objects.find(o => o.name === 'selection-piece-group' && !o.destroyed);
+const lowerTier = (h: ReturnType<typeof harness>) =>
+ h.objects.find(o => o.name === 'piece-lower-tier' && !o.destroyed);
+it.each(['white', 'black'] as const)('reverses the %s upper tier continuously while its base, overlay and cell markers stay fixed', side => {
+ const h = harness();
+ const p = position('man', side);
+ p.squares[2][2] = { kind: 'man', side };
+ const other = { row: 2, col: 2 };
+ h.board.sync(p, [from, other], from, [{ from, path: [land] }]);
+ const base = lowerTier(h), piece = h.sprite(), owner = group(h), layer = overlay(h);
+ const anchor = { x: owner.x, y: owner.y };
+ const marks = h.objects.filter(o => o.visible && String(o.name).startsWith('marker_'));
+ const anchors = marks.map(o => [o.x, o.y]);
+ expect(base.visible).toBe(false);
+ h.tick(325);
+ expect(piece.y).toBeCloseTo(-44 * 0.12 * 0.5);
+ expect(base.visible).toBe(true);
+ expect(base.texture.key).toBe(piece.texture.key);
+ expect(base.y).toBe(0);
+ expect(layer.y).toBe(0);
+ expect(marks.map(o => [o.x, o.y])).toEqual(anchors);
+ const midway = piece.y;
+ h.board.sync(p, [from, other], other);
+ expect(piece.y).toBe(midway);
+ h.tick(80);
+ expect(piece.y).toBeGreaterThan(midway);
+ const closing = piece.y;
+ h.board.sync(p, [from, other], from);
+ expect(piece.y).toBe(closing);
+ h.board.sync(p, [from, other], from);
+ expect(piece.y).toBe(closing);
+ h.tick(650);
+ expect(piece.y).toBeCloseTo(-44 * 0.12);
+ expect({ x: owner.x, y: owner.y }).toEqual(anchor);
+ expect(piece.data.kind).toBe('man');
+ expect(h.objects.find(o => o.name === 'king-seal').visible).toBe(false);
+ h.board.sync(p, [], null); h.tick(650);
+ expect(piece.y).toBe(0);
+ expect(base.visible).toBe(false);
+});
+it.each(['white', 'black'] as const)('never adds a third tier to a %s king, including promotion while raised', side => {
+ const h = harness();
+ h.board.sync(position('man', side), [from], from); h.tick(325);
+ expect(lowerTier(h).visible).toBe(true);
+ h.board.sync(position('king', side), [from], from);
+ expect(lowerTier(h).visible).toBe(false);
+ expect(h.sprite().y).toBe(0);
+ expect(h.objects.find(o => o.name === 'king-seal').visible).toBe(true);
+ h.tick(650);
+ expect(lowerTier(h).visible).toBe(false);
+ expect(h.sprite().y).toBe(0);
+});
+it('reduced motion has a static raised tier, with immediate collapse and no tween', () => {
+ const h = harness(true);
+ h.board.sync(position(), [from], from);
+ expect(h.sprite().y).toBeCloseTo(-44 * 0.12);
+ expect(lowerTier(h).visible).toBe(true);
+ h.tick(1000);
+ expect(h.sprite().y).toBeCloseTo(-44 * 0.12);
+ h.board.sync(position(), [], null);
+ expect(h.sprite().y).toBe(0);
+ expect(lowerTier(h).visible).toBe(false);
+ expect(h.tweens).toHaveLength(0);
+});
+it.each(['reset', 'hide', 'shutdown', 'remove'] as const)('%s destroys both tiers during descent without ghosts', action => {
+ const h = harness();
+ h.board.sync(position(), [from], from); h.tick(650);
+ const base = lowerTier(h), piece = h.sprite();
+ h.board.sync(position(), [], null); h.tick(100);
+ if (action === 'reset') h.board.reset();
+ if (action === 'hide') h.board.setPlayfieldVisible(false);
+ if (action === 'shutdown') h.events.emit('shutdown');
+ if (action === 'remove') h.board.sync(position('man', 'black', land), [], null);
+ h.tick(1000);
+ expect(base.destroyed).toBe(true);
+ expect(piece.destroyed).toBe(true);
+});
 it('never points the layer at a missing texture while the pack is still loading', () => {
  const h = harness(false, () => false, false);
  h.board.sync(position(), [from], from);
