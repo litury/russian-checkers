@@ -27,7 +27,7 @@ function setup() {
  const tasks: (() => void)[] = [];
  s.time = { now: 1000, delayedCall: vi.fn((_ms, cb) => { tasks.push(cb); return { remove: vi.fn() }; }) };
  s.clockStartedAt = 1000;
- s.hud = { setTurn: vi.fn(), setClock: vi.fn() };
+ s.hud = { setTurn: vi.fn(), setClock: vi.fn(), stopReveal: vi.fn() };
  s.board = { reset: vi.fn(), sync: vi.fn(), clearOpeningHint: vi.fn(), setWaitingIdle: vi.fn(), notePly: vi.fn(), playMove: vi.fn((_m, done) => done()) };
  s.overlay = { hide: vi.fn(), show: vi.fn() };
  s.sdk = { showFullscreenAdv: vi.fn() };
@@ -37,14 +37,15 @@ afterEach(() => { auto = false; vi.unstubAllGlobals(); });
 it.each(['white','black'])('resignation shows loss relative to human %s',async(side)=>{
  const {s}=setup();s.humanSide=side;s.ensureResultOverlay=vi.fn(async()=>s.overlay);
  s.resignMatch();await Promise.resolve();
- expect(s.overlay.show).toHaveBeenCalledWith(side==='white'?'black':'white',side);
+ expect(s.overlay.show).toHaveBeenCalledWith({winner:side==='white'?'black':'white',humanSide:side,online:false,reason:'Вы сдались'});
 });
 it('draw terminates with a neutral result and no victory voice',async()=>{
  const {s}=setup();s.title={resultSting:vi.fn(),speakOrcTurn:vi.fn()};
  s.ensureResultOverlay=vi.fn(async()=>s.overlay);
  s.endMatch('draw');
- s.sdk.showFullscreenAdv.mock.calls[0][0].onClose();await Promise.resolve();
- expect(s.phase).toBe('over');expect(s.overlay.show).toHaveBeenCalledWith('draw','white');
+ await Promise.resolve();
+ expect(s.sdk.showFullscreenAdv).not.toHaveBeenCalled();
+ expect(s.phase).toBe('over');expect(s.overlay.show).toHaveBeenCalledWith({winner:'draw',humanSide:'white',online:false,reason:'Ничья по правилам'});
  expect(s.title.resultSting).not.toHaveBeenCalled();expect(s.title.speakOrcTurn).not.toHaveBeenCalled();
 });
 it('late result loader cannot reopen after leaving result phase',async()=>{
@@ -58,8 +59,8 @@ it('presents the final position with the last promotion fire kept, and clears fi
  s.endMatch('white');
  expect(s.board.reset).toHaveBeenCalledWith({keepPromotionFire:true});
  s.board.reset.mockClear();
- s.phase='human';s.resignMatch();
- expect(s.board.reset).toHaveBeenCalledWith();
+ s.phase='human';s.acceptedResult=null;s.resultPresented=false;s.resignMatch();
+ expect(s.board.reset).toHaveBeenCalledWith({keepPromotionFire:false});
 });
 function human(s: any) { s.onSquare(sq('c3')); s.onSquare(sq('d4')); }
 it('manual move plus bot reply undo restores position, clocks and history', () => {
@@ -100,21 +101,20 @@ it('removed bot timer cannot play during a newer bot turn', () => {
  human(s); const position = structuredClone(s.position); old();
  expect(s.position).toEqual(position); expect(s.matchPlies).toHaveLength(1);
 });
-it('undo after loss dismisses result and invalidates deferred result callback', async () => {
+it('finished game is read-only: undo cannot dismiss the verdict or revive clocks', async () => {
  const { s } = setup();
  s.position.squares = Array.from({ length: 8 }, () => Array(8).fill(null));
  s.position.squares[2][2] = { side: 'white', kind: 'man' };
  s.position.squares[4][4] = { side: 'black', kind: 'man' };
- const origin = structuredClone(s.position); human(s);
+ human(s);
  s.ensureResultOverlay = vi.fn(async () => s.overlay);
  s.playBot(); expect(s.phase).toBe('over');
- const show = s.sdk.showFullscreenAdv.mock.calls[0][0].onClose;
- show(); await Promise.resolve(); await Promise.resolve();
- expect(s.overlay.show).toHaveBeenCalledWith('black', 'white');
- s.overlay.show.mockClear();
- s.undoBot(); show(); await Promise.resolve(); await Promise.resolve();
- expect(s.overlay.hide).toHaveBeenCalledWith(true); expect(s.overlay.show).not.toHaveBeenCalled();
- expect(s.position).toEqual(origin); expect(s.phase).toBe('human');
+ await Promise.resolve(); await Promise.resolve();
+ expect(s.overlay.show).toHaveBeenCalledWith({winner:'black',humanSide:'white',online:false,reason:'У вас не осталось шашек'});
+ const final=structuredClone(s.position), clocks={...s.clocks};
+ s.undoBot();s.time.now+=5000;s.tickClock();
+ expect(s.overlay.hide).not.toHaveBeenCalled();
+ expect(s.position).toEqual(final);expect(s.clocks).toEqual(clocks);expect(s.phase).toBe('over');
 });
 it('undo during human hop ignores its stale callback', () => {
  const { s } = setup(); const origin = structuredClone(s.position); let finish = () => {};
@@ -127,13 +127,13 @@ it('online manual moves create no bot snapshot and undo has no effect', () => {
  human(s); expect(s.live.move).toHaveBeenCalledTimes(1); expect(s.botUndoStack).toEqual([]);
  s.undoBot(); expect(s.board.reset).not.toHaveBeenCalled();
 });
-it('undo after resignation rejects a late overlay load', async () => {
+it('resignation cannot be undone even before the verdict renders', async () => {
  const { s } = setup(); human(s); s.playBot();
  let loaded: (overlay: any) => void = () => {};
  s.ensureResultOverlay = () => new Promise(resolve => { loaded = resolve; });
  s.resignMatch(); expect(s.phase).toBe('over');
  s.undoBot(); loaded(s.overlay); await Promise.resolve();
- expect(s.overlay.show).not.toHaveBeenCalled(); expect(s.phase).toBe('human');
+ expect(s.overlay.show).toHaveBeenCalledOnce(); expect(s.phase).toBe('over');
 });
 it('button cancels first manual animation and rejects its late completion', () => {
  const { s, button, tasks } = setup();

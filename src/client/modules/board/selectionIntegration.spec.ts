@@ -268,16 +268,15 @@ it.each(['reset', 'hide', 'shutdown'] as const)('%s invalidates a late move comp
  expect(h.sprite().texture.key).toBe('manLight');
  expect(h.sprite().data.progress).toBe(action === 'shutdown' ? 0 : 1);
 });
-it('end and resignation invalidate old board work before presenting the final position', () => {
- for (const method of ['private endMatch(', 'resignMatch():']) {
-  const body = sceneSource.slice(sceneSource.indexOf(method)).split('\n\t}')[0];
-  expect(body).toContain('this.board.reset(');
- }
- // Only the promotion that ended the match keeps its fire; a resignation has none to present.
+it('end and resignation wait for the last move before resetting the presentation', () => {
  const end = sceneSource.slice(sceneSource.indexOf('private endMatch(')).split('\n\t}')[0];
  const resign = sceneSource.slice(sceneSource.indexOf('resignMatch():')).split('\n\t}')[0];
- expect(end).toContain('keepPromotionFire: true');
- expect(resign).not.toContain('keepPromotionFire');
+ const present = sceneSource.slice(sceneSource.indexOf('private presentResult(')).split('\n\t}')[0];
+ expect(end).not.toContain('this.board.reset(');
+ expect(end).toContain('if (!this.moving) this.drainInbound()');
+ expect(resign).toContain("'resign'");
+ expect(present).toContain("this.moving || this.phase !== 'over'");
+ expect(present).toContain("this.board?.reset({ keepPromotionFire: this.resultKind === 'rules' })");
 });
 it('keeps the final promotion burning through the presentation reset, then clears it with the next match', () => {
  let blocked = false;

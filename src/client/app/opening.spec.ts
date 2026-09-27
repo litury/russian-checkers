@@ -45,7 +45,7 @@ describe('HTML-first opening', () => {
   expect(overlay).toContain('pendingPlay');
   expect(scene).toContain('requestStartFromOpening');
   expect(scene).toContain('queueMatchInteractive');
-  expect(scene).toContain('queueResultPack');
+  expect(scene).not.toContain('queueResultPack');
   expect(scene).toContain('queueTitleCritical');
   expect(scene).toContain('bootMatchInteractive');
   // Heavy packs are queued after create, not inside preload().
@@ -72,14 +72,11 @@ describe('HTML-first opening', () => {
   const createBoot = scene.match(/create\(\): void \{[\s\S]*?\n\t\}/)?.[0] ?? '';
   expect(createBoot.indexOf('bootPlayfield')).toBeLessThan(createBoot.indexOf('bootMatchInteractive'));
   expect(createBoot.indexOf('bootMatchInteractive')).toBeLessThan(createBoot.indexOf('scheduleResultWindow'));
-  // The result window and the pack hang off the reveal as separate branches: a short bot
-  // match must not wait for the whole king-fire chain before the window appears.
+  // The lightweight verdict is ready independently of all decoration packs.
   const resultWindow = scene.match(/scheduleResultWindow\(\): void \{[\s\S]*?\n\t\}/)?.[0] ?? '';
-  expect(resultWindow.indexOf('bootKingFire')).toBeLessThan(resultWindow.indexOf('bootResultPack'));
   expect(resultWindow).toContain('this.bootKingFire()');
-  expect(resultWindow).toContain('this.bootResultPack()');
-  expect(resultWindow).toMatch(/resultReady\s*=\s*this\.interactiveReady\.then/);
-  expect(resultWindow).not.toMatch(/await this\.bootKingFire\(\);[\s\S]*await this\.bootResultPack\(\)/);
+  expect(scene).not.toContain('bootResultPack');
+  expect(resultWindow).toMatch(/resultReady\s*=\s*this\.playfieldReady\.then/);
   const ensureResult = scene.match(/private async ensureResultOverlay\([\s\S]*?\n\t\}/)?.[0] ?? '';
   expect(ensureResult).toContain('this.resultReady');
   expect(ensureResult).not.toContain('bootKingFire');

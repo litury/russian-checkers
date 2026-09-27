@@ -45,27 +45,9 @@ import { createOpeningOverlay } from './openingOverlay';
 import type { IYandexSdk } from './IYandexSdk';
 import { getAutoMove, getBotSkill } from './settings';
 import { canUndoBot } from './botUndo';
-import { createResultOverlay } from './resultCeremony';
-import mascotIdle0Url from './ui/result/mascot_idle_00.webp';
-import mascotIdle1Url from './ui/result/mascot_idle_01.webp';
-import mascotIdle2Url from './ui/result/mascot_idle_02.webp';
-import mascotIdle3Url from './ui/result/mascot_idle_03.webp';
-import mascotWin0Url from './ui/result/mascot_win_00.webp';
-import mascotWin1Url from './ui/result/mascot_win_01.webp';
-import mascotWin2Url from './ui/result/mascot_win_02.webp';
-import mascotWin3Url from './ui/result/mascot_win_03.webp';
-import mascotWin4Url from './ui/result/mascot_win_04.webp';
-import resultBtnUrl from './ui/result/result_btn.webp';
-import resultGlassWinUrl from './ui/result/result_glass_win.webp';
-import resultMonitorUrl from './ui/result/result_monitor.webp';
-import defeatTerminalUrl from './ui/result/terminal_sockets.webp';
-import primaryRestUrl from './ui/result/primary_rest.webp';
-import primaryPressedUrl from './ui/result/primary_pressed.webp';
-import secondaryRestUrl from './ui/result/secondary_rest.webp';
-import secondaryPressedUrl from './ui/result/secondary_pressed.webp';
+import { createResultOverlay, type Verdict } from './boardVerdict';
+import { verdictReason } from './verdictReason';
 
-/** Cap for the deferred result warm-up: one idle slot, then load anyway. */
-const resultWarmIdleMs = 300;
 
 export class GameScene extends Phaser.Scene {
 	// Bot plays the opposite of the opening disk pick (default white).
@@ -74,6 +56,8 @@ export class GameScene extends Phaser.Scene {
 	private hud?: ReturnType<typeof createHud>;
 	private overlay?: ReturnType<typeof createResultOverlay>;
 	private resultGen = 0;
+	private acceptedResult: Verdict | null = null;
+	private resultPresented = false;
 	private botUndoGen = 0;
 	private restoringBotUndo = false;
 	private title!: ReturnType<typeof createOpeningOverlay>;
@@ -279,23 +263,9 @@ export class GameScene extends Phaser.Scene {
 				this.missingDecoration.kingFire = true;
 			});
 		});
-		this.resultReady = this.interactiveReady.then(async () => {
-			await this.idleSlot();
-			return this.ensureOverlay();
-		});
-		void this.resultReady.then(() => this.bootResultPack());
+		this.resultReady = this.playfieldReady.then(() => this.ensureOverlay());
 	}
 
-	/** One idle slot; deferred warm-up must not compete with the board reveal. */
-	private idleSlot(): Promise<void> {
-		return new Promise((resolve) => {
-			if (typeof globalThis.requestIdleCallback === 'function') {
-				globalThis.requestIdleCallback(() => resolve(), { timeout: resultWarmIdleMs });
-				return;
-			}
-			setTimeout(resolve, 0);
-		});
-	}
 
 	private flushLoader(): Promise<void> {
 		return new Promise((resolve) => {
@@ -366,32 +336,6 @@ export class GameScene extends Phaser.Scene {
 		preloadKingFire(this);
 	}
 
-	private queueResultPack(): void {
-		this.load.image('defeatTerminal', defeatTerminalUrl);
-		this.load.image('defeat_primary_rest', primaryRestUrl);
-		this.load.image('defeat_primary_pressed', primaryPressedUrl);
-		this.load.image('defeat_secondary_rest', secondaryRestUrl);
-		this.load.image('defeat_secondary_pressed', secondaryPressedUrl);
-		const defeatFrames = import.meta.glob('./ui/result/checker-defeat/*.webp', {
-			eager: true, query: '?url', import: 'default',
-		});
-		for (const [path, url] of Object.entries(defeatFrames)) {
-			const frame = path.split('/').pop()!.replace('.webp', '');
-			this.load.image(`checkerDefeat_${frame}`, url as string);
-		}
-		this.load.image('resultMonitor', resultMonitorUrl);
-		this.load.image('mascotIdle0', mascotIdle0Url);
-		this.load.image('mascotIdle1', mascotIdle1Url);
-		this.load.image('mascotIdle2', mascotIdle2Url);
-		this.load.image('mascotIdle3', mascotIdle3Url);
-		this.load.image('resultGlassWin', resultGlassWinUrl);
-		this.load.image('resultBtn', resultBtnUrl);
-		this.load.image('mascotWin0', mascotWin0Url);
-		this.load.image('mascotWin1', mascotWin1Url);
-		this.load.image('mascotWin2', mascotWin2Url);
-		this.load.image('mascotWin3', mascotWin3Url);
-		this.load.image('mascotWin4', mascotWin4Url);
-	}
 
 	private async bootPlayfield(): Promise<void> {
 		if (this.startupFailed) return;
@@ -466,34 +410,17 @@ export class GameScene extends Phaser.Scene {
 		}
 	}
 
-	private async bootResultPack(): Promise<void> {
-		if (this.startupFailed || !this.playfieldBuilt) return;
-		this.queueResultPack();
-		await this.flushLoader();
-		if (this.startupFailed) return;
-		for (const key of [
-			'resultMonitor',
-			'mascotIdle0',
-			'mascotIdle1',
-			'mascotIdle2',
-			'mascotIdle3',
-		]) {
-			if (!this.textures.exists(key)) continue;
-			this.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
-		}
-	}
 
 	/** Window instance: its DOM art is all it needs, so it is never gated on a Phaser pack. */
 	private ensureOverlay(): ReturnType<typeof createResultOverlay> | undefined {
 		if (this.startupFailed || !this.playfieldBuilt) return undefined;
 		if (!this.overlay) {
 			this.overlay = createResultOverlay(this, {
-				isOnline: () => this.online,
-				onSound: (won) => this.title?.resultCeremonySound(won),
-				onStopSound: () => this.title?.stopResultCeremonySound(),
 				onPlayAgain: () => {
-					if (this.online) this.showTitle();
-					void this.startMatch();
+					if (this.online) {
+						this.showTitle();
+						void this.requestOnline();
+					} else void this.startMatch();
 				},
 				onMenu: () => {
 					this.showTitle();
@@ -623,17 +550,8 @@ export class GameScene extends Phaser.Scene {
 			},
 			onEnd: (winner, reason, youWin) => {
 				if (this.phase === 'over') return;
-				if (reason === 'timeout') {
-					this.endMatch(this.humanSide);
-					return;
-				}
-				if (reason === 'flag') {
-					const side = youWin === true ? this.humanSide : this.humanSide === 'white' ? 'black' : 'white';
-					this.endMatch(side, 'flag');
-					return;
-				}
 				const side = winner === 'draw' ? 'draw' : youWin === true ? this.humanSide : youWin === false ? (this.humanSide === 'white' ? 'black' : 'white') : winner;
-				this.endMatch(side);
+				this.endMatch(side, reason);
 			},
 		});
 		await this.live.connect();
@@ -713,20 +631,6 @@ export class GameScene extends Phaser.Scene {
 			},
 			onEnd: (winner, reason, youWin) => {
 				if (this.phase === 'over') return;
-				if (reason === 'timeout') {
-					this.endMatch(this.humanSide);
-					return;
-				}
-				if (reason === 'flag') {
-					const side =
-						youWin === true
-							? this.humanSide
-							: this.humanSide === 'white'
-								? 'black'
-								: 'white';
-					this.endMatch(side, 'flag');
-					return;
-				}
 				const side =
 					winner === 'draw' ? 'draw' : youWin === true
 						? this.humanSide
@@ -735,7 +639,7 @@ export class GameScene extends Phaser.Scene {
 								? 'black'
 								: 'white'
 							: winner;
-				this.endMatch(side);
+				this.endMatch(side, reason);
 			},
 			onError: (error) => {
 				if (error === 'illegal') {
@@ -780,6 +684,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private applyResume(color: Side, snap: MatchSnapshot): void {
+		if (this.acceptedResult) return;
 		this.online = true;
 		this.humanSide = color;
 		this.lastPly = snap.ply;
@@ -809,6 +714,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private applyBegin(snap: MatchSnapshot): void {
+		if (this.acceptedResult) return;
 		this.onlineBegun = true;
 		this.lastPly = snap.ply;
 		this.serverTurn = snap.turn;
@@ -822,6 +728,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private applyState(snap: MatchSnapshot): void {
+		if (this.acceptedResult) return;
 		this.lastPly = snap.ply;
 		this.serverTurn = snap.turn;
 		this.onlineBegun = snap.begun;
@@ -839,19 +746,26 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private drainInbound(): void {
-		if (this.phase === 'over' || this.moving) return;
-		if (this.inboundNet.some((m) => classifyPly(this.lastPly, m.ply) === 'gap')) {
-			this.live?.requestState();
+		if ((this.phase === 'over' && !this.acceptedResult) || this.resultPresented || this.moving) return;
+		const next = takeNextPly(this.inboundNet, this.lastPly);
+		if (!next) {
+			const gap = this.inboundNet.some((m) => classifyPly(this.lastPly, m.ply) === 'gap');
+			if (gap && !this.acceptedResult) {
+				this.live?.requestState();
+				return;
+			}
+			// Confirmed outcome never waits on recovery. If a ply is missing, keep
+			// the last confirmed board and do not infer a material/mobility reason.
+			if (gap && this.resultKind === 'rules') this.resultKind = 'unknown';
+			this.presentResult();
 			return;
 		}
-		const next = takeNextPly(this.inboundNet, this.lastPly);
-		if (!next) return;
 		this.lastPly = next.ply;
 		this.serverTurn = next.turn;
 		this.applyingNet = true;
 		if (next.side === this.humanSide && this.position.turn !== next.side) {
 			this.applyingNet = false;
-			this.phase = this.serverTurn === this.humanSide ? 'human' : 'bot';
+			if (!this.acceptedResult) this.phase = this.serverTurn === this.humanSide ? 'human' : 'bot';
 			this.refresh();
 			this.drainInbound();
 			return;
@@ -907,6 +821,8 @@ export class GameScene extends Phaser.Scene {
 
 	private showTitle(): void {
 		this.resultGen += 1;
+		this.acceptedResult = null;
+		this.resultPresented = false;
 		this.stopWarmUp?.();
 		this.stopWarmUp = undefined;
 		this.humanChain = null;
@@ -939,6 +855,8 @@ export class GameScene extends Phaser.Scene {
 
 	private async startMatch(fromOpening = false): Promise<void> {
 		this.resultGen += 1;
+		this.acceptedResult = null;
+		this.resultPresented = false;
 		if (fromOpening && this.phase !== 'title') return;
 		await this.playfieldReady;
 		if (this.startupFailed) return;
@@ -1188,6 +1106,11 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private refresh(): void {
+		if (this.acceptedResult && this.moving) {
+			this.paintClock();
+			this.paintUndo();
+			return;
+		}
 		if (this.phase === 'title') {
 			this.hud?.setTurn('');
 			return;
@@ -1321,9 +1244,16 @@ export class GameScene extends Phaser.Scene {
 		this.moving = true;
 
 		const undoGen = this.online ? null : this.botUndoGen;
+		const matchGen = this.resultGen;
 		this.board?.playMove(chosen.hop, () => {
+			if (matchGen !== this.resultGen) return;
 			if (undoGen !== null && undoGen !== this.botUndoGen) return;
 			this.moving = false;
+			if (this.acceptedResult) {
+				this.humanChain = null;
+				this.drainInbound();
+				return;
+			}
 			this.selected = chain.selected;
 			// Time runs through hops and branch decisions; a final tap cannot rescue a flag.
 			if (this.sideRemainingMs(this.position.turn) <= 0) {
@@ -1347,9 +1277,11 @@ export class GameScene extends Phaser.Scene {
 		this.selected = null;
 
 		const undoGen = this.online ? null : this.botUndoGen;
+		const matchGen = this.resultGen;
 		this.board?.playMove(
 			move,
 			() => {
+				if (matchGen !== this.resultGen) return;
 				if (undoGen !== null && undoGen !== this.botUndoGen) return;
 				this.moving = false;
 				after();
@@ -1369,7 +1301,7 @@ export class GameScene extends Phaser.Scene {
 	 * Hidden rail, never a delayed move — input keeps its own timeline.
 	 */
 	private railConcealed(): boolean {
-		return this.countingIn || !this.playfieldReadyDone || !this.boardPainted;
+		return this.phase === 'over' || this.countingIn || !this.playfieldReadyDone || !this.boardPainted;
 	}
 
 	private paintUndo(): void {
@@ -1391,7 +1323,7 @@ export class GameScene extends Phaser.Scene {
 		}
 		if (undo) {
 			undo.hidden = !inMatch || this.online;
-			undo.disabled = this.railConcealed() || !canUndoBot(this.online, this.botUndoStack.length);
+			undo.disabled = this.phase === 'over' || this.railConcealed() || !canUndoBot(this.online, this.botUndoStack.length);
 			if (undo.style) undo.style.visibility = this.railConcealed() ? 'hidden' : '';
 		}
 		if (resign) {
@@ -1407,7 +1339,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private undoBot(): void {
-		if (this.online) return;
+		if (this.online || this.phase === 'over') return;
 		if (!canUndoBot(this.online, this.botUndoStack.length)) return;
 		const snap = this.botUndoStack.pop();
 		if (!snap) return;
@@ -1447,8 +1379,10 @@ export class GameScene extends Phaser.Scene {
 	private playHuman(move: IMove): void {
 		this.saveBotUndo();
 		this.animateMove(move, () => {
-			if (this.online) this.live?.move(move);
-			else this.completeHumanMove(move);
+			if (this.online) {
+				if (!this.acceptedResult) this.live?.move(move);
+				else this.drainInbound();
+			} else this.completeHumanMove(move);
 		});
 	}
 
@@ -1456,7 +1390,7 @@ export class GameScene extends Phaser.Scene {
 		const mover = this.position.turn;
 		const next = apply(this.position, move);
 		if (!next) return;
-		this.settleClock(mover);
+		if (!this.acceptedResult) this.settleClock(mover);
 		// First accepted move of the human side: bots may have played earlier plies.
 		// markPerf keeps the first write, so later human moves never move the mark.
 		if (mover === this.humanSide) markPerf('first-move-played');
@@ -1466,12 +1400,17 @@ export class GameScene extends Phaser.Scene {
 		this.selected = null;
 		this.board?.notePly();
 		this.posKeys.push(hashPosition(this.position));
+		if (this.acceptedResult) {
+			this.applyingNet = false;
+			this.drainInbound();
+			return;
+		}
 		const outcome = resultSide(this.position, this.posKeys);
-		if (outcome === 'draw') {
+		if (!this.online && outcome === 'draw') {
 			this.endMatch('draw');
 			return;
 		}
-		if (outcome) {
+		if (!this.online && outcome) {
 			this.endMatch(outcome);
 			return;
 		}
@@ -1523,10 +1462,14 @@ export class GameScene extends Phaser.Scene {
 				this.endMatch(winner(this.position) ?? 'white');
 				return;
 			}
-			this.settleClock(mover);
+			if (!this.acceptedResult) this.settleClock(mover);
 			this.matchPlies.push({ side: mover, from: move.from, path: move.path });
 			this.position = next;
 			this.posKeys.push(hashPosition(this.position));
+			if (this.acceptedResult) {
+				this.presentResult();
+				return;
+			}
 			const outcome = resultSide(this.position, this.posKeys);
 			if (outcome === 'draw') {
 				this.endMatch('draw');
@@ -1549,38 +1492,43 @@ export class GameScene extends Phaser.Scene {
 			return;
 		}
 		if (this.paused || !this.board) return;
-		this.board.reset();
-		this.phase = 'over';
-		this.selected = null;
-		this.refresh();
-		this.title?.resultSting(false, defeatTauntCue(this.humanSide), this.humanSide);
-		void recordBotMatch({
-			humanSide: this.humanSide,
-			winner: this.humanSide === 'white' ? 'black' : 'white',
-			plies: this.matchPlies,
-		});
-		const undoGen = this.online ? null : this.botUndoGen;
-		const resultGen = ++this.resultGen;
-		void this.ensureResultOverlay().then((overlay) => {
-			if (resultGen !== this.resultGen || this.phase !== 'over') return;
-			if (undoGen !== null && undoGen !== this.botUndoGen) return;
-			overlay?.show(this.humanSide === 'white' ? 'black' : 'white', this.humanSide);
-		});
-		this.board.clearOpeningHint();
+		this.endMatch(this.humanSide === 'white' ? 'black' : 'white', 'resign');
 	}
 
-	private endMatch(side: Side | 'draw', kind: 'flag' | 'rules' = 'rules'): void {
-		if (!this.board) return;
-		// The reset presents the final position; a promotion on this last move keeps its fire.
-		this.board.reset({ keepPromotionFire: true });
-		this.moving = false;
+	private endMatch(side: Side | 'draw', kind = 'rules'): void {
+		if (!this.board || this.acceptedResult || this.phase === 'over') return;
+		performance.mark('damka:outcome-accepted');
+		this.clocks = { white: this.sideRemainingMs('white'), black: this.sideRemainingMs('black') };
+		this.acceptedResult = { winner: side, humanSide: this.humanSide, online: this.online,
+			reason: verdictReason(side, this.humanSide, kind, this.position, this.posKeys) };
+		this.resultKind = kind;
 		this.botTimer?.remove(false);
+		this.pendingBot = false;
+		this.stopCountdown();
 		this.board.clearOpeningHint();
 		this.phase = 'over';
 		this.selected = null;
+		this.dropUntil = 0;
+		this.paintClock();
+		this.paintUndo();
+		// Let an already accepted move land. No reset/sync interrupts capture or promotion.
+		if (!this.moving) this.drainInbound();
+	}
+
+	private resultKind = 'rules';
+	private presentResult(): void {
+		const result = this.acceptedResult;
+		if (!result || this.resultPresented || this.moving || this.phase !== 'over') return;
+		this.resultPresented = true;
+		performance.mark('damka:result-move-settled');
+		// Reasons depending on the position are read only after the final net ply commits.
+		result.reason = verdictReason(result.winner, result.humanSide, this.resultKind, this.position, this.posKeys);
+		this.humanChain = null;
+		this.board?.reset({ keepPromotionFire: this.resultKind === 'rules' });
 		this.refresh();
+		const { winner: side } = result;
 		if (side !== 'draw') {
-			const line = orcOutcomeLine(kind, side === this.humanSide);
+			const line = orcOutcomeLine(this.resultKind === 'flag' ? 'flag' : 'rules', side === this.humanSide);
 			if (line === 'time-up') this.title?.speakOrcTurn(line, this.humanSide);
 			else this.title?.resultSting(line === 'victory', line === 'victory' ? line : defeatTauntCue(this.humanSide), this.humanSide);
 		}
@@ -1591,16 +1539,10 @@ export class GameScene extends Phaser.Scene {
 			plies: this.matchPlies,
 		});
 		}
-		const gen = ++this.resultGen;
-		const show = () => {
-			void this.ensureResultOverlay().then((overlay) => {
-				if (gen !== this.resultGen || this.phase !== 'over') return;
-				overlay?.show(side, this.humanSide);
-			});
-		};
-		this.sdk.showFullscreenAdv({
-			onClose: show,
-			onError: show,
+		const gen = this.resultGen;
+		void this.ensureResultOverlay().then((overlay) => {
+			if (gen !== this.resultGen || this.phase !== 'over') return;
+			overlay?.show(result);
 		});
 	}
 
