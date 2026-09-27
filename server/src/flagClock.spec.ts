@@ -17,5 +17,6 @@ it('server owns online flag; client freezes and waits for end', () => {
  expect(src).toContain('flagDue');
  expect(live).toContain("type: 'flag'");
  expect(scene).toContain('live?.flag');
- expect(scene).toContain("reason === 'flag'");
+ expect(scene).toContain('this.endMatch(side, reason)');
+ expect(scene).toContain("this.resultKind === 'flag'");
 });

@@ -18,6 +18,17 @@ function setup() {
  s.live={requestState:vi.fn()};return s;
 }
 afterEach(()=>vi.clearAllMocks());
+it('online flag freezes input until the authoritative winner and reason arrive', async () => {
+ const s=setup();s.online=true;s.onlineBegun=true;s.live.flag=vi.fn();
+ s.onFlag();
+ expect(s.live.flag).toHaveBeenCalledOnce();expect(s.flagLock).toBe(true);
+ expect(s.canSelect()).toBe(false);expect(s.acceptedResult).toBeNull();
+ expect(s.overlay.show).not.toHaveBeenCalled();
+ s.endMatch('black','flag');await Promise.resolve();
+ expect(s.phase).toBe('over');
+ expect(s.overlay.show).toHaveBeenCalledWith({winner:'black',humanSide:'white',online:true,reason:'У вас закончилось время'});
+ expect(recordBotMatch).not.toHaveBeenCalled();
+});
 it('duplicate outcome latches clocks, sound, history and panel only once',async()=>{
  const s=setup();s.endMatch('black','resign');s.endMatch('white','flag');await Promise.resolve();
  expect(s.clocks.white).toBe(59000);s.time.now+=8000;s.tickClock();expect(s.sideRemainingMs('white')).toBe(59000);

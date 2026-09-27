@@ -4,10 +4,11 @@ import source from './gameScene.ts?raw';
 import { describe, expect, it } from 'vitest';
 
 describe('Reliquary startup budget', () => {
- it('retires audio and old HUD loaders, not live bunker/result art', () => {
+ it('keeps live bunker art without loading the retired result pack', () => {
   expect(source).not.toMatch(/modules\/sfx|this\.sfx|load\.audio|this\.load\.image\('hud/);
   expect(source).toContain('preloadBunkerPanels(this)');
-  expect(source).toContain('checkerDefeat_');
+  expect(source).not.toMatch(/checkerDefeat_|checkerVictory_|ensureResultAssets/);
+  expect(source).toContain("from './boardVerdict'");
  });
  it('does not queue textures consumed only by the retired meadow renderer', () => {
   expect(source).not.toMatch(/this\.load\.image\(\s*(?:tableLayers|hamsterSprites|rabbitSprites|beeSprites|pitSprites|debrisSprites|wreathSprites|pathSprites|fireSprites|captureSprites)\./);

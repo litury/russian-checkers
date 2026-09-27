@@ -1,7 +1,9 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 vi.mock('phaser', () => ({ default: { Scene: class {} } }));
+vi.mock('@/online/cloud', () => ({ recordBotMatch: vi.fn(), probeApi: vi.fn() }));
 vi.mock('./settings', () => ({ getAutoMove: () => auto, getBotSkill: () => 'normal' }));
 import { GameScene } from './gameScene';
+import { recordBotMatch } from '@/online/cloud';
 import { apply, legalMoves, type IPosition } from '@/rules';
 let auto = false;
 const sq = (s: string) => ({ row: +s[1] - 1, col: s.charCodeAt(0) - 97 });
@@ -22,7 +24,9 @@ function setup(pieces: Record<string, string>, turn = 'white') {
 	s.phase = turn === 'white' ? 'human' : 'bot';
 	s.time = { now: 1000, delayedCall: vi.fn(() => ({ remove: vi.fn() })) };
 	s.clockStartedAt = 100;
-	s.hud = { setTurn: vi.fn(), setClock: vi.fn() };
+	s.hud = { setTurn: vi.fn(), setClock: vi.fn(), stopReveal: vi.fn() };
+	s.overlay = { show: vi.fn() };
+	s.ensureResultOverlay = vi.fn(async () => s.overlay);
 	s.board = {
 		clearOpeningHint: vi.fn(),
 		reset: vi.fn(),
@@ -36,6 +40,7 @@ function setup(pieces: Record<string, string>, turn = 'white') {
 	return s;
 }
 beforeEach(() => {
+	vi.clearAllMocks();
 	auto = false;
 	const undoButton = { hidden: true, disabled: true };
 	vi.stubGlobal('document', {
@@ -160,13 +165,17 @@ it('keeps input locked during each animation and retains captured sprites until 
 	expect(projected.squares[4][4]?.side).toBe('white');
 });
 
-it('flags during a branch decision without settling a partial move or resetting the clock', () => {
+it('flags during a branch decision without settling a partial move or resetting the clock', async () => {
 	const s = setup({ c3: 'w', d4: 'b', f6: 'b', h8: 'b' });
 	const settle = vi.spyOn(s, 'settleClock');
 	s.onSquare(sq('c3'));
 	s.onSquare(sq('e5'));
 	s.time.now = 60101;
 	s.tickClock();
+	await Promise.resolve();
+	expect(s.hud.stopReveal).toHaveBeenCalledOnce();
+	expect(s.overlay.show).toHaveBeenCalledWith({ winner: 'black', humanSide: 'white', online: false, reason: 'У вас закончилось время' });
+	expect(recordBotMatch).toHaveBeenCalledExactlyOnceWith({ humanSide: 'white', winner: 'black', plies: [] });
 	expect(s.phase).toBe('over');
 	expect(settle).not.toHaveBeenCalled();
 	expect(s.clockStartedAt).toBe(100);
@@ -174,13 +183,17 @@ it('flags during a branch decision without settling a partial move or resetting 
 	expect(s.position.turn).toBe('white');
 });
 
-it('does not commit a final hop after time has expired', () => {
+it('does not commit a final hop after time has expired', async () => {
 	const s = setup({ c3: 'w', d4: 'b', f6: 'b', h8: 'b' });
 	const settle = vi.spyOn(s, 'settleClock');
 	s.onSquare(sq('c3'));
 	s.onSquare(sq('e5'));
 	s.time.now = 60101;
 	s.onSquare(sq('g7'));
+	await Promise.resolve();
+	expect(s.overlay.show).toHaveBeenCalledOnce();
+	expect(recordBotMatch).toHaveBeenCalledExactlyOnceWith({ humanSide: 'white', winner: 'black', plies: [] });
+	expect(s.clockStartedAt).toBe(100);
 	expect(s.phase).toBe('over');
 	expect(settle).not.toHaveBeenCalled();
 	expect(s.position.turn).toBe('white');
