@@ -1,8 +1,11 @@
 import { afterEach, expect, it, vi } from 'vitest';
-vi.mock('phaser', () => ({ default: { Scene: class {} } }));
+// Core.Events.POST_RENDER is the project's real painted-frame seam; the mock carries it so the
+// readiness wiring is exercised, not stubbed away.
+vi.mock('phaser', () => ({ default: { Scene: class {}, Core: { Events: { POST_RENDER: 'postrender' } } } }));
 vi.mock('./settings', () => ({ getAutoMove: () => auto, getBotSkill: () => 'normal' }));
 let auto = false;
 vi.mock('@/online/cloud', () => ({ recordBotMatch: vi.fn(), probeApi: vi.fn() }));
+import Phaser from 'phaser';
 import { GameScene } from './gameScene';
 import { createInitialPosition } from '@/rules';
 const sq = (s: string) => ({ col: s.charCodeAt(0) - 97, row: +s[1] - 1 });
@@ -19,6 +22,8 @@ function setup() {
  const rail = { hidden: true, inert: false, style: { visibility: '' }, setAttribute: vi.fn() };
  vi.stubGlobal('document', { getElementById: (id: string) => id === 'match-undo' ? button : id === 'match-resign' ? resign : id === 'match-rail' ? rail : null });
  s.position = createInitialPosition(); s.phase = 'human';
+ // Default fixture is a match that is already through the board reveal gate.
+ s.playfieldReadyDone = true; s.boardPainted = true;
  const tasks: (() => void)[] = [];
  s.time = { now: 1000, delayedCall: vi.fn((_ms, cb) => { tasks.push(cb); return { remove: vi.fn() }; }) };
  s.clockStartedAt = 1000;
@@ -203,6 +208,52 @@ it('GT-01 reserves rail geometry but conceals actions until input/clock readines
  expect((resign as any).style.visibility).toBe('');
  expect(resign.disabled).toBe(false);
  s.phase = 'title'; s.paintUndo(); expect(rail.hidden).toBe(true);
+});
+
+it('GT-01b the rail never precedes the board it belongs to', () => {
+ const { s, rail, button, resign } = setup();
+ Object.assign(button, { style: { visibility: '' } });
+ Object.assign(resign, { style: { visibility: '' } });
+ // Field preparing: the pack gate has not settled. The rail keeps its layout budget but
+ // is neither seen nor reachable — the load screen must stay empty of match controls.
+ s.playfieldReadyDone = false; s.boardPainted = true; s.countingIn = false;
+ s.paintUndo();
+ expect(rail.hidden).toBe(false);
+ expect(rail.style.visibility).toBe('hidden');
+ expect(rail.inert).toBe(true);
+ expect((button as any).style.visibility).toBe('hidden');
+ expect((resign as any).style.visibility).toBe('hidden');
+ expect(resign.disabled).toBe(true);
+ // Pack ready, but the revealed board has not painted a frame yet: still nothing.
+ s.playfieldReadyDone = true; s.boardPainted = false;
+ s.paintUndo();
+ expect(rail.style.visibility).toBe('hidden');
+ expect((resign as any).style.visibility).toBe('hidden');
+ expect(resign.disabled).toBe(true);
+ // Only the first painted board frame opens the rail.
+ s.boardPainted = true;
+ s.paintUndo();
+ expect(rail.style.visibility).toBe('');
+ expect(rail.inert).toBe(false);
+ expect(rail.setAttribute).toHaveBeenCalledWith('aria-hidden', 'false');
+ expect((resign as any).style.visibility).toBe('');
+ expect(resign.disabled).toBe(false);
+});
+
+it('GT-01c the first painted board frame opens the rail without touching the move', () => {
+ const { s, rail, resign } = setup();
+ Object.assign(resign, { style: { visibility: '' } });
+ s.playfieldReadyDone = true; s.boardPainted = false; s.countingIn = false;
+ const once: Record<string, () => void> = {};
+ s.game = { events: { once: (name: string, cb: () => void) => { once[name] = cb; }, off: vi.fn() } };
+ s.events = { once: vi.fn(), off: vi.fn() };
+ s.markBoardFirstFrame();
+ s.paintUndo();
+ expect(rail.style.visibility).toBe('hidden');
+ once[Phaser.Core.Events.POST_RENDER]();
+ expect(s.boardPainted).toBe(true);
+ expect(rail.style.visibility).toBe('');
+ expect(resign.disabled).toBe(false);
 });
 
 it('empty history undo is a no-op', () => {

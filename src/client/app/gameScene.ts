@@ -95,6 +95,14 @@ export class GameScene extends Phaser.Scene {
 	private dropServerNow = 0;
 	private dropReceivedAt = 0;
 
+	/**
+	 * Reveal readiness of the board, shared with the HUD. The rail is a match
+	 * control: it must not be on screen before the playfield it belongs to.
+	 * `playfieldReadyDone` is the pack gate, `boardPainted` the first painted
+	 * frame of the revealed board (same seam the perf timeline reads).
+	 */
+	private playfieldReadyDone = false;
+	private boardPainted = false;
 	private countingIn = false;
 	private timeLowSaid = false;
 	private matchPlies: CloudPly[] = [];
@@ -168,7 +176,10 @@ export class GameScene extends Phaser.Scene {
 		this.cameras.main.setBackgroundColor(palette.background);
 		// Deferred exists from field init; boot board+pieces ASAP — before overlay/pending invoke.
 		void this.bootPlayfield().then(
-			() => this.settlePlayfieldReady(),
+			() => {
+				if (!this.startupFailed) this.playfieldReadyDone = true;
+				this.settlePlayfieldReady();
+			},
 			() => this.settlePlayfieldReady(),
 		);
 		// Selection-v2: background after playfieldReady; gates board *reveal*, not HTML unlock.
@@ -935,6 +946,8 @@ export class GameScene extends Phaser.Scene {
 		if (!this.playfieldBuilt || !this.board || !this.hud) return;
 		this.stopCountdown();
 		this.countingIn = true;
+		// A fresh reveal: the rail waits again for this board's first painted frame.
+		this.boardPainted = false;
 		this.humanChain = null;
 		this.botTimer?.remove(false);
 		this.tweens.killAll();
@@ -1002,6 +1015,9 @@ export class GameScene extends Phaser.Scene {
 			events.off(Phaser.Core.Events.POST_RENDER, done);
 			this.events.off('shutdown', shutdown);
 			markPerf('board-first-frame');
+			// The board is on screen now: the rail may follow it. Never earlier.
+			this.boardPainted = true;
+			if (this.phase !== 'title') this.paintUndo();
 		};
 		this.boardFrameListener = done;
 		events.once(Phaser.Core.Events.POST_RENDER, done);
@@ -1347,7 +1363,19 @@ export class GameScene extends Phaser.Scene {
 		document.getElementById('match-resign')?.addEventListener('click', () => this.resignMatch());
 	}
 
+	/**
+	 * The rail belongs to a ready match: the field must be through the same
+	 * reveal gate as the board with HUD (pack ready + first painted frame).
+	 * Hidden rail, never a delayed move — input keeps its own timeline.
+	 */
+	private railConcealed(): boolean {
+		return this.countingIn || !this.playfieldReadyDone || !this.boardPainted;
+	}
+
 	private paintUndo(): void {
+		// The perf seam and other headless specs run without a DOM: the rail is a
+		// browser-only surface, so there is nothing to paint there.
+		if (typeof document === 'undefined') return;
 		const rail = document.getElementById('match-rail');
 		const undo = document.getElementById('match-undo') as HTMLButtonElement | null;
 		const resign = document.getElementById('match-resign') as HTMLButtonElement | null;
@@ -1356,20 +1384,21 @@ export class GameScene extends Phaser.Scene {
 		if (rail) {
 			rail.hidden = !inMatch;
 			// Reserve the same layout budget throughout reveal; only lifecycle visibility changes.
-			const conceal = this.countingIn;
+			const conceal = this.railConcealed();
 			if (rail.style) rail.style.visibility = conceal ? 'hidden' : '';
 			rail.inert = conceal;
 			rail.setAttribute('aria-hidden', conceal ? 'true' : 'false');
 		}
 		if (undo) {
 			undo.hidden = !inMatch || this.online;
-			undo.disabled = this.countingIn || !canUndoBot(this.online, this.botUndoStack.length);
-			if (undo.style) undo.style.visibility = this.countingIn ? 'hidden' : '';
+			undo.disabled = this.railConcealed() || !canUndoBot(this.online, this.botUndoStack.length);
+			if (undo.style) undo.style.visibility = this.railConcealed() ? 'hidden' : '';
 		}
 		if (resign) {
 			resign.hidden = !inMatch;
-			resign.disabled = this.countingIn || this.phase === 'over' || this.paused || this.flagLock;
-			if (resign.style) resign.style.visibility = this.countingIn ? 'hidden' : '';
+			resign.disabled =
+				this.railConcealed() || this.phase === 'over' || this.paused || this.flagLock;
+			if (resign.style) resign.style.visibility = this.railConcealed() ? 'hidden' : '';
 		}
 		if (this.board && rail && railWasHidden !== rail.hidden && this.scale) {
 			const { width, height } = logicalSize(this);
