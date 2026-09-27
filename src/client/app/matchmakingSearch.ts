@@ -27,7 +27,7 @@ export function searchCopy(phase: SearchPhase, seconds: number, join = ''): Sear
 		return {title: 'Соперник найден', showCancel: false, showStay: false, showBot: false, hidePlay: true};
 	}
 	if (phase === 'offline') {
-		return {title: 'Нет связи с сервером', showCancel: false, showStay: false, showBot: false, hidePlay: false};
+		return {title: 'Нет связи с сервером', showCancel: true, showStay: false, showBot: false, hidePlay: false, showFind: true};
 	}
 	if (phase === 'timeout-offer') {
 		return {title: 'Пока никого', showCancel: false, showStay: true, showBot: true, hidePlay: true};

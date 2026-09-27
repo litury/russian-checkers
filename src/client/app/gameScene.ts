@@ -513,12 +513,7 @@ export class GameScene extends Phaser.Scene {
 		this.paintSearch();
 		this.live?.close();
 		this.live = null;
-		this.time.delayedCall(1600, () => {
-			if (this.searchPhase !== 'offline') return;
-			this.searchPhase = 'idle';
-			this.title.clearSearch();
-			window.checkersStartup.unlock();
-		});
+		// Keep the failure and retry/exit actions visible until the user acts.
 	}
 
 	private async seatResume(): Promise<void> {
