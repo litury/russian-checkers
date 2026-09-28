@@ -20,6 +20,7 @@ import type { IBoardView } from './IBoardView';
 import { KingFire } from './kingFire';
 import { kingFireAssets } from './kingFireAssets';
 import { type MarkTone, planMoveMarks } from './moveMarks';
+import { pieceTierKey, pieceTierParts, pieceTierPose } from './pieceTier';
 import { markerMoves } from './reliquaryHints';
 import {
 	ARROW_CELL,
@@ -60,6 +61,8 @@ type PieceView = {
 	seal: Phaser.GameObjects.Image;
 	sprite: Phaser.GameObjects.Image;
 	outline: Phaser.GameObjects.Image;
+	tier: Phaser.GameObjects.Image;
+	front: Phaser.GameObjects.Image;
 	overlay: Phaser.GameObjects.Image;
 };
 const key = (s: ISquare): string => `${s.row},${s.col}`;
@@ -80,6 +83,9 @@ export function createBoardView(
 		pieceSprites.kingLight,
 		pieceSprites.kingDark,
 		'selection_king-seal',
+		...(['white', 'black'] as const).flatMap((side) =>
+			pieceTierParts.map((part) => pieceTierKey(side, part)),
+		),
 		...Object.keys(kingFireAssets).map((name) => `king-fire_${name}`),
 		...['white', 'black'].flatMap((side) =>
 			Array.from(
@@ -365,12 +371,33 @@ export function createBoardView(
 				.setOrigin(0.5, 0.5)
 				.setPosition(0, 0)
 				.setDisplaySize(field.cell * 0.86, field.cell * 0.86);
-		// Reuse the disk as a stationary lower tier. Only a man's upper disk
-		// travels; the real king already has two tiers, a seal and its own fire.
-		// Keep fractional progress (not motion.frame) so reversals never snap.
-		const lift = king ? 0 : field.cell * 0.12 * view.motion.progress;
-		view.sprite.setPosition(0, 0 - lift);
-		view.outline.setVisible(lift > 0);
+		// Three source layers with a head, not a second whole disk. The king
+		// already has two tiers inside one sprite: never copy that render, and
+		// never invent a lifted disk when the head layers are missing.
+		const layered =
+			!king &&
+			pieceTierParts.every((part) => hasTexture(pieceTierKey(view.side, part)));
+		view.sprite.setVisible(!layered);
+		view.outline.setVisible(layered);
+		view.tier.setVisible(layered);
+		view.front.setVisible(layered);
+		if (layered) {
+			const pose = pieceTierPose(field.cell, view.motion.progress);
+			for (const [image, part] of [
+				[view.outline, 'base'],
+				[view.front, 'front'],
+			] as const)
+				image
+					.setTexture(pieceTierKey(view.side, part))
+					.setOrigin(0, 0)
+					.setPosition(pose.x, pose.y)
+					.setDisplaySize(724 * pose.scale, 724 * pose.scale);
+			view.tier
+				.setTexture(pieceTierKey(view.side, 'moving'))
+				.setOrigin(0, 0)
+				.setPosition(pose.movingX, pose.movingY)
+				.setDisplaySize(450 * pose.scale, 402 * pose.scale);
+		}
 		view.seal
 			.setPosition(0, 0)
 			.setDisplaySize(field.cell, field.cell)
@@ -481,7 +508,22 @@ export function createBoardView(
 		const ctx = painted.getContext('2d');
 		if (!ctx) return null;
 		const inset = size * 0.07;
-		ctx.drawImage(disk, inset, inset, size - inset * 2, size - inset * 2);
+		if (view.tier.visible) {
+			// Preserve the visible layered body in the cut, rather than substituting
+			// the legacy whole disk at the instant of capture.
+			for (const image of [view.outline, view.tier, view.front]) {
+				const source = sourceImage(image.texture.key);
+				if (!source) return null;
+				ctx.drawImage(
+					source,
+					size / 2 + (image.x * size) / field.cell,
+					size / 2 + (image.y * size) / field.cell,
+					(image.displayWidth * size) / field.cell,
+					(image.displayHeight * size) / field.cell,
+				);
+			}
+		} else
+			ctx.drawImage(disk, inset, inset, size - inset * 2, size - inset * 2);
 		if (view.seal.visible) {
 			const seal = sourceImage(view.seal.texture.key);
 			if (seal) ctx.drawImage(seal, 0, 0, size, size);
@@ -699,6 +741,14 @@ export function createBoardView(
 					const outline = scene.add
 						.image(0, 0, texture)
 						.setName('piece-lower-tier');
+					const tier = scene.add
+						.image(0, 0, texture)
+						.setName('piece-moving-tier')
+						.setVisible(false);
+					const front = scene.add
+						.image(0, 0, texture)
+						.setName('piece-front')
+						.setVisible(false);
 					const sealKey = hasTexture('selection_king-seal')
 						? 'selection_king-seal'
 						: texture;
@@ -722,10 +772,12 @@ export function createBoardView(
 						motion: new SelectionMotion(),
 						sprite,
 						outline,
+						tier,
+						front,
 						seal,
 						overlay,
 						group: scene.add
-							.container(0, 0, [outline, sprite, seal, overlay])
+							.container(0, 0, [sprite, outline, tier, front, seal, overlay])
 							.setDepth(4)
 							.setName('selection-piece-group'),
 					};

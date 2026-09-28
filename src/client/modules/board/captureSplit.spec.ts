@@ -41,14 +41,15 @@ vi.mock('@/client/app/displayDensity', () => ({
 import type { IPosition, ISquare } from '@/rules';
 import { createBoardView } from './createReliquaryBoardView';
 
-function canvas() {
+function canvas(draws: unknown[][] = []) {
 	const pixels = new Uint8ClampedArray(160 * 160 * 4);
 	return {
 		width: 160,
 		height: 160,
 		getContext() {
 			return {
-				drawImage() {
+				drawImage(...args: unknown[]) {
+					draws.push(args);
 					pixels.fill(180);
 				},
 				getImageData() {
@@ -70,10 +71,11 @@ function canvas() {
 }
 
 function harness(reduced = false) {
+	const draws: unknown[][] = [];
 	vi.stubGlobal('matchMedia', () => ({ matches: reduced }));
 	vi.stubGlobal('document', {
 		activeElement: null,
-		createElement: (tag: string) => (tag === 'canvas' ? canvas() : {}),
+		createElement: (tag: string) => (tag === 'canvas' ? canvas(draws) : {}),
 		getElementById: () => null,
 	});
 	const objects: Record<string, unknown>[] = [];
@@ -132,11 +134,11 @@ function harness(reduced = false) {
 			exists: () => true,
 			// Faithful frame sheet: ensureBoardFrames() probes has()/add() for the
 			// colour strips. Missing frames are added, so has() starts false.
-			get: () => ({
+			get: (key: string) => ({
 				has: () => false,
 				add: () => {},
 				setFilter() {},
-				getSourceImage: () => ({ width: 64, height: 64 }),
+				getSourceImage: () => ({ width: 64, height: 64, key }),
 			}),
 			addCanvas: vi.fn(),
 			remove: vi.fn(),
@@ -182,7 +184,7 @@ function harness(reduced = false) {
 		move!.done = true;
 		(move!.onComplete as () => void)();
 	};
-	return { board, objects, tweens, finishHop };
+	return { board, objects, tweens, finishHop, draws };
 }
 
 const at = (row: number, col: number): ISquare => ({ row, col });
@@ -223,6 +225,20 @@ it('cuts only the victim of the hop that just landed, then the next one', () => 
 	h.finishHop();
 	expect(pieceAt(h, first)).toHaveLength(0);
 	expect(pieceAt(h, second)).toHaveLength(1);
+	const bodyDraws = h.draws.filter((args) =>
+		(args[0] as { key?: string }).key?.startsWith('piece-tier-'),
+	);
+	expect(bodyDraws.map((args) => (args[0] as { key: string }).key)).toEqual([
+		'piece-tier-black-base',
+		'piece-tier-black-moving',
+		'piece-tier-black-front',
+	]);
+	expect(Number(bodyDraws[1]?.[3]) / Number(bodyDraws[0]?.[3])).toBeCloseTo(
+		450 / 724,
+	);
+	expect(Number(bodyDraws[1]?.[3]) / Number(bodyDraws[1]?.[4])).toBeCloseTo(
+		450 / 402,
+	);
 	const halves = h.objects.filter(
 		(obj) => obj.name === 'capture-half' && !obj.destroyed,
 	);

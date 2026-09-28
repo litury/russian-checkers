@@ -30,16 +30,28 @@ it('delivers112 v2 WebP frames and preserves the separate king seal', () => {
 	expect(scene).toContain("this.load.image('selection_king-seal'");
 });
 it('keeps the 112-frame pack out of the Phaser match pack', () => {
-	// The board draws Reliquary disks and markers/*.png brackets; the frames are
-	// menu/result art. Nothing may queue the whole 7.9 MB pack into the scene loader.
+	// The board reuses six source layers. Never queue the whole 7.9 MB frame pack.
 	expect(scene).not.toMatch(/this\.load\.image\(`selection_/);
 	expect(scene).not.toMatch(/frames\/\*\/\*\.webp[\s\S]{0,120}eager:\s*true/);
 	const matchInteractive =
 		scene.match(
-			/private queueMatchInteractive\(\): void \{[\s\S]*?\n\t\}/,
+			/private queueMatchInteractive\(\): void \{[\s\S]*?\n	\}/,
 		)?.[0] ?? '';
 	expect(matchInteractive).toContain('selection_king-seal');
 	expect(matchInteractive).not.toContain('import.meta.glob');
+	const critical =
+		scene.match(
+			/private async queueTitleCritical\(\): Promise<void> \{[\s\S]*?\n	\}/,
+		)?.[0] ?? '';
+	expect(critical).toContain(
+		'./ui/siege/{white,black}-{base,moving,front}.webp',
+	);
+	expect(critical).not.toContain('selection-v2/frames');
+	const layers = import.meta.glob(
+		'../../app/ui/siege/{white,black}-{base,moving,front}.webp',
+		{ eager: true, query: '?url', import: 'default' },
+	);
+	expect(Object.keys(layers)).toHaveLength(6);
 });
 it('warms only endpoint frames, in idle time, after input is already allowed', () => {
 	// Endpoints are what the menu and the result window show (00/55 per side).

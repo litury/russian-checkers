@@ -302,6 +302,21 @@ export class GameScene extends Phaser.Scene {
 			if (aliases[name]) this.textures.addImage(aliases[name], image);
 			window.checkersStartup?.status(`Доска и шашки: ${++completed}/${Object.keys(reliquaryAssets).length}`);
 		}));
+		// Six siege source layers are the man body: base 724, insert 450x402, front.
+		// Decode before buildPlayfield, including reduced motion. A missing layer
+		// must not become a second whole disk — renderPiece keeps one disk then.
+		const tiers = import.meta.glob('./ui/siege/{white,black}-{base,moving,front}.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
+		await Promise.all(Object.entries(tiers).map(async ([path, url]) => {
+			const name = path.split('/').pop()?.replace('.webp', '');
+			if (!name) return;
+			try {
+				const image = await loadImage(url);
+				if (this.startupFailed) return;
+				this.textures.addImage(`piece-tier-${name}`, image);
+			} catch {
+				return;
+			}
+		}));
 		this.load.image('marker_staples', new URL('../modules/board/markers/staples.png', import.meta.url).href);
 		this.load.image('marker_staples_amber', new URL('../modules/board/markers/staples-amber.png', import.meta.url).href);
 		this.load.image('marker_staples_copper', new URL('../modules/board/markers/staples-copper.png', import.meta.url).href);
@@ -311,9 +326,9 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private queueMatchInteractive(): void {
-		// Selection-v2 frames are menu/result art only: the board never draws them
-		// (pieces keep their Reliquary disks, brackets come from markers/*.png).
-		// Only the king seal is a board texture, and it is one small file.
+		// 112 selection-v2 frames stay menu/result art. Brackets are markers/*.png.
+		// The man body is the six siege layers in the critical pack, not this one.
+		// Only the king seal is a selection texture here, and it is one small file.
 		this.load.image('selection_king-seal', new URL('../modules/board/selection/markers/king-seal-proposed.webp', import.meta.url).href);
 	}
 
