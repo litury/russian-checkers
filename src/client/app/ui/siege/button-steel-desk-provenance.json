@@ -1,0 +1,18 @@
+{
+  "role": "desktop menu plate for the locked 320x70 box",
+  "not": "a slice or stretch of button-steel-rest",
+  "rest_webp": "button-steel-desk-rest.webp",
+  "pressed_webp": "button-steel-desk-pressed.webp",
+  "canvas": [1344, 294],
+  "css_box": [320, 70],
+  "aspect": "32:7",
+  "scale": "4.2x of the CSS box, uniform fit of the generated metal, no non-uniform resample",
+  "native_generation": {
+    "file": "button-steel-wide.png",
+    "size": [2156, 729],
+    "kept_outside_repo": "/home/hermes/.hermes/profiles/illustrator/cache/scratch/t_8626aed2-art/button-steel-wide.png"
+  },
+  "pressed": "same silhouette as rest, lighting only, alpha identical to rest",
+  "webp": "libwebp quality 82, yuva420p",
+  "tool": "cx built-in image_gen, account2, no PixelLab"
+}

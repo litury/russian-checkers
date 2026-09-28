@@ -1,0 +1,15 @@
+{
+  "role": "search and rail plates for the measured flex boxes",
+  "not": "a slice or stretch of button-steel-rest, and not a shrink of the boxes",
+  "menu_320": "untouched, button-steel-desk-rest.webp",
+  "phone_menu": "untouched, button-steel-rest.webp at 100% 100%",
+  "fit": "new image_gen plates, center length removed to the measured box aspect, uniform scale only, no non-uniform resample",
+  "pressed": "same silhouette as each rest, lighting only, alpha identical",
+  "webp": "quality 82",
+  "boxes": {
+    "search-390": ["314x70", "152x70", "98x70"],
+    "search-1280": ["366x70", "178x70", "115.33x70"],
+    "rail": ["135.88x70 undo", "132x70 resign"]
+  },
+  "tool": "cx built-in image_gen, account2, no PixelLab"
+}

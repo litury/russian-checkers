@@ -128,10 +128,18 @@ it('keeps the search card and its buttons at the main geometry while the count r
 	expect(gates).toMatch(/#opening-search-head \{ position:relative; margin:0 0 20px; \}/);
 	expect(gates).toMatch(/#opening-online-count \{ position:absolute; top:100%; left:0; right:0;/);
 	expect(gates).toMatch(/#opening-online-count\[hidden\] \{ display:none; \}/);
-	// Рамка, плашки и поле кода — существующие спрайты меню: тот же девять-слайс, тот же растр стали.
 	expect(gates).toContain("border-image:url('./ui/siege/panel-revision2/frame.webp') 180 / var(--frame-corner) / 0 stretch;");
 	expect(gates).toMatch(/#opening-search-actions button \{[^}]*height:var\(--btn-h\);/);
+	// Плашки поиска держат прежний flex и свою пластину под коробку. Телефонное меню остаётся на старой.
 	expect(gates).toContain("background:transparent url('./ui/siege/button-steel-rest.webp') center/100% 100% no-repeat;");
+	expect(gates).toMatch(/#opening-search-actions button \{[^}]*flex:1 1 calc\(33\.333% - 7px\)/);
+	expect(gates).toMatch(/#opening-search-actions button \{[^}]*center\/contain no-repeat/);
+	expect(gates).not.toMatch(/#opening-search-actions button \{[^}]*100% 100%/);
+	expect(gates).not.toMatch(/#opening-search-actions button \{[^}]*736 \/ 295/);
+	expect(gates).toContain("url('./ui/siege/button-steel-search-98-rest.webp')");
+	expect(gates).toContain("url('./ui/siege/button-steel-search-314-rest.webp')");
+	expect(gates).toContain("url('./ui/siege/button-steel-search-366-rest.webp')");
+	expect(gates).toContain('background-size:contain');
 	expect(gates).toContain("background-image:url('./ui/siege/button-steel-pressed.webp')");
 	// Короткие экраны: карточка не закрывает соседние половины «Летописи»/«Битв» и не прячет их.
 	// Она ограничена по высоте свободным местом над их верхом и прокручивается внутри.

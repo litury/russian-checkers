@@ -28,9 +28,15 @@ it('rail plates carry the menu steel material at the shared button height', () =
  // One source of truth for the control height: :root, read by the menu and the rail.
  expect(chronicle).toContain(':root{--btn-h:70px;');
  expect(css).toContain('height:var(--btn-h)');
- // Same accepted raster as the menu buttons — no second art, no flat plaque.
- expect(css).toContain("url('./ui/siege/button-steel-rest.webp')");
- expect(css).toContain("url('./ui/siege/button-steel-pressed.webp')");
+ // Rail keeps its label width. Each label has its own plate, contained, not stretched to 100% 100%.
+ expect(css).toContain("url('./ui/siege/button-steel-rail-undo-rest.webp')");
+ expect(css).toContain("url('./ui/siege/button-steel-rail-resign-rest.webp')");
+ expect(css).toContain("url('./ui/siege/button-steel-rail-undo-pressed.webp')");
+ expect(css).toContain("url('./ui/siege/button-steel-rail-resign-pressed.webp')");
+ expect(css).toMatch(/#match-rail \.opening-utility\{[^}]*min-width:132px/);
+ expect(css).toMatch(/#match-rail \.opening-utility\{[^}]*contain no-repeat/);
+ expect(css).not.toMatch(/#match-rail \.opening-utility\{[^}]*100% 100%/);
+ expect(css).not.toMatch(/#match-rail \.opening-utility\{[^}]*736 \/ 295/);
  // The grey plaque the player reported is gone, not recoloured.
  expect(css).not.toContain('border:1px solid #62635b');
  expect(css).not.toContain('background:#202526');
