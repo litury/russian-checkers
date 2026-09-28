@@ -1,18 +1,19 @@
 {
   "role": "desktop menu plate for the locked 320x70 box",
-  "not": "a slice or stretch of button-steel-rest",
+  "not": "a slice or stretch of button-steel-rest, and not a shrink of the box",
   "rest_webp": "button-steel-desk-rest.webp",
   "pressed_webp": "button-steel-desk-pressed.webp",
   "canvas": [1344, 294],
   "css_box": [320, 70],
-  "aspect": "32:7",
-  "scale": "4.2x of the CSS box, uniform fit of the generated metal, no non-uniform resample",
+  "aspect": "4.5714, exactly the box aspect",
+  "covers": "the drawing is opaque to all four edges, so contain fills the box and no background shows at the edges or corners",
   "native_generation": {
-    "file": "button-steel-wide.png",
-    "size": [2156, 729],
-    "kept_outside_repo": "/home/hermes/.hermes/profiles/illustrator/cache/scratch/t_8626aed2-art/button-steel-wide.png"
+    "file": "plate-v3-raw.png",
+    "size": [2022, 778],
+    "kept_outside_repo": "/home/hermes/.hermes/profiles/illustrator/cache/scratch/t_8626aed2-art/plate-v3-raw.png"
   },
-  "pressed": "same silhouette as rest, lighting only, alpha identical to rest",
-  "webp": "libwebp quality 82, yuva420p",
+  "fit": "uniform scale to width 1538, vertical centre crop to height 294, then the centre length removed to the measured box width; uniform resample only, never 100% 100%",
+  "pressed": "same pixels, lighting only, no second drawing",
+  "webp": "libwebp quality 82; opaque lossy VP8, no alpha channel",
   "tool": "cx built-in image_gen, account2, no PixelLab"
 }

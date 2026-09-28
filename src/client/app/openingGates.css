@@ -75,7 +75,7 @@
 #opening-online-count[hidden] { display:none; }
 /* Search plaques keep the measured flex boxes. Each ratio has its own plate, contained, not stretched. */
 #opening-search-actions { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; align-items:stretch; }
-#opening-search-actions button { position:relative; flex:1 1 calc(33.333% - 7px); min-width:0; min-height:44px; height:var(--btn-h); display:flex; align-items:center; justify-content:center; margin:0; padding:0 14px 0 22px; border:0; border-radius:0; box-shadow:none; background:transparent url('./ui/siege/button-steel-search-98-rest.webp') center/contain no-repeat; color:#e9e0ce; font:600 clamp(13px,3.9cqw,16px)/1.15 'Golos Text',sans-serif; text-shadow:0 1px 2px #000; transform:none; transition:none; -webkit-tap-highlight-color:transparent; }
+#opening-search-actions button { position:relative; flex:1 1 calc(33.333% - 7px); min-width:0; min-height:44px; height:var(--btn-h); display:flex; align-items:center; justify-content:center; margin:0; padding:0 14px 0 22px; border:0; border-radius:0; box-shadow:none; background:transparent url('./ui/siege/button-steel-search-98-rest.webp') center/contain no-repeat; background-origin:border-box; background-clip:border-box; color:#e9e0ce; font:600 clamp(13px,3.9cqw,16px)/1.15 'Golos Text',sans-serif; text-shadow:0 1px 2px #000; transform:none; transition:none; -webkit-tap-highlight-color:transparent; }
 #opening-search-actions button::before, #opening-search-actions button::after { content:''; position:absolute; top:50%; width:5px; height:5px; border-radius:50%; background:#a29b81; box-shadow:0 1px 2px #000; }
 #opening-search-actions button::before { left:7px; }
 #opening-search-actions button::after { right:7px; }
@@ -155,7 +155,7 @@
 }
 
 #match-rail{position:fixed;z-index:10000;left:50%;bottom:calc(12px + env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;gap:8px;pointer-events:none}
-#match-rail .opening-utility{display:flex;align-items:center;justify-content:center;height:var(--btn-h);min-height:44px;min-width:132px;padding:0 14px;gap:6px;border:0;border-radius:0;box-shadow:none;background:transparent url('./ui/siege/button-steel-rail-resign-rest.webp') center/contain no-repeat;color:#e9e0ce;font:600 16px/1.15 "Golos Text",sans-serif;text-shadow:0 1px 2px #000;transition:none;transform:none;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+#match-rail .opening-utility{display:flex;align-items:center;justify-content:center;height:var(--btn-h);min-height:44px;min-width:132px;padding:0 14px;gap:6px;border:0;border-radius:0;box-shadow:none;background:transparent url('./ui/siege/button-steel-rail-resign-rest.webp') center/contain no-repeat;background-origin:border-box;background-clip:border-box;color:#e9e0ce;font:600 16px/1.15 "Golos Text",sans-serif;text-shadow:0 1px 2px #000;transition:none;transform:none;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 #match-rail .opening-utility:active{filter:none;background-image:url('./ui/siege/button-steel-rail-resign-pressed.webp');transform:translateY(2px)}
 #match-rail #match-undo{background-image:url('./ui/siege/button-steel-rail-undo-rest.webp')}
 #match-rail #match-undo:active{background-image:url('./ui/siege/button-steel-rail-undo-pressed.webp')}
@@ -178,6 +178,7 @@
  #opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options) {
   background-image:url('./ui/siege/button-steel-desk-rest.webp');
   background-repeat:no-repeat; background-position:center; background-size:contain;
+  background-origin:border-box; background-clip:border-box;
  }
  #opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options):active {
   background-image:url('./ui/siege/button-steel-desk-pressed.webp');
