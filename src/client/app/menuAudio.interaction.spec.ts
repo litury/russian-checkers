@@ -35,6 +35,7 @@ function fire(type:string,id='opening-play',trusted=true){
 async function load(name:string){
  // A warm buffer now requires a previous real activation. Cold-click tests
  // already activated before calling this helper, and keep their first gesture.
+ if(['menu_music_source','result-ascension','result-disposal'].includes(name))audio.warmAudio();
  if(!requests.size){fire('pointerdown','elsewhere');context.resume.mockClear();}
  await flush();
  const entry=[...requests].find(([url])=>url.includes(`/${name}.`));
@@ -54,6 +55,62 @@ beforeEach(()=>{
  audio=createMenuAudio({onPause:(fn:()=>void)=>{pause=fn;},onResume:(fn:()=>void)=>{resume=fn;}} as unknown as IYandexSdk);
 });
 afterEach(()=>{audio.dispose();vi.unstubAllGlobals();});
+
+it('defers menu music and result ceremony until playfield readiness, once',async()=>{
+ const has=(name:string)=>[...requests.keys()].some(url=>url.includes(`/${name}.`));
+ settings.music=1;
+ audio.warmAudio();
+ expect(requests.size).toBe(0);
+ fire('pointerdown','elsewhere');await flush();
+ expect(has('ui_click')).toBe(true);
+ expect(has('play-b')).toBe(true);
+ expect(has('match-b-90s')).toBe(false);
+ for(const name of ['menu_music_source','result-ascension','result-disposal'])expect(has(name),name).toBe(true);
+ const size=requests.size;
+ audio.warmAudio();
+ expect(requests.size).toBe(size);
+});
+
+it('keeps menu theme and result ceremony off the pre-board gesture',async()=>{
+ const has=(name:string)=>[...requests.keys()].some(url=>url.includes(`/${name}.`));
+ settings.music=1;
+ fire('pointerdown','elsewhere');await flush();
+ expect(has('ui_click')).toBe(true);
+ for(const name of ['menu_music_source','result-ascension','result-disposal'])expect(has(name),name).toBe(false);
+ audio.warmAudio();
+ for(const name of ['menu_music_source','result-ascension','result-disposal'])expect(has(name),name).toBe(true);
+ const size=requests.size;
+ audio.warmAudio();
+ expect(requests.size).toBe(size);
+});
+
+it('does not download the menu theme while leaving, even after the board gate',()=>{
+ const has=(name:string)=>[...requests.keys()].some(url=>url.includes(`/${name}.`));
+ settings.music=1;
+ fire('pointerdown','opening-play');
+ audio.warmAudio();
+ expect(has('menu_music_source')).toBe(false);
+ expect(has('result-ascension')).toBe(true);
+ expect(has('result-disposal')).toBe(true);
+});
+
+it('does not fetch deferred audio after disposal',()=>{
+ fire('pointerdown','elsewhere');
+ audio.dispose();const size=requests.size;
+ audio.warmAudio();expect(requests.size).toBe(size);
+});
+
+it('remembers readiness when AudioContext creation initially fails',()=>{
+ audio.dispose();requests.clear();
+ vi.stubGlobal('AudioContext',class {constructor(){throw Error('unavailable');}});
+ audio=createMenuAudio({onPause(){},onResume(){}} as unknown as IYandexSdk);
+ audio.warmAudio();expect(requests.size).toBe(0);
+ vi.stubGlobal('AudioContext',FakeContext);
+ settings.music=1;
+ fire('pointerdown','elsewhere');
+ expect([...requests.keys()].some(url=>url.includes('/menu_music_source.'))).toBe(true);
+ expect([...requests.keys()].some(url=>url.includes('/result-ascension.'))).toBe(true);
+});
 
 it('does not request any audio on creation, synthetic gestures, or passive menu updates',async()=>{
  fire('pointerdown','elsewhere',false);fire('click','opening-play',false);

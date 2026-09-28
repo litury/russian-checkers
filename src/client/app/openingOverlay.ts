@@ -342,5 +342,6 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   resultCeremonySound:(win:boolean)=>audio.resultCeremonySound(win),
   stopResultCeremonySound:()=>audio.stopResultCeremonySound(),
   revealAudio:(ms:number,reduced:boolean)=>audio.reveal(ms,reduced),
+  warmAudio:()=>audio.warmAudio(),
  };
 }

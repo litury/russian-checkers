@@ -80,10 +80,15 @@ export function createMenuAudio(sdk:IYandexSdk) {
    else startMatch();
   }else stopMatch();
  };
- let prepared=false;
+ let prepared=false, playfieldReady=false, disposed=false;
+ // No deadline before the board pack. Match bed stays on demand; short cues stay
+ // on the first gesture. Never await these bodies to reveal or accept a move.
+ const deferredAudio=new Set(['menu_music_source','result-ascension','result-disposal']);
+ const audioName=(path:string)=>path.split('/').pop()!.replace(/\.[^.]+$/,'');
  const requestBuffer=(name:string)=>{
-  if(!ctx||loading.has(name))return;
-  const url=Object.entries(urls).find(([path])=>path.split('/').pop()!.replace(/\.[^.]+$/,'')===name)?.[1];
+  if(disposed||!ctx||ctx.state==='closed'||loading.has(name))return;
+  if(!playfieldReady&&deferredAudio.has(name))return;
+  const url=Object.entries(urls).find(([path])=>audioName(path)===name)?.[1];
   if(!url)return;
   const ready=loadBytes(url).then(b=>ctx!.decodeAudioData(b.slice(0))).then(b=>{
    if(name==='menu_music_source'||name==='match-b-90s'){
@@ -95,6 +100,12 @@ export function createMenuAudio(sdk:IYandexSdk) {
   }).catch(()=>{});
   loading.set(name,ready);
  };
+ const warmDeferred=()=>{
+  if(disposed||!playfieldReady||!prepared||!ctx||ctx.state==='closed')return;
+  for(const name of ['result-ascension','result-disposal'])requestBuffer(name);
+  // 1.4MB theme belongs to an active menu, not to a departure already in progress.
+  if(settings().music&&!policy.departing)requestBuffer('menu_music_source');
+ };
  const prepare=()=>{
   if(prepared)return;
   if(!ctx)try {ctx=new AudioContext();}catch{return;}
@@ -102,10 +113,15 @@ export function createMenuAudio(sdk:IYandexSdk) {
   // Short cues warm only after activation. Music belongs to the active screen;
   // never download the 1.4MB menu theme while leaving for a game.
   for(const path of Object.keys(urls)){
-   const name=path.split('/').pop()!.replace(/\.[^.]+$/,'');
+   const name=audioName(path);
    if(name!=='menu_music_source'&&name!=='match-b-90s')requestBuffer(name);
   }
   if(settings().music&&!policy.departing)requestBuffer('menu_music_source');
+ };
+ const warmAudio=()=>{
+  // Remember the gate even if AudioContext is still unavailable.
+  playfieldReady=true;
+  warmDeferred();
  };
  const sound=(name:string,level=1)=>{
   sync();if(!policy.audible||!unlocked||ctx?.state!=='running'||!settings().effects)return;
@@ -212,6 +228,7 @@ export function createMenuAudio(sdk:IYandexSdk) {
  let resultSource:AudioBufferSourceNode|undefined;
  const stopResultCeremonySound=()=>{try{resultSource?.stop();}catch{}resultSource=undefined;};
  return {
+  warmAudio,
   stopResultCeremonySound,
   resultCeremonySound(win:boolean){stopResultCeremonySound();resultSource=sound(win?'result-ascension':'result-disposal',.7)?.source;},
   menuContact,
@@ -255,6 +272,6 @@ export function createMenuAudio(sdk:IYandexSdk) {
     }
    }
   },
-  dispose(){bindMenuPressSound(()=>{});bindKingFireSfx(()=>{});bindPieceSfx(()=>{});bindPieceVoice(()=>{});policy.menu=false;stopEffects();stopMusic();stopMatch();document.removeEventListener('pointerdown',gesture,true);document.removeEventListener('keydown',gesture,true);document.removeEventListener('click',click,true);document.removeEventListener('visibilitychange',sync);window.removeEventListener('checkers-settings-change',sync);void ctx?.close();},
+  dispose(){disposed=true;bindMenuPressSound(()=>{});bindKingFireSfx(()=>{});bindPieceSfx(()=>{});bindPieceVoice(()=>{});policy.menu=false;stopEffects();stopMusic();stopMatch();document.removeEventListener('pointerdown',gesture,true);document.removeEventListener('keydown',gesture,true);document.removeEventListener('click',click,true);document.removeEventListener('visibilitychange',sync);window.removeEventListener('checkers-settings-change',sync);void ctx?.close();},
  };
 }

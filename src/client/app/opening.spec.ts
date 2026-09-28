@@ -60,6 +60,10 @@ describe('HTML-first opening', () => {
   expect(bootPlayfield).toContain('preloadBunkerPanels');
   expect(bootPlayfield).not.toContain('queueMatchInteractive');
   expect(bootPlayfield).not.toContain('queueResultPack');
+  expect(bootPlayfield).toContain('this.title?.warmAudio()');
+  expect(bootPlayfield.indexOf("markPerf('playfield-ready')")).toBeLessThan(bootPlayfield.indexOf('this.title?.warmAudio()'));
+  expect(bootPlayfield).not.toContain('await this.title');
+  expect(overlay).toContain('warmAudio:()=>audio.warmAudio()');
   const bootInteractive = scene.match(/bootMatchInteractive\(\): Promise<void> \{[\s\S]*?\n\t\}/)?.[0] ?? '';
   expect(bootInteractive).toContain('await this.playfieldReady');
   expect(bootInteractive).toContain('queueMatchInteractive');

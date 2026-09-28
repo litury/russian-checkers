@@ -376,6 +376,8 @@ export class GameScene extends Phaser.Scene {
 		if (!this.playfieldBuilt) return;
 		// Board + pieces are on screen-capable textures here: this is the reveal gate.
 		markPerf('playfield-ready');
+		// Menu theme and result ceremony must not compete with this pack. Not awaited.
+		this.title?.warmAudio();
 	}
 
 	private async bootMatchInteractive(): Promise<void> {
