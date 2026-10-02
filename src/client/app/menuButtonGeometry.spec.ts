@@ -125,6 +125,11 @@ it('keeps the search card and its buttons at the main geometry while the count r
 	// itself is taken out of flow, right under the heading: measured on 390x844 and 1440x900 the
 	// card stays 366x283 / 430x307 and the action row keeps --btn-h.
 	expect(gates).toMatch(/#opening-search \{ position:absolute[^}]*width:min\(430px,calc\(100% - 24px\)\)[^}]*padding:calc\(var\(--frame-corner\) \+ 4px\) calc\(var\(--frame-corner\) \+ 2px\);/);
+	expect(gates).not.toContain('scrollbar-width:none');
+	expect(gates).not.toMatch(/#opening-search::-webkit-scrollbar \{ width:0/);
+	// Short desktop keeps the fourth plate inside the chronicle cap without shrinking the boxes.
+	expect(gates).toMatch(/@media \(max-height:860px\) and \(min-width:454px\) \{\s*#opening-search \{ padding-top:var\(--frame-corner\); padding-bottom:var\(--frame-corner\); \}/);
+	expect(gates).toContain('.opening-search-title { width:min(40%,120px); }');
 	expect(gates).toMatch(/#opening-search-head \{ position:relative; margin:0 0 20px; \}/);
 	expect(gates).toMatch(/#opening-online-count \{ position:absolute; top:100%; left:0; right:0;/);
 	expect(gates).toMatch(/#opening-online-count\[hidden\] \{ display:none; \}/);
