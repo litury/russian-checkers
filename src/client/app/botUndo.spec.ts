@@ -44,8 +44,7 @@ it('rail plates carry the menu steel material at the shared button height', () =
  expect(css).toMatch(/#match-rail \.opening-utility\{[^}]*background-origin:border-box/);
  expect(css).toMatch(/#match-rail \.opening-utility\{[^}]*background-clip:border-box/);
  expect(css).not.toMatch(/#match-rail \.opening-utility\{[^}]*background-origin:padding-box/);
- // Each label has its own drawing with no large left bolt, so the label sits on the recessed
- // panel and not on a bolt.
+ // Each label has its own plate. Padding keeps the word off the left bolt; the box width is unchanged.
  expect(css).toContain("url('./ui/siege/button-steel-rail-undo-rest.webp')");
  // The grey plaque the player reported is gone, not recoloured.
  expect(css).not.toContain('border:1px solid #62635b');

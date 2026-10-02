@@ -57,7 +57,8 @@
    Frame — the same nine-slice siege raster as «Летопись»/«Битвы» (slice 180, --frame-corner width),
    backplate — the existing gate cut, heading — the cassette plate of the main title,
    action plaques — the menu steel raster at the shared --btn-h token. */
-#opening-search { position:absolute; z-index:5; left:50%; top:var(--play-y); width:min(430px,calc(100% - 24px)); transform:translateX(-50%); margin:0; padding:calc(var(--frame-corner) + 4px) calc(var(--frame-corner) + 2px); border:0; border-radius:0; box-shadow:none; background:none; color:#e2d9c0; text-align:center; max-height:calc(100% - var(--play-y) - var(--piece) - 182px); overflow:auto; isolation:isolate; container-type:inline-size; }
+#opening-search { position:absolute; z-index:5; left:50%; top:var(--play-y); width:min(430px,calc(100% - 24px)); transform:translateX(-50%); margin:0; padding:calc(var(--frame-corner) + 4px) calc(var(--frame-corner) + 2px); border:0; border-radius:0; box-shadow:none; background:none; color:#e2d9c0; text-align:center; max-height:calc(100% - var(--play-y) - var(--piece) - 182px); overflow:auto; scrollbar-width:none; isolation:isolate; container-type:inline-size; }
+#opening-search::-webkit-scrollbar { width:0; height:0; }
 /* The card is capped to the free space above the chronicle halves and scrolls inside instead of
    reaching under them: the halves are bottom-anchored 24px up with a calc(var(--piece) + 150px)
    body, so reserving that plus an 8px gap keeps their top edge clear. Nothing is hidden. */
@@ -75,10 +76,7 @@
 #opening-online-count[hidden] { display:none; }
 /* Search plaques keep the measured flex boxes. Each ratio has its own plate, contained, not stretched. */
 #opening-search-actions { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; align-items:stretch; }
-#opening-search-actions button { position:relative; flex:1 1 calc(33.333% - 7px); min-width:0; min-height:44px; height:var(--btn-h); display:flex; align-items:center; justify-content:center; margin:0; padding:0 14px 0 22px; border:0; border-radius:0; box-shadow:none; background:transparent url('./ui/siege/button-steel-search-98-rest.webp') center/contain no-repeat; background-origin:border-box; background-clip:border-box; color:#e9e0ce; font:600 clamp(13px,3.9cqw,16px)/1.15 'Golos Text',sans-serif; text-shadow:0 1px 2px #000; transform:none; transition:none; -webkit-tap-highlight-color:transparent; }
-#opening-search-actions button::before, #opening-search-actions button::after { content:''; position:absolute; top:50%; width:5px; height:5px; border-radius:50%; background:#a29b81; box-shadow:0 1px 2px #000; }
-#opening-search-actions button::before { left:7px; }
-#opening-search-actions button::after { right:7px; }
+#opening-search-actions button { position:relative; flex:1 1 calc(33.333% - 7px); min-width:0; min-height:44px; height:var(--btn-h); display:flex; align-items:center; justify-content:center; margin:0; padding:0 12px 0 30px; border:0; border-radius:0; box-shadow:inset 0 0 0 1px #120f0c; background:transparent url('./ui/siege/button-steel-search-98-rest.webp') center/contain no-repeat; background-origin:border-box; background-clip:border-box; color:#e9e0ce; font:600 clamp(13px,3.9cqw,16px)/1.15 'Golos Text',sans-serif; text-shadow:0 1px 2px #000; transform:none; transition:none; -webkit-tap-highlight-color:transparent; }
 #opening-search-actions button:hover { filter:brightness(1.06); }
 #opening-search-actions button:active { filter:none; background-image:url('./ui/siege/button-steel-search-98-pressed.webp'); transform:translateY(2px); }
 /* Below 454px the card is still 100%-24px: 314 / 152 / 98 at 390. */
@@ -167,7 +165,9 @@
 }
 
 #match-rail{position:fixed;z-index:10000;left:50%;bottom:calc(12px + env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;gap:8px;pointer-events:none}
-#match-rail .opening-utility{display:flex;align-items:center;justify-content:center;height:var(--btn-h);min-height:44px;min-width:132px;padding:0 14px;gap:6px;border:0;border-radius:0;box-shadow:none;background:transparent url('./ui/siege/button-steel-rail-resign-rest.webp') center/contain no-repeat;background-origin:border-box;background-clip:border-box;color:#e9e0ce;font:600 16px/1.15 "Golos Text",sans-serif;text-shadow:0 1px 2px #000;transition:none;transform:none;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+#match-rail .opening-utility{display:flex;align-items:center;justify-content:center;height:var(--btn-h);min-height:44px;min-width:132px;padding:0 8px 0 26px;gap:6px;border:0;border-radius:0;box-shadow:none;background:transparent url('./ui/siege/button-steel-rail-resign-rest.webp') center/contain no-repeat;background-origin:border-box;background-clip:border-box;color:#e9e0ce;font:600 16px/1.15 "Golos Text",sans-serif;text-shadow:0 1px 2px #000;transition:none;transform:none;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;box-sizing:border-box}
+#match-rail #match-undo{width:135.88px}
+#match-rail #match-resign{width:132px}
 #match-rail .opening-utility:active{filter:none;background-image:url('./ui/siege/button-steel-rail-resign-pressed.webp');transform:translateY(2px)}
 #match-rail #match-undo{background-image:url('./ui/siege/button-steel-rail-undo-rest.webp')}
 #match-rail #match-undo:active{background-image:url('./ui/siege/button-steel-rail-undo-pressed.webp')}

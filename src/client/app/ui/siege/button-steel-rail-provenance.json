@@ -1,16 +1,12 @@
 {
-  "role": "rail plates drawn for the measured 135.88x70 undo and 132x70 resign boxes",
-  "not": "a slice, splice, mirror or stretch of button-steel-rest, and not a crop of a wide strip",
+  "role": "rail plates redrawn in the phone-plate frame for undo 135.88x70 and resign 132x70",
+  "not": "a slice, splice, mirror, crop or stretch of button-steel-rest",
   "covers": "opaque RGB to all four edges, contain from the border box",
   "canvas": {
-    "button-steel-rail-undo": [544, 280],
-    "button-steel-rail-resign": [528, 280]
+    "button-steel-rail-undo": [571, 294],
+    "button-steel-rail-resign": [554, 294]
   },
-  "aspect": ["1.94286 vs box 1.94114", "1.88571 vs box 1.88571"],
-  "live_box": "fresh load, Golos ready: undo 135.875x70, resign 132x70",
-  "rivet": "circle on the left, sized from height, clear of the centred label",
-  "scratches": "seeded per plate, not mirrored",
+  "frame": "side lugs and a large left bolt; padding keeps the label off the bolt without changing the box",
   "pressed": "same drawing, lighting only",
-  "webp": "libwebp quality 88, opaque lossy VP8, no alpha",
   "tool": "code paint at the measured aspect, because built-in image_gen cannot exceed 3:1"
 }
