@@ -1,29 +1,29 @@
 {
-  "role": "search-opponent and rail plates for the measured flex boxes",
-  "not": "a slice or stretch of button-steel-rest, and not a shrink of the boxes",
-  "menu_320": "untouched, button-steel-desk-rest.webp",
+  "role": "search plates drawn for each measured flex box",
+  "not": "a slice, splice, mirror or stretch of button-steel-rest, and not an image_gen strip",
   "phone_menu": "untouched, button-steel-rest.webp at 100% 100%",
-  "covers": "each drawing is opaque to all four edges, so contain fills its box and no background shows at the edges or corners",
-  "fit": "one new drawing, uniform scale to width 1538, vertical centre crop to height 294, then the centre length removed to the measured box aspect; uniform resample only, no 100% 100%",
-  "pressed": "same pixels as each rest, lighting only",
-  "webp": "libwebp quality 82; opaque lossy VP8, no alpha channel",
+  "menu_320": "separate drawing, button-steel-desk-*.webp",
+  "covers": "each drawing is opaque RGB to all four edges",
+  "density": "height 280, 4x the 70px box, uniform display scale only",
+  "rivet": "circle sized from the plate height, left, not a crop of a wide strip",
+  "scratches": "seeded per plate, not mirrored",
+  "pressed": "same drawing, lighting only",
+  "webp": "libwebp quality 88, opaque lossy VP8, no alpha",
   "boxes": {
-    "search-390": ["314x70", "152x70", "98x70"],
-    "search-1280": ["366x70", "178x70", "115.33x70"],
-    "rail": ["135.88x70 undo", "132x70 resign"]
+    "below_454": ["314x70", "152x70", "98x70"],
+    "454_to_699": ["378x70", "184x70", "119.33x70"],
+    "from_700": ["366x70", "178x70", "115.33x70"]
   },
   "canvas": {
-    "button-steel-search-98": [412, 294],
-    "button-steel-search-152": [638, 294],
-    "button-steel-search-314": [1319, 294],
-    "button-steel-search-115": [485, 294],
-    "button-steel-search-178": [748, 294],
-    "button-steel-search-366": [1538, 294]
+    "button-steel-search-98": [392, 280],
+    "button-steel-search-152": [608, 280],
+    "button-steel-search-314": [1256, 280],
+    "button-steel-search-119": [477, 280],
+    "button-steel-search-184": [736, 280],
+    "button-steel-search-378": [1512, 280],
+    "button-steel-search-115": [461, 280],
+    "button-steel-search-178": [712, 280],
+    "button-steel-search-366": [1464, 280]
   },
-  "native_generation": {
-    "file": "plate-v3-raw.png",
-    "size": [2022, 778],
-    "kept_outside_repo": "/home/hermes/.hermes/profiles/illustrator/cache/scratch/t_8626aed2-art/plate-v3-raw.png"
-  },
-  "tool": "cx built-in image_gen, account2, no PixelLab"
+  "tool": "code paint at each measured aspect, because built-in image_gen cannot exceed 3:1"
 }

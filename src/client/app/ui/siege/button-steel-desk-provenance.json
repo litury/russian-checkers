@@ -1,19 +1,15 @@
 {
-  "role": "desktop menu plate for the locked 320x70 box",
-  "not": "a slice or stretch of button-steel-rest, and not a shrink of the box",
-  "rest_webp": "button-steel-desk-rest.webp",
-  "pressed_webp": "button-steel-desk-pressed.webp",
-  "canvas": [1344, 294],
+  "role": "desktop menu plate drawn for the locked 320x70 box",
+  "not": "a slice, splice, mirror or stretch of button-steel-rest, and not an image_gen strip",
+  "phone_menu": "untouched, button-steel-rest.webp at 100% 100%",
+  "canvas": [1280, 280],
   "css_box": [320, 70],
-  "aspect": "4.5714, exactly the box aspect",
-  "covers": "the drawing is opaque to all four edges, so contain fills the box and no background shows at the edges or corners",
-  "native_generation": {
-    "file": "plate-v3-raw.png",
-    "size": [2022, 778],
-    "kept_outside_repo": "/home/hermes/.hermes/profiles/illustrator/cache/scratch/t_8626aed2-art/plate-v3-raw.png"
-  },
-  "fit": "uniform scale to width 1538, vertical centre crop to height 294, then the centre length removed to the measured box width; uniform resample only, never 100% 100%",
-  "pressed": "same pixels, lighting only, no second drawing",
-  "webp": "libwebp quality 82; opaque lossy VP8, no alpha channel",
-  "tool": "cx built-in image_gen, account2, no PixelLab"
+  "aspect": "4.57143, the box aspect exactly",
+  "density": "4x the CSS box, uniform display scale only, same order as the phone plate",
+  "covers": "opaque RGB to all four edges, contain from the border box",
+  "rivet": "circle sized from the plate height, left, not stretched with width",
+  "scratches": "seeded for this plate only, not mirrored and not a repeated centre crop",
+  "pressed": "same drawing, lighting only",
+  "webp": "libwebp quality 88, opaque lossy VP8, no alpha",
+  "tool": "code paint at the measured aspect, because built-in image_gen cannot exceed 3:1"
 }

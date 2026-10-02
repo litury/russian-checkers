@@ -139,6 +139,14 @@ it('keeps the search card and its buttons at the main geometry while the count r
 	expect(gates).toContain("url('./ui/siege/button-steel-search-98-rest.webp')");
 	expect(gates).toContain("url('./ui/siege/button-steel-search-314-rest.webp')");
 	expect(gates).toContain("url('./ui/siege/button-steel-search-366-rest.webp')");
+	expect(gates).toContain("url('./ui/siege/button-steel-search-378-rest.webp')");
+	expect(gates).toContain("url('./ui/siege/button-steel-search-184-rest.webp')");
+	expect(gates).toContain("url('./ui/siege/button-steel-search-119-rest.webp')");
+	const mid = gates.slice(gates.indexOf("@media (min-width:454px)"), gates.indexOf("@media (min-width:700px)"));
+	expect(mid).toContain("button-steel-search-378-rest.webp");
+	expect(mid).toContain("button-steel-search-184-rest.webp");
+	expect(mid).toContain("button-steel-search-119-rest.webp");
+	expect(mid).not.toContain("button-steel-search-314-rest.webp");
 	expect(gates).toContain('background-size:contain');
 	// `contain` is measured from the background positioning area, and that must be the border
 	// box: with the default padding-box it is fitted to the padded content area, which is
@@ -188,12 +196,16 @@ function readWebp(path: string) {
  * fails here even though the CSS still says `contain`.
  */
 it('gives the search and desktop buttons a plate drawn per measured box, opaque to the edge', () => {
-	// Measured boxes (px at --btn-h:70): search row at 390 is 314/152/98, at 1280 and 1440 it is
+	// Measured boxes (px at --btn-h:70): search at 390 is 314/152/98, at 600 (card
+	// capped, frame-corner still 24) it is 378/184/119.33, at 700+ it is
 	// 366/178/115.33; the desktop menu is 320.
 	const boxes: [string, number][] = [
 		['button-steel-search-98', 98],
 		['button-steel-search-152', 152],
 		['button-steel-search-314', 314],
+		['button-steel-search-119', 119.33],
+		['button-steel-search-184', 184],
+		['button-steel-search-378', 378],
 		['button-steel-search-115', 115.33],
 		['button-steel-search-178', 178],
 		['button-steel-search-366', 366],

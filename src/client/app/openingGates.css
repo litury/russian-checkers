@@ -81,13 +81,25 @@
 #opening-search-actions button::after { right:7px; }
 #opening-search-actions button:hover { filter:brightness(1.06); }
 #opening-search-actions button:active { filter:none; background-image:url('./ui/siege/button-steel-search-98-pressed.webp'); transform:translateY(2px); }
-/* 390: one action and a wrapped fourth are 314x70, two are 152x70, three in a row are 98x70. */
+/* Below 454px the card is still 100%-24px: 314 / 152 / 98 at 390. */
 #opening-search-actions:not(:has(> button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]) { background-image:url('./ui/siege/button-steel-search-314-rest.webp'); }
 #opening-search-actions:not(:has(> button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]):active { background-image:url('./ui/siege/button-steel-search-314-pressed.webp'); }
 #opening-search-actions:has(> button:not([hidden]) ~ button:not([hidden])):not(:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]) { background-image:url('./ui/siege/button-steel-search-152-rest.webp'); }
 #opening-search-actions:has(> button:not([hidden]) ~ button:not([hidden])):not(:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]):active { background-image:url('./ui/siege/button-steel-search-152-pressed.webp'); }
 #opening-search-actions:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden])):not(:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) { background-image:url('./ui/siege/button-steel-search-314-rest.webp'); }
 #opening-search-actions:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden])):not(:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]):active { background-image:url('./ui/siege/button-steel-search-314-pressed.webp'); }
+/* From 454px the card is capped at 430px and --frame-corner is still 24, so the
+   boxes are 378 / 184 / 119.33. Measured at 600. Not the 390 plates. */
+@media (min-width:454px) {
+ #opening-search-actions button { background-image:url('./ui/siege/button-steel-search-119-rest.webp'); }
+ #opening-search-actions button:active { background-image:url('./ui/siege/button-steel-search-119-pressed.webp'); }
+ #opening-search-actions:not(:has(> button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]) { background-image:url('./ui/siege/button-steel-search-378-rest.webp'); }
+ #opening-search-actions:not(:has(> button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]):active { background-image:url('./ui/siege/button-steel-search-378-pressed.webp'); }
+ #opening-search-actions:has(> button:not([hidden]) ~ button:not([hidden])):not(:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]) { background-image:url('./ui/siege/button-steel-search-184-rest.webp'); }
+ #opening-search-actions:has(> button:not([hidden]) ~ button:not([hidden])):not(:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]):active { background-image:url('./ui/siege/button-steel-search-184-pressed.webp'); }
+ #opening-search-actions:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden])):not(:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) { background-image:url('./ui/siege/button-steel-search-378-rest.webp'); }
+ #opening-search-actions:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden])):not(:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]):active { background-image:url('./ui/siege/button-steel-search-378-pressed.webp'); }
+}
 @media (min-width:700px) {
  #opening-search-actions button { background-image:url('./ui/siege/button-steel-search-115-rest.webp'); }
  #opening-search-actions button:active { background-image:url('./ui/siege/button-steel-search-115-pressed.webp'); }

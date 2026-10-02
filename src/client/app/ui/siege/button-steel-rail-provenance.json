@@ -1,22 +1,16 @@
 {
-  "role": "rail control plates for the measured 135.88x70 undo and 132x70 resign boxes",
-  "not": "a slice or stretch of button-steel-rest, and not a shrink of the boxes",
-  "rest_webp": ["button-steel-rail-undo-rest.webp", "button-steel-rail-resign-rest.webp"],
-  "pressed_webp": ["button-steel-rail-undo-pressed.webp", "button-steel-rail-resign-pressed.webp"],
-  "change": "redrawn without the large left bolt so the centred label sits on the recessed panel, not on a bolt",
-  "covers": "opaque to all four edges, so contain fills the measured box and no background shows at the edges or corners",
+  "role": "rail plates drawn for the measured 135.88x70 undo and 132x70 resign boxes",
+  "not": "a slice, splice, mirror or stretch of button-steel-rest, and not a crop of a wide strip",
+  "covers": "opaque RGB to all four edges, contain from the border box",
   "canvas": {
-    "button-steel-rail-undo": [571, 294],
-    "button-steel-rail-resign": [554, 294]
+    "button-steel-rail-undo": [544, 280],
+    "button-steel-rail-resign": [528, 280]
   },
-  "aspect": ["1.9422 vs box 1.9411", "1.8844 vs box 1.8857"],
-  "fit": "uniform scale to width 1538, vertical centre crop to height 294, then the centre length removed to the measured box aspect; uniform resample only, never 100% 100%",
-  "native_generation": {
-    "file": "plate-v3-raw.png",
-    "size": [2022, 778],
-    "kept_outside_repo": "/home/hermes/.hermes/profiles/illustrator/cache/scratch/t_8626aed2-art/plate-v3-raw.png"
-  },
-  "pressed": "same pixels as rest, lighting only",
-  "webp": "libwebp quality 82; opaque lossy VP8, no alpha channel",
-  "tool": "cx built-in image_gen, account2, no PixelLab"
+  "aspect": ["1.94286 vs box 1.94114", "1.88571 vs box 1.88571"],
+  "live_box": "fresh load, Golos ready: undo 135.875x70, resign 132x70",
+  "rivet": "circle on the left, sized from height, clear of the centred label",
+  "scratches": "seeded per plate, not mirrored",
+  "pressed": "same drawing, lighting only",
+  "webp": "libwebp quality 88, opaque lossy VP8, no alpha",
+  "tool": "code paint at the measured aspect, because built-in image_gen cannot exceed 3:1"
 }
