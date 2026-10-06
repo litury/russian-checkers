@@ -2,6 +2,7 @@ import { SiegeSelection, setSiegeSide, siegeSide, type SiegeSide } from './siege
 import { drawMenuFire, MENU_FIRE } from './menuSelectionFire';
 import { MenuTouchMotion } from './menuTouchMotion';
 import {loadImage as decode} from './assetLoader';
+import { haptics } from './haptics';
 
 const layers = import.meta.glob('./ui/siege/{white,black}-{base,moving,front}.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
 const fireUrls = [
@@ -87,11 +88,16 @@ export function mountSiegeOpening(root: HTMLElement, isPlayRequested: () => bool
   setSiegeSide(root, button.dataset.side as SiegeSide);
  };
  const keyboard = (event: KeyboardEvent) => {
+  if (event.defaultPrevented || root.hidden || root.inert || (event.currentTarget as HTMLButtonElement).matches(':disabled, [aria-disabled="true"]')) return;
   if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return;
-  event.preventDefault();
   const side = event.key === 'Home' ? 'white' : event.key === 'End' ? 'black' : state.side === 'white' ? 'black' : 'white';
+  const target = buttons.find(button => button.dataset.side === side);
+  if (!target || target.matches(':disabled, [aria-disabled="true"]')) return;
+  event.preventDefault();
+  const previousSide = siegeSide(root);
   setSiegeSide(root, side);
-  buttons.find(button => button.dataset.side === side)?.focus();
+  if (event.isTrusted && siegeSide(root) !== previousSide) haptics.play('tick', event);
+  target.focus();
  };
  for (const button of buttons) {
   button.addEventListener('click', choose);

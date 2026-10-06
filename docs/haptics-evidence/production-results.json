@@ -1,5 +1,74 @@
 {
   "productionBundleUnmodified": true,
+  "keyboardResults": [
+    {
+      "key": "ArrowRight",
+      "side": "black",
+      "calls": [
+        10
+      ]
+    },
+    {
+      "key": "ArrowLeft",
+      "side": "white",
+      "calls": [
+        10
+      ]
+    },
+    {
+      "key": "ArrowDown",
+      "side": "black",
+      "calls": [
+        10
+      ]
+    },
+    {
+      "key": "ArrowUp",
+      "side": "white",
+      "calls": [
+        10
+      ]
+    },
+    {
+      "key": "End",
+      "side": "black",
+      "calls": [
+        10
+      ]
+    },
+    {
+      "key": "End",
+      "side": "black",
+      "calls": []
+    },
+    {
+      "key": "Home",
+      "side": "white",
+      "calls": [
+        10
+      ]
+    },
+    {
+      "key": "Home",
+      "side": "white",
+      "calls": []
+    },
+    {
+      "key": "ArrowRight",
+      "side": "white",
+      "calls": []
+    },
+    {
+      "key": "End",
+      "side": "white",
+      "calls": []
+    },
+    {
+      "key": "End",
+      "side": "white",
+      "calls": []
+    }
+  ],
   "calls": [
     10,
     15

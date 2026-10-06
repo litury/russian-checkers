@@ -20,6 +20,13 @@ Limitations:
 - npm ci replaced the repository's tracked node_modules symlink locally with dependencies; that environment-only deletion is excluded from the candidate commit. Do not commit node_modules.
 - No push, production deployment or independent QA has occurred.
 
+QA rework: keyboard side selection
+- siegeOpening.ts now emits one service tick only after a trusted ArrowLeft/Right/Up/Down or Home/End changes the selected side. Repeated Home/End, cancelled events, hidden/inert menu and disabled source/destination are ignored. Click feedback remains exclusively in the existing delegated service listener.
+- Re-ran full Vitest: 634 tests / 127 files passed; TypeScript --noEmit and Vite build passed.
+- Re-ran all 30 isolated browser scenarios, including two independent online clients: passed, no page errors.
+- Production browser regression: all four arrows and Home/End emitted exactly [10]; repeated Home/End, disabled target, aria-disabled source and cancelled key emitted []; click emitted exactly [10]. Board selection/move still [10,15], no page errors. Exact results: production-results.json.
+- Physical vibration remains untested; publication still awaits independent QA.
+
 Sources:
 https://developer.android.com/develop/ui/views/haptics/haptics-principles
 https://developer.mozilla.org/en-US/docs/Web/API/Navigator/vibrate
