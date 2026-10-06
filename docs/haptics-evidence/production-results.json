@@ -1,0 +1,10 @@
+{
+  "productionBundleUnmodified": true,
+  "calls": [
+    10,
+    15
+  ],
+  "label": "Шашечная доска. Клетка b4. Стрелки — перемещение, Enter или пробел — выбор и ход, Escape — отмена выбора до начала взятия.",
+  "errors": [],
+  "physicalVibrationTested": false
+}

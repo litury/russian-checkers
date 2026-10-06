@@ -5,6 +5,7 @@ vi.mock('./settings', () => ({ getAutoMove: () => auto, getBotSkill: () => 'norm
 import { GameScene } from './gameScene';
 import { recordBotMatch } from '@/online/cloud';
 import { apply, legalMoves, type IPosition } from '@/rules';
+import { haptics } from './haptics';
 let auto = false;
 const sq = (s: string) => ({ row: +s[1] - 1, col: s.charCodeAt(0) - 97 });
 function setup(pieces: Record<string, string>, turn = 'white') {
@@ -32,7 +33,7 @@ function setup(pieces: Record<string, string>, turn = 'white') {
 		reset: vi.fn(),
 		sync: vi.fn(),
 		setWaitingIdle: vi.fn(),
-		playMove: vi.fn((_m, done) => done()),
+		playMove: vi.fn((move, done, land) => { for (const _square of move.path) land?.(false); done(); }),
 		notePly: vi.fn(),
 		deny: vi.fn(),
 	};
@@ -41,13 +42,14 @@ function setup(pieces: Record<string, string>, turn = 'white') {
 }
 beforeEach(() => {
 	vi.clearAllMocks();
+	vi.spyOn(haptics, 'play').mockImplementation(() => {});
 	auto = false;
 	const undoButton = { hidden: true, disabled: true };
 	vi.stubGlobal('document', {
 		getElementById: (id: string) => id === 'match-undo' ? undoButton : null,
 	});
 });
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 it('clicks a shared first hop, locks selection, then settles exactly one full human turn', () => {
 	const s = setup({ c3: 'w', a1: 'w', d4: 'b', f4: 'b', f6: 'b', h8: 'b' });
 	const origin = structuredClone(s.position);
@@ -197,4 +199,30 @@ it('does not commit a final hop after time has expired', async () => {
 	expect(s.phase).toBe('over');
 	expect(settle).not.toHaveBeenCalled();
 	expect(s.position.turn).toBe('white');
+});
+
+it('haptics belong only to accepted input, never refresh, auto or bot moves', () => {
+	const s = setup({ c3: 'w', a1: 'w', d4: 'b', f6: 'b', h8: 'b' });
+	s.onSquare(sq('a1')); s.onSquare(sq('b2')); s.refresh();
+	expect(haptics.play).not.toHaveBeenCalled();
+	s.onSquare(sq('c3')); s.onSquare(sq('c3')); s.onSquare(sq('e5')); s.onSquare(sq('g7'));
+	expect(vi.mocked(haptics.play).mock.calls.map(c => c[0])).toEqual(['tick', 'capture', 'capture']);
+	vi.mocked(haptics.play).mockClear();
+	auto = true;
+	setup({ c3: 'w', d4: 'b', f6: 'b', h8: 'b' }).refresh();
+	auto = false;
+	setup({ f6: 'b', e5: 'w', c3: 'w', a1: 'w' }, 'black').playBot();
+	expect(haptics.play).not.toHaveBeenCalled();
+});
+
+it('online final feedback waits for its matching accepted wire ply, with no duplicate replay', () => {
+	const s = setup({ a3: 'w', h8: 'b' });
+	s.online = true; s.onlineBegun = true; s.serverTurn = 'white'; s.live = { move: vi.fn() };
+	s.onSquare(sq('a3')); s.onSquare(sq('b4'));
+	expect(vi.mocked(haptics.play).mock.calls.map(c => c[0])).toEqual(['tick']);
+	const move = { from: { col: 0, row: 2 }, path: [{ col: 1, row: 3 }], side: 'white', ply: 1, turn: 'black', hash: '' };
+	s.inboundNet.push(move); s.drainInbound();
+	expect(vi.mocked(haptics.play).mock.calls.map(c => c[0])).toEqual(['tick', 'move']);
+	s.inboundNet.push(move, move); s.drainInbound(); s.refresh();
+	expect(haptics.play).toHaveBeenCalledTimes(2);
 });

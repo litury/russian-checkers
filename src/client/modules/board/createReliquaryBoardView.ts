@@ -806,6 +806,14 @@ export function createBoardView(
 			}
 		draw();
 	};
+	let contact: { id: number; square: ISquare } | null = null;
+	const cancelContact = () => { contact = null; };
+	const hideContact = () => { if (document.hidden) cancelContact(); };
+	canvas.addEventListener('pointercancel', cancelContact);
+	scene.input.on('pointerup', cancelContact);
+	scene.input.on('pointerupoutside', cancelContact);
+	window.addEventListener('blur', cancelContact);
+	document.addEventListener('visibilitychange', hideContact);
 	for (let row = 0; row < 8; row++)
 		for (let col = 0; col < 8; col++) {
 			const square = { row, col };
@@ -813,7 +821,14 @@ export function createBoardView(
 				.rectangle(0, 0, 8, 8, 0, 0)
 				.setDepth(2)
 				.setInteractive();
-			rect.on('pointerdown', () => {
+			rect.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+				if (!enabled || moving || isInputBlocked() || pointer.button !== 0) return;
+				contact = { id: pointer.id, square };
+			});
+			rect.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+				const accepted = contact?.id === pointer.id && sameSquare(contact.square, square);
+				cancelContact();
+				if (!accepted) return;
 				if (!enabled || moving || isInputBlocked()) return;
 				focus = square;
 				canvas.focus({ preventScroll: true });
@@ -827,6 +842,7 @@ export function createBoardView(
 				drawInteraction();
 			});
 			rect.on('pointerout', () => {
+				if (contact && sameSquare(contact.square, square)) cancelContact();
 				if (hover && sameSquare(hover, square)) hover = null;
 				drawInteraction();
 			});
@@ -938,6 +954,7 @@ export function createBoardView(
 		draw();
 	};
 	const reset = (options?: { keepPromotionFire?: boolean }): void => {
+		cancelContact();
 		// A promotion on the last move must be seen: hand its fire to the presentation instead
 		// of destroying it. Anything else (a new match, a hidden playfield, undo) clears it.
 		const promotion = lastPromotion;
@@ -1157,6 +1174,11 @@ export function createBoardView(
 		canvas.removeEventListener('keydown', onKey);
 		canvas.removeEventListener('focus', onFocus);
 		canvas.removeEventListener('blur', drawInteraction);
+		canvas.removeEventListener('pointercancel', cancelContact);
+		scene.input.off('pointerup', cancelContact);
+		scene.input.off('pointerupoutside', cancelContact);
+		window.removeEventListener('blur', cancelContact);
+		document.removeEventListener('visibilitychange', hideContact);
 		if (oldTabIndex === null) canvas.removeAttribute('tabindex');
 		else canvas.setAttribute('tabindex', oldTabIndex);
 		if (oldLabel === null) canvas.removeAttribute('aria-label');

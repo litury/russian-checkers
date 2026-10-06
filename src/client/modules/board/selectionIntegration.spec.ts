@@ -18,10 +18,13 @@ import type { IPosition } from '@/rules';
 
 function harness(reduced = false, blocked: () => boolean = () => false, texturesReady = true) {
  vi.stubGlobal('matchMedia', () => ({ matches: reduced }));
- vi.stubGlobal('document', { activeElement: null });
+ vi.stubGlobal('document', { activeElement: null, addEventListener() {}, removeEventListener() {} });
+ vi.stubGlobal('window', { addEventListener() {}, removeEventListener() {} });
  const objects: any[] = [], tweens: any[] = [];
  const make = (x = 0, y = 0, texture = '') => {
   const state: any = { x, y, texture: { key: texture }, data: {}, visible: true, destroyed: false, children: [] };
+  const emitter = new EventEmitter();
+  state.on = emitter.on.bind(emitter); state.emit = emitter.emit.bind(emitter);
   const obj: any = new Proxy(state, { get(t, prop) {
    if (prop in t) return t[prop];
    return (...args: any[]) => {
@@ -43,17 +46,19 @@ function harness(reduced = false, blocked: () => boolean = () => false, textures
  };
  const events = new EventEmitter();
  const scene: any = {
+  input: new EventEmitter(),
   textures: { get: () => ({ setFilter() {} }), exists: texturesReady ? undefined : () => false },
   add: { image: make, sprite: make, graphics: () => make(), tileSprite: make, rectangle: make,
    container: (x: number, y: number, children: any[]) => { const c = make(x,y); c.children = children; return c; } },
-  game: { canvas: { getAttribute: () => null, setAttribute() {}, removeAttribute() {}, addEventListener() {}, removeEventListener() {} } },
+  game: { canvas: { focus() {}, getAttribute: () => null, setAttribute() {}, removeAttribute() {}, addEventListener() {}, removeEventListener() {} } },
   tweens: { killTweensOf: vi.fn(), add: (t: any) => { tweens.push(t); return t; } }, events,
  };
- const board = createBoardView(scene, () => {}, () => {}, blocked);
+ const onSquare = vi.fn();
+ const board = createBoardView(scene, onSquare, () => {}, blocked);
  const tick = (ms: number) => events.emit('update', 0, ms);
  const finish = () => { const t = tweens.shift(); expect(t).toBeDefined(); t.onComplete(); };
  const sprite = () => objects.find(o => o.name === 'selection-piece' && !o.destroyed);
- return { board, tick, finish, sprite, objects, tweens, events };
+ return { board, tick, finish, sprite, objects, tweens, events, input: scene.input, onSquare };
 }
 const from = { row: 2, col: 0 }, land = { row: 3, col: 1 };
 function position(kind: 'man' | 'king' = 'man', side: 'white' | 'black' = 'white', square = from): IPosition {
@@ -69,6 +74,17 @@ beforeEach(() => {
  layoutBox.scale = 1;
 });
 const fire = (h: ReturnType<typeof harness>, mode: string) => h.objects.filter(o => !o.destroyed && o.visible && o.data.mode === mode && o.name.startsWith('king-fire-'));
+it('accepts only a matching release and does not cancel new contact on the old cell pointerout', () => {
+ const h = harness(); h.board.sync(position(), [from], from);
+ const cells = h.objects.filter(o => o.depth === 2);
+ const a = cells[16], b = cells[25]; const pointer = { id: 1, button: 0 };
+ a.emit('pointerdown',pointer); expect(h.onSquare).not.toHaveBeenCalled();
+ a.emit('pointerout'); a.emit('pointerup',pointer); expect(h.onSquare).not.toHaveBeenCalled();
+ b.emit('pointerdown',pointer); a.emit('pointerout'); b.emit('pointerup',pointer);
+ expect(h.onSquare).toHaveBeenCalledExactlyOnceWith(land);
+ h.onSquare.mockClear(); a.emit('pointerdown',pointer); h.input.emit('pointerupoutside'); a.emit('pointerup',pointer);
+ expect(h.onSquare).not.toHaveBeenCalled();
+});
 it('loaded logical kings get idle only; men never get king fire', () => {
  const h = harness();
  h.board.sync(position(), [from], from); h.tick(1000);

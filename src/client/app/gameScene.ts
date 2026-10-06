@@ -22,6 +22,7 @@ import { classifyPly, hashPosition, positionFromSnapshot, takeNextPly, type Matc
 import { FOUND_HOLD_MS, SEARCH_TIMEOUT_MS, type SearchPhase } from './matchmakingSearch';
 import { orcOutcomeLine, orcTimeLow } from './orcResult';
 import { StepwiseMove } from './stepwiseMove';
+import { haptics, moveHapticKinds, type HapticKind } from './haptics';
 import { pickBotMove } from '@/client/modules/bot';
 import { sameSquare } from '@/client/shared/sameSquare';
 import { capturedOnSegment } from '@/rules/parts/capturedOnPath';
@@ -67,6 +68,7 @@ export class GameScene extends Phaser.Scene {
 	private position: IPosition = createInitialPosition();
 	private selected: ISquare | null = null;
 	private humanChain: StepwiseMove | null = null;
+	private pendingHaptic: { move: IMove; kind: HapticKind; ply: number } | null = null;
 	private phase: 'title' | 'human' | 'bot' | 'over' = 'title';
 	private paused = false;
 	private pendingBot = false;
@@ -666,6 +668,7 @@ export class GameScene extends Phaser.Scene {
 				this.endMatch(side, reason);
 			},
 			onError: (error) => {
+				this.pendingHaptic = null;
 				if (error === 'illegal') {
 					this.live?.requestState();
 					return;
@@ -708,6 +711,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private applyResume(color: Side, snap: MatchSnapshot): void {
+		this.pendingHaptic = null;
 		if (this.acceptedResult) return;
 		this.online = true;
 		this.humanSide = color;
@@ -738,6 +742,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private applyBegin(snap: MatchSnapshot): void {
+		this.pendingHaptic = null;
 		if (this.acceptedResult) return;
 		this.onlineBegun = true;
 		this.lastPly = snap.ply;
@@ -752,6 +757,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private applyState(snap: MatchSnapshot): void {
+		this.pendingHaptic = null;
 		if (this.acceptedResult) return;
 		this.lastPly = snap.ply;
 		this.serverTurn = snap.turn;
@@ -1233,6 +1239,7 @@ export class GameScene extends Phaser.Scene {
 		// A started capture is irrevocable, including clicks on other own pieces.
 		if (this.humanChain) return;
 		if (moves.some((move) => sameSquare(move.from, square))) {
+			if (!selected || !sameSquare(selected, square)) haptics.play('tick');
 			this.selected = square;
 			this.refresh();
 			pieceSelectSfx(this.position.squares[square.row][square.col]?.side ?? 'black');
@@ -1261,8 +1268,12 @@ export class GameScene extends Phaser.Scene {
 		}
 		const chain = this.humanChain ?? new StepwiseMove(this.position, this.selected);
 
+		const beforeHop = chain.visualPosition;
 		const chosen = chain.choose(square);
 		if (!chosen) return false;
+		const kinds = moveHapticKinds(beforeHop, chosen.hop);
+		const actions = kinds.map(() => ({}));
+		let landing = 0;
 		if (!this.humanChain) this.saveBotUndo();
 		this.humanChain = chain;
 		this.moving = true;
@@ -1286,13 +1297,21 @@ export class GameScene extends Phaser.Scene {
 			}
 			if (chosen.complete) {
 				if (this.online) {
+					const kind = kinds.at(-1);
+					if (kind) this.pendingHaptic = { move: chosen.complete, kind, ply: this.lastPly + 1 };
 					this.live?.move(chosen.complete);
 					this.drainInbound();
 				}
 				else this.completeHumanMove(chosen.complete);
 			}
 			else this.refresh();
-		}, undefined, undefined, true);
+		}, () => {
+			const index = landing++;
+			if (matchGen !== this.resultGen || (undoGen !== null && undoGen !== this.botUndoGen) || this.acceptedResult || this.sideRemainingMs(this.position.turn) <= 0) return;
+			// The final online landing waits for the authoritative matching ply.
+			if (this.online && chosen.complete && index === kinds.length - 1) return;
+			if (kinds[index]) haptics.play(kinds[index], actions[index]);
+		}, undefined, true);
 		return true;
 	}
 
@@ -1414,6 +1433,13 @@ export class GameScene extends Phaser.Scene {
 		const mover = this.position.turn;
 		const next = apply(this.position, move);
 		if (!next) return;
+		const pending = this.pendingHaptic;
+		this.pendingHaptic = null;
+		if (this.online && pending && this.lastPly === pending.ply && mover === this.humanSide &&
+			sameSquare(pending.move.from, move.from) && pending.move.path.length === move.path.length &&
+			pending.move.path.every((square, index) => sameSquare(square, move.path[index]))) {
+			haptics.play(pending.kind, pending);
+		}
 		if (!this.acceptedResult) this.settleClock(mover);
 		// First accepted move of the human side: bots may have played earlier plies.
 		// markPerf keeps the first write, so later human moves never move the mark.

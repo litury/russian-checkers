@@ -1,0 +1,417 @@
+reporter/format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ℹ The following files need to be formatted:
+  
+  - docs/haptics-evidence/browser-results.json
+  - docs/haptics-evidence/unit-results.json
+  - evidence/coherent-menu/budgets.json
+  - evidence/coherent-menu/final-timing-2/summary.json
+  - evidence/coherent-menu/resilience/summary.json
+  - evidence/coherent-menu/retry/summary.json
+  - evidence/coherent-menu/timing-1/summary.json
+  - evidence/menu-loading-controls/results.json
+  - public/font-licenses/opening-font-sources.json
+  - scripts/cloud-body-browser.mjs
+  - scripts/coherent-menu-budget.cjs
+  - scripts/coherent-menu-check.cjs
+  - scripts/focus-ring-touch-regression.cjs
+  - scripts/haptics-browser.mjs
+  - scripts/menu-loading-controls.cjs
+  - scripts/menu-network-probe.cjs
+  - scripts/menu-network-summary.cjs
+  - scripts/menu-ready-cache.cjs
+  - scripts/menu-ready-check.cjs
+  - scripts/menu-ready-probe.cjs
+  - server/package.json
+  - server/src/dev/bind.spec.ts
+  - server/src/dev/bind.ts
+  - server/src/dropGrace.spec.ts
+  - server/src/flagClock.spec.ts
+  - server/src/flagClock.ts
+  - server/src/friendRoom.spec.ts
+  - server/src/guestRate.spec.ts
+  - server/src/index.ts
+  - server/src/migrate.spec.ts
+  - server/src/migrate.ts
+  - server/src/replay.ts
+  - server/src/roomLifecycle.spec.ts
+  - server/src/seed.ts
+  - server/src/seed/checks/database.ts
+  - server/src/seed/config.spec.ts
+  - server/src/seed/config.ts
+  - server/src/seed/fixture.ts
+  - server/src/seed/remediation/cli.ts
+  - server/src/seed/remediation/revoke.ts
+  - server/src/seed/runner.ts
+  - server/src/seedGame.spec.ts
+  - server/src/seedGame.ts
+  - server/src/socketOwnership.spec.ts
+  - server/src/wsRaw.ts
+  - server/tsconfig.json
+  - src/client/app/announcer.spec.ts
+  - src/client/app/announcer.ts
+  - src/client/app/assetLoader.spec.ts
+  - src/client/app/assetLoader.ts
+  - src/client/app/audioMix.spec.ts
+  - src/client/app/audioMix.ts
+  - src/client/app/boardDelivery.ts
+  - src/client/app/boardVerdict.css
+  - src/client/app/boardVerdict.ts
+  - src/client/app/boardVerdictRuntime.spec.ts
+  - src/client/app/botStartPreload.spec.ts
+  - src/client/app/botUndo.spec.ts
+  - src/client/app/botUndo.ts
+  - src/client/app/botUndoRuntime.spec.ts
+  - src/client/app/bunkerFontFailure.spec.ts
+  - src/client/app/bunkerPanel.ts
+  - src/client/app/clockFrame.spec.ts
+  - src/client/app/clockFrame.ts
+  - src/client/app/clockTurnMotion.spec.ts
+  - src/client/app/coldStartup.spec.ts
+  - src/client/app/createHud.ts
+  - src/client/app/defeatButtonState.spec.ts
+  - src/client/app/defeatButtonState.ts
+  - src/client/app/defeatControls.ts
+  - src/client/app/defeatPlaques.spec.ts
+  - src/client/app/defeatPress.spec.ts
+  - src/client/app/defeatPress.ts
+  - src/client/app/defeatTerminalLayout.spec.ts
+  - src/client/app/defeatTerminalLayout.ts
+  - src/client/app/deferredSdk.spec.ts
+  - src/client/app/dropNotice.spec.ts
+  - src/client/app/dropNotice.ts
+  - src/client/app/gameScene.ts
+  - src/client/app/hangingChronicle.css
+  - src/client/app/haptics.spec.ts
+  - src/client/app/haptics.ts
+  - src/client/app/hudRevealRuntime.spec.ts
+  - src/client/app/idleWork.spec.ts
+  - src/client/app/idleWork.ts
+  - src/client/app/illustratedRules.fixtures.json
+  - src/client/app/illustratedRules.spec.ts
+  - src/client/app/kingFireSfx.spec.ts
+  - src/client/app/kingFireSfx.ts
+  - src/client/app/main.ts
+  - src/client/app/matchHistory.css
+  - src/client/app/matchHistoryUi.ts
+  - src/client/app/matchmakingSearch.spec.ts
+  - src/client/app/matchmakingSearch.ts
+  - src/client/app/menuAudio.interaction.spec.ts
+  - src/client/app/menuAudio.ts
+  - src/client/app/menuAudioPolicy.spec.ts
+  - src/client/app/menuAudioPolicy.ts
+  - src/client/app/menuAudioPreview.spec.ts
+  - src/client/app/menuAudioPreview.ts
+  - src/client/app/menuBootstrap.spec.ts
+  - src/client/app/menuButtonGeometry.spec.ts
+  - src/client/app/menuClickLevel.spec.ts
+  - src/client/app/menuFireReadability.css
+  - src/client/app/menuFireReadability.spec.ts
+  - src/client/app/menuPressFeedback.css
+  - src/client/app/menuPressFeedback.spec.ts
+  - src/client/app/menuPressFeedback.ts
+  - src/client/app/menuPressFeedbackState.ts
+  - src/client/app/menuPressSound.ts
+  - src/client/app/menuReadiness.spec.ts
+  - src/client/app/menuSelectionFire.spec.ts
+  - src/client/app/menuSelectionFire.ts
+  - src/client/app/menuTouchMotion.spec.ts
+  - src/client/app/menuTouchMotion.ts
+  - src/client/app/onlineAutomove.spec.ts
+  - src/client/app/onlineAvailability.spec.ts
+  - src/client/app/onlineFlag.spec.ts
+  - src/client/app/onlineHub.css
+  - src/client/app/onlineHub.spec.ts
+  - src/client/app/onlineHub.ts
+  - src/client/app/opening.spec.ts
+  - src/client/app/openingCta.spec.ts
+  - src/client/app/openingFlavor.spec.ts
+  - src/client/app/openingGates.css
+  - src/client/app/openingGates.spec.ts
+  - src/client/app/openingGates.ts
+  - src/client/app/openingInput.spec.ts
+  - src/client/app/openingMoveHint.spec.ts
+  - src/client/app/openingMoveHint.ts
+  - src/client/app/openingOnlineRuntime.spec.ts
+  - src/client/app/openingOverlay.ts
+  - src/client/app/openingResponsive.spec.ts
+  - src/client/app/openingSequence.spec.ts
+  - src/client/app/openingSide.spec.ts
+  - src/client/app/openingStats.spec.ts
+  - src/client/app/openingStats.ts
+  - src/client/app/openingStatsEntry.spec.ts
+  - src/client/app/openingStatsRecovery.spec.ts
+  - src/client/app/openingStatsRecovery.ts
+  - src/client/app/orcResult.spec.ts
+  - src/client/app/orcResult.ts
+  - src/client/app/orcTurn.spec.ts
+  - src/client/app/orcTurn.ts
+  - src/client/app/pieceSfx.spec.ts
+  - src/client/app/pieceSfx.ts
+  - src/client/app/playPanel.spec.ts
+  - src/client/app/result-art/manifest.json
+  - src/client/app/resultCeremony.css
+  - src/client/app/resultCeremony.spec.ts
+  - src/client/app/resultCeremony.ts
+  - src/client/app/resultDefeat.spec.ts
+  - src/client/app/resultOverlay.spec.ts
+  - src/client/app/resultOverlay.ts
+  - src/client/app/runtimeAssets.spec.ts
+  - src/client/app/searchOfflineRuntime.spec.ts
+  - src/client/app/settings.spec.ts
+  - src/client/app/settings.ts
+  - src/client/app/siegeGateTransition.spec.ts
+  - src/client/app/siegeGateTransition.ts
+  - src/client/app/siegeLoading.spec.ts
+  - src/client/app/siegeOpening.ts
+  - src/client/app/siegeOpeningBootstrap.ts
+  - src/client/app/siegeOptionsFire.spec.ts
+  - src/client/app/siegeSelection.spec.ts
+  - src/client/app/siegeSelection.ts
+  - src/client/app/soundToggle.spec.ts
+  - src/client/app/startAudio.spec.ts
+  - src/client/app/startAudio.ts
+  - src/client/app/startupProgress.spec.ts
+  - src/client/app/stepwiseInput.spec.ts
+  - src/client/app/stepwiseMove.ts
+  - src/client/app/ui/delivery/manifest.json
+  - src/client/app/ui/result/defeat-button-provenance.json
+  - src/client/app/ui/siege/button-steel-desk-provenance.json
+  - src/client/app/ui/siege/button-steel-rail-provenance.json
+  - src/client/app/ui/siege/button-steel-search-provenance.json
+  - src/client/app/ui/siege/gate-masks.json
+  - src/client/app/ui/siege/menu-selection-fire.json
+  - src/client/app/ui/siege/panel-revision2/export-manifest.json
+  - src/client/app/ui/siege/provenance.json
+  - src/client/app/verdictReason.ts
+  - src/client/app/yandexSdk.spec.ts
+  - src/client/app/yandexSdk.ts
+  - src/client/config/matchLayout.ts
+  - src/client/config/reliquaryLayout.spec.ts
+  - src/client/fonts/fonts.spec.ts
+  - src/client/fonts/fonts.ts
+  - src/client/fonts/opening-font-sources.json
+  - src/client/modules/board/availabilityContrast.spec.ts
+  - src/client/modules/board/boardCoords.spec.ts
+  - src/client/modules/board/boardCoords.ts
+  - src/client/modules/board/boardFacing.spec.ts
+  - src/client/modules/board/boardFacing.ts
+  - src/client/modules/board/captureSplit.spec.ts
+  - src/client/modules/board/createReliquaryBoardView.ts
+  - src/client/modules/board/king-fire-polish/manifest.json
+  - src/client/modules/board/kingFire.ts
+  - src/client/modules/board/kingFireAssets.ts
+  - src/client/modules/board/markers/cut-provenance.json
+  - src/client/modules/board/reliquaryHints.spec.ts
+  - src/client/modules/board/reliquaryHints.ts
+  - src/client/modules/board/reliquaryMarkers.spec.ts
+  - src/client/modules/board/selection-overlay/manifest.json
+  - src/client/modules/board/selection-v2/manifest.json
+  - src/client/modules/board/selectionIntegration.spec.ts
+  - src/client/modules/board/selectionMotion.spec.ts
+  - src/client/modules/board/selectionMotion.ts
+  - src/client/modules/board/selectionV2.spec.ts
+  - src/client/modules/board/selectionV2.ts
+  - src/client/modules/bot/pickBotMove.spec.ts
+  - src/client/modules/bot/pickBotMove.ts
+  - src/dev/proxyConfig.spec.ts
+  - src/dev/proxyConfig.ts
+  - src/online/apiOrigin.spec.ts
+  - src/online/apiOrigin.ts
+  - src/online/cloud.ts
+  - src/online/cloudBodyTimeout.spec.ts
+  - src/online/colorStats.spec.ts
+  - src/online/colorStats.ts
+  - src/online/colorStatsLoading.spec.ts
+  - src/online/friendCode.spec.ts
+  - src/online/friendCode.ts
+  - src/online/guestTag.ts
+  - src/online/historyCloud.spec.ts
+  - src/online/historyReplay.spec.ts
+  - src/online/historyReplay.ts
+  - src/online/live.ts
+  - src/online/liveConnection.spec.ts
+  - src/online/matchHistory.spec.ts
+  - src/online/matchHistory.ts
+  - src/online/matchState.spec.ts
+  - src/online/matchState.ts
+  - src/online/notation.ts
+  - src/online/presence.spec.ts
+  - src/online/presence.ts
+  - src/online/replay.spec.ts
+  - src/online/replay.ts
+  - src/rules/draw.spec.ts
+  - src/rules/draw.ts
+  - vite.config.ts
+  
+reporter/violations ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ℹ Some lint rules or assist actions reported some violations.
+  
+  ℹ The following files have violations:
+  
+  - index.html (14 errors, 16 warnings, 18 infos)
+  - scripts/cloud-body-browser.mjs (1 error)
+  - scripts/coherent-menu-budget.cjs (1 info)
+  - scripts/coherent-menu-check.cjs (2 warnings)
+  - scripts/haptics-browser.mjs (1 error)
+  - scripts/menu-network-probe.cjs (1 error)
+  - scripts/menu-network-summary.cjs (1 error)
+  - scripts/menu-ready-cache.cjs (2 warnings)
+  - scripts/menu-ready-check.cjs (2 infos)
+  - server/src/dev/bind.spec.ts (1 error)
+  - server/src/dev/bind.ts (1 error)
+  - server/src/flagClock.spec.ts (1 error)
+  - server/src/friendRoom.spec.ts (1 error)
+  - server/src/index.ts (1 error, 8 warnings)
+  - server/src/replay.ts (1 error)
+  - server/src/roomLifecycle.spec.ts (1 error, 1 warning, 1 info)
+  - server/src/seed/checks/database.ts (1 error)
+  - server/src/seed/config.spec.ts (1 info)
+  - server/src/seed/fixture.ts (1 warning)
+  - server/src/seed/remediation/cli.ts (1 error)
+  - server/src/seedGame.spec.ts (1 error, 1 warning)
+  - server/src/seedGame.ts (1 error)
+  - server/src/socketOwnership.spec.ts (1 error, 2 warnings)
+  - src/client/app/announcer.spec.ts (1 error)
+  - src/client/app/assetLoader.spec.ts (1 error)
+  - src/client/app/audioMix.spec.ts (1 error)
+  - src/client/app/boardVerdict.css (1 warning)
+  - src/client/app/boardVerdict.ts (6 warnings)
+  - src/client/app/boardVerdictRuntime.spec.ts (1 error, 1 warning)
+  - src/client/app/botStartPreload.spec.ts (1 error)
+  - src/client/app/botUndo.spec.ts (1 error)
+  - src/client/app/botUndoRuntime.spec.ts (1 error, 13 warnings)
+  - src/client/app/bunkerPanel.ts (2 errors, 2 warnings, 1 info)
+  - src/client/app/coldStartup.spec.ts (2 warnings)
+  - src/client/app/createHud.spec.ts (1 error)
+  - src/client/app/createHud.ts (1 error, 1 info)
+  - src/client/app/defeatButtonState.spec.ts (1 error)
+  - src/client/app/defeatControls.ts (1 error, 1 warning)
+  - src/client/app/defeatPress.spec.ts (1 error)
+  - src/client/app/deferredSdk.spec.ts (1 error)
+  - src/client/app/gameScene.ts (1 error, 4 warnings)
+  - src/client/app/hangingChronicle.css (4 warnings)
+  - src/client/app/haptics.spec.ts (1 error)
+  - src/client/app/hudRevealRuntime.spec.ts (1 error, 2 warnings)
+  - src/client/app/idleWork.ts (1 error)
+  - src/client/app/illustratedRules.spec.ts (1 error, 5 warnings)
+  - src/client/app/kingFireSfx.spec.ts (1 error)
+  - src/client/app/matchHistory.css (9 warnings)
+  - src/client/app/matchHistoryUi.ts (1 error)
+  - src/client/app/matchmakingSearch.spec.ts (1 error)
+  - src/client/app/menuAudio.interaction.spec.ts (1 error, 2 warnings)
+  - src/client/app/menuAudio.ts (1 error, 8 warnings)
+  - src/client/app/menuAudioPolicy.spec.ts (1 error)
+  - src/client/app/menuAudioPolicy.ts (1 info)
+  - src/client/app/menuAudioPreview.spec.ts (1 error)
+  - src/client/app/menuBootstrap.spec.ts (1 warning)
+  - src/client/app/menuButtonGeometry.spec.ts (1 error, 6 warnings)
+  - src/client/app/menuClickLevel.spec.ts (1 error)
+  - src/client/app/menuFireReadability.spec.ts (1 error)
+  - src/client/app/menuPressFeedback.spec.ts (1 error)
+  - src/client/app/menuPressFeedback.ts (1 error)
+  - src/client/app/menuReadiness.spec.ts (5 errors, 1 warning)
+  - src/client/app/menuSelectionFire.spec.ts (1 error)
+  - src/client/app/menuTouchMotion.spec.ts (1 error)
+  - src/client/app/onlineAutomove.spec.ts (1 error, 1 warning)
+  - src/client/app/onlineHub.spec.ts (2 warnings)
+  - src/client/app/onlineHub.ts (1 warning)
+  - src/client/app/opening.spec.ts (1 error)
+  - src/client/app/openingCta.spec.ts (1 error)
+  - src/client/app/openingFlavor.spec.ts (1 error, 1 warning)
+  - src/client/app/openingGates.css (8 warnings)
+  - src/client/app/openingGates.spec.ts (1 error)
+  - src/client/app/openingInput.spec.ts (1 error, 1 warning)
+  - src/client/app/openingMoveHint.spec.ts (1 error, 2 warnings)
+  - src/client/app/openingMoveHint.ts (1 error)
+  - src/client/app/openingOnlineRuntime.spec.ts (1 error, 1 warning)
+  - src/client/app/openingOverlay.ts (1 error, 4 warnings)
+  - src/client/app/openingResponsive.spec.ts (1 error)
+  - src/client/app/openingSequence.spec.ts (1 error)
+  - src/client/app/openingSide.spec.ts (1 error)
+  - src/client/app/openingStats.spec.ts (1 error)
+  - src/client/app/openingStatsEntry.spec.ts (1 error)
+  - src/client/app/openingStatsRecovery.spec.ts (2 warnings)
+  - src/client/app/orcResult.spec.ts (1 error)
+  - src/client/app/orcTurn.spec.ts (1 error)
+  - src/client/app/pieceSfx.spec.ts (1 error)
+  - src/client/app/pieceSfx.ts (1 warning)
+  - src/client/app/resultCeremony.spec.ts (1 error)
+  - src/client/app/resultCeremony.ts (2 errors, 6 warnings, 3 infos)
+  - src/client/app/resultDefeat.spec.ts (1 error, 7 warnings)
+  - src/client/app/resultOverlay.ts (2 errors)
+  - src/client/app/runtimeAssets.spec.ts (1 error, 2 infos)
+  - src/client/app/searchOfflineRuntime.spec.ts (1 error, 1 warning)
+  - src/client/app/settings.spec.ts (1 error)
+  - src/client/app/siegeGateTransition.spec.ts (2 errors, 7 warnings)
+  - src/client/app/siegeGateTransition.ts (2 errors, 1 warning)
+  - src/client/app/siegeLoading.spec.ts (2 errors, 1 warning)
+  - src/client/app/siegeOpening.ts (1 error, 4 warnings)
+  - src/client/app/siegeOptionsFire.spec.ts (6 warnings, 3 infos)
+  - src/client/app/siegeSelection.spec.ts (1 error)
+  - src/client/app/soundToggle.spec.ts (2 warnings)
+  - src/client/app/startAudio.spec.ts (1 error)
+  - src/client/app/startupPerfRuntime.spec.ts (1 warning)
+  - src/client/app/startupProgress.spec.ts (1 error, 1 warning)
+  - src/client/app/stepwiseInput.spec.ts (1 error, 1 warning)
+  - src/client/app/stepwiseMove.spec.ts (1 error, 5 warnings)
+  - src/client/app/stepwiseMove.ts (1 error, 2 warnings)
+  - src/client/config/reliquaryLayout.spec.ts (1 error)
+  - src/client/modules/board/availabilityContrast.spec.ts (1 error, 1 warning)
+  - src/client/modules/board/boardCoords.spec.ts (1 error)
+  - src/client/modules/board/captureCut.ts (6 warnings)
+  - src/client/modules/board/captureSplit.spec.ts (7 warnings)
+  - src/client/modules/board/createReliquaryBoardView.ts (6 warnings)
+  - src/client/modules/board/kingFire.ts (9 errors, 1 warning)
+  - src/client/modules/board/selectionAssets.spec.ts (6 errors)
+  - src/client/modules/board/selectionIntegration.spec.ts (3 errors, 15 warnings)
+  - src/client/modules/board/selectionV2.spec.ts (1 error)
+  - src/client/modules/bot/pickBotMove.spec.ts (1 error, 3 warnings)
+  - src/dev/proxyConfig.spec.ts (1 error)
+  - src/online/cloud.ts (1 error)
+  - src/online/colorStats.spec.ts (1 error)
+  - src/online/friendCode.spec.ts (1 error)
+  - src/online/historyCloud.spec.ts (1 error)
+  - src/online/historyReplay.spec.ts (1 warning)
+  - src/online/historyReplay.ts (1 error)
+  - src/online/live.ts (1 error)
+  - src/online/liveConnection.spec.ts (1 error, 1 warning)
+  - src/online/matchHistory.spec.ts (1 error)
+  - src/online/matchState.spec.ts (1 error, 2 warnings)
+  - src/online/presence.spec.ts (1 error)
+  - src/online/replay.spec.ts (1 error)
+  - src/online/replay.ts (1 error)
+  - src/rules/draw.spec.ts (1 error)
+  - src/rules/draw.ts (1 error)
+  - src/rules/index.ts (1 error)
+  
+  ℹ The following lint rules have violations:
+  
+  Rule Name                                                  Diagnostics
+  
+  lint/correctness/noUnusedPrivateClassMembers               1 (1 warning)
+  lint/correctness/noUnusedFunctionParameters                4 (4 warnings)
+  lint/suspicious/noControlCharactersInRegex                 6 (6 errors)
+  lint/suspicious/useIterableCallbackReturn                  29 (29 errors)
+  lint/suspicious/noAssignInExpressions                      2 (2 errors)
+  lint/a11y/useAriaPropsSupportedByRole                      1 (1 error)
+  lint/style/noDescendingSpecificity                         4 (4 warnings)
+  lint/correctness/noUnusedVariables                         1 (1 warning)
+  lint/complexity/noExtraBooleanCast                         1 (1 info)
+  lint/complexity/noStaticOnlyClass                          2 (2 warnings)
+  lint/complexity/noImportantStyles                          33 (33 warnings)
+  lint/correctness/noUnusedImports                           1 (1 warning)
+  lint/complexity/useOptionalChain                           4 (4 warnings)
+  lint/suspicious/noExplicitAny                              54 (54 warnings)
+  lint/style/noNonNullAssertion                              108 (108 warnings)
+  lint/complexity/noBannedTypes                              1 (1 warning)
+  lint/a11y/useSemanticElements                              2 (2 errors)
+  assist/source/organizeImports                              101 (101 errors)
+  lint/a11y/useHeadingContent                                2 (2 errors)
+  lint/a11y/useButtonType                                    5 (5 errors)
+  lint/style/useTemplate                                     33 (33 infos)
+Checked 311 files in 1741ms. No fixes applied.
+Found 389 errors.
+Found 213 warnings.
+Found 34 infos.

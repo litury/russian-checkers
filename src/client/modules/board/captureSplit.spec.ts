@@ -75,10 +75,12 @@ function harness(reduced = false) {
 	vi.stubGlobal('matchMedia', () => ({ matches: reduced }));
 	vi.stubGlobal('document', {
 		activeElement: null,
+		addEventListener() {}, removeEventListener() {},
 		createElement: (tag: string) => (tag === 'canvas' ? canvas(draws) : {}),
 		getElementById: () => null,
 	});
 	const objects: Record<string, unknown>[] = [];
+	vi.stubGlobal('window', { addEventListener() {}, removeEventListener() {} });
 	const tweens: Record<string, unknown>[] = [];
 	const make = (x = 0, y = 0, texture = '') => {
 		const state: Record<string, unknown> = {
@@ -130,6 +132,7 @@ function harness(reduced = false) {
 	};
 	const events = new EventEmitter();
 	const scene = {
+		input: new EventEmitter(),
 		textures: {
 			exists: () => true,
 			// Faithful frame sheet: ensureBoardFrames() probes has()/add() for the

@@ -1,0 +1,183 @@
+{
+  "origin": "http://127.0.0.1:4230",
+  "browser": "154.0.8037.57",
+  "results": [
+    {
+      "label": "default off",
+      "calls": []
+    },
+    {
+      "label": "enable preview",
+      "calls": [
+        10
+      ]
+    },
+    {
+      "label": "independent mute toggle",
+      "calls": [
+        10,
+        10
+      ]
+    },
+    {
+      "label": "side button exactly once",
+      "calls": [
+        10
+      ]
+    },
+    {
+      "label": "disabled control silent",
+      "calls": []
+    },
+    {
+      "label": "board pointerdown is silent",
+      "calls": []
+    },
+    {
+      "label": "cancel outside is silent",
+      "calls": []
+    },
+    {
+      "label": "pointercancel is silent",
+      "calls": []
+    },
+    {
+      "label": "own selectable piece",
+      "calls": [
+        10
+      ]
+    },
+    {
+      "label": "same selection does not repeat",
+      "calls": [
+        10
+      ]
+    },
+    {
+      "label": "quiet landing",
+      "calls": [
+        10,
+        15
+      ]
+    },
+    {
+      "label": "bot and clock silent",
+      "calls": [
+        10,
+        15
+      ]
+    },
+    {
+      "label": "empty square silent",
+      "calls": []
+    },
+    {
+      "label": "own blocked piece silent",
+      "calls": []
+    },
+    {
+      "label": "one impulse per capture jump",
+      "calls": [
+        10,
+        23,
+        23
+      ]
+    },
+    {
+      "label": "promotion replaces capture",
+      "calls": [
+        10,
+        [
+          12,
+          45,
+          12
+        ]
+      ]
+    },
+    {
+      "label": "capture after mid-chain promotion",
+      "calls": [
+        10,
+        [
+          12,
+          45,
+          12
+        ],
+        23
+      ]
+    },
+    {
+      "label": "background hook cancels pattern",
+      "calls": [
+        0
+      ]
+    },
+    {
+      "label": "hidden page feedback suppressed",
+      "calls": [
+        0
+      ]
+    },
+    {
+      "label": "visibility restore never replays feedback",
+      "calls": [
+        0
+      ]
+    },
+    {
+      "label": "disable cancels",
+      "calls": [
+        0
+      ]
+    },
+    {
+      "label": "controls silent after disable",
+      "calls": [
+        0
+      ]
+    },
+    {
+      "label": "API missing: real move remains playable"
+    },
+    {
+      "label": "API throw: real move remains playable"
+    },
+    {
+      "label": "API false: real move remains playable"
+    },
+    {
+      "label": "online own confirmed move",
+      "calls": [
+        10,
+        15
+      ]
+    },
+    {
+      "label": "online opponent silent",
+      "calls": []
+    },
+    {
+      "label": "second independent client own move",
+      "calls": [
+        10,
+        15
+      ]
+    },
+    {
+      "label": "remote reply silent",
+      "calls": [
+        10,
+        15
+      ]
+    },
+    {
+      "label": "duplicate network plies and rerender silent",
+      "calls": [
+        10,
+        15
+      ]
+    }
+  ],
+  "errors": [],
+  "physicalVibrationTested": false
+}
