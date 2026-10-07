@@ -1,0 +1,8 @@
+Dialog button exports reused unchanged from the owner-approved C mockup.
+Generator: cx / Codex built-in image_gen; original atlas and correction retained in task workspace mockups/assets/atlas-original.png and atlas-correction-original.png.
+No code paint, stretching, or edits to existing card/action artwork.
+dialog-neutral.png = exact copy of mockups/assets/neutral.png
+SHA256 29a5cdba7f401229f93e4a553c6a8a7f3239eec0bdc879ec7dfbfa308ae4e4e1
+dialog-copper.png = exact copy of mockups/assets/copper.png
+SHA256 f897667651c24060a9473eb2a801aad04759f1d61dc4c80af7d48e9925c0a02b
+Rendered proportionally with background-size:contain in a 144x48 CSS hit target.

@@ -104,17 +104,17 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 <div id="game"></div>
 <div id="match-actions" role="group" aria-label="Действия в партии" hidden>
 <span class="match-undo-slot" title="Отмена появится после вашего хода и ответа соперника">
-<button type="button" id="match-undo" class="match-action" data-art="undo" aria-label="Отменить ход" aria-describedby="match-undo-reason" disabled><img src="/src/client/app/ui/match-actions/undo-icon.png" alt="" />Отменить</button>
+<button type="button" id="match-undo" class="match-action" data-art="undo" aria-label="Отменить ход" aria-describedby="match-undo-reason" disabled><img src="/src/client/app/ui/match-actions/undo-icon.png" alt="" /><span class="action-label">Отменить</span></button>
 <span id="match-undo-reason">Отмена появится после вашего хода и ответа соперника</span>
 </span>
-<button type="button" id="match-resign" class="match-action" data-art="resign"><img src="/src/client/app/ui/match-actions/resign-icon.png" alt="" />Сдаться</button>
+<button type="button" id="match-resign" class="match-action" data-art="resign"><img src="/src/client/app/ui/match-actions/resign-icon.png" alt="" /><span class="action-label">Сдаться</span></button>
 </div>
 <dialog id="resign-confirmation" aria-labelledby="resign-title" aria-describedby="resign-copy">
 <h2 id="resign-title">Сдаться?</h2>
 <p id="resign-copy">Партия закончится поражением</p>
 <div class="resign-choices">
-<button type="button" id="resign-continue" class="match-action" data-art="undo" autofocus>Продолжить</button>
-<button type="button" id="resign-confirm" class="match-action" data-art="resign">Сдаться</button>
+<button type="button" id="resign-continue" class="match-action" data-art="undo" autofocus><img src="/src/client/app/ui/match-actions/undo-icon.png" alt="" /><span class="action-label">Продолжить</span></button>
+<button type="button" id="resign-confirm" class="match-action" data-art="resign"><img src="/src/client/app/ui/match-actions/resign-icon.png" alt="" /><span class="action-label">Сдаться</span></button>
 </div>
 </dialog>
 <main id="opening" aria-labelledby="opening-title" data-menu-state="loading">

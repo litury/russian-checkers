@@ -49,6 +49,16 @@ it('in-card actions use five distinct raster states and fixed 96 by 44 targets',
  }
 });
 
+it('action labels have explicit pockets separate from the icon and dialog bevels', () => {
+ expect(css).toContain('left:15px;top:10px;width:22px;height:24px');
+ expect(css).toContain('left:40px;right:14px');
+ expect(css).toContain('width:144px;height:48px');
+ expect(css).toContain('left:20px;right:20px;font-size:12px');
+ expect(css).toContain('dialog-neutral.png');
+ expect(css).toContain('dialog-copper.png');
+ expect(html.match(/class="action-label"/g)).toHaveLength(4);
+});
+
 it('rail reveal waits for the same gate as the board with HUD', () => {
  // Reveal readiness is a shared signal, not a second invention.
  expect(scene).toContain('private railConcealed()');
