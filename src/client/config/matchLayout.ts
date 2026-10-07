@@ -6,9 +6,6 @@ export type SafeInsets = {
 	right: number;
 };
 const zero = { top: 0, bottom: 0, left: 0, right: 0 };
-export const matchRailReservePx = 64;
-/** CSS bottom offset of the rail (`bottom:12px`), reserved together with its box. */
-const railOffsetPx = 12;
 /** Approved clock ornament. Fit is checked against content width; no side column. */
 export const clockFrameWidthPx = 140;
 const panelNativeW = 374;
@@ -22,17 +19,6 @@ const fieldUnits = 352;
 /** Thin bezel inside the safe area. Not w-38 and not a zero-inset width cap. */
 export const mobileEdgeInsetPx = 2;
 
-export function matchRailBottom(): number {
-	if (typeof document === 'undefined') return 0;
-	const rail = document.getElementById('match-rail');
-	if (!rail || rail.hidden) return 0;
-	// The rail is a real steel box at the shared --btn-h, so reserve what it occupies
-	// instead of a stale constant: a taller control must never cover the field.
-	const height =
-		typeof rail.getBoundingClientRect === 'function' ? rail.getBoundingClientRect().height : 0;
-	return Math.max(matchRailReservePx, Math.ceil(height) + railOffsetPx);
-}
-
 export function readSafeInsets(): SafeInsets {
 	if (typeof document === 'undefined') return zero;
 	const el = document.createElement('div');
@@ -42,7 +28,7 @@ export function readSafeInsets(): SafeInsets {
 	const css = getComputedStyle(el);
 	const result = {
 		top: parseFloat(css.paddingTop) || 0,
-		bottom: (parseFloat(css.paddingBottom) || 0) + matchRailBottom(),
+		bottom: parseFloat(css.paddingBottom) || 0,
 		left: parseFloat(css.paddingLeft) || 0,
 		right: parseFloat(css.paddingRight) || 0,
 	};

@@ -1,0 +1,89 @@
+{
+  "source": "atlas-correction-original.png",
+  "sha256": "1c3066d1660bd158e7134c578940d24a32a4bb9a3b83e11a7e9e592af2c0086d",
+  "operation": "integer RGBA crop; original alpha retained; no resampling or painting",
+  "registered_button_canvas": [
+    384,
+    160
+  ],
+  "regions_xyxy": {
+    "undo-rest": [
+      18,
+      90,
+      402,
+      250
+    ],
+    "undo-hover": [
+      18,
+      250,
+      402,
+      410
+    ],
+    "undo-pressed": [
+      18,
+      410,
+      402,
+      570
+    ],
+    "undo-focus": [
+      18,
+      570,
+      402,
+      730
+    ],
+    "undo-disabled": [
+      18,
+      730,
+      402,
+      890
+    ],
+    "resign-rest": [
+      392,
+      90,
+      776,
+      250
+    ],
+    "resign-hover": [
+      392,
+      250,
+      776,
+      410
+    ],
+    "resign-pressed": [
+      392,
+      410,
+      776,
+      570
+    ],
+    "resign-focus": [
+      392,
+      570,
+      776,
+      730
+    ],
+    "resign-disabled": [
+      392,
+      730,
+      776,
+      890
+    ],
+    "dialog": [
+      768,
+      74,
+      1536,
+      566
+    ],
+    "undo-icon": [
+      810,
+      596,
+      1120,
+      906
+    ],
+    "resign-icon": [
+      1180,
+      596,
+      1490,
+      906
+    ]
+  }
+}

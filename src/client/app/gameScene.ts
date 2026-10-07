@@ -1,3 +1,4 @@
+import { bindResignConfirmation } from './resignConfirmation';
 import Phaser from 'phaser';
 import {loadImage} from './assetLoader';
 import {boardDelivery} from './boardDelivery';
@@ -1333,9 +1334,16 @@ export class GameScene extends Phaser.Scene {
 		);
 	}
 
+	private resignConfirmation?: ReturnType<typeof bindResignConfirmation>;
+
 	private bindUndoButton(): void {
 		document.getElementById('match-undo')?.addEventListener('click', () => this.undoBot());
-		document.getElementById('match-resign')?.addEventListener('click', () => this.resignMatch());
+		const trigger = document.getElementById('match-resign') as HTMLButtonElement | null;
+		if (trigger) {
+			this.resignConfirmation = bindResignConfirmation(trigger, () => this.resignMatch(),
+				() => !this.railConcealed() && this.phase !== 'title' && !this.paused && !this.flagLock);
+			this.events?.once('shutdown', () => this.resignConfirmation?.destroy());
+		}
 	}
 
 	/**
@@ -1351,22 +1359,29 @@ export class GameScene extends Phaser.Scene {
 		// The perf seam and other headless specs run without a DOM: the rail is a
 		// browser-only surface, so there is nothing to paint there.
 		if (typeof document === 'undefined') return;
-		const rail = document.getElementById('match-rail');
+		const rail = document.getElementById('match-actions');
 		const undo = document.getElementById('match-undo') as HTMLButtonElement | null;
 		const resign = document.getElementById('match-resign') as HTMLButtonElement | null;
 		const inMatch = this.phase !== 'title';
-		const railWasHidden = rail?.hidden ?? true;
+		if (!inMatch || this.phase === 'over') this.resignConfirmation?.dismiss();
 		if (rail) {
 			rail.hidden = !inMatch;
-			// Reserve the same layout budget throughout reveal; only lifecycle visibility changes.
+			// Lifecycle visibility only: the in-card overlay reserves no field space.
 			const conceal = this.railConcealed();
 			if (rail.style) rail.style.visibility = conceal ? 'hidden' : '';
 			rail.inert = conceal;
 			rail.setAttribute('aria-hidden', conceal ? 'true' : 'false');
 		}
 		if (undo) {
-			undo.hidden = !inMatch || this.online;
-			undo.disabled = this.phase === 'over' || this.railConcealed() || !canUndoBot(this.online, this.botUndoStack.length);
+			undo.hidden = !inMatch;
+			undo.disabled = this.phase === 'over' || this.phase === 'bot' || this.railConcealed() || !canUndoBot(this.online, this.botUndoStack.length);
+			const reason = this.online ? 'В сетевой партии отмена недоступна'
+				: this.phase === 'bot' ? 'Дождитесь ответа соперника'
+				: 'Отмена появится после вашего хода и ответа соперника';
+			undo.title = undo.disabled ? reason : 'Отменить ход';
+			const explanation = document.getElementById('match-undo-reason');
+			if (explanation) explanation.textContent = undo.disabled ? reason : 'Отменяет ваш ход и ответ соперника';
+			if (undo.parentElement) undo.parentElement.title = undo.title;
 			if (undo.style) undo.style.visibility = this.railConcealed() ? 'hidden' : '';
 		}
 		if (resign) {
@@ -1375,10 +1390,7 @@ export class GameScene extends Phaser.Scene {
 				this.railConcealed() || this.phase === 'over' || this.paused || this.flagLock;
 			if (resign.style) resign.style.visibility = this.railConcealed() ? 'hidden' : '';
 		}
-		if (this.board && rail && railWasHidden !== rail.hidden && this.scale) {
-			const { width, height } = logicalSize(this);
-			this.layout(width, height);
-		}
+
 	}
 
 	private undoBot(): void {

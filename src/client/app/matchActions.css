@@ -1,0 +1,23 @@
+#match-actions{position:fixed;z-index:10000;display:flex;width:192px;height:44px;pointer-events:none}
+#match-actions[hidden]{display:none}
+.match-action{position:relative;display:flex;align-items:center;justify-content:flex-start;flex:none;gap:3px;box-sizing:border-box;width:96px;height:44px;min-height:44px;padding:0 6px;border:0;border-radius:0;background:transparent var(--action-rest) center/contain no-repeat;box-shadow:none;color:#fff2d4;font:600 11px/1 "Golos Text",sans-serif;text-shadow:0 1px 2px #000;cursor:pointer;pointer-events:auto;touch-action:manipulation;transition:none;transform:none;-webkit-tap-highlight-color:transparent}
+.match-action img{width:22px;height:24px;object-fit:contain;flex:none;pointer-events:none}
+.match-action[data-art="undo"]{--action-rest:url('./ui/match-actions/undo-rest.png');--action-hover:url('./ui/match-actions/undo-hover.png');--action-pressed:url('./ui/match-actions/undo-pressed.png');--action-focus:url('./ui/match-actions/undo-focus.png');--action-disabled:url('./ui/match-actions/undo-disabled.png')}
+.match-action[data-art="resign"]{--action-rest:url('./ui/match-actions/resign-rest.png');--action-hover:url('./ui/match-actions/resign-hover.png');--action-pressed:url('./ui/match-actions/resign-pressed.png');--action-focus:url('./ui/match-actions/resign-focus.png');--action-disabled:url('./ui/match-actions/resign-disabled.png')}
+@media(hover:hover){.match-action:hover:not(:disabled){background-image:var(--action-hover)}}
+.match-action:focus-visible{background-image:var(--action-focus);outline:2px solid #bed9ec;outline-offset:-2px}
+.match-action[data-pointer-focus]:focus-visible{outline:none}
+.match-action:active:not(:disabled){background-image:var(--action-pressed);transform:none}
+.match-action:disabled{background-image:var(--action-disabled);opacity:1;color:#e1d5bd;cursor:not-allowed}
+.match-undo-slot{position:relative;pointer-events:auto}
+#match-undo-reason{position:absolute;bottom:48px;left:0;width:210px;padding:8px;background:#171b1b;color:#fff2d4;font:12px/1.4 "Golos Text",sans-serif;visibility:hidden;pointer-events:none}
+.match-undo-slot:hover #match-undo:disabled + #match-undo-reason{visibility:visible}
+#resign-confirmation{box-sizing:border-box;width:min(380px,calc(100vw - 16px));height:244px;max-width:none;padding:38px 24px 28px;border:0;background:transparent url('./ui/match-actions/dialog.png') center/100% 100% no-repeat;color:#fff2d4;text-align:center;font-family:"Golos Text",sans-serif;overflow:visible}
+#resign-confirmation::backdrop{background:rgb(0 0 0 / .65)}
+#resign-confirmation h2{margin:0 0 12px;font-size:24px}
+#resign-confirmation p{margin:0;font-size:16px;line-height:1.5}
+#resign-confirmation .resign-choices{display:flex;justify-content:center;gap:12px;margin-top:24px}
+#resign-confirmation .match-action{justify-content:center;padding:0 8px;font-size:12px}
+
+/* The above-board tablet card has no room for an explanation above it. */
+#match-actions[data-tooltip-below="true"] #match-undo-reason{top:48px;bottom:auto}

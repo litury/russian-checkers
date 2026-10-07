@@ -20,7 +20,7 @@ function setup() {
   click(this: EventTarget & { disabled: boolean }) { if (!this.disabled) this.dispatchEvent(new Event('click')); },
  });
  const rail = { hidden: true, inert: false, style: { visibility: '' }, setAttribute: vi.fn() };
- vi.stubGlobal('document', { getElementById: (id: string) => id === 'match-undo' ? button : id === 'match-resign' ? resign : id === 'match-rail' ? rail : null });
+ vi.stubGlobal('document', { getElementById: (id: string) => id === 'match-undo' ? button : id === 'match-resign' ? resign : id === 'match-actions' ? rail : null });
  s.position = createInitialPosition(); s.phase = 'human';
  // Default fixture is a match that is already through the board reveal gate.
  s.playfieldReadyDone = true; s.boardPainted = true;
@@ -154,12 +154,12 @@ it('button cancels first manual animation and rejects its late completion', () =
  expect(s.humanChain).toBeNull(); expect(s.phase).toBe('human'); expect(tasks).toEqual([]);
  button.click(); expect(s.board.reset).toHaveBeenCalledTimes(1);
 });
-it('online resign sends live resign; undo stays hidden', () => {
+it('online resign sends live resign; undo stays visible and disabled', () => {
  const { s, button, resign, rail } = setup();
  s.online = true; s.live = { resign: vi.fn() };
  s.paintUndo();
  expect(rail.hidden).toBe(false);
- expect(button.hidden).toBe(true);
+ expect(button.hidden).toBe(false); expect(button.disabled).toBe(true);
  expect(resign.hidden).toBe(false);
  s.resignMatch();
  expect(s.live.resign).toHaveBeenCalledTimes(1);
@@ -259,4 +259,13 @@ it('GT-01c the first painted board frame opens the rail without touching the mov
 it('empty history undo is a no-op', () => {
  const { s } = setup(); const origin = structuredClone(s.position);
  s.undoBot(); expect(s.position).toEqual(origin); expect(s.board.reset).not.toHaveBeenCalled();
+});
+
+it('in-card undo explains bot wait, enables after reply, and is disabled at result', () => {
+ const { s, button } = setup();
+ human(s); s.paintUndo();
+ expect(s.phase).toBe('bot'); expect(button.disabled).toBe(true);
+ expect((button as any).title).toBe('Дождитесь ответа соперника');
+ s.playBot(); s.paintUndo(); expect(button.disabled).toBe(false);
+ s.phase='over'; s.paintUndo(); expect(button.disabled).toBe(true);
 });

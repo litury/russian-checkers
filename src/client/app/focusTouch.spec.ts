@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+const actions=readFileSync(new URL('./matchActions.css',import.meta.url),'utf8');
 import { describe, expect, it } from 'vitest';
 import html from '../../../index.html?raw';
 import board from '../modules/board/createReliquaryBoardView.ts?raw';
@@ -23,7 +25,7 @@ describe('touch focus ring', () => {
 	});
 
 	it('cancels the ring on every surface that draws one', () => {
-		for (const sheet of [opening, history, result]) {
+		for (const sheet of [opening, history, result, actions]) {
 			expect(css(sheet)).toContain('[data-pointer-focus]');
 			expect(css(sheet)).toContain('outline:none');
 			expect(css(sheet)).not.toContain('data-input-mode');
@@ -34,8 +36,8 @@ describe('touch focus ring', () => {
 		expect(css(opening)).toContain(
 			'#opening button[data-pointer-focus]:focus-visible { outline:none; }',
 		);
-		expect(css(opening)).toContain(
-			'#match-undo[data-pointer-focus]:focus-visible,#match-resign[data-pointer-focus]:focus-visible{outline:none}',
+		expect(css(actions)).toContain(
+			'.match-action[data-pointer-focus]:focus-visible{outline:none}',
 		);
 		expect(css(history)).toContain(
 			'#match-history [data-pointer-focus]:focus-visible { outline:none; }',

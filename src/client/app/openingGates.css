@@ -171,21 +171,6 @@
  #opening .gate-piece-slot[aria-pressed="true"]::after { content:''; position:absolute; left:25%; right:25%; bottom:0; height:4px; background:#ffe0a0; box-shadow:0 0 0 2px #20190e; }
 }
 
-#match-rail{position:fixed;z-index:10000;left:50%;bottom:calc(12px + env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;gap:8px;pointer-events:none}
-#match-rail .opening-utility{display:flex;align-items:center;justify-content:center;height:var(--btn-h);min-height:44px;min-width:132px;padding:0 8px 0 26px;gap:6px;border:0;border-radius:0;box-shadow:none;background:transparent url('./ui/siege/button-steel-rail-resign-rest.webp') center/contain no-repeat;background-origin:border-box;background-clip:border-box;color:#e9e0ce;font:600 16px/1.15 "Golos Text",sans-serif;text-shadow:0 1px 2px #000;transition:none;transform:none;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;box-sizing:border-box}
-#match-rail #match-undo{width:135.88px}
-#match-rail #match-resign{width:132px}
-#match-rail .opening-utility:active{filter:none;background-image:url('./ui/siege/button-steel-rail-resign-pressed.webp');transform:translateY(2px)}
-#match-rail #match-undo{background-image:url('./ui/siege/button-steel-rail-undo-rest.webp')}
-#match-rail #match-undo:active{background-image:url('./ui/siege/button-steel-rail-undo-pressed.webp')}
-@media (orientation:landscape) and (max-height:500px){
-#match-rail{left:auto;right:calc(12px + env(safe-area-inset-right));transform:none}
-}
-#match-undo:disabled,#match-resign:disabled{opacity:.45;cursor:default}
-#match-undo:focus-visible,#match-resign:focus-visible{outline:3px solid #bed9ec;outline-offset:3px}
-#match-undo[data-pointer-focus]:focus-visible,#match-resign[data-pointer-focus]:focus-visible{outline:none}
-
-
 #opening .siege-left { clip-path:polygon(0% 0%, 50.130208% 0.000000%, 50.130208% 16.015625%, 47.460938% 18.945312%, 47.460938% 29.296875%, 51.302083% 32.812500%, 51.302083% 41.308594%, 47.981771% 44.335938%, 47.981771% 54.394531%, 51.236979% 57.519531%, 51.236979% 66.308594%, 47.460938% 69.921875%, 47.460938% 79.003906%, 50.130208% 81.835938%, 50.130208% 100.000000%, 0% 100%); }
 
 #opening .siege-right { clip-path:polygon(100% 0%, 50.130208% 0.000000%, 50.130208% 16.015625%, 47.460938% 18.945312%, 47.460938% 29.296875%, 51.302083% 32.812500%, 51.302083% 41.308594%, 47.981771% 44.335938%, 47.981771% 54.394531%, 51.236979% 57.519531%, 51.236979% 66.308594%, 47.460938% 69.921875%, 47.460938% 79.003906%, 50.130208% 81.835938%, 50.130208% 100.000000%, 100% 100%); }

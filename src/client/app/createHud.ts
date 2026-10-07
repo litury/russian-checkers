@@ -3,6 +3,7 @@ import type { Side } from '@/rules';
 import { matchLayout, readSafeInsets } from '@/client/config/matchLayout';
 import { createBunkerPanel } from './bunkerPanel';
 import { PanelReveal, preparationMs } from './panelReveal';
+import { matchActionGeometry } from './matchActionGeometry';
 import { panelDurationMs } from './openingGates';
 
 export function clipPlayerName(raw: string): string {
@@ -84,6 +85,15 @@ export function createHud(
 			const l = matchLayout(width, height, readSafeInsets());
 			foe.layout(l.foe.x, l.foe.y, l.panelScale);
 			you.layout(l.you.x, l.you.y, l.panelScale);
+			// Read the transform actually applied to Phaser, never a viewport-bottom guess.
+			const actions = document.getElementById('match-actions');
+			if (actions) {
+				const box = matchActionGeometry(you.root);
+				const canvas = scene.game.canvas.getBoundingClientRect();
+				actions.dataset.tooltipBelow = String(box.tooltipBelow);
+				actions.style.left = `${canvas.left + box.left}px`;
+				actions.style.top = `${canvas.top + box.top}px`;
+			}
 		},
 		setTurn(copy: string) {
 			you.setStatus(copy);
