@@ -53,68 +53,34 @@
 }
 #opening .opening-actions button:disabled { filter:saturate(.35); cursor:wait; }
 #opening-status { position:absolute; z-index:6; top:calc(var(--play-y) + 252px); left:50%; transform:translateX(-50%); width:min(370px,calc(100% - 24px)); margin:0; padding:8px; background:#161a1bf2; color:#f1d9ad; font-size:14px; }
-/* The «В сети» screen is assembled from the material the rest of the menu already uses; no new art.
-   Frame — the same nine-slice siege raster as «Летопись»/«Битвы» (slice 180, --frame-corner width),
-   backplate — the existing gate cut, heading — the cassette plate of the main title,
-   action plaques — the menu steel raster at the shared --btn-h token. */
+/* Generated search panel: proportional header, separate count groove and nine-slice body.
+   Only the body centre grows vertically. No borrowed gate texture or CSS-painted panel. */
 #opening-search { position:absolute; z-index:5; left:50%; top:var(--play-y); width:min(430px,calc(100% - 24px)); transform:translateX(-50%); margin:0; padding:calc(var(--frame-corner) + 4px) calc(var(--frame-corner) + 2px); border:0; border-radius:0; box-shadow:none; background:none; color:#e2d9c0; text-align:center; max-height:calc(100% - var(--play-y) - var(--piece) - 182px); overflow-x:hidden; overflow-y:auto; isolation:isolate; container-type:inline-size; }
 /* The card is capped to the free space above the chronicle halves. Four search plates must
    sit inside that cap: on a short desktop the heading gives up height so the lower bevel
    is not clipped and a scrollbar does not eat the measured button boxes. */
-#opening-search::before { content:''; position:absolute; inset:10px; z-index:-2; background:linear-gradient(#141b20cc,#1a2226db),url('./ui/siege/gate.webp') 24% 56%/auto 700px; box-shadow:0 6px 8px #0009; }
-#opening-search::after { content:''; position:absolute; inset:0; z-index:-1; border:var(--frame-corner) solid transparent; border-image:url('./ui/siege/panel-revision2/frame.webp') 180 / var(--frame-corner) / 0 stretch; pointer-events:none; }
+#opening-search::before { content:''; position:absolute; inset:0; z-index:-2; border:0 solid transparent; border-image:url('./ui/siege/search-body.webp') 0 90 90 fill / 0 24px 24px / 0 stretch; pointer-events:none; }
+#opening-search::after { content:none; }
 /* Heading: the title cassette plate, the live panel copy sits on it instead of on bare background. */
-#opening-search-head { position:relative; margin:0 0 20px; }
-.opening-search-title { position:relative; width:min(62%,232px); aspect-ratio:1456/570; margin:0 auto; }
+#opening-search-head { position:relative; margin:-28px -26px 8px; }
+.opening-search-title { position:relative; width:100%; aspect-ratio:860/134; margin:0 auto; }
 .opening-search-plate { display:block; position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
-#opening-search-copy { position:absolute; inset:0; margin:0; display:grid; place-items:center; font:600 clamp(15px,6.2cqw,24px)/1.05 Literata,Georgia,serif; letter-spacing:.02em; color:#ead9b6; text-shadow:0 2px 2px #000; white-space:nowrap; }
+#opening-search-copy { position:absolute; inset:28% 12% 35%; margin:0; display:grid; place-items:center; font:600 clamp(14px,5.2cqw,18px)/1.05 Literata,Georgia,serif; letter-spacing:.02em; color:#ead9b6; text-shadow:0 2px 2px #000; white-space:nowrap; }
 /* The count row lives inside the screen but must not resize the card or shift its buttons: the
    header reserves the row and the row itself is absolutely placed under the heading. The visible
    text is «Онлайн: N» — the word is dropped whenever the heading already carries it. */
-#opening-online-count { position:absolute; top:100%; left:0; right:0; margin:0; font-size:14px; line-height:1.25; color:#d3c4a5; text-shadow:0 1px 2px #000; }
+#opening-online-count { position:absolute; top:66%; left:31%; right:31%; height:22px; margin:0; display:grid; place-items:center; border:0 solid transparent; border-image:url('./ui/siege/search-count.webp') 12 20 fill / 4px 10px / 0 stretch; font:600 10px/1 'Golos Text',sans-serif; white-space:nowrap; color:#d3c4a5; text-shadow:0 1px 2px #000; }
 #opening-online-count[hidden] { display:none; }
 /* 1280×800, 600×800 and 1366×768 clip the fourth plate when the heading keeps its full cassette.
    Phone (under 454) and 1440×900 stay on the full heading. Button boxes are not resized. */
 @media (max-height:860px) and (min-width:454px) {
- #opening-search { padding-top:var(--frame-corner); padding-bottom:var(--frame-corner); }
- #opening-search-head { margin-bottom:0; }
- .opening-search-title { width:min(40%,120px); }
- #opening-search-copy { font-size:15px; }
+ #opening-search { padding-top:28px; padding-bottom:var(--frame-corner); }
 }
-/* Search plaques keep the measured flex boxes. Each ratio has its own plate, contained, not stretched. */
+/* Five DPR2 plates. Hardware stays at 24x20 CSS px for every flex width; only middles stretch. */
 #opening-search-actions { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; align-items:stretch; }
-#opening-search-actions button { position:relative; flex:1 1 calc(33.333% - 7px); min-width:0; min-height:44px; height:var(--btn-h); display:flex; align-items:center; justify-content:center; margin:0; padding:0 18px; border:0; border-radius:0; box-shadow:none; background:transparent url('./ui/siege/button-steel-search-98-rest.webp') center/contain no-repeat; --plate-rest:url('./ui/siege/button-steel-search-98-rest.webp'); --plate-hover:url('./ui/siege/button-steel-search-98-hover.webp'); --plate-pressed:url('./ui/siege/button-steel-search-98-pressed.webp'); --plate-focus:url('./ui/siege/button-steel-search-98-focus.webp'); --plate-disabled:url('./ui/siege/button-steel-search-98-disabled.webp'); background-origin:border-box; background-clip:border-box; color:#e9e0ce; font:600 clamp(13px,3.9cqw,16px)/1.15 'Golos Text',sans-serif; text-shadow:0 1px 2px #000; transform:none; transition:none; -webkit-tap-highlight-color:transparent; }
+#opening-search-actions button { position:relative; flex:1 1 calc(33.333% - 7px); min-width:0; min-height:44px; height:var(--btn-h); display:flex; align-items:center; justify-content:center; margin:0; padding:0 18px; border:0 solid transparent; border-radius:0; box-shadow:none; background:none; border-image:var(--plate-state,var(--plate-rest)) 40 48 fill / 20px 24px / 0 stretch; --plate-rest:url('./ui/siege/search-button-rest.webp'); --plate-hover:url('./ui/siege/search-button-hover.webp'); --plate-pressed:url('./ui/siege/search-button-pressed.webp'); --plate-focus:url('./ui/siege/search-button-focus.webp'); --plate-disabled:url('./ui/siege/search-button-disabled.webp'); color:#e9e0ce; font:600 clamp(13px,3.9cqw,16px)/1.15 'Golos Text',sans-serif; text-shadow:0 1px 2px #000; transform:none; transition:none; -webkit-tap-highlight-color:transparent; }
 #opening-search-actions button:hover { filter:none; }
-#opening-search-actions button:active { filter:none; background-image:url('./ui/siege/button-steel-search-98-pressed.webp'); transform:translateY(2px); }
-/* Below 454px the card is still 100%-24px: 314 / 152 / 98 at 390. */
-#opening-search-actions:not(:has(> button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]) { background-image:url('./ui/siege/button-steel-search-314-rest.webp'); --plate-rest:url('./ui/siege/button-steel-search-314-rest.webp'); --plate-hover:url('./ui/siege/button-steel-search-314-hover.webp'); --plate-pressed:url('./ui/siege/button-steel-search-314-pressed.webp'); --plate-focus:url('./ui/siege/button-steel-search-314-focus.webp'); --plate-disabled:url('./ui/siege/button-steel-search-314-disabled.webp'); }
-#opening-search-actions:not(:has(> button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]):active { background-image:url('./ui/siege/button-steel-search-314-pressed.webp'); }
-#opening-search-actions:has(> button:not([hidden]) ~ button:not([hidden])):not(:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]) { background-image:url('./ui/siege/button-steel-search-152-rest.webp'); --plate-rest:url('./ui/siege/button-steel-search-152-rest.webp'); --plate-hover:url('./ui/siege/button-steel-search-152-hover.webp'); --plate-pressed:url('./ui/siege/button-steel-search-152-pressed.webp'); --plate-focus:url('./ui/siege/button-steel-search-152-focus.webp'); --plate-disabled:url('./ui/siege/button-steel-search-152-disabled.webp'); }
-#opening-search-actions:has(> button:not([hidden]) ~ button:not([hidden])):not(:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]):active { background-image:url('./ui/siege/button-steel-search-152-pressed.webp'); }
-#opening-search-actions:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden])):not(:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) { background-image:url('./ui/siege/button-steel-search-314-rest.webp'); --plate-rest:url('./ui/siege/button-steel-search-314-rest.webp'); --plate-hover:url('./ui/siege/button-steel-search-314-hover.webp'); --plate-pressed:url('./ui/siege/button-steel-search-314-pressed.webp'); --plate-focus:url('./ui/siege/button-steel-search-314-focus.webp'); --plate-disabled:url('./ui/siege/button-steel-search-314-disabled.webp'); }
-#opening-search-actions:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden])):not(:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]):active { background-image:url('./ui/siege/button-steel-search-314-pressed.webp'); }
-/* From 454px the card is capped at 430px and --frame-corner is still 24, so the
-   boxes are 378 / 184 / 119.33. Measured at 600. Not the 390 plates. */
-@media (min-width:454px) {
- #opening-search-actions button { background-image:url('./ui/siege/button-steel-search-119-rest.webp'); --plate-rest:url('./ui/siege/button-steel-search-119-rest.webp'); --plate-hover:url('./ui/siege/button-steel-search-119-hover.webp'); --plate-pressed:url('./ui/siege/button-steel-search-119-pressed.webp'); --plate-focus:url('./ui/siege/button-steel-search-119-focus.webp'); --plate-disabled:url('./ui/siege/button-steel-search-119-disabled.webp'); }
- #opening-search-actions button:active { background-image:url('./ui/siege/button-steel-search-119-pressed.webp'); }
- #opening-search-actions:not(:has(> button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]) { background-image:url('./ui/siege/button-steel-search-378-rest.webp'); --plate-rest:url('./ui/siege/button-steel-search-378-rest.webp'); --plate-hover:url('./ui/siege/button-steel-search-378-hover.webp'); --plate-pressed:url('./ui/siege/button-steel-search-378-pressed.webp'); --plate-focus:url('./ui/siege/button-steel-search-378-focus.webp'); --plate-disabled:url('./ui/siege/button-steel-search-378-disabled.webp'); }
- #opening-search-actions:not(:has(> button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]):active { background-image:url('./ui/siege/button-steel-search-378-pressed.webp'); }
- #opening-search-actions:has(> button:not([hidden]) ~ button:not([hidden])):not(:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]) { background-image:url('./ui/siege/button-steel-search-184-rest.webp'); --plate-rest:url('./ui/siege/button-steel-search-184-rest.webp'); --plate-hover:url('./ui/siege/button-steel-search-184-hover.webp'); --plate-pressed:url('./ui/siege/button-steel-search-184-pressed.webp'); --plate-focus:url('./ui/siege/button-steel-search-184-focus.webp'); --plate-disabled:url('./ui/siege/button-steel-search-184-disabled.webp'); }
- #opening-search-actions:has(> button:not([hidden]) ~ button:not([hidden])):not(:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]):active { background-image:url('./ui/siege/button-steel-search-184-pressed.webp'); }
- #opening-search-actions:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden])):not(:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) { background-image:url('./ui/siege/button-steel-search-378-rest.webp'); --plate-rest:url('./ui/siege/button-steel-search-378-rest.webp'); --plate-hover:url('./ui/siege/button-steel-search-378-hover.webp'); --plate-pressed:url('./ui/siege/button-steel-search-378-pressed.webp'); --plate-focus:url('./ui/siege/button-steel-search-378-focus.webp'); --plate-disabled:url('./ui/siege/button-steel-search-378-disabled.webp'); }
- #opening-search-actions:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden])):not(:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]):active { background-image:url('./ui/siege/button-steel-search-378-pressed.webp'); }
-}
-@media (min-width:700px) {
- #opening-search-actions button { background-image:url('./ui/siege/button-steel-search-115-rest.webp'); --plate-rest:url('./ui/siege/button-steel-search-115-rest.webp'); --plate-hover:url('./ui/siege/button-steel-search-115-hover.webp'); --plate-pressed:url('./ui/siege/button-steel-search-115-pressed.webp'); --plate-focus:url('./ui/siege/button-steel-search-115-focus.webp'); --plate-disabled:url('./ui/siege/button-steel-search-115-disabled.webp'); }
- #opening-search-actions button:active { background-image:url('./ui/siege/button-steel-search-115-pressed.webp'); }
- #opening-search-actions:not(:has(> button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]) { background-image:url('./ui/siege/button-steel-search-366-rest.webp'); --plate-rest:url('./ui/siege/button-steel-search-366-rest.webp'); --plate-hover:url('./ui/siege/button-steel-search-366-hover.webp'); --plate-pressed:url('./ui/siege/button-steel-search-366-pressed.webp'); --plate-focus:url('./ui/siege/button-steel-search-366-focus.webp'); --plate-disabled:url('./ui/siege/button-steel-search-366-disabled.webp'); }
- #opening-search-actions:not(:has(> button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]):active { background-image:url('./ui/siege/button-steel-search-366-pressed.webp'); }
- #opening-search-actions:has(> button:not([hidden]) ~ button:not([hidden])):not(:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]) { background-image:url('./ui/siege/button-steel-search-178-rest.webp'); --plate-rest:url('./ui/siege/button-steel-search-178-rest.webp'); --plate-hover:url('./ui/siege/button-steel-search-178-hover.webp'); --plate-pressed:url('./ui/siege/button-steel-search-178-pressed.webp'); --plate-focus:url('./ui/siege/button-steel-search-178-focus.webp'); --plate-disabled:url('./ui/siege/button-steel-search-178-disabled.webp'); }
- #opening-search-actions:has(> button:not([hidden]) ~ button:not([hidden])):not(:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]):active { background-image:url('./ui/siege/button-steel-search-178-pressed.webp'); }
- #opening-search-actions:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden])):not(:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) { background-image:url('./ui/siege/button-steel-search-366-rest.webp'); --plate-rest:url('./ui/siege/button-steel-search-366-rest.webp'); --plate-hover:url('./ui/siege/button-steel-search-366-hover.webp'); --plate-pressed:url('./ui/siege/button-steel-search-366-pressed.webp'); --plate-focus:url('./ui/siege/button-steel-search-366-focus.webp'); --plate-disabled:url('./ui/siege/button-steel-search-366-disabled.webp'); }
- #opening-search-actions:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden])):not(:has(> button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]))) > button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]) ~ button:not([hidden]):active { background-image:url('./ui/siege/button-steel-search-366-pressed.webp'); }
-}
+#opening-search-actions button:active { filter:none; transform:translateY(2px); }
 #opening-search-actions button:focus-visible { outline:3px solid #bed9ec; outline-offset:0; }
 #opening-search-actions button:disabled { filter:none; cursor:wait; }
 /* Code field: an inset of the very same frame sprite, so no flat rectangle sits inside the panel. */
@@ -199,7 +165,7 @@
 }
 
 /* Five generated states: aspect selectors assign assets, state selectors only choose a variable. */
-#opening-search-actions button { background-image:var(--plate-state,var(--plate-rest)) !important; filter:none !important; }
+#opening-search-actions button { background-image:none !important; filter:none !important; }
 #opening-search-actions button:hover:not(:disabled) { --plate-state:var(--plate-hover); }
 #opening-search-actions button:focus-visible:not(:disabled) { --plate-state:var(--plate-focus); }
 #opening-search-actions button:active:not(:disabled) { --plate-state:var(--plate-pressed); }

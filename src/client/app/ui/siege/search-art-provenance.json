@@ -1,0 +1,53 @@
+{
+	"tool": "Codex built-in image_gen via cx",
+	"panel_session": "01a11c39-6955-7a71-897a-1dda29dcf08c",
+	"panel_raw_sha256": "fbea6f92f0adb13ce582c11494807555b772659772fd0a047d41ed09dcfa3661",
+	"panel_master": "docs/task-t_7b904be0/search-panel-raw.png (preserved in author workspace)",
+	"buttons_source": "menu-search-generated-provenance.json; existing 196x140 generated five-state search-98 exports",
+	"export": "ffmpeg libwebp lossless=1 pix_fmt=bgra; no painting, masks or filters. Panel header crop1536:240 then860:134; body crop1536:784:y240 then860:439; count crop340:72:x600:y164 then200:42. Button visible RGBA pixels reencoded unchanged at original196x140; invisible RGB at alpha0 may be cleared. Earlier quality82 provenance remains unchanged.",
+	"button_source_slices": [40, 48],
+	"button_css_slices": [20, 24],
+	"dpr": 2,
+	"files": [
+		{
+			"file": "search-body.webp",
+			"bytes": 421626,
+			"sha256": "b1bd15929c72691e013b9f83f3ff99b4501eaa3ce752135f668a047b8b674daf"
+		},
+		{
+			"file": "search-button-disabled.webp",
+			"bytes": 29026,
+			"sha256": "60bf681c957a31d881c077d0825f1e969fae1087d6a65cf3a20e8995be14f372"
+		},
+		{
+			"file": "search-button-focus.webp",
+			"bytes": 28290,
+			"sha256": "22206a2d283d3172440df715f817a802639066e7638d053969a7cb2376c84dfe"
+		},
+		{
+			"file": "search-button-hover.webp",
+			"bytes": 29088,
+			"sha256": "8972f86c730eb7d54b2217050e7a64cac12cc0f4b3c6ef49b26a9087ffe0ea4f"
+		},
+		{
+			"file": "search-button-pressed.webp",
+			"bytes": 26536,
+			"sha256": "923d0f3cc89d9bfee9cfa5816902ac1410907743db55c6fba84e1127b49a0d62"
+		},
+		{
+			"file": "search-button-rest.webp",
+			"bytes": 25924,
+			"sha256": "27d00e4dfa64d6d94496bb8a2c3d2b7cc3fa703003e5e92502ed4d1475266a18"
+		},
+		{
+			"file": "search-count.webp",
+			"bytes": 9186,
+			"sha256": "64e28b685015577c9f8ac916ddbc993c17f26f5b68e256c9c8769970070149f2"
+		},
+		{
+			"file": "search-header.webp",
+			"bytes": 138730,
+			"sha256": "3c51ff8bafdb303b39badd5926e77fdc3585a788ea68d0b691b7eda5741b9f8f"
+		}
+	]
+}

@@ -14,7 +14,9 @@ describe('generated menu/search plate contract',()=>{
    expect(createHash('sha256').update(bytes).digest('hex')).toBe(file.sha256);
    expect(bytes.byteLength).toBe(file.bytes);
    hashes.add(file.sha256);
-   expect(css).toContain(file.file);
+   // Width-specific search exports remain historical provenance, not runtime URLs.
+   if(file.file.startsWith('button-steel-desk-')) expect(css).toContain(file.file);
+   else expect(css).not.toContain(file.file);
    expect(file.bytes).toBeLessThan(85000);
   }
   expect(hashes.size).toBe(50);

@@ -116,7 +116,7 @@ it('keeps the online button name without a number and puts the count inside the 
 	expect(button).not.toMatch(/opening-live|opening-online-count/);
 	const search = html.match(/<div id="opening-search"[\s\S]*?<div id="opening-search-actions">/)![0];
 	// Заголовок стоит на спрайт-пластине главного названия, счёт — отдельная строка под ней.
-	expect(search).toMatch(/<div class="opening-search-title">\s*<img class="opening-search-plate" src="\/src\/client\/app\/ui\/delivery\/cassette-title-560\.webp"[^>]*\/>\s*<p id="opening-search-copy"[^>]*>[^<]*<\/p>\s*<\/div>\s*<p id="opening-online-count"[^>]*hidden><\/p>/);
+	expect(search).toMatch(/<div class="opening-search-title">\s*<img class="opening-search-plate" src="\/src\/client\/app\/ui\/siege\/search-header\.webp"[^>]*\/>\s*<p id="opening-search-copy"[^>]*>[^<]*<\/p>\s*<\/div>\s*<p id="opening-online-count"[^>]*hidden><\/p>/);
 });
 
 it('keeps the search card and its buttons at the main geometry while the count row appears', () => {
@@ -128,35 +128,26 @@ it('keeps the search card and its buttons at the main geometry while the count r
 	expect(gates).not.toContain('scrollbar-width:none');
 	expect(gates).not.toMatch(/#opening-search::-webkit-scrollbar \{ width:0/);
 	// Short desktop keeps the fourth plate inside the chronicle cap without shrinking the boxes.
-	expect(gates).toMatch(/@media \(max-height:860px\) and \(min-width:454px\) \{\s*#opening-search \{ padding-top:var\(--frame-corner\); padding-bottom:var\(--frame-corner\); \}/);
-	expect(gates).toContain('.opening-search-title { width:min(40%,120px); }');
-	expect(gates).toMatch(/#opening-search-head \{ position:relative; margin:0 0 20px; \}/);
-	expect(gates).toMatch(/#opening-online-count \{ position:absolute; top:100%; left:0; right:0;/);
+	expect(gates).toMatch(/@media \(max-height:860px\) and \(min-width:454px\) \{\s*#opening-search \{ padding-top:28px; padding-bottom:var\(--frame-corner\); \}/);
+	expect(gates).toContain('.opening-search-title { position:relative; width:100%; aspect-ratio:860/134;');
+	expect(gates).toMatch(/#opening-search-head \{ position:relative; margin:-28px -26px 8px; \}/);
+	expect(gates).toMatch(/#opening-online-count \{ position:absolute; top:66%; left:31%; right:31%;/);
 	expect(gates).toMatch(/#opening-online-count\[hidden\] \{ display:none; \}/);
-	expect(gates).toContain("border-image:url('./ui/siege/panel-revision2/frame.webp') 180 / var(--frame-corner) / 0 stretch;");
+	expect(gates).toContain("border-image:url('./ui/siege/search-body.webp') 0 90 90 fill / 0 24px 24px / 0 stretch;");
 	expect(gates).toMatch(/#opening-search-actions button \{[^}]*height:var\(--btn-h\);/);
 	// Плашки поиска держат прежний flex и свою пластину под коробку. Телефонное меню остаётся на старой.
 	expect(gates).toContain("background:transparent url('./ui/siege/button-steel-rest.webp') center/100% 100% no-repeat;");
 	expect(gates).toMatch(/#opening-search-actions button \{[^}]*flex:1 1 calc\(33\.333% - 7px\)/);
-	expect(gates).toMatch(/#opening-search-actions button \{[^}]*center\/contain no-repeat/);
+	expect(gates).toMatch(/#opening-search-actions button \{[^}]*border-image:var\(--plate-state,var\(--plate-rest\)\) 40 48 fill \/ 20px 24px \/ 0 stretch/);
 	expect(gates).not.toMatch(/#opening-search-actions button \{[^}]*100% 100%/);
 	expect(gates).not.toMatch(/#opening-search-actions button \{[^}]*736 \/ 295/);
-	expect(gates).toContain("url('./ui/siege/button-steel-search-98-rest.webp')");
-	expect(gates).toContain("url('./ui/siege/button-steel-search-314-rest.webp')");
-	expect(gates).toContain("url('./ui/siege/button-steel-search-366-rest.webp')");
-	expect(gates).toContain("url('./ui/siege/button-steel-search-378-rest.webp')");
-	expect(gates).toContain("url('./ui/siege/button-steel-search-184-rest.webp')");
-	expect(gates).toContain("url('./ui/siege/button-steel-search-119-rest.webp')");
-	const mid = gates.slice(gates.indexOf("@media (min-width:454px)"), gates.indexOf("@media (min-width:700px)"));
-	expect(mid).toContain("button-steel-search-378-rest.webp");
-	expect(mid).toContain("button-steel-search-184-rest.webp");
-	expect(mid).toContain("button-steel-search-119-rest.webp");
-	expect(mid).not.toContain("button-steel-search-314-rest.webp");
+	for (const state of ['rest','hover','pressed','focus','disabled']) expect(gates).toContain(`url('./ui/siege/search-button-${state}.webp')`);
+	expect(gates).not.toContain('button-steel-search-');
 	expect(gates).toContain('background-size:contain');
 	// `contain` is measured from the background positioning area, and that must be the border
 	// box: with the default padding-box it is fitted to the padded content area, which is
 	// smaller than the measured box, so the box edges show through. Guards the padding-box bug.
-	expect(gates).toMatch(/#opening-search-actions button \{[^}]*background-origin:border-box; background-clip:border-box;/);
+	expect(gates).toMatch(/#opening-search-actions button \{[^}]*background:none;/);
 	expect(gates).toMatch(/background-size:contain;\s*background-origin:border-box; background-clip:border-box;/);
 	expect(gates).not.toMatch(/#opening-search-actions button \{[^}]*background-origin:padding-box/);
 	expect(gates).toContain("background-image:url('./ui/siege/button-steel-pressed.webp')");
