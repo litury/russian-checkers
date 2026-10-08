@@ -3,11 +3,12 @@ const assets = import.meta.glob<string>('./ui/match-actions/*.png', {
  eager: true, query: '?url', import: 'default',
 }) as Record<string, string>;
 export const matchActionArtUrls = Object.entries(assets).sort(([a], [b]) => {
- const rank = (name: string) => name.endsWith('/dialog.png') ? 0 : name.includes('dialog') ? 1 : /hover|pressed|focus/.test(name) ? 2 : 3;
+ const rank = (name: string) => name.endsWith('/dialog.png') ? 0 : name.endsWith('/resign-rest.png') ? 0.5 : name.includes('dialog') ? 1 : /hover|pressed|focus/.test(name) ? 2 : 3;
  return rank(a) - rank(b) || a.localeCompare(b);
 }).map(([, url]) => url);
 const retained = new Map<string, HTMLImageElement>();
 const pending = new Map<string, Promise<boolean>>();
+const feedbackWaiters: Array<(ready: boolean) => void> = [];
 let started = false;
 let stopped = false;
 let index = 0;
@@ -22,6 +23,9 @@ function load(url: string): Promise<boolean> {
   // A failed decode must not poison an explicit retry for the rest of the page.
   pending.delete(url);
   return false;
+ }).then(ready => {
+  if (url === assets['./ui/match-actions/resign-rest.png']) feedbackWaiters.splice(0).forEach(resolve => resolve(ready));
+  return ready;
  });
  pending.set(url, result);
  return result;
@@ -50,8 +54,16 @@ export function warmMatchActionArt(): void {
  else setTimeout(pump, 250);
 }
 const dialogUrls = () => matchActionArtUrls.filter(url => /\/dialog[^/]*\.png$/.test(url));
+export function resignStatesReady(): boolean {
+ return Object.entries(assets).filter(([path]) => /\/resign-(?:rest|hover|pressed|focus)\.png$/.test(path)).every(([, url]) => retained.has(url));
+}
 export function resignArtReady(): boolean {
  return dialogUrls().every(url => retained.has(url));
+}
+export function prepareResignFeedback(): Promise<boolean> {
+ if (started) return load(assets['./ui/match-actions/resign-rest.png']);
+ // Binding controls must not start decoration traffic ahead of the first board frame.
+ return new Promise(resolve => feedbackWaiters.push(resolve));
 }
 export function prepareResignArt(): Promise<boolean> {
  return Promise.all(dialogUrls().map(load)).then(results => results.every(Boolean));

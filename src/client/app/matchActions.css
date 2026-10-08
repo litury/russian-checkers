@@ -30,6 +30,12 @@
 .match-action[data-pointer-focus]:focus-visible{outline:none}
 .match-action:active:not(:disabled){background-image:var(--action-pressed);transform:none}
 .match-action[data-art-wait="true"]{filter:brightness(.85)}
+/* Cold feedback must not switch to another undecoded plate. Preserve focus outline. */
+.match-action[data-art-cold="true"]:not(:disabled){background-image:var(--action-rest)}
+.match-action[data-art-cold="true"]:not([data-rest-ready]):not(:disabled){background-image:none}
+#resign-art-status{position:absolute;bottom:48px;left:0;width:220px;padding:8px;box-sizing:border-box;background:#171b1b;color:#fff2d4;font:12px/1.4 "Golos Text",sans-serif;pointer-events:none}
+#resign-art-status:empty{display:none}
+#match-actions[data-tooltip-below="true"] #resign-art-status{top:48px;bottom:auto}
 .match-action:disabled{background-image:var(--action-disabled);opacity:1;color:#e1d5bd;cursor:not-allowed}
 .match-undo-slot{position:relative;pointer-events:auto}
 #match-undo-reason{position:absolute;bottom:48px;left:0;width:210px;padding:8px;background:#171b1b;color:#fff2d4;font:12px/1.4 "Golos Text",sans-serif;visibility:hidden;pointer-events:none}

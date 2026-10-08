@@ -1,6 +1,6 @@
 import { bindResignConfirmation } from './resignConfirmation';
 import Phaser from 'phaser';
-import { warmMatchActionArt, resignArtReady, prepareResignArt } from './matchActionArtWarmup';
+import { warmMatchActionArt, resignArtReady, prepareResignArt, prepareResignFeedback, resignStatesReady } from './matchActionArtWarmup';
 import {loadImage} from './assetLoader';
 import {boardDelivery} from './boardDelivery';
 import {
@@ -1347,7 +1347,7 @@ export class GameScene extends Phaser.Scene {
 		if (trigger) {
 			this.resignConfirmation = bindResignConfirmation(trigger, () => this.resignMatch(),
 				() => !this.railConcealed() && this.phase !== 'title' && !this.paused && !this.flagLock,
-				{ ready: resignArtReady, prepare: prepareResignArt });
+				{ ready: resignArtReady, prepare: prepareResignArt, feedback: prepareResignFeedback, statesReady: resignStatesReady });
 			this.events?.once('shutdown', () => this.resignConfirmation?.destroy());
 		}
 	}

@@ -60,9 +60,21 @@ describe('match action entry warmup', () => {
   await settle();await expect(retry).resolves.toBe(true);
   expect(m.resignArtReady()).toBe(true);
  });
+ it('feedback decode shares the rest URL and states stay cold until decoded',async()=>{
+  const m=await import('./matchActionArtWarmup');
+  expect(m.resignStatesReady()).toBe(false);
+  const rest=m.prepareResignFeedback();expect(images).toHaveLength(0);
+  m.warmMatchActionArt();expect(images).toHaveLength(2);expect(images[1].src).toContain('resign-rest');
+  await settle();await settle();await expect(rest).resolves.toBe(true);
+  expect(m.resignStatesReady()).toBe(false);
+  while(pending.length)await settle();
+  expect(m.resignStatesReady()).toBe(true);
+  expect(images.filter(image=>image.src.includes('resign-rest'))).toHaveLength(1);
+ });
  it('on-demand dialog preparation shares in-flight URLs with background queue',async()=>{
   const m=await import('./matchActionArtWarmup');m.warmMatchActionArt();const result=m.prepareResignArt();
-  expect(images).toHaveLength(3);await settle();await settle();await settle();await expect(result).resolves.toBe(true);
+  // Entry starts dialog+rest; explicit dialog prep shares dialog and adds only its two plates.
+  expect(images).toHaveLength(4);await settle();await settle();await settle();await settle();await expect(result).resolves.toBe(true);
   while(pending.length)await settle();expect(new Set(images.map(image=>image.src)).size).toBe(images.length);
  });
 });
