@@ -17,9 +17,9 @@ describe('match action entry warmup', () => {
  });
  afterEach(()=>vi.unstubAllGlobals());
  const settle=async()=>{pending.shift()?.resolve(); await new Promise(resolve=>setTimeout(resolve,0));};
- it('keeps all fifteen unchanged URLs; immediate two-flight low priority and idempotency',async()=>{
+ it('keeps only seven runtime URLs and no PNG controls masters; immediate two-flight low priority and idempotency',async()=>{
   const m=await import('./matchActionArtWarmup');
-  expect(m.matchActionArtUrls.map(url=>url.split('/').pop()).sort()).toEqual(['dialog.png','dialog-neutral.png','dialog-copper.png',...['undo','resign'].flatMap(action=>['rest','hover','pressed','focus','disabled','icon'].map(state=>`${action}-${state}.png`))].sort());
+  expect(m.matchActionArtUrls.map(url=>url.split('/').pop()).sort()).toEqual(['dialog.png','dialog-neutral.png','dialog-copper.png',...['undo','resign'].flatMap(action=>['atlas','icon'].map(state=>`${action}-${state}.webp`))].sort());
   m.warmMatchActionArt(); m.warmMatchActionArt();
   expect(images).toHaveLength(2); expect(images[0].src).toContain('dialog.png');
   expect(images.every(image=>image.fetchPriority==='low')).toBe(true);
@@ -29,7 +29,7 @@ describe('match action entry warmup', () => {
   const m=await import('./matchActionArtWarmup');m.warmMatchActionArt();
   pending.shift()?.reject();await new Promise(resolve=>setTimeout(resolve,0));
   while(pending.length) await settle();
-  expect(images).toHaveLength(15);
+  expect(images).toHaveLength(7);
   expect(performance.getEntriesByName('damka:match-action-art-incomplete')).toHaveLength(1);
   expect(performance.getEntriesByName('damka:match-action-art-warm')).toHaveLength(0);
  });
@@ -40,7 +40,7 @@ describe('match action entry warmup', () => {
   events.pageshow({persisted:true});expect(images).toHaveLength(3);
   events.pageshow({persisted:true});expect(images).toHaveLength(3);
   while(pending.length)await settle();
-  expect(new Set(images.map(image=>image.src)).size).toBe(15);
+  expect(new Set(images.map(image=>image.src)).size).toBe(7);
   expect(performance.getEntriesByName('damka:match-action-art-warm')).toHaveLength(1);
  });
  it('resumes a hidden document and warms the complete dialog set',async()=>{
@@ -48,7 +48,7 @@ describe('match action entry warmup', () => {
   hidden=false;events.visibilitychange({});expect(images).toHaveLength(2);
   expect(m.resignArtReady()).toBe(false);
   while(pending.length)await settle();expect(m.resignArtReady()).toBe(true);
-  await expect(m.prepareResignArt()).resolves.toBe(true);expect(images).toHaveLength(15);
+  await expect(m.prepareResignArt()).resolves.toBe(true);expect(images).toHaveLength(7);
  });
  it('explicit preparation retries failed dialog decode without redownloading decoded URLs',async()=>{
   const m=await import('./matchActionArtWarmup');
@@ -64,12 +64,12 @@ describe('match action entry warmup', () => {
   const m=await import('./matchActionArtWarmup');
   expect(m.resignStatesReady()).toBe(false);
   const rest=m.prepareResignFeedback();expect(images).toHaveLength(0);
-  m.warmMatchActionArt();expect(images).toHaveLength(2);expect(images[1].src).toContain('resign-rest');
+  m.warmMatchActionArt();expect(images).toHaveLength(2);expect(images[1].src).toContain('resign-atlas');
   await settle();await settle();await expect(rest).resolves.toBe(true);
-  expect(m.resignStatesReady()).toBe(false);
+  expect(m.resignStatesReady()).toBe(true);
   while(pending.length)await settle();
   expect(m.resignStatesReady()).toBe(true);
-  expect(images.filter(image=>image.src.includes('resign-rest'))).toHaveLength(1);
+  expect(images.filter(image=>image.src.includes('resign-atlas'))).toHaveLength(1);
  });
  it('on-demand dialog preparation shares in-flight URLs with background queue',async()=>{
   const m=await import('./matchActionArtWarmup');m.warmMatchActionArt();const result=m.prepareResignArt();

@@ -5,6 +5,8 @@ vi.mock('phaser', () => ({ default: { Scene: class {}, Core: { Events: { POST_RE
 vi.mock('./settings', () => ({ getAutoMove: () => auto, getBotSkill: () => 'normal' }));
 let auto = false;
 vi.mock('@/online/cloud', () => ({ recordBotMatch: vi.fn(), probeApi: vi.fn() }));
+vi.mock('./matchActionArtWarmup', async (importOriginal) => ({ ...await importOriginal<typeof import('./matchActionArtWarmup')>(), warmMatchActionArt: vi.fn() }));
+import { warmMatchActionArt } from './matchActionArtWarmup';
 import Phaser from 'phaser';
 import { GameScene } from './gameScene';
 import { createInitialPosition } from '@/rules';
@@ -247,10 +249,13 @@ it('GT-01c the first painted board frame opens the rail without touching the mov
  const once: Record<string, () => void> = {};
  s.game = { events: { once: (name: string, cb: () => void) => { once[name] = cb; }, off: vi.fn() } };
  s.events = { once: vi.fn(), off: vi.fn() };
+ vi.mocked(warmMatchActionArt).mockClear();
  s.markBoardFirstFrame();
+ expect(warmMatchActionArt).not.toHaveBeenCalled();
  s.paintUndo();
  expect(rail.style.visibility).toBe('hidden');
  once[Phaser.Core.Events.POST_RENDER]();
+ expect(warmMatchActionArt).toHaveBeenCalledTimes(1);
  expect(s.boardPainted).toBe(true);
  expect(rail.style.visibility).toBe('');
  expect(resign.disabled).toBe(false);

@@ -1,9 +1,9 @@
 /** Decoration cache only: never a game readiness barrier. */
-const assets = import.meta.glob<string>('./ui/match-actions/*.png', {
+const assets = import.meta.glob<string>(['./ui/match-actions/dialog*.png', './ui/match-actions/*-atlas.webp', './ui/match-actions/*-icon.webp'], {
  eager: true, query: '?url', import: 'default',
 }) as Record<string, string>;
 export const matchActionArtUrls = Object.entries(assets).sort(([a], [b]) => {
- const rank = (name: string) => name.endsWith('/dialog.png') ? 0 : name.endsWith('/resign-rest.png') ? 0.5 : name.includes('dialog') ? 1 : /hover|pressed|focus/.test(name) ? 2 : 3;
+ const rank = (name: string) => name.endsWith('/dialog.png') ? 0 : name.endsWith('/resign-atlas.webp') ? 0.5 : name.includes('dialog') ? 1 : /hover|pressed|focus/.test(name) ? 2 : 3;
  return rank(a) - rank(b) || a.localeCompare(b);
 }).map(([, url]) => url);
 const retained = new Map<string, HTMLImageElement>();
@@ -24,7 +24,7 @@ function load(url: string): Promise<boolean> {
   pending.delete(url);
   return false;
  }).then(ready => {
-  if (url === assets['./ui/match-actions/resign-rest.png']) feedbackWaiters.splice(0).forEach(resolve => resolve(ready));
+  if (url === assets['./ui/match-actions/resign-atlas.webp']) feedbackWaiters.splice(0).forEach(resolve => resolve(ready));
   return ready;
  });
  pending.set(url, result);
@@ -55,13 +55,13 @@ export function warmMatchActionArt(): void {
 }
 const dialogUrls = () => matchActionArtUrls.filter(url => /\/dialog[^/]*\.png$/.test(url));
 export function resignStatesReady(): boolean {
- return Object.entries(assets).filter(([path]) => /\/resign-(?:rest|hover|pressed|focus)\.png$/.test(path)).every(([, url]) => retained.has(url));
+ return retained.has(assets['./ui/match-actions/resign-atlas.webp']);
 }
 export function resignArtReady(): boolean {
  return dialogUrls().every(url => retained.has(url));
 }
 export function prepareResignFeedback(): Promise<boolean> {
- if (started) return load(assets['./ui/match-actions/resign-rest.png']);
+ if (started) return load(assets['./ui/match-actions/resign-atlas.webp']);
  // Binding controls must not start decoration traffic ahead of the first board frame.
  return new Promise(resolve => feedbackWaiters.push(resolve));
 }
