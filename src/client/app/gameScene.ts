@@ -1,6 +1,6 @@
 import { bindResignConfirmation } from './resignConfirmation';
 import Phaser from 'phaser';
-import { warmMatchActionArt } from './matchActionArtWarmup';
+import { warmMatchActionArt, resignArtReady, prepareResignArt } from './matchActionArtWarmup';
 import {loadImage} from './assetLoader';
 import {boardDelivery} from './boardDelivery';
 import {
@@ -397,9 +397,6 @@ export class GameScene extends Phaser.Scene {
 			if (!key.startsWith('selection_')) continue;
 			this.textures.get(key)?.setFilter(Phaser.Textures.FilterMode.LINEAR);
 		}
-		// DOM controls are decoration, not an interactive/reveal prerequisite.
-		// Warm only after the board + HUD + input packs released the network.
-		warmMatchActionArt();
 		// No mid-match disk→v2 refresh: reveal waits on interactiveReady.
 	}
 
@@ -970,6 +967,7 @@ export class GameScene extends Phaser.Scene {
 			events.off(Phaser.Core.Events.POST_RENDER, done);
 			this.events.off('shutdown', shutdown);
 			markPerf('board-first-frame');
+			warmMatchActionArt();
 			// The board is on screen now: the rail may follow it. Never earlier.
 			this.boardPainted = true;
 			if (this.phase !== 'title') this.paintUndo();
@@ -1348,7 +1346,8 @@ export class GameScene extends Phaser.Scene {
 		const trigger = document.getElementById('match-resign') as HTMLButtonElement | null;
 		if (trigger) {
 			this.resignConfirmation = bindResignConfirmation(trigger, () => this.resignMatch(),
-				() => !this.railConcealed() && this.phase !== 'title' && !this.paused && !this.flagLock);
+				() => !this.railConcealed() && this.phase !== 'title' && !this.paused && !this.flagLock,
+				{ ready: resignArtReady, prepare: prepareResignArt });
 			this.events?.once('shutdown', () => this.resignConfirmation?.destroy());
 		}
 	}
