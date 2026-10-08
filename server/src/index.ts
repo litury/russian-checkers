@@ -171,7 +171,7 @@ const attach = (room: Room, id: string, sock: TextSock) => {
  if (room.friend && !room.black) return;
  const clocks = clockFields(room);
  const snap = snapshotOf(room.id, room.position, room.ply, room.begun, clocks);
- send(sock, {type: 'start', matchId: room.id, color, ...snap, ...clocks});
+ send(sock, {type: 'start', color, ...snap, ...clocks});
  pushState(room, sock, color);
  if (room.begun && room.drop.size === 0) {
   if (pending) room.turnStarted = Date.now();
