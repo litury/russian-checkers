@@ -13,7 +13,7 @@
 #online-hub h2,#online-hub p { margin:0; }
 #online-hub h2:focus { outline:none; }
 #online-hub .oh-panel { display:flex; flex-direction:column; padding:14px; background:linear-gradient(#131919a8,#111716ba),url('../modules/board/reliquary/slate_tile.webp') repeat; background-size:auto,480px; }
-#online-hub .oh-header { flex:none; display:flex; align-items:center; justify-content:space-between; gap:16px; margin:12px 18px 0; padding:8px 16px; min-height:100px; border:18px solid transparent; border-image:url('./ui/siege/panel-revision2/frame.webp') 180 / 18px / 0 round; background:linear-gradient(#111717a8,#111717a8),url('../modules/board/reliquary/slate_tile.webp') center/480px repeat; background-clip:padding-box; }
+#online-hub .oh-header { flex:none; display:flex; align-items:center; justify-content:space-between; gap:16px; margin:12px 18px 0; padding:8px 16px; min-height:100px; border:18px solid transparent; border-image:url('./ui/mobile-metal/plate.webp') 60 fill / 18px / 0 stretch; background:transparent; }
 #online-hub .oh-title-plate { min-width:0; flex:1; overflow-wrap:anywhere; }
 #online-hub .oh-eyebrow { margin:0 0 4px; color:#f0e2c4; font-size:11px; letter-spacing:.12em; text-transform:uppercase; }
 #online-hub h2 { font:600 26px/1.2 Literata,serif; color:#f7f1e4; text-shadow:0 1px 2px #000; }

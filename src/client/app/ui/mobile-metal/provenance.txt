@@ -1,0 +1,16 @@
+Generated graphite steel / brass four-rivet plate for Online hub and history surfaces.
+Task: t_27ef70a2. Base: a97b8d012d4de8b35a5dc414e22ce4f288fb4a52.
+Workflow: cx exec, built-in image_gen; session 01a11bda-39f0-7ef0-bf87-6d70bcfc11a1.
+Native master: graphite-steel-plate-raw.png, 2172x724 RGBA.
+Native SHA256: ff11b09e00e2f2c82ff209a97692243598888c9cd71fe938658efd02fc134c28.
+Master/prompt/provenance are preserved in task attachments, not runtime-loaded.
+Authorized size export: 676x184 via Pillow LANCZOS. Native master is unmodified.
+Compression: WebP lossless=True, method=6, exact=True. No lossy/AVIF/quantization.
+Source export PNG: 185520 bytes. Runtime WebP: 123858 bytes.
+Decoded exported PNG vs WebP: RGBA difference bytes 0; alpha equal true.
+WebP SHA256: b55ed02b2eb2b5f2c3e2609e0db10076e26efba5c98f50b80b0f2f8eb63fcaa8.
+Geometry: nine-slice 60 px each side, fill; DOM border widths retained 18/14/12/8 px.
+One shared file covers static header, row, state, record, transport backgrounds.
+No interactive background state exists on these containers. Buttons keep their existing state sprites.
+Mobile budget per revised task comment: <=150000 bytes per element, <=400000 unique bytes in area.
+Desktop uses the same nine-slice; no 261440-byte desktop full-image export is shipped.
