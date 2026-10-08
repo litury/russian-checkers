@@ -11,6 +11,8 @@ vi.mock('./settings', () => ({
 	getBotSkill: () => 0,
 }));
 
+// Asset scheduling has dedicated decode/lifecycle tests; this fixture exercises real perf marks.
+vi.mock('./matchActionArtWarmup', async (importOriginal) => ({ ...await importOriginal<typeof import('./matchActionArtWarmup')>(), warmMatchActionArt: vi.fn() }));
 import { hashPosition } from '@/online/matchState';
 import { type IMove, type IPosition, legalMoves, type Side } from '@/rules';
 import { GameScene } from './gameScene';
