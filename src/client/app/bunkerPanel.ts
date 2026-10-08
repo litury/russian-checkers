@@ -2,31 +2,17 @@ import type Phaser from 'phaser';
 import { clockFrame, clockFramePose, clockFrameStep, clockFrameWanted } from './clockFrame';
 import { revealPose } from './panelReveal';
 
+import bunkerAtlasUrl from './ui/bunker/atlas.webp?url';
+import bunkerAtlas from './ui/bunker/atlas.json';
+import clockAtlasUrl from './ui/clock-frame/atlas.webp?url';
+import clockAtlas from './ui/clock-frame/atlas.json';
+import steamUrl from './ui/bunker/steam-sheet.webp?url';
+
 export function preloadBunkerPanels(scene: Phaser.Scene) {
-	const assets = import.meta.glob('./ui/bunker/*.webp', {
-		eager: true,
-		query: '?url',
-		import: 'default',
-	});
-	for (const [path, url] of Object.entries(assets)) {
-		const name = path.split('/').pop()!.replace('.webp', '');
-		if (name === 'steam-sheet')
-			scene.load.spritesheet('bunker-steam', url as string, {
-				frameWidth: 72,
-				frameHeight: 56,
-			});
-		else if (name !== 'opening-mask')
-			scene.load.image(`bunker-${name}`, url as string);
-	}
-	const frames = import.meta.glob('./ui/clock-frame/*.webp', {
-		eager: true,
-		query: '?url',
-		import: 'default',
-	});
-	for (const [path, url] of Object.entries(frames)) {
-		const name = path.split('/').pop()!.replace('.webp', '');
-		scene.load.image(`clock-${name}`, url as string);
-	}
+	// Metadata is bundled: each independently visible region needs one image request.
+	scene.load.atlas('bunker-metal', bunkerAtlasUrl, bunkerAtlas);
+	scene.load.atlas('clock-metal', clockAtlasUrl, clockAtlas);
+	scene.load.spritesheet('bunker-steam', steamUrl, { frameWidth: 72, frameHeight: 56 });
 }
 /** One reusable bay. All coordinates and pixels come from approved V2, not the movie.
  * Rectangular source crops implement the local [10,10,364,118) opening mask.
@@ -35,7 +21,7 @@ export function preloadBunkerPanels(scene: Phaser.Scene) {
 export function createBunkerPanel(scene: Phaser.Scene, own: boolean) {
 	const root = scene.add.container(0, 0).setDepth(12);
 	const image = (name: string, x = 0, y = 0) => {
-		const go = scene.add.image(x, y, `bunker-${name}`).setOrigin(0);
+		const go = scene.add.image(x, y, 'bunker-metal', name).setOrigin(0);
 		root.add(go);
 		return go;
 	};
@@ -86,7 +72,7 @@ export function createBunkerPanel(scene: Phaser.Scene, own: boolean) {
 	// Non-overlapping source quarters: the approved pixels move rigidly, never scale.
 	const frameParts = ['frame-c', 'frame-c-active', 'frame-c-lights'].flatMap((key, layer) =>
 		[[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([sx, sy]) => {
-			const go = scene.add.image(clockFrame.x, clockFrame.y, `clock-${key}`).setOrigin(0);
+			const go = scene.add.image(clockFrame.x, clockFrame.y, 'clock-metal', key).setOrigin(0);
 			const splitY = Math.floor(clockFrame.height / 2);
 			go.setCrop(sx < 0 ? 0 : 70, sy < 0 ? 0 : splitY, 70, sy < 0 ? splitY : clockFrame.height - splitY);
 			root.add(go);
@@ -125,11 +111,12 @@ export function createBunkerPanel(scene: Phaser.Scene, own: boolean) {
 		if (disposed) return;
 		const p = revealPose(elapsed, reduced);
 		face.setTexture(
+			'bunker-metal',
 			own
 				? active && !preparing
-					? 'bunker-panel-own-face-ready'
-					: 'bunker-panel-own-face-prepared'
-				: 'bunker-panel-opponent-face',
+					? 'panel-own-face-ready'
+					: 'panel-own-face-prepared'
+				: 'panel-opponent-face',
 		);
 		face.y = 10 + p.lift;
 		clip(face);

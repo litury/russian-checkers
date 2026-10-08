@@ -1,0 +1,272 @@
+{
+  "frames": {
+    "door-left": {
+      "frame": {
+        "x": 2,
+        "y": 2,
+        "w": 177,
+        "h": 108
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 177,
+        "h": 108
+      },
+      "sourceSize": {
+        "w": 177,
+        "h": 108
+      }
+    },
+    "door-right": {
+      "frame": {
+        "x": 2,
+        "y": 114,
+        "w": 177,
+        "h": 108
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 177,
+        "h": 108
+      },
+      "sourceSize": {
+        "w": 177,
+        "h": 108
+      }
+    },
+    "front-lip": {
+      "frame": {
+        "x": 2,
+        "y": 226,
+        "w": 374,
+        "h": 128
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 374,
+        "h": 128
+      },
+      "sourceSize": {
+        "w": 374,
+        "h": 128
+      }
+    },
+    "lift-rails": {
+      "frame": {
+        "x": 2,
+        "y": 358,
+        "w": 374,
+        "h": 128
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 374,
+        "h": 128
+      },
+      "sourceSize": {
+        "w": 374,
+        "h": 128
+      }
+    },
+    "lip-contact-shadow": {
+      "frame": {
+        "x": 2,
+        "y": 490,
+        "w": 374,
+        "h": 128
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 374,
+        "h": 128
+      },
+      "sourceSize": {
+        "w": 374,
+        "h": 128
+      }
+    },
+    "panel-cast-shadow": {
+      "frame": {
+        "x": 2,
+        "y": 622,
+        "w": 354,
+        "h": 122
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 354,
+        "h": 122
+      },
+      "sourceSize": {
+        "w": 354,
+        "h": 122
+      }
+    },
+    "panel-opponent-face": {
+      "frame": {
+        "x": 2,
+        "y": 748,
+        "w": 354,
+        "h": 108
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 354,
+        "h": 108
+      },
+      "sourceSize": {
+        "w": 354,
+        "h": 108
+      }
+    },
+    "panel-own-face-prepared": {
+      "frame": {
+        "x": 2,
+        "y": 860,
+        "w": 354,
+        "h": 108
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 354,
+        "h": 108
+      },
+      "sourceSize": {
+        "w": 354,
+        "h": 108
+      }
+    },
+    "panel-own-face-ready": {
+      "frame": {
+        "x": 2,
+        "y": 972,
+        "w": 354,
+        "h": 108
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 354,
+        "h": 108
+      },
+      "sourceSize": {
+        "w": 354,
+        "h": 108
+      }
+    },
+    "readiness-light": {
+      "frame": {
+        "x": 2,
+        "y": 1084,
+        "w": 354,
+        "h": 108
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 354,
+        "h": 108
+      },
+      "sourceSize": {
+        "w": 354,
+        "h": 108
+      }
+    },
+    "rear-niche": {
+      "frame": {
+        "x": 2,
+        "y": 1196,
+        "w": 374,
+        "h": 128
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 374,
+        "h": 128
+      },
+      "sourceSize": {
+        "w": 374,
+        "h": 128
+      }
+    },
+    "side-vents": {
+      "frame": {
+        "x": 2,
+        "y": 1328,
+        "w": 374,
+        "h": 128
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 374,
+        "h": 128
+      },
+      "sourceSize": {
+        "w": 374,
+        "h": 128
+      }
+    },
+    "thick-frame": {
+      "frame": {
+        "x": 2,
+        "y": 1460,
+        "w": 374,
+        "h": 128
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 374,
+        "h": 128
+      },
+      "sourceSize": {
+        "w": 374,
+        "h": 128
+      }
+    }
+  },
+  "meta": {
+    "image": "atlas.webp",
+    "size": {
+      "w": 378,
+      "h": 1590
+    },
+    "scale": "1"
+  }
+}

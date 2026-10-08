@@ -1,0 +1,72 @@
+{
+  "frames": {
+    "frame-c-active": {
+      "frame": {
+        "x": 2,
+        "y": 2,
+        "w": 140,
+        "h": 79
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 79
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 79
+      }
+    },
+    "frame-c-lights": {
+      "frame": {
+        "x": 2,
+        "y": 85,
+        "w": 140,
+        "h": 79
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 79
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 79
+      }
+    },
+    "frame-c": {
+      "frame": {
+        "x": 2,
+        "y": 168,
+        "w": 140,
+        "h": 79
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 79
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 79
+      }
+    }
+  },
+  "meta": {
+    "image": "atlas.webp",
+    "size": {
+      "w": 144,
+      "h": 249
+    },
+    "scale": "1"
+  }
+}

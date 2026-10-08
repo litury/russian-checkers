@@ -7,7 +7,8 @@
 		"dev": "vite",
 		"build": "tsc --noEmit && vite build",
 		"test": "vitest run",
-		"check": "biome check ."
+		"check": "biome check .",
+		"atlas:pack": "python3 scripts/pack_atlas.py"
 	},
 	"dependencies": {
 		"@rolldown/binding-linux-x64-gnu": "1.2.6",
