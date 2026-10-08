@@ -1,156 +1,93 @@
 [
-  {
-    "name": "frame-win",
-    "crop": [
-      254,
-      24,
-      734,
-      405
-    ],
-    "size": [
-      728,
-      640
-    ],
-    "slice": 48
-  },
-  {
-    "name": "frame-loss",
-    "crop": [
-      747,
-      24,
-      1227,
-      405
-    ],
-    "size": [
-      728,
-      640
-    ],
-    "slice": 48
-  },
-  {
-    "name": "frame-draw",
-    "crop": [
-      1240,
-      24,
-      1720,
-      405
-    ],
-    "size": [
-      728,
-      640
-    ],
-    "slice": 48
-  },
-  {
-    "name": "primary-rest",
-    "crop": [
-      28,
-      440,
-      480,
-      572
-    ],
-    "size": [
-      1288,
-      184
-    ],
-    "slice": 48
-  },
-  {
-    "name": "primary-hover",
-    "crop": [
-      510,
-      440,
-      962,
-      572
-    ],
-    "size": [
-      1288,
-      184
-    ],
-    "slice": 48
-  },
-  {
-    "name": "primary-pressed",
-    "crop": [
-      1002,
-      440,
-      1454,
-      572
-    ],
-    "size": [
-      1288,
-      184
-    ],
-    "slice": 48
-  },
-  {
-    "name": "primary-disabled",
-    "crop": [
-      1498,
-      440,
-      1950,
-      572
-    ],
-    "size": [
-      1288,
-      184
-    ],
-    "slice": 48
-  },
-  {
-    "name": "secondary-rest",
-    "crop": [
-      272,
-      615,
-      592,
-      719
-    ],
-    "size": [
-      644,
-      184
-    ],
-    "slice": 32
-  },
-  {
-    "name": "secondary-hover",
-    "crop": [
-      642,
-      615,
-      962,
-      719
-    ],
-    "size": [
-      644,
-      184
-    ],
-    "slice": 32
-  },
-  {
-    "name": "secondary-pressed",
-    "crop": [
-      1004,
-      615,
-      1324,
-      719
-    ],
-    "size": [
-      644,
-      184
-    ],
-    "slice": 32
-  },
-  {
-    "name": "secondary-disabled",
-    "crop": [
-      1384,
-      615,
-      1704,
-      719
-    ],
-    "size": [
-      644,
-      184
-    ],
-    "slice": 32
-  }
+	{
+		"name": "title",
+		"size": [2172, 724],
+		"slice": [400, 330, 300, 330],
+		"dpr": 3,
+		"sha256": "5f8ef22468f5326c14e403d127310b3a1da661150da43990e66b34ca1d8a615c"
+	},
+	{
+		"name": "primary-rest",
+		"size": [1448, 94],
+		"slice": [30, 105, 30, 105],
+		"dpr": 3,
+		"sha256": "bb0915c53a764773d5edbc23316a1281cbc6ed393f26b885f87f30173df32cc1"
+	},
+	{
+		"name": "primary-hover",
+		"size": [1448, 89],
+		"slice": [30, 105, 30, 105],
+		"dpr": 3,
+		"sha256": "49a59bdbba7bc119717f5d481d95816c58de2d5354afdfcfbaf3fc841dc424db"
+	},
+	{
+		"name": "primary-pressed",
+		"size": [1448, 87],
+		"slice": [30, 105, 30, 105],
+		"dpr": 3,
+		"sha256": "e1877620e870f7d9dca226309ae6b4f4eea6aca83b3c4920d735330c07147502"
+	},
+	{
+		"name": "primary-disabled",
+		"size": [1448, 92],
+		"slice": [30, 105, 30, 105],
+		"dpr": 3,
+		"sha256": "a39f36c4d7364a337b54ad1fc711b98012babe208afec3751883aa3df4a978ff"
+	},
+	{
+		"name": "secondary-rest",
+		"size": [1448, 88],
+		"slice": [30, 105, 30, 105],
+		"dpr": 3,
+		"sha256": "b7967eaa79c4818f903dedb15b1d00e9f99ac0737e8d6331f9c70bbb8fcf76a5"
+	},
+	{
+		"name": "secondary-hover",
+		"size": [1448, 85],
+		"slice": [30, 105, 30, 105],
+		"dpr": 3,
+		"sha256": "f0cdc2e971bd1aa6a7bc4d191de342f4ce88970f663763896080aca885d00967"
+	},
+	{
+		"name": "secondary-pressed",
+		"size": [1448, 89],
+		"slice": [30, 105, 30, 105],
+		"dpr": 3,
+		"sha256": "186a368fed0b3aab7999946f10697ebbd8ed078fc096394f6af0f452211b369a"
+	},
+	{
+		"name": "secondary-disabled",
+		"size": [1448, 94],
+		"slice": [30, 105, 30, 105],
+		"dpr": 3,
+		"sha256": "b72f4331ad6eb9faaef4a8cc17952abef2504a1f10f939f4cc120c970626624e"
+	},
+	{
+		"name": "quiet-rest",
+		"size": [1448, 90],
+		"slice": [30, 105, 30, 105],
+		"dpr": 3,
+		"sha256": "95b20e68af3ed41d455a3d2f54e8092f38eaa8d33b301d9117d74ccd7344a685"
+	},
+	{
+		"name": "quiet-hover",
+		"size": [1448, 87],
+		"slice": [30, 105, 30, 105],
+		"dpr": 3,
+		"sha256": "2ad3e9690aa65b3632afc681278c6521c3009277486b3cb2ccdc967722fe269f"
+	},
+	{
+		"name": "quiet-pressed",
+		"size": [1448, 88],
+		"slice": [30, 105, 30, 105],
+		"dpr": 3,
+		"sha256": "dbdcdd5c1895a5dcd9ed85b6ce7bf880a8f7d045382963aa2c2eb2e24a306584"
+	},
+	{
+		"name": "quiet-disabled",
+		"size": [1448, 103],
+		"slice": [30, 105, 30, 105],
+		"dpr": 3,
+		"sha256": "fa61dc92b14bc4723f651d764c8de217a7d243365908c75481ced4f7022875f8"
+	}
 ]
