@@ -50,6 +50,16 @@ describe('match action entry warmup', () => {
   while(pending.length)await settle();expect(m.resignArtReady()).toBe(true);
   await expect(m.prepareResignArt()).resolves.toBe(true);expect(images).toHaveLength(15);
  });
+ it('explicit preparation retries failed dialog decode without redownloading decoded URLs',async()=>{
+  const m=await import('./matchActionArtWarmup');
+  const first=m.prepareResignArt();
+  pending.shift()?.reject();await settle();await settle();
+  await expect(first).resolves.toBe(false);
+  expect(m.resignArtReady()).toBe(false);
+  const retry=m.prepareResignArt();expect(images).toHaveLength(4);
+  await settle();await expect(retry).resolves.toBe(true);
+  expect(m.resignArtReady()).toBe(true);
+ });
  it('on-demand dialog preparation shares in-flight URLs with background queue',async()=>{
   const m=await import('./matchActionArtWarmup');m.warmMatchActionArt();const result=m.prepareResignArt();
   expect(images).toHaveLength(3);await settle();await settle();await settle();await expect(result).resolves.toBe(true);

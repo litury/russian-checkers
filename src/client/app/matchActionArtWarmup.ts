@@ -18,7 +18,11 @@ function load(url: string): Promise<boolean> {
  if (existing) return existing;
  const image = new Image();
  image.fetchPriority = 'low'; image.decoding = 'async'; image.src = url;
- const result = image.decode().then(() => { retained.set(url, image); return true; }, () => false);
+ const result = image.decode().then(() => { retained.set(url, image); return true; }, () => {
+  // A failed decode must not poison an explicit retry for the rest of the page.
+  pending.delete(url);
+  return false;
+ });
  pending.set(url, result);
  return result;
 }
