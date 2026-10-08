@@ -13,8 +13,18 @@
 .match-action{position:relative;display:flex;align-items:center;justify-content:flex-start;flex:none;gap:3px;box-sizing:border-box;width:96px;height:44px;min-height:44px;padding:0 6px;border:0;border-radius:0;background:transparent var(--action-rest) center/contain no-repeat;box-shadow:none;color:#fff2d4;font:600 11px/1 "Golos Text",sans-serif;text-shadow:0 1px 2px #000;cursor:pointer;pointer-events:auto;touch-action:manipulation;transition:none;transform:none;-webkit-tap-highlight-color:transparent}
 .match-action img{position:absolute;left:15px;top:10px;width:22px;height:24px;object-fit:contain;pointer-events:none}
 .match-action .action-label{position:absolute;left:40px;right:14px;top:0;height:100%;display:flex;align-items:center;justify-content:center;white-space:nowrap;font-size:8px;letter-spacing:-.3px}
-.match-action[data-art="undo"]{--action-rest:url('./ui/match-actions/undo-rest.png');--action-hover:url('./ui/match-actions/undo-hover.png');--action-pressed:url('./ui/match-actions/undo-pressed.png');--action-focus:url('./ui/match-actions/undo-focus.png');--action-disabled:url('./ui/match-actions/undo-disabled.png')}
-.match-action[data-art="resign"]{--action-rest:url('./ui/match-actions/resign-rest.png');--action-hover:url('./ui/match-actions/resign-hover.png');--action-pressed:url('./ui/match-actions/resign-pressed.png');--action-focus:url('./ui/match-actions/resign-focus.png');--action-disabled:url('./ui/match-actions/resign-disabled.png')}
+/* Five 192x80 cells; 4 physical pixels of extruded padding on every edge.
+   Atlas: 200x440, displayed at 100x220. The 96x40 art remains centered
+   inside the unchanged 96x44 touch target. Only the rail uses this atlas. */
+#match-actions .match-action{background:none;--action-y:-2px}
+#match-actions .match-action::before{content:"";position:absolute;left:0;top:2px;width:96px;height:40px;pointer-events:none;background:var(--action-atlas) -2px var(--action-y)/100px 220px no-repeat}
+#match-actions .match-action img,#match-actions .action-label{z-index:1}
+#match-actions [data-art="undo"]{--action-atlas:url('./ui/match-actions/undo-atlas.webp')}
+#match-actions [data-art="resign"]{--action-atlas:url('./ui/match-actions/resign-atlas.webp')}
+@media(hover:hover){#match-actions .match-action:hover:not(:disabled){--action-y:-46px}}
+#match-actions .match-action:focus-visible{--action-y:-134px}
+#match-actions .match-action:active:not(:disabled){--action-y:-90px}
+#match-actions .match-action:disabled{--action-y:-178px}
 @media(hover:hover){.match-action:hover:not(:disabled){background-image:var(--action-hover)}}
 .match-action:focus-visible{background-image:var(--action-focus);outline:2px solid #bed9ec;outline-offset:-2px}
 .match-action[data-pointer-focus]:focus-visible{outline:none}

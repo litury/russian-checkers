@@ -38,7 +38,9 @@ it('in-card actions use five distinct raster states and fixed 96 by 44 targets',
   const images = new Set<string>();
   for (const state of ['rest', 'hover', 'pressed', 'focus', 'disabled']) {
    const name = `${action}-${state}.png`;
-   expect(css).toContain(name);
+   // Approved PNG masters remain unchanged, but runtime uses one padded atlas.
+   expect(css).not.toContain(name);
+   expect(css).toContain(`${action}-atlas.webp`);
    const data = readFileSync(fileURLToPath(new URL(`./ui/match-actions/${name}`, import.meta.url)));
    expect(data.toString('hex', 0, 8)).toBe('89504e470d0a1a0a');
    // Registered 384×160 art fits at 96×40 inside a 44px touch target.
