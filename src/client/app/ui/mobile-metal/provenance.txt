@@ -1,16 +1,36 @@
-Generated graphite steel / brass four-rivet plate for Online hub and history surfaces.
-Task: t_27ef70a2. Base: a97b8d012d4de8b35a5dc414e22ce4f288fb4a52.
-Workflow: cx exec, built-in image_gen; session 01a11bda-39f0-7ef0-bf87-6d70bcfc11a1.
-Native master: graphite-steel-plate-raw.png, 2172x724 RGBA.
-Native SHA256: ff11b09e00e2f2c82ff209a97692243598888c9cd71fe938658efd02fc134c28.
-Master/prompt/provenance are preserved in task attachments, not runtime-loaded.
-Authorized size export: 676x184 via Pillow LANCZOS. Native master is unmodified.
-Compression: WebP lossless=True, method=6, exact=True. No lossy/AVIF/quantization.
-Source export PNG: 185520 bytes. Runtime WebP: 123858 bytes.
-Decoded exported PNG vs WebP: RGBA difference bytes 0; alpha equal true.
-WebP SHA256: b55ed02b2eb2b5f2c3e2609e0db10076e26efba5c98f50b80b0f2f8eb63fcaa8.
-Geometry: nine-slice 60 px each side, fill; DOM border widths retained 18/14/12/8 px.
-One shared file covers static header, row, state, record, transport backgrounds.
-No interactive background state exists on these containers. Buttons keep their existing state sprites.
-Mobile budget per revised task comment: <=150000 bytes per element, <=400000 unique bytes in area.
-Desktop uses the same nine-slice; no 261440-byte desktop full-image export is shipped.
+Generated graphite steel/brass material for Online hub and history surfaces.
+Task t_27ef70a2; original implementation base a97b8d012d4de8b35a5dc414e22ce4f288fb4a52.
+
+FRAME plate.webp:
+Built-in image_gen via cx exec; session 01a11bda-39f0-7ef0-bf87-6d70bcfc11a1.
+Native master graphite-steel-plate-raw.png 2172x724 RGBA is preserved unchanged.
+Native SHA256 ff11b09e00e2f2c82ff209a97692243598888c9cd71fe938658efd02fc134c28.
+Authorized size export 676x184 via Pillow LANCZOS; master is NOT reduced.
+Packed 136x136 frame: four unchanged 60x60 corners plus four 16px native edge crops.
+Source crop coordinates preserved in frame-report.json; unused center absent/transparent.
+Long repeated source edges rejected after actual browser showed brightness seams.
+This transparent center is extraction, NOT native generator alpha. Used slice RGBA/alpha unchanged.
+WebP lossless exact, 21714 bytes; decoded frame-export.png comparison RGBA diff=0, alpha equal.
+SHA256 a3a6b4cb58cb65fe4d60467e3608615c082094826ced106b17014cca8999ba2c.
+Nine-slice 60, WITHOUT fill. Edges repeat at corner scale, not stretch/round/space.
+Existing geometric borders retained: desktop18/mobile14/transport12/landscape10 or8 CSS px.
+
+CENTER center.webp:
+New built-in image_gen via cx exec, initial+one targeted correction.
+Tool session directory identifier 01a11c4b-75e1-71d2-8f7c-f711c616c7d9.
+Selected output exec-a9c4680b-6ae7-4db9-b226-f2d77bf7e941.png.
+Native center-raw-a9c4680b.png 1254x1254 RGB, opaque, preserved unchanged.
+Native SHA256 e4a43138850fffe6dd658907b1be4f694f63951318aee88453ac23a709e8ee01.
+Authorized size export 256x256 LANCZOS, rendered 128x128 CSS px, repeat in both axes.
+WebP lossless exact, 48642 bytes; decoded center-export.png comparison RGBA diff=0, alpha equal.
+SHA256 ae8b7fd10468dab45a53e663be79dacf0365f780aae64a01c883f7d37ebe37f6.
+Original 556x64 plate crop rejected: 3x3 probe shows brightness seams/striping.
+New center 3x3 CSS-scale repeat visually inspected separately and in actual component browser.
+No paint, gradients, tint, blur, quantization, lossy or AVIF in these material exports.
+
+Shared unique runtime bytes 70356; each plate uses same pair, below150000 per element and400000 area.
+Header/row/state/record/transport containers are static backgrounds; buttons retain existing state sprites.
+DOM geometry/layout/mechanics unchanged. No separate desktop full-image raster.
+Raw masters, prompts, safe provenance, extraction scripts, PNG comparisons and visual matrix stay in task evidence.
+Lossless equality compares sized/extracted PNG to WebP, NOT raw master to reduced export.
+Independent QA acceptance and publication are separate from author verification.
