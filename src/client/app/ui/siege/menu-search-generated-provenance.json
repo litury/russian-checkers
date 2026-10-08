@@ -1,0 +1,466 @@
+{
+  "tool": "Codex built-in image_gen via cx",
+  "session": "01a11a27-49ba-7071-bbea-5ae9e98b1e62",
+  "output": "exec-9a16edf8-30c1-4e96-b248-f4123fb0a26c",
+  "source_sha256": "2e787c64022ff0356c7c8ae15ccdbfa41de7305d7de242da9705295a1eb200e1",
+  "normalization": "Common 965x202 row crops at centres 180/398/616/835/1054; scale to 1344x294. Search offline three-slice preserves complete end hardware; straight central span resized. No runtime nine-slice: exact existing aspect boxes and contain retained. No painting, masks or filters. Slight source registration variation retained, not concealed. Search runtime downsampled to 2x CSS density (height140) quality82 WebP; desktop retains specified1344x294. Masters preserved outside runtime.",
+  "states": [
+    "rest",
+    "hover",
+    "pressed",
+    "focus",
+    "disabled"
+  ],
+  "files": [
+    {
+      "file": "button-steel-desk-rest.webp",
+      "size": [
+        1344,
+        294
+      ],
+      "bytes": 62992,
+      "sha256": "f150772b773ca216b0767a8f82a3ad63c16ee8af4033e98d6202e63c0f98e716"
+    },
+    {
+      "file": "button-steel-search-98-rest.webp",
+      "size": [
+        196,
+        140
+      ],
+      "bytes": 8680,
+      "sha256": "55a7e2d20b98fb772372b519f97c98bfc9693a7ba2fe8fecbd4bb24cc43ad3f2"
+    },
+    {
+      "file": "button-steel-search-115-rest.webp",
+      "size": [
+        230,
+        140
+      ],
+      "bytes": 9834,
+      "sha256": "b85988410f1ccef702228c1f20b379925d8c576e8c380571e75d0a03a6a2dac8"
+    },
+    {
+      "file": "button-steel-search-119-rest.webp",
+      "size": [
+        238,
+        140
+      ],
+      "bytes": 10080,
+      "sha256": "8bd7d1254361b50e8519784f9e3503cdc964cb6a5d6df2dfc462a0b7eb242910"
+    },
+    {
+      "file": "button-steel-search-152-rest.webp",
+      "size": [
+        304,
+        140
+      ],
+      "bytes": 12316,
+      "sha256": "08f55a6b190b796e7bf9cb6742128c73ea4e54603ef80d386383b4c7d7024ba7"
+    },
+    {
+      "file": "button-steel-search-178-rest.webp",
+      "size": [
+        356,
+        140
+      ],
+      "bytes": 13878,
+      "sha256": "da1bed88b4e251df4c60ce0292db529e185e721d6a25ce5f55df01755b44e4a5"
+    },
+    {
+      "file": "button-steel-search-184-rest.webp",
+      "size": [
+        368,
+        140
+      ],
+      "bytes": 14204,
+      "sha256": "8ad8bf8b157725fde1ae58b1c186b101df754994bff6bd05d930521ced732db7"
+    },
+    {
+      "file": "button-steel-search-314-rest.webp",
+      "size": [
+        628,
+        140
+      ],
+      "bytes": 18852,
+      "sha256": "988394a8bf59583298ec9e012579482e7c9aaa6e1c6821c27f8e1f6e0289e230"
+    },
+    {
+      "file": "button-steel-search-366-rest.webp",
+      "size": [
+        732,
+        140
+      ],
+      "bytes": 20556,
+      "sha256": "8cf518ae38bd8c47cdd32c587aa77d9c7e9cd25ed312f22fe62cedc199c953b2"
+    },
+    {
+      "file": "button-steel-search-378-rest.webp",
+      "size": [
+        756,
+        140
+      ],
+      "bytes": 20932,
+      "sha256": "226daa06df7183501a85ba6fd70b53e065bb542a9531550a273e0d531439fac4"
+    },
+    {
+      "file": "button-steel-desk-hover.webp",
+      "size": [
+        1344,
+        294
+      ],
+      "bytes": 70756,
+      "sha256": "e6d516d364b5d484673e7a5a76a27f80e92a42e424241bfd2cb47c1cf6c2bd09"
+    },
+    {
+      "file": "button-steel-search-98-hover.webp",
+      "size": [
+        196,
+        140
+      ],
+      "bytes": 9550,
+      "sha256": "a5e83362d11761d14fa9dbd832bce542eeda465296356e038ae2863c2c42b064"
+    },
+    {
+      "file": "button-steel-search-115-hover.webp",
+      "size": [
+        230,
+        140
+      ],
+      "bytes": 10716,
+      "sha256": "74b1011290b4df900865ab44aadc6ddac568e451df6fa7d5c4344e97945d3847"
+    },
+    {
+      "file": "button-steel-search-119-hover.webp",
+      "size": [
+        238,
+        140
+      ],
+      "bytes": 10920,
+      "sha256": "121dbe7de2e8e40b7286c1fa9d753b5be93a09f2e709bc9ce95e7363cc80f8ef"
+    },
+    {
+      "file": "button-steel-search-152-hover.webp",
+      "size": [
+        304,
+        140
+      ],
+      "bytes": 13546,
+      "sha256": "a55dc99c18aef6f4b61e194093966b38371bf6f3d867e1221d737b296df86257"
+    },
+    {
+      "file": "button-steel-search-178-hover.webp",
+      "size": [
+        356,
+        140
+      ],
+      "bytes": 15240,
+      "sha256": "17fea171e9953940966d1130dcb426061704e9c3af47f266ef920e0fa77a89b3"
+    },
+    {
+      "file": "button-steel-search-184-hover.webp",
+      "size": [
+        368,
+        140
+      ],
+      "bytes": 15616,
+      "sha256": "37c1b2f698c76901d0ad185597ec048d51eb6596b5d65371ccca6740c7f7a979"
+    },
+    {
+      "file": "button-steel-search-314-hover.webp",
+      "size": [
+        628,
+        140
+      ],
+      "bytes": 21684,
+      "sha256": "e8dbfb4d5214033ebef6db18007f595d7ab7c02956dfdd5017658c22966c9631"
+    },
+    {
+      "file": "button-steel-search-366-hover.webp",
+      "size": [
+        732,
+        140
+      ],
+      "bytes": 23612,
+      "sha256": "fc0ebcd8bc2d7deb95cc708f657bc3f69593d01a4d8aa4f196d7372ff2e44df1"
+    },
+    {
+      "file": "button-steel-search-378-hover.webp",
+      "size": [
+        756,
+        140
+      ],
+      "bytes": 23654,
+      "sha256": "053e53c342b04208c868e00dbda927a24cfb6257bb314374a3146306f91e41fa"
+    },
+    {
+      "file": "button-steel-desk-pressed.webp",
+      "size": [
+        1344,
+        294
+      ],
+      "bytes": 58302,
+      "sha256": "2fc700f959fde931c1bb8793accb4558ce8e1a3fb99fffb2f0ddf0ea670a7497"
+    },
+    {
+      "file": "button-steel-search-98-pressed.webp",
+      "size": [
+        196,
+        140
+      ],
+      "bytes": 8614,
+      "sha256": "8742310cd4419090dc1e21ba887c515960d6a6d7920692eb6d00b3ef2749bcc8"
+    },
+    {
+      "file": "button-steel-search-115-pressed.webp",
+      "size": [
+        230,
+        140
+      ],
+      "bytes": 9588,
+      "sha256": "60bfc8820c04497af707dc974b5e007cfdcb5744fec3de25c49fb4ded698272d"
+    },
+    {
+      "file": "button-steel-search-119-pressed.webp",
+      "size": [
+        238,
+        140
+      ],
+      "bytes": 9858,
+      "sha256": "8811140cca49a49fb5179fa819733b89b45c1706cb3899183ee1067a344b04fc"
+    },
+    {
+      "file": "button-steel-search-152-pressed.webp",
+      "size": [
+        304,
+        140
+      ],
+      "bytes": 12096,
+      "sha256": "b61252bd551c503a1bf058ccf375191a2ac09f551088c6365d4ae887af2707e6"
+    },
+    {
+      "file": "button-steel-search-178-pressed.webp",
+      "size": [
+        356,
+        140
+      ],
+      "bytes": 13524,
+      "sha256": "97023d31b594054a3e62e329218b8b842421cb2dd44d2c1d18c12dc0c4df8420"
+    },
+    {
+      "file": "button-steel-search-184-pressed.webp",
+      "size": [
+        368,
+        140
+      ],
+      "bytes": 13836,
+      "sha256": "0c000305ed6665bdfe9fd0de0d4ac265371179e1c8a7c42a178bd48bd3b6488a"
+    },
+    {
+      "file": "button-steel-search-314-pressed.webp",
+      "size": [
+        628,
+        140
+      ],
+      "bytes": 18550,
+      "sha256": "32592759c030b0c35359ee170cf3ffcec7d0fc74e0ee8fd15eeed71515027f7c"
+    },
+    {
+      "file": "button-steel-search-366-pressed.webp",
+      "size": [
+        732,
+        140
+      ],
+      "bytes": 20118,
+      "sha256": "1eb937297d9fa6a6e28c7d9031ae243d5f088993297d1ec9063c228c22bae0a0"
+    },
+    {
+      "file": "button-steel-search-378-pressed.webp",
+      "size": [
+        756,
+        140
+      ],
+      "bytes": 20518,
+      "sha256": "c6f12b457011b5231289ab253e9e59d97bc82bee7ed112531e2040f170ff8c3d"
+    },
+    {
+      "file": "button-steel-desk-focus.webp",
+      "size": [
+        1344,
+        294
+      ],
+      "bytes": 65362,
+      "sha256": "a22106509aae573ca226e4f97b48a26f8089d35cb02f3c22473db65a74f61ccf"
+    },
+    {
+      "file": "button-steel-search-98-focus.webp",
+      "size": [
+        196,
+        140
+      ],
+      "bytes": 8876,
+      "sha256": "240ac24a7cb88d7969f909c7ae1e408b500eed9a1aad566a3611dd616401e9f7"
+    },
+    {
+      "file": "button-steel-search-115-focus.webp",
+      "size": [
+        230,
+        140
+      ],
+      "bytes": 10018,
+      "sha256": "3a5759e38dd22772e24dcf3c10fa019eada839f09a6dcaec7d63bd1f80970fe9"
+    },
+    {
+      "file": "button-steel-search-119-focus.webp",
+      "size": [
+        238,
+        140
+      ],
+      "bytes": 10022,
+      "sha256": "ca0941e8f0cfbc22c82b5c75eceab885d36e3d4a590030303b7171aaa164a454"
+    },
+    {
+      "file": "button-steel-search-152-focus.webp",
+      "size": [
+        304,
+        140
+      ],
+      "bytes": 12512,
+      "sha256": "c778b38e9ce47fba2e371011789611175c7e3a3ac2d95a35ba1d470af00546af"
+    },
+    {
+      "file": "button-steel-search-178-focus.webp",
+      "size": [
+        356,
+        140
+      ],
+      "bytes": 13880,
+      "sha256": "c68cf3c2114015d7d2b913aa1946fb1b877e3fcd86ded6079f668647719eac04"
+    },
+    {
+      "file": "button-steel-search-184-focus.webp",
+      "size": [
+        368,
+        140
+      ],
+      "bytes": 14226,
+      "sha256": "e61bd0094816b7c4cbdf05a0938fc1fca8d1e8505dbe036baf2bc932daaecccf"
+    },
+    {
+      "file": "button-steel-search-314-focus.webp",
+      "size": [
+        628,
+        140
+      ],
+      "bytes": 18924,
+      "sha256": "6946063a963df702b1df827608011685e88d399048b4d262e65673805f28c6c5"
+    },
+    {
+      "file": "button-steel-search-366-focus.webp",
+      "size": [
+        732,
+        140
+      ],
+      "bytes": 20668,
+      "sha256": "e5ecef02346488d8c427da84bdd444380c55443720b92cc0f2ce56a7f21d79de"
+    },
+    {
+      "file": "button-steel-search-378-focus.webp",
+      "size": [
+        756,
+        140
+      ],
+      "bytes": 20938,
+      "sha256": "18f526e99c882d3bddff1673d3f1dca7aee0f41b776fd02e32ec863b274655e8"
+    },
+    {
+      "file": "button-steel-desk-disabled.webp",
+      "size": [
+        1344,
+        294
+      ],
+      "bytes": 75022,
+      "sha256": "423afd01fcfa6dd263495bc2909d430d3cebdd1a0f16a212821938fdb7fc1456"
+    },
+    {
+      "file": "button-steel-search-98-disabled.webp",
+      "size": [
+        196,
+        140
+      ],
+      "bytes": 9138,
+      "sha256": "e75fcb1fccb1cc1b25be6f29e5b073fffe0e26e1f09a0ed2d8b231368c455bb9"
+    },
+    {
+      "file": "button-steel-search-115-disabled.webp",
+      "size": [
+        230,
+        140
+      ],
+      "bytes": 10234,
+      "sha256": "80cb10cf6dbd44a322618aafd28eafbecbcbef6cf57b1eb8c7a2decb1000ef2d"
+    },
+    {
+      "file": "button-steel-search-119-disabled.webp",
+      "size": [
+        238,
+        140
+      ],
+      "bytes": 10728,
+      "sha256": "a35d9a6c9d02f14b4bd365c437aa44ed78034e0aef97bc08ccc7f67da5e3707f"
+    },
+    {
+      "file": "button-steel-search-152-disabled.webp",
+      "size": [
+        304,
+        140
+      ],
+      "bytes": 13656,
+      "sha256": "0b9129f6b37756912fc3c8b8b4d990e999d401ceb3c7baa7f54dd5f2c4a5a2a7"
+    },
+    {
+      "file": "button-steel-search-178-disabled.webp",
+      "size": [
+        356,
+        140
+      ],
+      "bytes": 15226,
+      "sha256": "0d605632475484c911c42068bbdb33a120e1bf208e2d9d4a52b54754ed6a8bf0"
+    },
+    {
+      "file": "button-steel-search-184-disabled.webp",
+      "size": [
+        368,
+        140
+      ],
+      "bytes": 15870,
+      "sha256": "0d1bf922e25f3170bdc8e2aa8d2dee8e523eccec9f5bffdfcdc947d590a7fbc2"
+    },
+    {
+      "file": "button-steel-search-314-disabled.webp",
+      "size": [
+        628,
+        140
+      ],
+      "bytes": 23324,
+      "sha256": "6d424cfb8f157a25370b1e51a016114412206256a269962125754a2a7e1937e6"
+    },
+    {
+      "file": "button-steel-search-366-disabled.webp",
+      "size": [
+        732,
+        140
+      ],
+      "bytes": 25748,
+      "sha256": "e55cf769dd58834efb608d824464afb98cd670c9ce6a70fd0e60d7e26c95d6c8"
+    },
+    {
+      "file": "button-steel-search-378-disabled.webp",
+      "size": [
+        756,
+        140
+      ],
+      "bytes": 26392,
+      "sha256": "297ce7a66f06fe66fedfafa8d3b9305a96e6e79ad1cde26184c4ffa78981a1d0"
+    }
+  ]
+}

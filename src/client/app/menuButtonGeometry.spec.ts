@@ -197,10 +197,10 @@ function readWebp(path: string) {
 /**
  * A plate closes the box only when it was drawn for that box: `contain` fits the whole drawing
  * into the border box, so the drawing's own aspect must be the measured box aspect and the
- * drawing must be opaque to the edge. A stretched 100% 100% raster or a re-used foreign plate
- * fails here even though the CSS still says `contain`.
+ * gives the contained raster the measured box aspect. Generated end hardware has native alpha
+ * around its silhouette, rather than a baked opaque black rectangle; test all five states.
  */
-it('gives the search and desktop buttons a plate drawn per measured box, opaque to the edge', () => {
+it('gives search and desktop plates the measured aspect and native alpha in all five states', () => {
 	// Measured boxes (px at --btn-h:70): search at 390 is 314/152/98, at 600 (card
 	// capped, frame-corner still 24) it is 378/184/119.33, at 700+ it is
 	// 366/178/115.33; the desktop menu is 320.
@@ -217,10 +217,11 @@ it('gives the search and desktop buttons a plate drawn per measured box, opaque 
 		['button-steel-desk', 320],
 	];
 	for (const [stem, boxWidth] of boxes) {
-		for (const state of ['rest', 'pressed']) {
+		for (const state of ['rest', 'hover', 'pressed', 'focus', 'disabled']) {
 			const url = new URL(`./ui/siege/${stem}-${state}.webp`, import.meta.url);
 			const size = readWebp(fileURLToPath(url));
-			expect(size.hasAlpha, `${stem}-${state} must be opaque`).toBe(false);
+			// Generated complete silhouettes use native alpha instead of an opaque black box.
+			expect(size.hasAlpha, `${stem}-${state} preserves native alpha`).toBe(true);
 			// 1% off the box aspect already leaves a visible band on a 70px button.
 			expect(Math.abs(size.width / size.height - boxWidth / BASE_HEIGHT)).toBeLessThan(0.01);
 		}

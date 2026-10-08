@@ -1,4 +1,6 @@
 {
+  "archived": true,
+  "superseded_runtime_by": "menu-search-generated-provenance.json (t_d3988af3); historical recipe below is not current file provenance",
   "role": "desktop menu plate redrawn in the phone-plate frame for the 320x70 box",
   "not": "a slice, splice, mirror, crop or stretch of button-steel-rest, and not an image_gen strip",
   "phone_menu": "untouched, button-steel-rest.webp sha256 19ec52201d8167ea7f77a3329bb834553cf706bc309a8f00e32e9adb0fa05a01",

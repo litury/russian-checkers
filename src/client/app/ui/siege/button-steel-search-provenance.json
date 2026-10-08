@@ -1,4 +1,6 @@
 {
+  "archived": true,
+  "superseded_runtime_by": "menu-search-generated-provenance.json (t_d3988af3); historical recipe below is not current file provenance",
   "role": "search plates redrawn in the phone-plate frame, one rest and one pressed per measured box",
   "not": "a slice, splice, mirror, crop or stretch of button-steel-rest",
   "phone_menu": "untouched, button-steel-rest.webp at 100% 100%",
