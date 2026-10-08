@@ -1,5 +1,6 @@
 import { bindResignConfirmation } from './resignConfirmation';
 import Phaser from 'phaser';
+import { warmMatchActionArt } from './matchActionArtWarmup';
 import {loadImage} from './assetLoader';
 import {boardDelivery} from './boardDelivery';
 import {
@@ -396,6 +397,9 @@ export class GameScene extends Phaser.Scene {
 			if (!key.startsWith('selection_')) continue;
 			this.textures.get(key)?.setFilter(Phaser.Textures.FilterMode.LINEAR);
 		}
+		// DOM controls are decoration, not an interactive/reveal prerequisite.
+		// Warm only after the board + HUD + input packs released the network.
+		warmMatchActionArt();
 		// No mid-match disk→v2 refresh: reveal waits on interactiveReady.
 	}
 
