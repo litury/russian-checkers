@@ -185,6 +185,11 @@ export function createBunkerPanel(scene: Phaser.Scene, own: boolean) {
 	});
 	return {
 		root,
+		isEntranceReady() {
+			const p = revealPose(elapsed, reduced);
+			return !preparing && p.lift === 0 && p.doors === 181 &&
+				(!clockFrameWanted(p.doors, p.lift, active, preparing) || frameAmt >= 1);
+		},
 		layout(x: number, y: number, scale: number) {
 			root.setPosition(x, y).setScale(scale);
 		},

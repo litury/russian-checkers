@@ -92,6 +92,7 @@ export class GameScene extends Phaser.Scene {
 	 */
 	private playfieldReadyDone = false;
 	private boardPainted = false;
+	private actionsEntered = false;
 	private countingIn = false;
 	private timeLowSaid = false;
 	private matchPlies: CloudPly[] = [];
@@ -897,6 +898,7 @@ export class GameScene extends Phaser.Scene {
 		this.countingIn = true;
 		// A fresh reveal: the rail waits again for this board's first painted frame.
 		this.boardPainted = false;
+		this.actionsEntered = false;
 		this.humanChain = null;
 		this.botTimer?.remove(false);
 		this.tweens.killAll();
@@ -1091,6 +1093,7 @@ export class GameScene extends Phaser.Scene {
 			return;
 		}
 		this.paintClock();
+		if (!this.actionsEntered) this.paintUndo();
 		if (
 			this.paused ||
 			this.moving ||
@@ -1352,7 +1355,8 @@ export class GameScene extends Phaser.Scene {
 	 * Hidden rail, never a delayed move — input keeps its own timeline.
 	 */
 	private railConcealed(): boolean {
-		return this.phase === 'over' || this.countingIn || !this.playfieldReadyDone || !this.boardPainted;
+		return this.phase === 'over' || this.countingIn || !this.playfieldReadyDone || !this.boardPainted ||
+			(!this.actionsEntered && this.hud?.isActionsReady?.() === false);
 	}
 
 	private paintUndo(): void {
@@ -1368,6 +1372,7 @@ export class GameScene extends Phaser.Scene {
 			rail.hidden = !inMatch;
 			// Lifecycle visibility only: the in-card overlay reserves no field space.
 			const conceal = this.railConcealed();
+			if (!conceal && inMatch) this.actionsEntered = true;
 			if (rail.style) rail.style.visibility = conceal ? 'hidden' : '';
 			rail.inert = conceal;
 			rail.setAttribute('aria-hidden', conceal ? 'true' : 'false');

@@ -81,6 +81,7 @@ export function createHud(
 		document.removeEventListener('visibilitychange', visibilityChange);
 	});
 	return {
+		isActionsReady: () => visible && you.isEntranceReady(),
 		isMenuOpen: () => false,
 		layout(width: number, height: number) {
 			const l = matchLayout(width, height, readSafeInsets());

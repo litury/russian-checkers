@@ -256,6 +256,19 @@ it('GT-01c the first painted board frame opens the rail without touching the mov
  expect(resign.disabled).toBe(false);
 });
 
+it('actions wait for assembled panel and clock, and never replay on turn change', () => {
+ const { s, rail, resign } = setup();
+ s.hud.isActionsReady = vi.fn(() => false);
+ s.paintUndo();
+ expect(rail.inert).toBe(true); expect(resign.disabled).toBe(true);
+ s.hud.isActionsReady.mockReturnValue(true);
+ s.tickClock();
+ expect(rail.inert).toBe(false); expect(s.actionsEntered).toBe(true);
+ s.hud.isActionsReady.mockReturnValue(false);
+ s.paintUndo();
+ expect(rail.inert).toBe(false); expect(resign.disabled).toBe(false);
+});
+
 it('empty history undo is a no-op', () => {
  const { s } = setup(); const origin = structuredClone(s.position);
  s.undoBot(); expect(s.position).toEqual(origin); expect(s.board.reset).not.toHaveBeenCalled();
