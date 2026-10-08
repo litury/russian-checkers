@@ -1,5 +1,15 @@
 #match-actions{position:fixed;z-index:10000;display:flex;width:192px;height:44px;pointer-events:none}
 #match-actions[hidden]{display:none}
+/* paintUndo opens this gate only after panel preparation. Conceal cancels the
+   entrance, so a new match replays it, while turns/disabled changes do not. */
+#match-actions[aria-hidden="false"] .match-action{animation:match-action-dock var(--action-enter-ms,420ms) cubic-bezier(.25,.75,.5,1) both}
+@keyframes match-action-dock{
+ from{translate:0 28px;clip-path:inset(0 0 100% 0)}
+ to{translate:0 0;clip-path:inset(0)}
+}
+@media(prefers-reduced-motion:reduce){
+ #match-actions[aria-hidden="false"] .match-action{animation:none;translate:none;clip-path:none}
+}
 .match-action{position:relative;display:flex;align-items:center;justify-content:flex-start;flex:none;gap:3px;box-sizing:border-box;width:96px;height:44px;min-height:44px;padding:0 6px;border:0;border-radius:0;background:transparent var(--action-rest) center/contain no-repeat;box-shadow:none;color:#fff2d4;font:600 11px/1 "Golos Text",sans-serif;text-shadow:0 1px 2px #000;cursor:pointer;pointer-events:auto;touch-action:manipulation;transition:none;transform:none;-webkit-tap-highlight-color:transparent}
 .match-action img{position:absolute;left:15px;top:10px;width:22px;height:24px;object-fit:contain;pointer-events:none}
 .match-action .action-label{position:absolute;left:40px;right:14px;top:0;height:100%;display:flex;align-items:center;justify-content:center;white-space:nowrap;font-size:8px;letter-spacing:-.3px}

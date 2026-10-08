@@ -4,7 +4,9 @@ export type CardTransform = { x: number; y: number; scaleX: number; scaleY: numb
 export function matchActionGeometry(card: CardTransform) {
 	const top = card.y + 89 * card.scaleY - actionTarget.height - 4;
 	return {
-		left: card.x + 10 * card.scaleX,
+		// Inner card edge is local x=10; heading starts at x=20.
+		// Share its 10-unit breathing room rather than sitting on the frame.
+		left: card.x + 20 * card.scaleX,
 		top,
 		tooltipBelow: top < 90,
 		width: actionTarget.width * 2,

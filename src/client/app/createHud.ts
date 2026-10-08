@@ -5,6 +5,7 @@ import { createBunkerPanel } from './bunkerPanel';
 import { PanelReveal, preparationMs } from './panelReveal';
 import { matchActionGeometry } from './matchActionGeometry';
 import { panelDurationMs } from './openingGates';
+import { clockFrame } from './clockFrame';
 
 export function clipPlayerName(raw: string): string {
 	const chars = Array.from(raw.trim());
@@ -90,6 +91,7 @@ export function createHud(
 			if (actions) {
 				const box = matchActionGeometry(you.root);
 				const canvas = scene.game.canvas.getBoundingClientRect();
+				actions.style.setProperty('--action-enter-ms', `${clockFrame.enterMs}ms`);
 				actions.dataset.tooltipBelow = String(box.tooltipBelow);
 				actions.style.left = `${canvas.left + box.left}px`;
 				actions.style.top = `${canvas.top + box.top}px`;
