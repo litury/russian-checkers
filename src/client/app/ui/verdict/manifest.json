@@ -1,0 +1,156 @@
+[
+  {
+    "name": "frame-win",
+    "crop": [
+      254,
+      24,
+      734,
+      405
+    ],
+    "size": [
+      728,
+      640
+    ],
+    "slice": 48
+  },
+  {
+    "name": "frame-loss",
+    "crop": [
+      747,
+      24,
+      1227,
+      405
+    ],
+    "size": [
+      728,
+      640
+    ],
+    "slice": 48
+  },
+  {
+    "name": "frame-draw",
+    "crop": [
+      1240,
+      24,
+      1720,
+      405
+    ],
+    "size": [
+      728,
+      640
+    ],
+    "slice": 48
+  },
+  {
+    "name": "primary-rest",
+    "crop": [
+      28,
+      440,
+      480,
+      572
+    ],
+    "size": [
+      1288,
+      184
+    ],
+    "slice": 48
+  },
+  {
+    "name": "primary-hover",
+    "crop": [
+      510,
+      440,
+      962,
+      572
+    ],
+    "size": [
+      1288,
+      184
+    ],
+    "slice": 48
+  },
+  {
+    "name": "primary-pressed",
+    "crop": [
+      1002,
+      440,
+      1454,
+      572
+    ],
+    "size": [
+      1288,
+      184
+    ],
+    "slice": 48
+  },
+  {
+    "name": "primary-disabled",
+    "crop": [
+      1498,
+      440,
+      1950,
+      572
+    ],
+    "size": [
+      1288,
+      184
+    ],
+    "slice": 48
+  },
+  {
+    "name": "secondary-rest",
+    "crop": [
+      272,
+      615,
+      592,
+      719
+    ],
+    "size": [
+      644,
+      184
+    ],
+    "slice": 32
+  },
+  {
+    "name": "secondary-hover",
+    "crop": [
+      642,
+      615,
+      962,
+      719
+    ],
+    "size": [
+      644,
+      184
+    ],
+    "slice": 32
+  },
+  {
+    "name": "secondary-pressed",
+    "crop": [
+      1004,
+      615,
+      1324,
+      719
+    ],
+    "size": [
+      644,
+      184
+    ],
+    "slice": 32
+  },
+  {
+    "name": "secondary-disabled",
+    "crop": [
+      1384,
+      615,
+      1704,
+      719
+    ],
+    "size": [
+      644,
+      184
+    ],
+    "slice": 32
+  }
+]
