@@ -35,8 +35,11 @@ it('uses all five rows with 2 CSS px padding and a rail-only pseudo-element', ()
  expect(css).toContain('#match-actions .match-action:focus-visible{--action-y:-134px}');
  expect(css).toContain('#match-actions .match-action:active:not(:disabled){--action-y:-90px}');
  expect(css).toContain('#match-actions .match-action:disabled{--action-y:-178px}');
- expect(css).toContain('dialog-neutral.png');
- expect(css).toContain('dialog-copper.png');
+ // Диалог сдачи переведён на lossless WebP (866 KB -> 570 KB) в карточке
+ // t_938f3457; проверка следит за тем, что арт диалога на месте, а не за
+ // конкретным расширением файла.
+ expect(css).toContain('dialog-neutral.webp');
+ expect(css).toContain('dialog-copper.webp');
 });
 it('ships DPR2 icons within 6000 bytes without PNG runtime references', () => {
  for (const action of ['undo', 'resign']) {
