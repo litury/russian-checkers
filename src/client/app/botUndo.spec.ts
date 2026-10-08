@@ -56,8 +56,10 @@ it('action labels have explicit pockets separate from the icon and dialog bevels
  expect(css).toContain('left:40px;right:14px');
  expect(css).toContain('width:144px;height:48px');
  expect(css).toContain('left:20px;right:20px;font-size:12px');
- expect(css).toContain('dialog-neutral.png');
- expect(css).toContain('dialog-copper.png');
+ expect(css).toContain('dialog-neutral.webp');
+   expect(css).toContain('dialog-copper.webp');
+   expect(css).toContain('96.09375% 96.9512195122%');
+   expect(css).toContain('calc(144px * 471 / 472)');
  expect(html.match(/class="action-label"/g)).toHaveLength(4);
 });
 

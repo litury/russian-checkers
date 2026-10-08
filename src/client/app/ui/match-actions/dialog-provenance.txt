@@ -5,4 +5,23 @@ dialog-neutral.png = exact copy of mockups/assets/neutral.png
 SHA256 29a5cdba7f401229f93e4a553c6a8a7f3239eec0bdc879ec7dfbfa308ae4e4e1
 dialog-copper.png = exact copy of mockups/assets/copper.png
 SHA256 f897667651c24060a9473eb2a801aad04759f1d61dc4c80af7d48e9925c0a02b
-Rendered proportionally with background-size:contain in a 144x48 CSS hit target.
+Rendered proportionally in a 144x48 CSS hit target.
+
+2026-10-08, t_938f3457: runtime delivery uses exact lossless WebP
+(Pillow/libwebp, lossless=True, quality=100, method=6, exact=True).
+PNG masters above are retained unchanged, not requested by runtime dialog CSS.
+Only alpha=0 exterior padding is cropped; no resize, color quantization or lossy encoding.
+canvas -> crop bbox -> WebP bytes:
+  dialog: 768x492 -> (0,7,738,484) -> 410144
+  dialog-neutral: 471x154 -> (0,0,471,154) -> 79432
+  dialog-copper: 472x154 -> (0,0,471,154) -> 80806
+Total: 866779 -> 570382 bytes (-34.1952%); approved revised budget <=600 KB.
+Decoded crop RGBA and alpha are byte-identical to PNG crops.
+CSS restores original canvas placement/scale, including copper's transparent last column.
+This raw lossless assertion is NOT a claim of pixel-identical browser screenshots:
+Chromium PNG/WebP canvas premultiplication and fractional CSS crop rasterization
+produced nonzero rendered diffs. Paired 390/1280 DPR2/3 frames are in the task handoff.
+SHA256 WebP:
+  dialog f161560533a550f46204506ba0126aaaea43bb9c74e8011cd2b83f0380125bca
+  neutral 91bafb835e4790ff35a38cc577201a3d44e2bcd0533feb42a615e65b2b15f642
+  copper 979a8abbe403e39c05ab0fcf743e1671bc15da0d4e0bb1edb402ab275b87f7cb
