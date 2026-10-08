@@ -19,9 +19,9 @@ describe('match action entry warmup', () => {
  const settle=async()=>{pending.shift()?.resolve(); await new Promise(resolve=>setTimeout(resolve,0));};
  it('keeps only seven runtime URLs and no PNG controls masters; immediate two-flight low priority and idempotency',async()=>{
   const m=await import('./matchActionArtWarmup');
-  expect(m.matchActionArtUrls.map(url=>url.split('/').pop()).sort()).toEqual(['dialog.png','dialog-neutral.png','dialog-copper.png',...['undo','resign'].flatMap(action=>['atlas','icon'].map(state=>`${action}-${state}.webp`))].sort());
+  expect(m.matchActionArtUrls.map(url=>url.split('/').pop()).sort()).toEqual(['dialog.webp','dialog-neutral.webp','dialog-copper.webp',...['undo','resign'].flatMap(action=>['atlas','icon'].map(state=>`${action}-${state}.webp`))].sort());
   m.warmMatchActionArt(); m.warmMatchActionArt();
-  expect(images).toHaveLength(2); expect(images[0].src).toContain('dialog.png');
+  expect(images).toHaveLength(2); expect(images[0].src).toContain('dialog.webp');
   expect(images.every(image=>image.fetchPriority==='low')).toBe(true);
   await settle(); expect(images).toHaveLength(3);
  });

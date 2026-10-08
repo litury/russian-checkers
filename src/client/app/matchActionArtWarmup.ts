@@ -1,9 +1,9 @@
 /** Decoration cache only: never a game readiness barrier. */
-const assets = import.meta.glob<string>(['./ui/match-actions/dialog*.png', './ui/match-actions/*-atlas.webp', './ui/match-actions/*-icon.webp'], {
+const assets = import.meta.glob<string>(['./ui/match-actions/dialog*.webp', './ui/match-actions/*-atlas.webp', './ui/match-actions/*-icon.webp'], {
  eager: true, query: '?url', import: 'default',
 }) as Record<string, string>;
 export const matchActionArtUrls = Object.entries(assets).sort(([a], [b]) => {
- const rank = (name: string) => name.endsWith('/dialog.png') ? 0 : name.endsWith('/resign-atlas.webp') ? 0.5 : name.includes('dialog') ? 1 : /hover|pressed|focus/.test(name) ? 2 : 3;
+ const rank = (name: string) => name.endsWith('/dialog.webp') ? 0 : name.endsWith('/resign-atlas.webp') ? 0.5 : name.includes('dialog') ? 1 : /hover|pressed|focus/.test(name) ? 2 : 3;
  return rank(a) - rank(b) || a.localeCompare(b);
 }).map(([, url]) => url);
 const retained = new Map<string, HTMLImageElement>();
@@ -53,7 +53,9 @@ export function warmMatchActionArt(): void {
  if ('requestIdleCallback' in window) window.requestIdleCallback(pump, { timeout: 1500 });
  else setTimeout(pump, 250);
 }
-const dialogUrls = () => matchActionArtUrls.filter(url => /\/dialog[^/]*\.png$/.test(url));
+// Диалог отдаётся как lossless WebP; PNG-мастера остаются в репозитории
+// только как исходники и в рантайме не запрашиваются.
+const dialogUrls = () => matchActionArtUrls.filter(url => /\/dialog[^/]*\.webp$/.test(url));
 export function resignStatesReady(): boolean {
  return retained.has(assets['./ui/match-actions/resign-atlas.webp']);
 }
