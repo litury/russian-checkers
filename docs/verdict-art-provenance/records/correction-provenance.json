@@ -1,0 +1,13 @@
+{
+  "task": "t_1577b2be",
+  "phase": "preview only",
+  "tool": "image_gen.imagegen built-in",
+  "correction_calls": 1,
+  "source_path": "/home/hermes/.codex-account1/generated_images/01a11c12-cd37-7af1-83ab-c42553b8dd39/exec-89eeb2c1-fabb-4e1d-8d14-7355deb3e038.png",
+  "saved_raw": "native-corrected.png",
+  "prompt": "correction-prompt.txt",
+  "original_preserved": true,
+  "raw_sha256": "26f3327ae3c2d66ecc4563767df5f7bcc35e302922b3cc8380d291b0ff7303ec",
+  "processing": "byte-copy raw; rectangular crops and lossless WebP only; no threshold, blur, color or alpha modification",
+  "approval": "pending; no runtime integration"
+}

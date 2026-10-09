@@ -1,0 +1,10 @@
+Use case: precise-object-edit
+Asset type: one transparent PNG sheet of three lamp-state variants.
+Input image 1 is the SOLE EDIT TARGET: wide-title-original.png, the supplied wide metal plate. Edit this exact image, do not redesign or reinterpret it.
+Primary request: Return THREE vertically stacked identical copies of the entire original plate, all at identical scale, aligned horizontally, with transparent space between them and a genuinely transparent background (alpha, no painted checkerboard). Each copy must preserve the complete original silhouette and original aspect ratio. Enlarge the canvas vertically to accommodate three copies; do not compress or stretch the plates.
+Locked invariants: Preserve the entire original plate shape, both exact recesses, their unequal heights and proportions (large upper recess and shallow lower recess), contours, bevels, all metal texture, divider ornament with central round rivet, every rivet, all lamp housings, dimensions and relative positions. Each plate has exactly TWO recesses. Copy the original geometry identically for all three. Preserve empty dark recess interiors. No text or labels.
+Only editable regions: the interiors of the two EXISTING lamps at the far left and right ends of each plate. Do not change the housings, metal bands, surrounding reflections or any other plate pixels.
+Top copy: both existing lamp interiors are restrained, very dim muted amber.
+Middle copy: both existing lamp interiors are unlit dark graphite.
+Bottom copy: both existing lamp interiors are very dim warm bone, a subdued gray-beige ivory, never white.
+The lamp states must be very subtle and low luminance, with no bright cores or bloom. No bright white/yellow cores, no red, no neon, no extra lamps, no added decoration. Preserve exact original recess proportions, plate dimensions and detail placement within each copy. Output one PNG containing all three complete uncropped copies.

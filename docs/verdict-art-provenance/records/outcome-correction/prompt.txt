@@ -1,0 +1,12 @@
+Use case: precise-object-edit
+Asset type: transparent game UI title plate sprite sheet.
+Input images: Image 1 (title.webp) is the geometry and material reference; Image 2 (wide-title-original.png) is the high-resolution original edit target. Both show the same two-recess title plate.
+Primary request: Produce ONE transparent PNG sheet containing exactly THREE vertically stacked copies of this same landscape two-recess title plate, with identical geometry and graphite/warm brass materials. Change only the lamps' outcome lighting between rows.
+Composition: Request 2048 x 2048 pixels or larger, with EACH landscape plate at least 1092 pixels wide. Each row preserves the source's 3:1 canvas geometry aspect ratio, with three equal-height rows stacked vertically. Keep every plate fully visible, identically sized and aligned, separated by transparent space. Do not squeeze the wide plates into narrow portrait proportions.
+Top row (WIN, a semantic instruction only): restrained amber illuminated lamps.
+Middle row (LOSS, a semantic instruction only): dim dried rust red lamps, no festive glow, no bright amber/yellow core or celebratory bloom.
+Bottom row (DRAW, a semantic instruction only): muted olive pale amber lamps, neutral and subdued.
+Invariants: Every plate has exactly two blank dark recessed panels, a taller upper recess and a shorter lower recess; preserve the same recess contours, horizontal rails, central rail ornament, corner brackets, brass rivets, side lamp housings, and all ornaments from the source. All three rows must have identical recesses, rails, rivets, ornaments, widths, heights, and graphite/warm brass material. Only lamp color and illumination vary; preserve the neutral metal color throughout.
+Background: genuinely transparent alpha around and between the plates, no opaque backdrop, no checkerboard baked into the image. The dark inset panels remain opaque.
+Text: none. Do not write WIN, LOSS, DRAW, labels, lettering, numbers, logos, or watermarks anywhere.
+Avoid: redesign, changed ornament count, extra recesses, missing rails, extra objects, colored washes over the whole frame, fiery or festive loss lamps. Return exactly one finished sheet.

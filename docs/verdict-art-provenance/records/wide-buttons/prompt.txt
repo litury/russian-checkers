@@ -1,0 +1,21 @@
+Use case: ui-mockup
+Asset type: one production raster sprite sheet of twelve wide game UI button plates.
+Input image: corrected.png is a STYLE REFERENCE ONLY for weathered metal, bevels, amber hardware and dark inset fields. Replace its three-column layout entirely.
+Primary request: Generate ONE wide landscape sheet, ideally 2048 x 1536, containing EXACTLY TWELVE full-width horizontal button plates stacked vertically in ONE COLUMN. Each row has ONE uninterrupted long plate spanning essentially the entire sheet width with only a tiny equal outer safety margin. Twelve evenly spaced rows, thin fully transparent gutters. No columns, no side-by-side buttons, no panels. All twelve have identical outer width and height. Plates are very wide and shallow.
+Style: finely rendered aged industrial metal matching the reference. Straight-on orthographic view, crisp clean isolated silhouettes. The extremely wide dark charcoal unobstructed text recess occupies at least 88 percent of each plate's width. Small fixed-size modest clipped metal corners and narrow end caps, never enlarge corners to fill the width. Fine restrained wear; no decoration inside text recess.
+Hierarchy and exact TOP-TO-BOTTOM row order:
+1 primary rest: amber-brass frame, modest illuminated amber end lamps, dark inset.
+2 primary hover: visibly brighter amber edge and lamps, lifted bevel highlight, dark inset.
+3 primary pressed: visibly sunken inset, depressed inner bevel, reduced upper highlight and concentrated deeper amber lamps.
+4 primary disabled: desaturated dull bronze, lamps fully OFF, low contrast flat dead metal, still dark unobstructed inset.
+5 secondary rest: subdued aged brass slim frame, NO lamps or lamp fixtures, dark inset.
+6 secondary hover: distinct modest warm brass highlight and raised edge, NO emitted light, dark inset.
+7 secondary pressed: clearly sunken darker brass bevel and dark inset, NO lamps.
+8 secondary disabled: dark desaturated tarnished brass with visibly muted contrast, NO lamps, dark inset.
+9 quiet rest: subdued matte graphite thin frame, tiny unobtrusive hardware, dark inset.
+10 quiet hover: slightly lighter graphite rim distinctly visible against rest, dark inset.
+11 quiet pressed: inset depressed graphite bevel with shadowed upper rim, dark inset.
+12 quiet disabled: very muted dark graphite, minimal relief and contrast, dark inset.
+Strong hierarchy: primary is clearly the strongest amber action; secondary is substantially less prominent aged brass without lamps; quiet is the most restrained graphite, never bright silver. Actual separately rendered hover/pressed/disabled material, lighting and depth states, not identical duplicates. Preserve consistent modest corner geometry across states.
+Background: genuine native transparent alpha outside every plate and in every row gap, no solid backdrop, no checkerboard pixels, no contact surface. Preserve opaque dark text recesses.
+Text: NONE. No lettering, labels, numbers, icons, captions, watermark or symbols anywhere. Twelve plates only. Do not reproduce the reference's column layout.

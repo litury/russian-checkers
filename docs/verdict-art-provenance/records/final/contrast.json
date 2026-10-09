@@ -1,0 +1,583 @@
+{
+	"method": "Paired real-browser composite screenshots, visible glyphs versus same scene with only text transparent; WCAG sRGB luminance. Core glyphs within 4 RGB levels of ink; also conservative worst background over entire DOM text bounds. No nominal asset-only estimate.",
+	"results": [
+		{
+			"capture": "after-loss-390-dpr2",
+			"label": "\u041f\u0410\u0420\u0422\u0418\u042f \u0417\u0410\u0412\u0415\u0420\u0428\u0415\u041d\u0410",
+			"corePixels": 524,
+			"minimumCoreContrast": 15.111759056149767,
+			"minimumInkVsEntireTextRectangle": 14.561836809220088,
+			"required": 4.5
+		},
+		{
+			"capture": "after-loss-390-dpr2",
+			"label": "\u041f\u041e\u0420\u0410\u0416\u0415\u041d\u0418\u0415",
+			"corePixels": 3747,
+			"minimumCoreContrast": 14.087590990974949,
+			"minimumInkVsEntireTextRectangle": 13.861540594125689,
+			"required": 4.5
+		},
+		{
+			"capture": "after-loss-390-dpr2",
+			"label": "\u0423 \u0432\u0430\u0441 \u0437\u0430\u043a\u043e\u043d\u0447\u0438\u043b\u043e\u0441\u044c \u0432\u0440\u0435\u043c\u044f",
+			"corePixels": 928,
+			"minimumCoreContrast": 15.103274180823005,
+			"minimumInkVsEntireTextRectangle": 15.280423889692772,
+			"required": 4.5
+		},
+		{
+			"capture": "after-loss-390-dpr2",
+			"label": "\u0415\u0449\u0451 \u043f\u0430\u0440\u0442\u0438\u044f",
+			"corePixels": 1839,
+			"minimumCoreContrast": 14.160315101934836,
+			"minimumInkVsEntireTextRectangle": 14.110693706570988,
+			"required": 4.5
+		},
+		{
+			"capture": "after-loss-390-dpr2",
+			"label": "\u041f\u043e\u0441\u043c\u043e\u0442\u0440\u0435\u0442\u044c \u0434\u043e\u0441\u043a\u0443",
+			"corePixels": 891,
+			"minimumCoreContrast": 14.0005541908309,
+			"minimumInkVsEntireTextRectangle": 14.270925046877009,
+			"required": 4.5
+		},
+		{
+			"capture": "after-loss-390-dpr2",
+			"label": "\u0412 \u043c\u0435\u043d\u044e",
+			"corePixels": 334,
+			"minimumCoreContrast": 13.896624011748074,
+			"minimumInkVsEntireTextRectangle": 13.955959410959535,
+			"required": 4.5
+		},
+		{
+			"capture": "after-win-390-dpr2",
+			"label": "\u041f\u0410\u0420\u0422\u0418\u042f \u0417\u0410\u0412\u0415\u0420\u0428\u0415\u041d\u0410",
+			"corePixels": 524,
+			"minimumCoreContrast": 15.111759056149767,
+			"minimumInkVsEntireTextRectangle": 14.561836809220088,
+			"required": 4.5
+		},
+		{
+			"capture": "after-win-390-dpr2",
+			"label": "\u041f\u041e\u0411\u0415\u0414\u0410",
+			"corePixels": 2256,
+			"minimumCoreContrast": 13.99483050440427,
+			"minimumInkVsEntireTextRectangle": 13.861540594125689,
+			"required": 4.5
+		},
+		{
+			"capture": "after-win-390-dpr2",
+			"label": "\u0423 \u0441\u043e\u043f\u0435\u0440\u043d\u0438\u043a\u0430 \u043d\u0435 \u043e\u0441\u0442\u0430\u043b\u043e\u0441\u044c \u0448\u0430\u0448\u0435\u043a",
+			"corePixels": 1171,
+			"minimumCoreContrast": 15.236452724059786,
+			"minimumInkVsEntireTextRectangle": 15.280423889692772,
+			"required": 4.5
+		},
+		{
+			"capture": "after-win-390-dpr2",
+			"label": "\u0415\u0449\u0451 \u043f\u0430\u0440\u0442\u0438\u044f",
+			"corePixels": 1839,
+			"minimumCoreContrast": 14.160315101934836,
+			"minimumInkVsEntireTextRectangle": 14.110693706570988,
+			"required": 4.5
+		},
+		{
+			"capture": "after-win-390-dpr2",
+			"label": "\u041f\u043e\u0441\u043c\u043e\u0442\u0440\u0435\u0442\u044c \u0434\u043e\u0441\u043a\u0443",
+			"corePixels": 891,
+			"minimumCoreContrast": 14.0005541908309,
+			"minimumInkVsEntireTextRectangle": 14.270925046877009,
+			"required": 4.5
+		},
+		{
+			"capture": "after-win-390-dpr2",
+			"label": "\u0412 \u043c\u0435\u043d\u044e",
+			"corePixels": 334,
+			"minimumCoreContrast": 13.896624011748074,
+			"minimumInkVsEntireTextRectangle": 13.955959410959535,
+			"required": 4.5
+		},
+		{
+			"capture": "after-draw-390-dpr2",
+			"label": "\u041f\u0410\u0420\u0422\u0418\u042f \u0417\u0410\u0412\u0415\u0420\u0428\u0415\u041d\u0410",
+			"corePixels": 524,
+			"minimumCoreContrast": 15.111759056149767,
+			"minimumInkVsEntireTextRectangle": 14.561836809220088,
+			"required": 4.5
+		},
+		{
+			"capture": "after-draw-390-dpr2",
+			"label": "\u041d\u0418\u0427\u042c\u042f",
+			"corePixels": 2158,
+			"minimumCoreContrast": 14.179567627013432,
+			"minimumInkVsEntireTextRectangle": 13.861540594125689,
+			"required": 4.5
+		},
+		{
+			"capture": "after-draw-390-dpr2",
+			"label": "\u041f\u043e\u0437\u0438\u0446\u0438\u044f \u043f\u043e\u0432\u0442\u043e\u0440\u0438\u043b\u0430\u0441\u044c \u0442\u0440\u0438\u0436\u0434\u044b",
+			"corePixels": 1235,
+			"minimumCoreContrast": 15.40965055806008,
+			"minimumInkVsEntireTextRectangle": 15.280423889692772,
+			"required": 4.5
+		},
+		{
+			"capture": "after-draw-390-dpr2",
+			"label": "\u0415\u0449\u0451 \u043f\u0430\u0440\u0442\u0438\u044f",
+			"corePixels": 1839,
+			"minimumCoreContrast": 14.160315101934836,
+			"minimumInkVsEntireTextRectangle": 14.110693706570988,
+			"required": 4.5
+		},
+		{
+			"capture": "after-draw-390-dpr2",
+			"label": "\u041f\u043e\u0441\u043c\u043e\u0442\u0440\u0435\u0442\u044c \u0434\u043e\u0441\u043a\u0443",
+			"corePixels": 891,
+			"minimumCoreContrast": 14.0005541908309,
+			"minimumInkVsEntireTextRectangle": 14.270925046877009,
+			"required": 4.5
+		},
+		{
+			"capture": "after-draw-390-dpr2",
+			"label": "\u0412 \u043c\u0435\u043d\u044e",
+			"corePixels": 334,
+			"minimumCoreContrast": 13.896624011748074,
+			"minimumInkVsEntireTextRectangle": 13.955959410959535,
+			"required": 4.5
+		},
+		{
+			"capture": "after-loss-390-dpr3",
+			"label": "\u041f\u0410\u0420\u0422\u0418\u042f \u0417\u0410\u0412\u0415\u0420\u0428\u0415\u041d\u0410",
+			"corePixels": 1520,
+			"minimumCoreContrast": 14.916042897401871,
+			"minimumInkVsEntireTextRectangle": 14.54862867387125,
+			"required": 4.5
+		},
+		{
+			"capture": "after-loss-390-dpr3",
+			"label": "\u041f\u041e\u0420\u0410\u0416\u0415\u041d\u0418\u0415",
+			"corePixels": 9071,
+			"minimumCoreContrast": 13.81016376232254,
+			"minimumInkVsEntireTextRectangle": 13.81016376232254,
+			"required": 4.5
+		},
+		{
+			"capture": "after-loss-390-dpr3",
+			"label": "\u0423 \u0432\u0430\u0441 \u0437\u0430\u043a\u043e\u043d\u0447\u0438\u043b\u043e\u0441\u044c \u0432\u0440\u0435\u043c\u044f",
+			"corePixels": 2653,
+			"minimumCoreContrast": 14.953627692163261,
+			"minimumInkVsEntireTextRectangle": 14.953627692163261,
+			"required": 4.5
+		},
+		{
+			"capture": "after-loss-390-dpr3",
+			"label": "\u0415\u0449\u0451 \u043f\u0430\u0440\u0442\u0438\u044f",
+			"corePixels": 4377,
+			"minimumCoreContrast": 14.05370674110915,
+			"minimumInkVsEntireTextRectangle": 14.057111089231785,
+			"required": 4.5
+		},
+		{
+			"capture": "after-loss-390-dpr3",
+			"label": "\u041f\u043e\u0441\u043c\u043e\u0442\u0440\u0435\u0442\u044c \u0434\u043e\u0441\u043a\u0443",
+			"corePixels": 2490,
+			"minimumCoreContrast": 13.919035687290522,
+			"minimumInkVsEntireTextRectangle": 14.283282501698155,
+			"required": 4.5
+		},
+		{
+			"capture": "after-loss-390-dpr3",
+			"label": "\u0412 \u043c\u0435\u043d\u044e",
+			"corePixels": 832,
+			"minimumCoreContrast": 13.903767348395862,
+			"minimumInkVsEntireTextRectangle": 13.955959410959535,
+			"required": 4.5
+		},
+		{
+			"capture": "after-win-390-dpr3",
+			"label": "\u041f\u0410\u0420\u0422\u0418\u042f \u0417\u0410\u0412\u0415\u0420\u0428\u0415\u041d\u0410",
+			"corePixels": 1520,
+			"minimumCoreContrast": 14.916042897401871,
+			"minimumInkVsEntireTextRectangle": 14.54862867387125,
+			"required": 4.5
+		},
+		{
+			"capture": "after-win-390-dpr3",
+			"label": "\u041f\u041e\u0411\u0415\u0414\u0410",
+			"corePixels": 5442,
+			"minimumCoreContrast": 13.81016376232254,
+			"minimumInkVsEntireTextRectangle": 13.81016376232254,
+			"required": 4.5
+		},
+		{
+			"capture": "after-win-390-dpr3",
+			"label": "\u0423 \u0441\u043e\u043f\u0435\u0440\u043d\u0438\u043a\u0430 \u043d\u0435 \u043e\u0441\u0442\u0430\u043b\u043e\u0441\u044c \u0448\u0430\u0448\u0435\u043a",
+			"corePixels": 3288,
+			"minimumCoreContrast": 15.272040323442898,
+			"minimumInkVsEntireTextRectangle": 14.953627692163261,
+			"required": 4.5
+		},
+		{
+			"capture": "after-win-390-dpr3",
+			"label": "\u0415\u0449\u0451 \u043f\u0430\u0440\u0442\u0438\u044f",
+			"corePixels": 4377,
+			"minimumCoreContrast": 14.05370674110915,
+			"minimumInkVsEntireTextRectangle": 14.057111089231785,
+			"required": 4.5
+		},
+		{
+			"capture": "after-win-390-dpr3",
+			"label": "\u041f\u043e\u0441\u043c\u043e\u0442\u0440\u0435\u0442\u044c \u0434\u043e\u0441\u043a\u0443",
+			"corePixels": 2490,
+			"minimumCoreContrast": 13.919035687290522,
+			"minimumInkVsEntireTextRectangle": 14.283282501698155,
+			"required": 4.5
+		},
+		{
+			"capture": "after-win-390-dpr3",
+			"label": "\u0412 \u043c\u0435\u043d\u044e",
+			"corePixels": 832,
+			"minimumCoreContrast": 13.903767348395862,
+			"minimumInkVsEntireTextRectangle": 13.955959410959535,
+			"required": 4.5
+		},
+		{
+			"capture": "after-draw-390-dpr3",
+			"label": "\u041f\u0410\u0420\u0422\u0418\u042f \u0417\u0410\u0412\u0415\u0420\u0428\u0415\u041d\u0410",
+			"corePixels": 1520,
+			"minimumCoreContrast": 14.916042897401871,
+			"minimumInkVsEntireTextRectangle": 14.54862867387125,
+			"required": 4.5
+		},
+		{
+			"capture": "after-draw-390-dpr3",
+			"label": "\u041d\u0418\u0427\u042c\u042f",
+			"corePixels": 5152,
+			"minimumCoreContrast": 13.81016376232254,
+			"minimumInkVsEntireTextRectangle": 13.81016376232254,
+			"required": 4.5
+		},
+		{
+			"capture": "after-draw-390-dpr3",
+			"label": "\u041f\u043e\u0437\u0438\u0446\u0438\u044f \u043f\u043e\u0432\u0442\u043e\u0440\u0438\u043b\u0430\u0441\u044c \u0442\u0440\u0438\u0436\u0434\u044b",
+			"corePixels": 3394,
+			"minimumCoreContrast": 15.280423889692772,
+			"minimumInkVsEntireTextRectangle": 14.953627692163261,
+			"required": 4.5
+		},
+		{
+			"capture": "after-draw-390-dpr3",
+			"label": "\u0415\u0449\u0451 \u043f\u0430\u0440\u0442\u0438\u044f",
+			"corePixels": 4377,
+			"minimumCoreContrast": 14.05370674110915,
+			"minimumInkVsEntireTextRectangle": 14.057111089231785,
+			"required": 4.5
+		},
+		{
+			"capture": "after-draw-390-dpr3",
+			"label": "\u041f\u043e\u0441\u043c\u043e\u0442\u0440\u0435\u0442\u044c \u0434\u043e\u0441\u043a\u0443",
+			"corePixels": 2490,
+			"minimumCoreContrast": 13.919035687290522,
+			"minimumInkVsEntireTextRectangle": 14.283282501698155,
+			"required": 4.5
+		},
+		{
+			"capture": "after-draw-390-dpr3",
+			"label": "\u0412 \u043c\u0435\u043d\u044e",
+			"corePixels": 832,
+			"minimumCoreContrast": 13.903767348395862,
+			"minimumInkVsEntireTextRectangle": 13.955959410959535,
+			"required": 4.5
+		},
+		{
+			"capture": "after-loss-1280-dpr2",
+			"label": "\u041f\u0410\u0420\u0422\u0418\u042f \u0417\u0410\u0412\u0415\u0420\u0428\u0415\u041d\u0410",
+			"corePixels": 519,
+			"minimumCoreContrast": 14.70612763639599,
+			"minimumInkVsEntireTextRectangle": 14.470257449067065,
+			"required": 4.5
+		},
+		{
+			"capture": "after-loss-1280-dpr2",
+			"label": "\u041f\u041e\u0420\u0410\u0416\u0415\u041d\u0418\u0415",
+			"corePixels": 3747,
+			"minimumCoreContrast": 14.00808061885888,
+			"minimumInkVsEntireTextRectangle": 13.969135987742623,
+			"required": 4.5
+		},
+		{
+			"capture": "after-loss-1280-dpr2",
+			"label": "\u0423 \u0432\u0430\u0441 \u0437\u0430\u043a\u043e\u043d\u0447\u0438\u043b\u043e\u0441\u044c \u0432\u0440\u0435\u043c\u044f",
+			"corePixels": 850,
+			"minimumCoreContrast": 15.061792442758406,
+			"minimumInkVsEntireTextRectangle": 15.098702141316316,
+			"required": 4.5
+		},
+		{
+			"capture": "after-loss-1280-dpr2",
+			"label": "\u0415\u0449\u0451 \u043f\u0430\u0440\u0442\u0438\u044f",
+			"corePixels": 1386,
+			"minimumCoreContrast": 13.93781299056163,
+			"minimumInkVsEntireTextRectangle": 13.700076008174678,
+			"required": 4.5
+		},
+		{
+			"capture": "after-loss-1280-dpr2",
+			"label": "\u041f\u043e\u0441\u043c\u043e\u0442\u0440\u0435\u0442\u044c \u0434\u043e\u0441\u043a\u0443",
+			"corePixels": 797,
+			"minimumCoreContrast": 13.926182032640309,
+			"minimumInkVsEntireTextRectangle": 14.06910087161363,
+			"required": 4.5
+		},
+		{
+			"capture": "after-loss-1280-dpr2",
+			"label": "\u0412 \u043c\u0435\u043d\u044e",
+			"corePixels": 287,
+			"minimumCoreContrast": 13.428546492006783,
+			"minimumInkVsEntireTextRectangle": 13.586929351634183,
+			"required": 4.5
+		},
+		{
+			"capture": "after-win-1280-dpr2",
+			"label": "\u041f\u0410\u0420\u0422\u0418\u042f \u0417\u0410\u0412\u0415\u0420\u0428\u0415\u041d\u0410",
+			"corePixels": 519,
+			"minimumCoreContrast": 14.70612763639599,
+			"minimumInkVsEntireTextRectangle": 14.470257449067065,
+			"required": 4.5
+		},
+		{
+			"capture": "after-win-1280-dpr2",
+			"label": "\u041f\u041e\u0411\u0415\u0414\u0410",
+			"corePixels": 2256,
+			"minimumCoreContrast": 14.230925985714402,
+			"minimumInkVsEntireTextRectangle": 13.969135987742623,
+			"required": 4.5
+		},
+		{
+			"capture": "after-win-1280-dpr2",
+			"label": "\u0423 \u0441\u043e\u043f\u0435\u0440\u043d\u0438\u043a\u0430 \u043d\u0435 \u043e\u0441\u0442\u0430\u043b\u043e\u0441\u044c \u0448\u0430\u0448\u0435\u043a",
+			"corePixels": 1073,
+			"minimumCoreContrast": 15.067029836356193,
+			"minimumInkVsEntireTextRectangle": 15.098702141316316,
+			"required": 4.5
+		},
+		{
+			"capture": "after-win-1280-dpr2",
+			"label": "\u0415\u0449\u0451 \u043f\u0430\u0440\u0442\u0438\u044f",
+			"corePixels": 1386,
+			"minimumCoreContrast": 13.93781299056163,
+			"minimumInkVsEntireTextRectangle": 13.700076008174678,
+			"required": 4.5
+		},
+		{
+			"capture": "after-win-1280-dpr2",
+			"label": "\u041f\u043e\u0441\u043c\u043e\u0442\u0440\u0435\u0442\u044c \u0434\u043e\u0441\u043a\u0443",
+			"corePixels": 797,
+			"minimumCoreContrast": 13.926182032640309,
+			"minimumInkVsEntireTextRectangle": 14.06910087161363,
+			"required": 4.5
+		},
+		{
+			"capture": "after-win-1280-dpr2",
+			"label": "\u0412 \u043c\u0435\u043d\u044e",
+			"corePixels": 287,
+			"minimumCoreContrast": 13.428546492006783,
+			"minimumInkVsEntireTextRectangle": 13.586929351634183,
+			"required": 4.5
+		},
+		{
+			"capture": "after-draw-1280-dpr2",
+			"label": "\u041f\u0410\u0420\u0422\u0418\u042f \u0417\u0410\u0412\u0415\u0420\u0428\u0415\u041d\u0410",
+			"corePixels": 519,
+			"minimumCoreContrast": 14.70612763639599,
+			"minimumInkVsEntireTextRectangle": 14.470257449067065,
+			"required": 4.5
+		},
+		{
+			"capture": "after-draw-1280-dpr2",
+			"label": "\u041d\u0418\u0427\u042c\u042f",
+			"corePixels": 2158,
+			"minimumCoreContrast": 13.969135987742623,
+			"minimumInkVsEntireTextRectangle": 13.969135987742623,
+			"required": 4.5
+		},
+		{
+			"capture": "after-draw-1280-dpr2",
+			"label": "\u041f\u043e\u0437\u0438\u0446\u0438\u044f \u043f\u043e\u0432\u0442\u043e\u0440\u0438\u043b\u0430\u0441\u044c \u0442\u0440\u0438\u0436\u0434\u044b",
+			"corePixels": 1068,
+			"minimumCoreContrast": 15.199888782071346,
+			"minimumInkVsEntireTextRectangle": 15.098702141316316,
+			"required": 4.5
+		},
+		{
+			"capture": "after-draw-1280-dpr2",
+			"label": "\u0415\u0449\u0451 \u043f\u0430\u0440\u0442\u0438\u044f",
+			"corePixels": 1386,
+			"minimumCoreContrast": 13.93781299056163,
+			"minimumInkVsEntireTextRectangle": 13.700076008174678,
+			"required": 4.5
+		},
+		{
+			"capture": "after-draw-1280-dpr2",
+			"label": "\u041f\u043e\u0441\u043c\u043e\u0442\u0440\u0435\u0442\u044c \u0434\u043e\u0441\u043a\u0443",
+			"corePixels": 797,
+			"minimumCoreContrast": 13.926182032640309,
+			"minimumInkVsEntireTextRectangle": 14.06910087161363,
+			"required": 4.5
+		},
+		{
+			"capture": "after-draw-1280-dpr2",
+			"label": "\u0412 \u043c\u0435\u043d\u044e",
+			"corePixels": 287,
+			"minimumCoreContrast": 13.428546492006783,
+			"minimumInkVsEntireTextRectangle": 13.586929351634183,
+			"required": 4.5
+		},
+		{
+			"capture": "after-loss-1280-dpr3",
+			"label": "\u041f\u0410\u0420\u0422\u0418\u042f \u0417\u0410\u0412\u0415\u0420\u0428\u0415\u041d\u0410",
+			"corePixels": 1520,
+			"minimumCoreContrast": 14.804198867041093,
+			"minimumInkVsEntireTextRectangle": 14.325393434119722,
+			"required": 4.5
+		},
+		{
+			"capture": "after-loss-1280-dpr3",
+			"label": "\u041f\u041e\u0420\u0410\u0416\u0415\u041d\u0418\u0415",
+			"corePixels": 9071,
+			"minimumCoreContrast": 14.127199841556106,
+			"minimumInkVsEntireTextRectangle": 13.99483050440427,
+			"required": 4.5
+		},
+		{
+			"capture": "after-loss-1280-dpr3",
+			"label": "\u0423 \u0432\u0430\u0441 \u0437\u0430\u043a\u043e\u043d\u0447\u0438\u043b\u043e\u0441\u044c \u0432\u0440\u0435\u043c\u044f",
+			"corePixels": 2653,
+			"minimumCoreContrast": 14.861327060738834,
+			"minimumInkVsEntireTextRectangle": 14.877543188833522,
+			"required": 4.5
+		},
+		{
+			"capture": "after-loss-1280-dpr3",
+			"label": "\u0415\u0449\u0451 \u043f\u0430\u0440\u0442\u0438\u044f",
+			"corePixels": 4377,
+			"minimumCoreContrast": 13.926045839366122,
+			"minimumInkVsEntireTextRectangle": 13.700076008174678,
+			"required": 4.5
+		},
+		{
+			"capture": "after-loss-1280-dpr3",
+			"label": "\u041f\u043e\u0441\u043c\u043e\u0442\u0440\u0435\u0442\u044c \u0434\u043e\u0441\u043a\u0443",
+			"corePixels": 2490,
+			"minimumCoreContrast": 13.792839285842273,
+			"minimumInkVsEntireTextRectangle": 14.086251388022948,
+			"required": 4.5
+		},
+		{
+			"capture": "after-loss-1280-dpr3",
+			"label": "\u0412 \u043c\u0435\u043d\u044e",
+			"corePixels": 832,
+			"minimumCoreContrast": 13.415719276812283,
+			"minimumInkVsEntireTextRectangle": 13.518489395470132,
+			"required": 4.5
+		},
+		{
+			"capture": "after-win-1280-dpr3",
+			"label": "\u041f\u0410\u0420\u0422\u0418\u042f \u0417\u0410\u0412\u0415\u0420\u0428\u0415\u041d\u0410",
+			"corePixels": 1520,
+			"minimumCoreContrast": 14.804198867041093,
+			"minimumInkVsEntireTextRectangle": 14.325393434119722,
+			"required": 4.5
+		},
+		{
+			"capture": "after-win-1280-dpr3",
+			"label": "\u041f\u041e\u0411\u0415\u0414\u0410",
+			"corePixels": 5442,
+			"minimumCoreContrast": 14.127199841556106,
+			"minimumInkVsEntireTextRectangle": 13.99483050440427,
+			"required": 4.5
+		},
+		{
+			"capture": "after-win-1280-dpr3",
+			"label": "\u0423 \u0441\u043e\u043f\u0435\u0440\u043d\u0438\u043a\u0430 \u043d\u0435 \u043e\u0441\u0442\u0430\u043b\u043e\u0441\u044c \u0448\u0430\u0448\u0435\u043a",
+			"corePixels": 3378,
+			"minimumCoreContrast": 14.70612763639599,
+			"minimumInkVsEntireTextRectangle": 14.877543188833522,
+			"required": 4.5
+		},
+		{
+			"capture": "after-win-1280-dpr3",
+			"label": "\u0415\u0449\u0451 \u043f\u0430\u0440\u0442\u0438\u044f",
+			"corePixels": 4377,
+			"minimumCoreContrast": 13.926045839366122,
+			"minimumInkVsEntireTextRectangle": 13.700076008174678,
+			"required": 4.5
+		},
+		{
+			"capture": "after-win-1280-dpr3",
+			"label": "\u041f\u043e\u0441\u043c\u043e\u0442\u0440\u0435\u0442\u044c \u0434\u043e\u0441\u043a\u0443",
+			"corePixels": 2490,
+			"minimumCoreContrast": 13.792839285842273,
+			"minimumInkVsEntireTextRectangle": 14.086251388022948,
+			"required": 4.5
+		},
+		{
+			"capture": "after-win-1280-dpr3",
+			"label": "\u0412 \u043c\u0435\u043d\u044e",
+			"corePixels": 832,
+			"minimumCoreContrast": 13.415719276812283,
+			"minimumInkVsEntireTextRectangle": 13.518489395470132,
+			"required": 4.5
+		},
+		{
+			"capture": "after-draw-1280-dpr3",
+			"label": "\u041f\u0410\u0420\u0422\u0418\u042f \u0417\u0410\u0412\u0415\u0420\u0428\u0415\u041d\u0410",
+			"corePixels": 1520,
+			"minimumCoreContrast": 14.804198867041093,
+			"minimumInkVsEntireTextRectangle": 14.325393434119722,
+			"required": 4.5
+		},
+		{
+			"capture": "after-draw-1280-dpr3",
+			"label": "\u041d\u0418\u0427\u042c\u042f",
+			"corePixels": 5152,
+			"minimumCoreContrast": 14.101017420528574,
+			"minimumInkVsEntireTextRectangle": 13.99483050440427,
+			"required": 4.5
+		},
+		{
+			"capture": "after-draw-1280-dpr3",
+			"label": "\u041f\u043e\u0437\u0438\u0446\u0438\u044f \u043f\u043e\u0432\u0442\u043e\u0440\u0438\u043b\u0430\u0441\u044c \u0442\u0440\u0438\u0436\u0434\u044b",
+			"corePixels": 3386,
+			"minimumCoreContrast": 15.060385476370554,
+			"minimumInkVsEntireTextRectangle": 14.877543188833522,
+			"required": 4.5
+		},
+		{
+			"capture": "after-draw-1280-dpr3",
+			"label": "\u0415\u0449\u0451 \u043f\u0430\u0440\u0442\u0438\u044f",
+			"corePixels": 4377,
+			"minimumCoreContrast": 13.926045839366122,
+			"minimumInkVsEntireTextRectangle": 13.700076008174678,
+			"required": 4.5
+		},
+		{
+			"capture": "after-draw-1280-dpr3",
+			"label": "\u041f\u043e\u0441\u043c\u043e\u0442\u0440\u0435\u0442\u044c \u0434\u043e\u0441\u043a\u0443",
+			"corePixels": 2490,
+			"minimumCoreContrast": 13.792839285842273,
+			"minimumInkVsEntireTextRectangle": 14.086251388022948,
+			"required": 4.5
+		},
+		{
+			"capture": "after-draw-1280-dpr3",
+			"label": "\u0412 \u043c\u0435\u043d\u044e",
+			"corePixels": 832,
+			"minimumCoreContrast": 13.415719276812283,
+			"minimumInkVsEntireTextRectangle": 13.518489395470132,
+			"required": 4.5
+		}
+	],
+	"minimumCore": 13.415719276812283,
+	"minimumRectangle": 13.518489395470132
+}

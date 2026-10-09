@@ -1,0 +1,37 @@
+{
+  "task": "t_1577b2be",
+  "date": "2026-10-08",
+  "mode": "built-in image_gen only",
+  "purpose": "unapproved preview, not production",
+  "call_limit_total": 1,
+  "call_budget_reserved": true,
+  "status": "completed; single call consumed; no retries",
+  "references_inspected_with_view_image": [
+    "src/client/app/ui/bunker/panel-own-face-prepared.webp",
+    "src/client/app/ui/siege/cassette-title.png",
+    "src/client/app/ui/siege/button-steel-desk-rest.webp",
+    "src/client/app/ui/siege/panel-revision2/frame.png"
+  ],
+  "project_AGENTS_found": false,
+  "calls_attempted": 1,
+  "calls_succeeded": 1,
+  "tool": "image_gen.imagegen",
+  "actual_result": {
+    "mime_type": "image/png",
+    "width": 1145,
+    "height": 1374,
+    "png_color_type": 6,
+    "source_path": "/home/hermes/.codex-account1/generated_images/01a11c0e-10c1-7210-af42-e4699f4ea4bb/exec-b7681227-7fce-4ad4-8823-a0532ab593f8.png",
+    "saved_path": "docs/preview-t_1577b2be/native-original.png",
+    "bytes": 2320375,
+    "sha256": "1aea9466cadb4c9e4e3a693654d089d69cf4ef21aef0ad26d87f680743250bd0",
+    "native_original_byte_copy": true
+  },
+  "review": {
+    "three_distinct_blank_recesses": true,
+    "four_separate_buttons": true,
+    "button_order": "idle, hover, pressed, disabled, top to bottom",
+    "no_baked_text_observed": true,
+    "limitation": "Generated corners and outlines have small differences between states; exact invariant corners and production 9-slice geometry are not validated. Preview only."
+  }
+}

@@ -1,0 +1,206 @@
+[
+	{
+		"width": 390,
+		"dpr": 2,
+		"tier": "primary",
+		"pixels": [732, 128],
+		"rgbaHashes": {
+			"rest": "13572bd5ebc6a8d8d06a523f45b62483fafb49a0e0298a4ca2fa906cd6016a12",
+			"hover": "8fa172e6c424a4b0f4b46bc19f4a6308479fd27bc42f878e0486b9cf615b51ef",
+			"pressed": "da612dc40492ad4b4e3ba5a467bfc22ce81bfe3f8d50554fb8f8b1960b1e132a",
+			"disabled": "72189e9169a0b0a7d24cb462c337e2c8dcf3f01779acd2131962df56035dae11"
+		},
+		"pixelsChangedFromRestByMoreThan3": {
+			"hover": 54539,
+			"pressed": 73396,
+			"disabled": 65352
+		}
+	},
+	{
+		"width": 390,
+		"dpr": 2,
+		"tier": "secondary",
+		"pixels": [684, 104],
+		"rgbaHashes": {
+			"rest": "ad9443cf15f9c51ddf46a70cba666d6ab60689d204a4d0fdfd553f0305e7d96b",
+			"hover": "b3a91159267158bc859f1f2d3c9a8c611b3365fce25d9df0c23ac59cbcd3173c",
+			"pressed": "295bc75c2e9c5412f984d84819014574e8cfdedc193f8dcd425104e7cabeb9f9",
+			"disabled": "2c2b3d90bca8368a600587b7111e6e4a054602b388bf4ecc1f117fdef21ce6c8"
+		},
+		"pixelsChangedFromRestByMoreThan3": {
+			"hover": 25197,
+			"pressed": 58109,
+			"disabled": 38717
+		}
+	},
+	{
+		"width": 390,
+		"dpr": 2,
+		"tier": "quiet",
+		"pixels": [636, 88],
+		"rgbaHashes": {
+			"rest": "0e663666ceefbd9057089c150281bb207692c50155495a05d1b12f35df488371",
+			"hover": "8d72c07e752cd9f986a87c2b164733bc179b8cc645c2ae509d81bd79a291f5e6",
+			"pressed": "955ba083f0f9fda2f04304e6a21621f09ca222e99efcc4e7931ea40ba81dc8b5",
+			"disabled": "31a8a2aefe3342ba5fbda5bc6f537e0b3868135d1f0ced9ce4b3f30cccb16e95"
+		},
+		"pixelsChangedFromRestByMoreThan3": {
+			"hover": 22777,
+			"pressed": 23337,
+			"disabled": 44350
+		}
+	},
+	{
+		"width": 390,
+		"dpr": 3,
+		"tier": "primary",
+		"pixels": [1098, 192],
+		"rgbaHashes": {
+			"rest": "62f1a803ce374ba7141b97822979a311ca5831ab80fe871d2074f26c897acec4",
+			"hover": "d17fc906db9cb8881d8f331f0ea7d5dc5a9ff9f4179924587efa7fdf940c7adb",
+			"pressed": "dfa177a12e01216f52e7083f3fcfd9e14d6a95bd8997e3ce5e4b7b52bae15efe",
+			"disabled": "c5bb320f3db662015f88d11333c123b93bc0d9355923190b9f842ad3b4ed3a55"
+		},
+		"pixelsChangedFromRestByMoreThan3": {
+			"hover": 122997,
+			"pressed": 165542,
+			"disabled": 147503
+		}
+	},
+	{
+		"width": 390,
+		"dpr": 3,
+		"tier": "secondary",
+		"pixels": [1026, 156],
+		"rgbaHashes": {
+			"rest": "1049812d2b06c9ae0ad8dc0a3c968ddd6b0fb171e3c8ed5278708293c1b15849",
+			"hover": "39e3104820738264fcd3c35d44ccec3ba8bf8f30a909b5b3492a60e07444949e",
+			"pressed": "3eaac52824bac82e1f202eb1a331cbeb662ca6d93df96ce40dc5812c8eb74049",
+			"disabled": "b9d5df82879a3906a16b68ceb67d79dc06f089e04ce29ab1009beecd25e1e85c"
+		},
+		"pixelsChangedFromRestByMoreThan3": {
+			"hover": 56006,
+			"pressed": 129528,
+			"disabled": 86591
+		}
+	},
+	{
+		"width": 390,
+		"dpr": 3,
+		"tier": "quiet",
+		"pixels": [954, 132],
+		"rgbaHashes": {
+			"rest": "3a86badd709bf3a52ec65bfda1f7b6f970b071195bb5b0402c9a4ab67c1d2e96",
+			"hover": "6380c97b44daae85cf20d19961d24d74885fa51580e102f0985294ca66f85669",
+			"pressed": "4c87308487756a04473ccbb644ddc5a6c9cc16535723c64c1e6ceacab4006203",
+			"disabled": "5aaa7bc3dd34c3e5ac98d5ce2a0c28cc58e231158f8f1dc34106fa0dbe8c20fa"
+		},
+		"pixelsChangedFromRestByMoreThan3": {
+			"hover": 51166,
+			"pressed": 52586,
+			"disabled": 99516
+		}
+	},
+	{
+		"width": 1280,
+		"dpr": 2,
+		"tier": "primary",
+		"pixels": [960, 130],
+		"rgbaHashes": {
+			"rest": "e253e7e9792f49584fa651cd827063f0386eb2a96c6235e53083cbf9804314f9",
+			"hover": "fe27588e5dcf78f771a7ec63c0ff1f1f5f166ef599c219fa8bdc446647cc9c1e",
+			"pressed": "963bda0c017903705b7af17be70614f5276468ba131eab3c8caf22c4650da085",
+			"disabled": "f6e0ee5930e55c766883396933eacdc28ded8150b15e308b3c9f07731cc48495"
+		},
+		"pixelsChangedFromRestByMoreThan3": {
+			"hover": 70947,
+			"pressed": 99232,
+			"disabled": 87817
+		}
+	},
+	{
+		"width": 1280,
+		"dpr": 2,
+		"tier": "secondary",
+		"pixels": [912, 106],
+		"rgbaHashes": {
+			"rest": "752fb07e844a74db52f27e9a14f21ba541d3cab016220035c70a5276b26b3bb1",
+			"hover": "ad5e1a6cadee20484473c4d9869cd18b87813b99d637d913b7cbdae00c13caa5",
+			"pressed": "5dda894825e956dc30fd8daff6154c8eaf62cb85fe5420467157454e318c1b3b",
+			"disabled": "609b462176fd16dfaedb468a4f43bf803c93c91775bbe881878c8c4e39c293a1"
+		},
+		"pixelsChangedFromRestByMoreThan3": {
+			"hover": 32547,
+			"pressed": 79082,
+			"disabled": 51017
+		}
+	},
+	{
+		"width": 1280,
+		"dpr": 2,
+		"tier": "quiet",
+		"pixels": [864, 90],
+		"rgbaHashes": {
+			"rest": "800ffa95029f48635ee2e85bbd4bc913ec0184a01db0d6d1cbe9b9278b116719",
+			"hover": "d77265d044dcc06c86f43a493c0d1bf965253505a1bc640253e4b8f59ab19527",
+			"pressed": "460130e1c320c8c320ef04c432e80e344212a3f0508fd6f56f613f9a736cc896",
+			"disabled": "8fa3ed33f626f4a70835166fd68a463244b34446fd8ab54720d50035cadad97e"
+		},
+		"pixelsChangedFromRestByMoreThan3": {
+			"hover": 31229,
+			"pressed": 32197,
+			"disabled": 63863
+		}
+	},
+	{
+		"width": 1280,
+		"dpr": 3,
+		"tier": "primary",
+		"pixels": [1440, 195],
+		"rgbaHashes": {
+			"rest": "bc0619d34e2ac0f61b39578e28350c049b9b3f6a072b39d4b3acd299d62d966a",
+			"hover": "eb343876c28994185af03021b799f206719a4f200c320378eb6615afd5e70504",
+			"pressed": "5aea4c6ec2039aaeb058e8ff282256b14bd52ef5cf38718f021a234b4d7afd59",
+			"disabled": "cb73a8b52b16058e4f6faca44526c16c85384b00d6ef6b780d13a18220fa752e"
+		},
+		"pixelsChangedFromRestByMoreThan3": {
+			"hover": 159005,
+			"pressed": 221662,
+			"disabled": 195372
+		}
+	},
+	{
+		"width": 1280,
+		"dpr": 3,
+		"tier": "secondary",
+		"pixels": [1368, 159],
+		"rgbaHashes": {
+			"rest": "cee0a9d250fc7e2530390ec2fb24bd49e6a71f6b8fd4eba32fa99a5971fc1bee",
+			"hover": "c3f7751237a722e0b7936132bf633a60c8d38df37284a0ca866d472c9717daa4",
+			"pressed": "ff5832e44dde6e5068fae6ba7537f86daf70e4888d01816e6d6eba7ba96d8f7a",
+			"disabled": "705826c7b3f581edb1fd15c10aff6b032e887c3f7bc3b3b4126242b76dfb257a"
+		},
+		"pixelsChangedFromRestByMoreThan3": {
+			"hover": 72165,
+			"pressed": 176313,
+			"disabled": 114237
+		}
+	},
+	{
+		"width": 1280,
+		"dpr": 3,
+		"tier": "quiet",
+		"pixels": [1296, 135],
+		"rgbaHashes": {
+			"rest": "b6f93e9bbc935a66fb478078bd5681d6abe218a2cb669c679dcdbf33f05920a2",
+			"hover": "7fc3c82a59678cc6ce6f751ccb6727306c7029886cf5e70691adcb64e8f153cc",
+			"pressed": "1b75be0e79d098f9ee31b2c266f18753c6e40dc8afa005cecfe20a827f4478c3",
+			"disabled": "4660e6c3fcfead2c2f4c939fb79204904b9b14199c40e93b0115d2bc3db286c6"
+		},
+		"pixelsChangedFromRestByMoreThan3": {
+			"hover": 69706,
+			"pressed": 71506,
+			"disabled": 142781
+		}
+	}
+]

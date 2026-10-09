@@ -1,0 +1,9 @@
+Use case: precise-object-edit
+Input image 1: EDIT TARGET, the exact existing wide plate. This is a local precise edit, not a redesign.
+Output: ONE transparent PNG containing THREE vertically stacked copies of the entire exact input plate. Each row has the same 3:1 landscape aspect ratio; three equal rows aligned at identical horizontal positions on a square canvas. Preserve real alpha transparency outside the plate silhouettes.
+Preserve all recess contours, both blank recessed panels and their relative heights, rivets, rails, ornaments, metal textures, proportions and geometry pixel-faithfully. All three copies must be geometrically identical to the edit target and to each other. Duplicate the entire plate, including its central divider. Change ONLY the illumination of the existing left and right lamps:
+Top row (WIN state): muted warm brass amber lamps.
+Middle row (LOSS state): almost unlit graphite lamps with faint warm bone highlights.
+Bottom row (DRAW state): softly lit muted bone/brass lamps.
+WIN, LOSS, DRAW are state instructions only; render NO lettering anywhere.
+No red cores, no bright yellow, no neon, no new geometry. Do not alter the lamp housings, plate construction, recesses, surface materials, ornaments, camera angle or perspective. No cropping, no stretching, no added objects, no background, no labels, no watermark. Retain the exact plate design with maximal pixel fidelity.

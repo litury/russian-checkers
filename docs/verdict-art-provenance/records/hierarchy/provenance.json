@@ -1,0 +1,24 @@
+{
+  "tool": "built-in image_gen.imagegen",
+  "initial_generation_calls": 1,
+  "correction_calls": 0,
+  "reference": "docs/preview-t_1577b2be/native-corrected.png",
+  "reference_role": "material and craftsmanship reference",
+  "prompt": "prompt.txt",
+  "output": "raw.png",
+  "raw_bytes_preserved": true,
+  "sha256": "81e9b6a6e966839fd26b8b7c502c08ee1e7676027bdfb1db30330d7a61988a39",
+  "width": 1672,
+  "height": 941,
+  "mode": "RGBA",
+  "alpha_extrema": [
+    0,
+    255
+  ],
+  "requested_dimensions": [
+    3840,
+    2160
+  ],
+  "minimum_requested_width": 3000,
+  "postprocessing": "none"
+}

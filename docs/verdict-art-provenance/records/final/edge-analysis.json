@@ -1,0 +1,33 @@
+{
+	"method": "Paired real-scale black/white browser composites. Native alpha retained. White-background channels must be no darker than corresponding black-background channels (3-level tolerance); catches movement/crop changes between composites. Visual inspection accompanies this check; it is not an artistic-quality or physical-display certification.",
+	"results": [
+		{
+			"width": 390,
+			"dpr": 2,
+			"screenshotPixels": [780, 1688],
+			"nonmonotonicPixels": 0,
+			"partiallyTransmittingPixels": 441866
+		},
+		{
+			"width": 390,
+			"dpr": 3,
+			"screenshotPixels": [1170, 2532],
+			"nonmonotonicPixels": 0,
+			"partiallyTransmittingPixels": 986580
+		},
+		{
+			"width": 1280,
+			"dpr": 2,
+			"screenshotPixels": [2560, 1688],
+			"nonmonotonicPixels": 0,
+			"partiallyTransmittingPixels": 601085
+		},
+		{
+			"width": 1280,
+			"dpr": 3,
+			"screenshotPixels": [3840, 2532],
+			"nonmonotonicPixels": 0,
+			"partiallyTransmittingPixels": 1341448
+		}
+	]
+}

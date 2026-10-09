@@ -1,0 +1,246 @@
+{
+	"method": "Paired button screenshots of actual hover/pressed/disabled states versus text-transparent identical state; solid glyph core pixels only.",
+	"results": [
+		{
+			"capture": "state-primary-rest-390-dpr2",
+			"corePixels": 2593,
+			"minimumCoreContrast": 13.942376322077111
+		},
+		{
+			"capture": "state-primary-hover-390-dpr2",
+			"corePixels": 2593,
+			"minimumCoreContrast": 13.983528509329505
+		},
+		{
+			"capture": "state-primary-pressed-390-dpr2",
+			"corePixels": 2593,
+			"minimumCoreContrast": 14.646595056954922
+		},
+		{
+			"capture": "state-primary-disabled-390-dpr2",
+			"corePixels": 2593,
+			"minimumCoreContrast": 13.740854558067884
+		},
+		{
+			"capture": "state-secondary-rest-390-dpr2",
+			"corePixels": 891,
+			"minimumCoreContrast": 14.0005541908309
+		},
+		{
+			"capture": "state-secondary-hover-390-dpr2",
+			"corePixels": 891,
+			"minimumCoreContrast": 14.351834173780867
+		},
+		{
+			"capture": "state-secondary-pressed-390-dpr2",
+			"corePixels": 891,
+			"minimumCoreContrast": 14.891851125453504
+		},
+		{
+			"capture": "state-secondary-disabled-390-dpr2",
+			"corePixels": 891,
+			"minimumCoreContrast": 13.942022607018517
+		},
+		{
+			"capture": "state-quiet-rest-390-dpr2",
+			"corePixels": 334,
+			"minimumCoreContrast": 13.896624011748074
+		},
+		{
+			"capture": "state-quiet-hover-390-dpr2",
+			"corePixels": 334,
+			"minimumCoreContrast": 13.403521685269693
+		},
+		{
+			"capture": "state-quiet-pressed-390-dpr2",
+			"corePixels": 334,
+			"minimumCoreContrast": 13.533617262262666
+		},
+		{
+			"capture": "state-quiet-disabled-390-dpr2",
+			"corePixels": 334,
+			"minimumCoreContrast": 10.407572991421612
+		},
+		{
+			"capture": "state-primary-rest-390-dpr3",
+			"corePixels": 6388,
+			"minimumCoreContrast": 13.764267887949531
+		},
+		{
+			"capture": "state-primary-hover-390-dpr3",
+			"corePixels": 6388,
+			"minimumCoreContrast": 13.757768165387457
+		},
+		{
+			"capture": "state-primary-pressed-390-dpr3",
+			"corePixels": 6388,
+			"minimumCoreContrast": 14.482018057289881
+		},
+		{
+			"capture": "state-primary-disabled-390-dpr3",
+			"corePixels": 6388,
+			"minimumCoreContrast": 13.562547757051455
+		},
+		{
+			"capture": "state-secondary-rest-390-dpr3",
+			"corePixels": 2490,
+			"minimumCoreContrast": 13.919035687290522
+		},
+		{
+			"capture": "state-secondary-hover-390-dpr3",
+			"corePixels": 2490,
+			"minimumCoreContrast": 14.32611196278216
+		},
+		{
+			"capture": "state-secondary-pressed-390-dpr3",
+			"corePixels": 2490,
+			"minimumCoreContrast": 14.70861827709028
+		},
+		{
+			"capture": "state-secondary-disabled-390-dpr3",
+			"corePixels": 2490,
+			"minimumCoreContrast": 13.80091563842279
+		},
+		{
+			"capture": "state-quiet-rest-390-dpr3",
+			"corePixels": 832,
+			"minimumCoreContrast": 13.903767348395862
+		},
+		{
+			"capture": "state-quiet-hover-390-dpr3",
+			"corePixels": 832,
+			"minimumCoreContrast": 13.533617262262666
+		},
+		{
+			"capture": "state-quiet-pressed-390-dpr3",
+			"corePixels": 832,
+			"minimumCoreContrast": 13.533617262262666
+		},
+		{
+			"capture": "state-quiet-disabled-390-dpr3",
+			"corePixels": 837,
+			"minimumCoreContrast": 10.397427354394546
+		},
+		{
+			"capture": "state-primary-rest-1280-dpr2",
+			"corePixels": 1966,
+			"minimumCoreContrast": 13.872502275536087
+		},
+		{
+			"capture": "state-primary-hover-1280-dpr2",
+			"corePixels": 1966,
+			"minimumCoreContrast": 13.586011982567669
+		},
+		{
+			"capture": "state-primary-pressed-1280-dpr2",
+			"corePixels": 1966,
+			"minimumCoreContrast": 14.431873425053874
+		},
+		{
+			"capture": "state-primary-disabled-1280-dpr2",
+			"corePixels": 1966,
+			"minimumCoreContrast": 13.258006258357439
+		},
+		{
+			"capture": "state-secondary-rest-1280-dpr2",
+			"corePixels": 797,
+			"minimumCoreContrast": 13.926182032640309
+		},
+		{
+			"capture": "state-secondary-hover-1280-dpr2",
+			"corePixels": 797,
+			"minimumCoreContrast": 13.959079895266436
+		},
+		{
+			"capture": "state-secondary-pressed-1280-dpr2",
+			"corePixels": 797,
+			"minimumCoreContrast": 14.382315645034257
+		},
+		{
+			"capture": "state-secondary-disabled-1280-dpr2",
+			"corePixels": 797,
+			"minimumCoreContrast": 13.585690961230476
+		},
+		{
+			"capture": "state-quiet-rest-1280-dpr2",
+			"corePixels": 287,
+			"minimumCoreContrast": 13.428546492006783
+		},
+		{
+			"capture": "state-quiet-hover-1280-dpr2",
+			"corePixels": 287,
+			"minimumCoreContrast": 13.232537381626416
+		},
+		{
+			"capture": "state-quiet-pressed-1280-dpr2",
+			"corePixels": 287,
+			"minimumCoreContrast": 13.23609053269798
+		},
+		{
+			"capture": "state-quiet-disabled-1280-dpr2",
+			"corePixels": 288,
+			"minimumCoreContrast": 10.282198627872152
+		},
+		{
+			"capture": "state-primary-rest-1280-dpr3",
+			"corePixels": 6388,
+			"minimumCoreContrast": 13.711805401837399
+		},
+		{
+			"capture": "state-primary-hover-1280-dpr3",
+			"corePixels": 6388,
+			"minimumCoreContrast": 13.396163966945393
+		},
+		{
+			"capture": "state-primary-pressed-1280-dpr3",
+			"corePixels": 6388,
+			"minimumCoreContrast": 14.318804358053322
+		},
+		{
+			"capture": "state-primary-disabled-1280-dpr3",
+			"corePixels": 6388,
+			"minimumCoreContrast": 13.509631037168925
+		},
+		{
+			"capture": "state-secondary-rest-1280-dpr3",
+			"corePixels": 2490,
+			"minimumCoreContrast": 13.792839285842273
+		},
+		{
+			"capture": "state-secondary-hover-1280-dpr3",
+			"corePixels": 2490,
+			"minimumCoreContrast": 13.970978732141207
+		},
+		{
+			"capture": "state-secondary-pressed-1280-dpr3",
+			"corePixels": 2490,
+			"minimumCoreContrast": 14.340619332243445
+		},
+		{
+			"capture": "state-secondary-disabled-1280-dpr3",
+			"corePixels": 2490,
+			"minimumCoreContrast": 13.463446786562981
+		},
+		{
+			"capture": "state-quiet-rest-1280-dpr3",
+			"corePixels": 832,
+			"minimumCoreContrast": 13.415719276812283
+		},
+		{
+			"capture": "state-quiet-hover-1280-dpr3",
+			"corePixels": 832,
+			"minimumCoreContrast": 13.261408503586221
+		},
+		{
+			"capture": "state-quiet-pressed-1280-dpr3",
+			"corePixels": 832,
+			"minimumCoreContrast": 13.23609053269798
+		},
+		{
+			"capture": "state-quiet-disabled-1280-dpr3",
+			"corePixels": 837,
+			"minimumCoreContrast": 10.12737910926663
+		}
+	],
+	"minimum": 10.12737910926663
+}

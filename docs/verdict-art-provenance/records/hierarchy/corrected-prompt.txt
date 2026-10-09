@@ -1,0 +1,6 @@
+Use case: precise-object-edit.
+Input image 1: edit target, the exact existing hierarchy sheet raw.png.
+Make ONE targeted correction: render this same sheet at true native high resolution, preferred 3840x2160, minimum 3344x1882, with real fine source detail sufficient for each individual button to be at least 1000 source pixels wide for DPR3. Do not merely interpolate or upscale a smaller raster. If native resolution is unavailable, do not claim it.
+Preserve the exact 3-column by 4-row arrangement of twelve buttons, their order, positions, spacing, proportions, fixed symmetric geometry, silhouettes, bevels, fasteners, materials, state variations, and all blank dark inset recesses. Preserve the framing and genuinely transparent background/alpha.
+Columns: left primary retains amber lights; middle secondary has NO lights, only unlit metallic studs; right quiet remains graphite with muted trim and no lights. Preserve these distinctions and all four row states.
+Clean only the thin unwanted green/red/cyan matte fringes on exterior silhouette edges, with precise clean antialiased transparent edges. Preserve fine metal texture and sharp crafted bevels. No broad blur, destructive threshold, halo, colored matte, added text, symbols, ornaments, or layout redesign. Keep all recesses completely blank. Output one corrected sheet.

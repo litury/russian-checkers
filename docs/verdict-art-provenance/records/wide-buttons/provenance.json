@@ -1,0 +1,36 @@
+{
+  "tool": "built-in image_gen",
+  "generation_calls": 1,
+  "intent": "generation using style reference",
+  "style_reference": "docs/preview-t_1577b2be/hierarchy/corrected.png",
+  "prompt_file": "prompt.txt",
+  "original_tool_output": "/home/hermes/.codex-account1/generated_images/01a11c3c-c5c7-7b31-951b-45eb345f6fbd/exec-0046c570-d3cb-46b1-a5c4-842f0a66a1d9.png",
+  "saved_image": "docs/preview-t_1577b2be/wide-buttons/wide-buttons-original.png",
+  "dimensions": {
+    "width": 1448,
+    "height": 1086
+  },
+  "mode": "RGBA",
+  "alpha_extrema": [
+    0,
+    255
+  ],
+  "fully_transparent_pixels": 210960,
+  "sha256": "a7200ae465db59ad679e6eb58df0a22acfd9062071ecfbf18e39d33ca236e371",
+  "postprocessing": "none; original output copied byte-for-byte",
+  "row_order": [
+    "primary rest",
+    "primary hover",
+    "primary pressed",
+    "primary disabled",
+    "secondary rest",
+    "secondary hover",
+    "secondary pressed",
+    "secondary disabled",
+    "quiet rest",
+    "quiet hover",
+    "quiet pressed",
+    "quiet disabled"
+  ],
+  "visual_review": "Twelve full-width plates in one vertical column, no text, dark recesses and rendered state differences. Quiet hover retains a fairly bright silver-gray rim; primary disabled lamps retain a faint amber tint."
+}

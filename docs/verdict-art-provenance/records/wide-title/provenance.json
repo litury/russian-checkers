@@ -1,0 +1,30 @@
+{
+  "task": "t_1577b2be",
+  "tool": "built-in image_gen",
+  "calls": 1,
+  "intent": "generate",
+  "references_role": "style references viewed before generation",
+  "references": [
+    "docs/preview-t_1577b2be/native-corrected.png",
+    "docs/preview-t_1577b2be/player-card-reference.webp"
+  ],
+  "prompt_file": "prompt.txt",
+  "output_file": "wide-title-original.png",
+  "original_preserved_byte_for_byte": true,
+  "sha256": "1e1469e27278d1b0c132e8d583a511649465249f7e2cf15a04b3be8be8fc51e2",
+  "dimensions": [
+    2172,
+    724
+  ],
+  "mode": "RGBA",
+  "alpha_extrema": [
+    0,
+    255
+  ],
+  "transparent_pixels": 389439,
+  "partially_transparent_pixels": 1182883,
+  "opaque_pixels": 206,
+  "native_width_meets_1092": true,
+  "postprocessing": "none",
+  "instructions_note": "No AGENTS.md found in worktree, repository search or checked ancestor directories."
+}

@@ -1,0 +1,76 @@
+{
+  "native-original": {
+    "size": [
+      1145,
+      1374
+    ],
+    "alpha_levels": 256,
+    "transparent": 240130,
+    "opaque": 414,
+    "partial": 1332686,
+    "sha256": "1aea9466cadb4c9e4e3a693654d089d69cf4ef21aef0ad26d87f680743250bd0"
+  },
+  "native-corrected": {
+    "size": [
+      1145,
+      1374
+    ],
+    "alpha_levels": 256,
+    "transparent": 458582,
+    "opaque": 1297,
+    "partial": 1113351,
+    "sha256": "26f3327ae3c2d66ecc4563767df5f7bcc35e302922b3cc8380d291b0ff7303ec"
+  },
+  "crops": {
+    "title": [
+      12,
+      24,
+      1134,
+      565
+    ],
+    "idle": [
+      68,
+      578,
+      1077,
+      755
+    ],
+    "hover": [
+      68,
+      755,
+      1077,
+      932
+    ],
+    "pressed": [
+      68,
+      932,
+      1077,
+      1109
+    ],
+    "disabled": [
+      68,
+      1109,
+      1077,
+      1286
+    ]
+  },
+  "slice": {
+    "source_columns": [
+      160,
+      689,
+      160
+    ],
+    "source_rows": [
+      45,
+      87,
+      45
+    ],
+    "display_scale": 0.3,
+    "fixed_corner_css": [
+      48,
+      13.5
+    ],
+    "native_alpha_untouched": true,
+    "lossless_rgba_roundtrip": true,
+    "button_alignment": "common 1009x177 crop; no independent bbox normalization"
+  }
+}

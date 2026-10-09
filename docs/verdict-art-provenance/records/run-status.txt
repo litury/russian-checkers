@@ -1,0 +1,23 @@
+t_1577b2be — авторский промежуточный отчёт, 2026-10-08
+
+База/HEAD: a97b8d012d4de8b35a5dc414e22ce4f288fb4a52.
+Ветка: wt/t_1577b2be. Runtime, index и чужие файлы не изменены.
+Граница согласована: boardVerdict.* и ui/verdict. ui/result, resultCeremony.*, orcResult.*, result-art не трогать.
+
+Реальные результаты
+- npm ci: exit 0, 46 packages, 0 vulnerabilities.
+- npm test -- src/client/app/verdictSprites.spec.ts src/client/app/boardVerdictRuntime.spec.ts: exit 0, 2 files / 14 tests.
+- npm run build: exit 0. Это исходный runtime, не новый кандидат.
+- Штатный cx exec: built-in imagegen действительно выполнил initial generation и одну targeted correction новой иерархии (12 плит: три уровня × четыре состояния).
+- Файлы hierarchy/raw.png и hierarchy/corrected.png сохранены как неизменённые raw вместе с prompts/provenance.
+- Оба output 1672×941 вместо запрошенного 3840×2160; corrected-provenance.json явно minimum_resolution_met=false. На трёх колонках ширина отдельной кнопки примерно 530 исходных пикселей, не требуемый full-width DPR3 master. Фиксированные 9-slice углы сами по себе можно обеспечить этой плотностью, но нативная детальность всей пластины и удаление matte fringe не подтверждены.
+- Визуальный осмотр: иерархия primary amber / secondary brass без ламп / quiet graphite есть. Тонкие зелёно-жёлтые и красные fringes по верхним/нижним кромкам остались после correction. Без разрушительного threshold/blur и без кодового дорисовывания не исправлены.
+
+Браузер
+Изолированный headless Chrome с временным профилем, только локальная игра, HTTP allowlist и закрытые WebSockets. Сценарий loss снят настоящими кликами Играть → Сдаться → подтвердить: before-loss-390-dpr2.png. Win/draw в capture-live.cjs запланированы как явно управляемые вызовы реального GameScene, не настоящие выигранные партии. Полная матрица не получена: начальный harness не сбрасывал resultPresented; исправленный повтор затем остановился на disabled match-resign/data-art-cold. Таймауты не считаю PASS. Собственный Vite остановлен; чужие процессы не затрагивались.
+
+Нужное решение
+Разрешить дополнительный ограниченный бюджет built-in imagegen для отдельных широких master-плит вместо 3-column sheet и точечной коррекции alpha, либо явно одобрить сохраняющиеся fringe/низкую нативную плотность как изменение требований. Текущий initial + one correction лимит новой иерархии исчерпан; самовольно новые платные вызовы/resize не запускаю. По неподходящему арту не заменяю runtime и не удаляю старые ui/verdict.
+
+Не выполнено
+Интеграция 9-slice, замена/удаление старых ассетов, прогрев, все after кадры, контраст, live-вес/число запросов нового набора, двухклиентный online, независимый QA, commit/push/deploy. В main не публиковалось.

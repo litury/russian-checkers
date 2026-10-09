@@ -1,0 +1,17 @@
+Use case: ui-mockup
+Asset type: one production game UI sprite sheet, 12 blank horizontal button plates.
+Input image 1: material and craftsmanship reference only, native-corrected.png. Use its lower horizontal buttons as the shape/material inspiration; do not reproduce its large panel or original layout.
+Scene/backdrop: genuinely transparent RGBA background, fully transparent generous gutters and outer margins. No background color, checkerboard, matte, colored edge halos, cast shadows outside silhouettes, labels, lettering, numbers, symbols, icons, or watermarks.
+Primary request: generate exactly ONE sprite sheet of exactly 12 separate horizontal button plates arranged in a strict 3-column by 4-row grid. Columns from left to right: primary, secondary, quiet. Rows top to bottom: idle, hover, pressed, disabled. Do not render these names.
+Output: request 3840 x 2160 pixels, at least 3000 pixels wide if supported, retain genuine alpha transparency.
+Geometry: divide the full canvas into 3 equal columns and 4 equal rows. Each of the 12 equal crop cells must have exactly identical canvas geometry, plate size, alignment and padding. Center one wide horizontal plate in each cell, approximately 1120 x 240 pixels within each 1280 x 540 cell at the requested size. Match identical outer silhouettes and symmetric fixed beveled corner profiles across all 12 sprites. Keep corners and outer frame fixed between states; paint state changes inside that geometry. Front-facing orthographic UI assets, no perspective. Wide uninterrupted blank graphite text recess, about 75 percent of plate width. Generous completely transparent separators; no touching, overlapping, or clipping.
+Materials/style: preserve reference's warm aged brass and dark graphite, fine worn metal texture, crisp bevels and restrained physically painted highlights. Clear hierarchy:
+LEFT COLUMN PRIMARY: strongest warm brass structure with symmetrical inset amber lamps visibly lit in all four states. Disabled primary retains subdued amber lamps and its own brass/graphite identity.
+MIDDLE COLUMN SECONDARY: subdued muted brass rim and graphite body, corresponding inset lamp housings always unlit, no emissive edge or glow.
+RIGHT COLUMN QUIET: darkest plain graphite, restrained simple graphite bevels, no lamps or lamp housings, no prominent brass ornaments. Preserve the same outer shape and overall dimensions.
+States must each be individually painted, never brightness-filter duplicates:
+ROW 1 IDLE: natural resting bevel, recess and material balance.
+ROW 2 HOVER: freshly articulated upper and inner bevel highlights, attentive inset rim and distinct localized surface reflections; preserve each column's hierarchy and lamp rules.
+ROW 3 PRESSED: visibly deeper seated blank face, compressed inner bevel and upper occlusion with distinct lower reflected edge; outer corners and silhouette remain fixed.
+ROW 4 DISABLED: distinct dry, worn, dulled metal surface and flatter recessed face treatment with restrained reflections, still clearly readable as three different materials/hierarchy levels, not a uniform gray or opacity filter.
+Constraints: all 12 button plates remain wholly blank. Symmetric fixed corners. Preserve warm brass and graphite reference material. No lettering or symbols anywhere. Clean alpha edges without colored matte contamination. Only this single sheet.

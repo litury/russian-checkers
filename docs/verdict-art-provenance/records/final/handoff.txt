@@ -1,0 +1,11 @@
+t_1577b2be — кандидат на независимый QA
+SHA: e50f35270536708423b6374c1763a6b4b3262d09
+Ветка: wt/t_1577b2be; база a97b8d012d4de8b35a5dc414e22ce4f288fb4a52.
+В этом запуске выполнены 2 из 3 разрешённых imagegen calls через cx; correction не использован. Raw/prompts/provenance сохранены в ../wide-title и ../wide-buttons. Дополнительная coding-сессия новых imagegen calls не делала.
+Срез: boardVerdict.*, ui/verdict, прогрев и целевые тесты. Терминальную ceremony/orcResult/ui/result не менял.
+13 lossless WebP: двухпазовая плита и 3 уровня × 4 состояния. Фиксированные DPR3 углы 9-slice, без фильтров и рисованных CSS-материалов. Старые runtime-файлы удалены; исходные архивы сохранены в baseline и git-истории.
+Лично повторённый тестовый прогон: 5 файлов / 50 тестов, exit 0. git diff --check exit 0. Полная контролируемая браузерная матрица проверена счётчиком JSON: 12 before + 12 after. Авторская coding-сессия выполнила build exit 0 и 48 Playwright geometry cases exit 0. Scoped biome exit 0, но общий npm run check exit 1 (430 errors), не заявляю общий lint PASS.
+Визуально осмотрены mobile loss и desktop win. Измеренный минимум контраста состояний 10.1274:1. Детальные измерения и ограничения — report.txt и JSON рядом.
+Матрица контролируемого runtime поверх реальных GameScene/board/HUD, не завершённые партии. Независимый QA, онлайн двух клиентов, опубликованная сеть, rebase/integration, push и deploy НЕ выполнены. Живые сценарии и сетевой вес опубликованной сборки переданы QA согласно последнему решению координатора.
+Preview: /home/hermes/projects/russian-checkers/.worktrees/t_1577b2be/docs/preview-t_1577b2be/final/index.html
+Собственные серверы/браузеры coding-сессии закрыты. Commit только в task-ветке; main не изменялся.

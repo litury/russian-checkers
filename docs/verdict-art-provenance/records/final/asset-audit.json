@@ -1,0 +1,89 @@
+{
+	"masters": {
+		"wide-title": {
+			"sha256": "1e1469e27278d1b0c132e8d583a511649465249f7e2cf15a04b3be8be8fc51e2",
+			"unchanged": true
+		},
+		"wide-buttons": {
+			"sha256": "a7200ae465db59ad679e6eb58df0a22acfd9062071ecfbf18e39d33ca236e371",
+			"unchanged": true
+		}
+	},
+	"crops": [
+		{
+			"name": "title",
+			"exactRGBA": true,
+			"bytes": 1306182
+		},
+		{
+			"name": "primary-rest",
+			"exactRGBA": true,
+			"bytes": 118092
+		},
+		{
+			"name": "primary-hover",
+			"exactRGBA": true,
+			"bytes": 131358
+		},
+		{
+			"name": "primary-pressed",
+			"exactRGBA": true,
+			"bytes": 118050
+		},
+		{
+			"name": "primary-disabled",
+			"exactRGBA": true,
+			"bytes": 112068
+		},
+		{
+			"name": "secondary-rest",
+			"exactRGBA": true,
+			"bytes": 110222
+		},
+		{
+			"name": "secondary-hover",
+			"exactRGBA": true,
+			"bytes": 117958
+		},
+		{
+			"name": "secondary-pressed",
+			"exactRGBA": true,
+			"bytes": 107752
+		},
+		{
+			"name": "secondary-disabled",
+			"exactRGBA": true,
+			"bytes": 112242
+		},
+		{
+			"name": "quiet-rest",
+			"exactRGBA": true,
+			"bytes": 97060
+		},
+		{
+			"name": "quiet-hover",
+			"exactRGBA": true,
+			"bytes": 108284
+		},
+		{
+			"name": "quiet-pressed",
+			"exactRGBA": true,
+			"bytes": 96468
+		},
+		{
+			"name": "quiet-disabled",
+			"exactRGBA": true,
+			"bytes": 102056
+		}
+	],
+	"retiredPreserved": [
+		"frame-win.webp",
+		"frame-loss.webp",
+		"frame-draw.webp",
+		"master.png",
+		"prompt.txt",
+		"provenance.json"
+	],
+	"baselineCodeByteExact": true,
+	"runtimeWebPBytes": 2637792
+}

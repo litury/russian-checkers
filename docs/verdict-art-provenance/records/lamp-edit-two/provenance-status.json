@@ -1,0 +1,29 @@
+{
+  "mode": "built-in image_gen edit",
+  "image_edit_calls": 1,
+  "sole_edit_target": "docs/preview-t_1577b2be/wide-title/wide-title-original.png",
+  "raw_output": "docs/preview-t_1577b2be/lamp-edit-two/raw-original.png",
+  "generator_source": "/home/hermes/.codex-account1/generated_images/01a11eb1-fd1d-73f3-85c6-a6fec40b6e94/exec-58cf4c78-5458-4454-b860-74c6ae2a9baf.png",
+  "prompt": "prompt.txt",
+  "source_sha256": "1e1469e27278d1b0c132e8d583a511649465249f7e2cf15a04b3be8be8fc51e2",
+  "raw_output_sha256": "f559e1517cd7fe844e4ff307655bf7a87868bcae95ba59bc15d7cea12986a177",
+  "output_dimensions": [
+    1024,
+    1536
+  ],
+  "output_mode": "RGBA",
+  "alpha_extrema": [
+    0,
+    254
+  ],
+  "status": "Does not satisfy all requested constraints. Raw output retained without alteration.",
+  "visual_review": [
+    "Three vertically stacked plates with two recesses each.",
+    "Background is visibly rendered rather than transparent.",
+    "Bottom lamp interiors have bright pale cores, exceeding requested dim warm bone.",
+    "Exact original geometry and identical copies are not established; source pixel dimensions were not preserved."
+  ],
+  "postprocessing": "None; byte-for-byte copy of generated PNG.",
+  "further_image_calls": 0,
+  "runtime_edits": false
+}

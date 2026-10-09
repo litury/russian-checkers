@@ -1,0 +1,242 @@
+[
+  {
+    "width": 390,
+    "dpr": 2,
+    "outcome": "win",
+    "checks": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОБЕДА",
+        "contained": true
+      },
+      {
+        "text": "У соперника закончилось время",
+        "contained": true
+      }
+    ],
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "dpr": 2,
+    "outcome": "loss",
+    "checks": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОРАЖЕНИЕ",
+        "contained": true
+      },
+      {
+        "text": "У вас закончилось время",
+        "contained": true
+      }
+    ],
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "dpr": 2,
+    "outcome": "draw",
+    "checks": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "НИЧЬЯ",
+        "contained": true
+      },
+      {
+        "text": "Ничья по правилам",
+        "contained": true
+      }
+    ],
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "dpr": 3,
+    "outcome": "win",
+    "checks": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОБЕДА",
+        "contained": true
+      },
+      {
+        "text": "У соперника закончилось время",
+        "contained": true
+      }
+    ],
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "dpr": 3,
+    "outcome": "loss",
+    "checks": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОРАЖЕНИЕ",
+        "contained": true
+      },
+      {
+        "text": "У вас закончилось время",
+        "contained": true
+      }
+    ],
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "dpr": 3,
+    "outcome": "draw",
+    "checks": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "НИЧЬЯ",
+        "contained": true
+      },
+      {
+        "text": "Ничья по правилам",
+        "contained": true
+      }
+    ],
+    "overflow": false
+  },
+  {
+    "width": 1280,
+    "dpr": 2,
+    "outcome": "win",
+    "checks": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОБЕДА",
+        "contained": true
+      },
+      {
+        "text": "У соперника закончилось время",
+        "contained": true
+      }
+    ],
+    "overflow": false
+  },
+  {
+    "width": 1280,
+    "dpr": 2,
+    "outcome": "loss",
+    "checks": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОРАЖЕНИЕ",
+        "contained": true
+      },
+      {
+        "text": "У вас закончилось время",
+        "contained": true
+      }
+    ],
+    "overflow": false
+  },
+  {
+    "width": 1280,
+    "dpr": 2,
+    "outcome": "draw",
+    "checks": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "НИЧЬЯ",
+        "contained": true
+      },
+      {
+        "text": "Ничья по правилам",
+        "contained": true
+      }
+    ],
+    "overflow": false
+  },
+  {
+    "width": 1280,
+    "dpr": 3,
+    "outcome": "win",
+    "checks": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОБЕДА",
+        "contained": true
+      },
+      {
+        "text": "У соперника закончилось время",
+        "contained": true
+      }
+    ],
+    "overflow": false
+  },
+  {
+    "width": 1280,
+    "dpr": 3,
+    "outcome": "loss",
+    "checks": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОРАЖЕНИЕ",
+        "contained": true
+      },
+      {
+        "text": "У вас закончилось время",
+        "contained": true
+      }
+    ],
+    "overflow": false
+  },
+  {
+    "width": 1280,
+    "dpr": 3,
+    "outcome": "draw",
+    "checks": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "НИЧЬЯ",
+        "contained": true
+      },
+      {
+        "text": "Ничья по правилам",
+        "contained": true
+      }
+    ],
+    "overflow": false
+  }
+]

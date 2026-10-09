@@ -1,0 +1,4334 @@
+[
+	{
+		"name": "before-loss-390-dpr2",
+		"phase": "before",
+		"width": 390,
+		"dpr": 2,
+		"outcome": "loss",
+		"scenario": "controlled runtime: explicit createResultOverlay over actual GameScene board; no completed match",
+		"geometry": {
+			"panel": {
+				"x": 18,
+				"y": 516.5,
+				"width": 354,
+				"height": 303.5,
+				"right": 372,
+				"bottom": 820
+			},
+			"labels": [
+				{
+					"text": "ПАРТИЯ ЗАВЕРШЕНА",
+					"selector": ".verdict-eyebrow",
+					"box": {
+						"x": 43,
+						"y": 549.5,
+						"width": 304,
+						"height": 11,
+						"right": 347,
+						"bottom": 560.5
+					},
+					"textBox": {
+						"x": 125.015625,
+						"y": 549.5,
+						"width": 139.953125,
+						"height": 11,
+						"right": 264.96875,
+						"bottom": 560.5
+					},
+					"color": "rgb(182, 182, 168)",
+					"overflow": false
+				},
+				{
+					"text": "ПОРАЖЕНИЕ",
+					"selector": "#verdict-heading",
+					"box": {
+						"x": 43,
+						"y": 567.5,
+						"width": 304,
+						"height": 32.5,
+						"right": 347,
+						"bottom": 600
+					},
+					"textBox": {
+						"x": 104,
+						"y": 564.5,
+						"width": 182,
+						"height": 37,
+						"right": 286,
+						"bottom": 601.5
+					},
+					"color": "rgb(182, 201, 206)",
+					"overflow": false
+				},
+				{
+					"text": "У вас закончилось время",
+					"selector": "#verdict-reason",
+					"box": {
+						"x": 43,
+						"y": 607,
+						"width": 304,
+						"height": 24,
+						"right": 347,
+						"bottom": 631
+					},
+					"textBox": {
+						"x": 102.90625,
+						"y": 609,
+						"width": 184.1875,
+						"height": 16,
+						"right": 287.09375,
+						"bottom": 625
+					},
+					"color": "rgb(208, 210, 200)",
+					"overflow": false
+				},
+				{
+					"text": "Ещё партия",
+					"selector": "[data-verdict=\"again\"]",
+					"box": {
+						"x": 43,
+						"y": 647,
+						"width": 304,
+						"height": 44,
+						"right": 347,
+						"bottom": 691
+					},
+					"textBox": {
+						"x": 145.0625,
+						"y": 659.5,
+						"width": 99.875,
+						"height": 19,
+						"right": 244.9375,
+						"bottom": 678.5
+					},
+					"color": "rgb(244, 239, 228)",
+					"overflow": false
+				},
+				{
+					"text": "Посмотреть доску",
+					"selector": "[data-verdict=\"board\"]",
+					"box": {
+						"x": 43,
+						"y": 697,
+						"width": 304,
+						"height": 44,
+						"right": 347,
+						"bottom": 741
+					},
+					"textBox": {
+						"x": 137.09375,
+						"y": 712,
+						"width": 115.8125,
+						"height": 14,
+						"right": 252.90625,
+						"bottom": 726
+					},
+					"color": "rgb(244, 239, 228)",
+					"overflow": false
+				},
+				{
+					"text": "В меню",
+					"selector": "[data-verdict=\"menu\"]",
+					"box": {
+						"x": 43,
+						"y": 747,
+						"width": 304,
+						"height": 44,
+						"right": 347,
+						"bottom": 791
+					},
+					"textBox": {
+						"x": 171.78125,
+						"y": 762,
+						"width": 46.4375,
+						"height": 14,
+						"right": 218.21875,
+						"bottom": 776
+					},
+					"color": "rgb(195, 197, 185)",
+					"overflow": false
+				}
+			],
+			"upper": null,
+			"lower": null,
+			"overflow": false
+		},
+		"errors": [],
+		"blockedExternalRequests": 23
+	},
+	{
+		"name": "before-win-390-dpr2",
+		"phase": "before",
+		"width": 390,
+		"dpr": 2,
+		"outcome": "win",
+		"scenario": "controlled runtime: explicit createResultOverlay over actual GameScene board; no completed match",
+		"geometry": {
+			"panel": {
+				"x": 18,
+				"y": 516.5,
+				"width": 354,
+				"height": 303.5,
+				"right": 372,
+				"bottom": 820
+			},
+			"labels": [
+				{
+					"text": "ПАРТИЯ ЗАВЕРШЕНА",
+					"selector": ".verdict-eyebrow",
+					"box": {
+						"x": 43,
+						"y": 549.5,
+						"width": 304,
+						"height": 11,
+						"right": 347,
+						"bottom": 560.5
+					},
+					"textBox": {
+						"x": 125.015625,
+						"y": 549.5,
+						"width": 139.953125,
+						"height": 11,
+						"right": 264.96875,
+						"bottom": 560.5
+					},
+					"color": "rgb(182, 182, 168)",
+					"overflow": false
+				},
+				{
+					"text": "ПОБЕДА",
+					"selector": "#verdict-heading",
+					"box": {
+						"x": 43,
+						"y": 567.5,
+						"width": 304,
+						"height": 32.5,
+						"right": 347,
+						"bottom": 600
+					},
+					"textBox": {
+						"x": 137.5,
+						"y": 564.5,
+						"width": 115,
+						"height": 37,
+						"right": 252.5,
+						"bottom": 601.5
+					},
+					"color": "rgb(217, 192, 139)",
+					"overflow": false
+				},
+				{
+					"text": "У соперника не осталось шашек",
+					"selector": "#verdict-reason",
+					"box": {
+						"x": 43,
+						"y": 607,
+						"width": 304,
+						"height": 24,
+						"right": 347,
+						"bottom": 631
+					},
+					"textBox": {
+						"x": 74.984375,
+						"y": 609,
+						"width": 240.03125,
+						"height": 16,
+						"right": 315.015625,
+						"bottom": 625
+					},
+					"color": "rgb(208, 210, 200)",
+					"overflow": false
+				},
+				{
+					"text": "Ещё партия",
+					"selector": "[data-verdict=\"again\"]",
+					"box": {
+						"x": 43,
+						"y": 647,
+						"width": 304,
+						"height": 44,
+						"right": 347,
+						"bottom": 691
+					},
+					"textBox": {
+						"x": 145.0625,
+						"y": 659.5,
+						"width": 99.875,
+						"height": 19,
+						"right": 244.9375,
+						"bottom": 678.5
+					},
+					"color": "rgb(244, 239, 228)",
+					"overflow": false
+				},
+				{
+					"text": "Посмотреть доску",
+					"selector": "[data-verdict=\"board\"]",
+					"box": {
+						"x": 43,
+						"y": 697,
+						"width": 304,
+						"height": 44,
+						"right": 347,
+						"bottom": 741
+					},
+					"textBox": {
+						"x": 137.09375,
+						"y": 712,
+						"width": 115.8125,
+						"height": 14,
+						"right": 252.90625,
+						"bottom": 726
+					},
+					"color": "rgb(244, 239, 228)",
+					"overflow": false
+				},
+				{
+					"text": "В меню",
+					"selector": "[data-verdict=\"menu\"]",
+					"box": {
+						"x": 43,
+						"y": 747,
+						"width": 304,
+						"height": 44,
+						"right": 347,
+						"bottom": 791
+					},
+					"textBox": {
+						"x": 171.78125,
+						"y": 762,
+						"width": 46.4375,
+						"height": 14,
+						"right": 218.21875,
+						"bottom": 776
+					},
+					"color": "rgb(195, 197, 185)",
+					"overflow": false
+				}
+			],
+			"upper": null,
+			"lower": null,
+			"overflow": false
+		},
+		"errors": [],
+		"blockedExternalRequests": 26
+	},
+	{
+		"name": "before-draw-390-dpr2",
+		"phase": "before",
+		"width": 390,
+		"dpr": 2,
+		"outcome": "draw",
+		"scenario": "controlled runtime: explicit createResultOverlay over actual GameScene board; no completed match",
+		"geometry": {
+			"panel": {
+				"x": 18,
+				"y": 516.5,
+				"width": 354,
+				"height": 303.5,
+				"right": 372,
+				"bottom": 820
+			},
+			"labels": [
+				{
+					"text": "ПАРТИЯ ЗАВЕРШЕНА",
+					"selector": ".verdict-eyebrow",
+					"box": {
+						"x": 43,
+						"y": 549.5,
+						"width": 304,
+						"height": 11,
+						"right": 347,
+						"bottom": 560.5
+					},
+					"textBox": {
+						"x": 125.015625,
+						"y": 549.5,
+						"width": 139.953125,
+						"height": 11,
+						"right": 264.96875,
+						"bottom": 560.5
+					},
+					"color": "rgb(182, 182, 168)",
+					"overflow": false
+				},
+				{
+					"text": "НИЧЬЯ",
+					"selector": "#verdict-heading",
+					"box": {
+						"x": 43,
+						"y": 567.5,
+						"width": 304,
+						"height": 32.5,
+						"right": 347,
+						"bottom": 600
+					},
+					"textBox": {
+						"x": 144,
+						"y": 564.5,
+						"width": 102,
+						"height": 37,
+						"right": 246,
+						"bottom": 601.5
+					},
+					"color": "rgb(210, 211, 200)",
+					"overflow": false
+				},
+				{
+					"text": "Позиция повторилась трижды",
+					"selector": "#verdict-reason",
+					"box": {
+						"x": 43,
+						"y": 607,
+						"width": 304,
+						"height": 24,
+						"right": 347,
+						"bottom": 631
+					},
+					"textBox": {
+						"x": 82.375,
+						"y": 609,
+						"width": 225.234375,
+						"height": 16,
+						"right": 307.609375,
+						"bottom": 625
+					},
+					"color": "rgb(208, 210, 200)",
+					"overflow": false
+				},
+				{
+					"text": "Ещё партия",
+					"selector": "[data-verdict=\"again\"]",
+					"box": {
+						"x": 43,
+						"y": 647,
+						"width": 304,
+						"height": 44,
+						"right": 347,
+						"bottom": 691
+					},
+					"textBox": {
+						"x": 145.0625,
+						"y": 659.5,
+						"width": 99.875,
+						"height": 19,
+						"right": 244.9375,
+						"bottom": 678.5
+					},
+					"color": "rgb(244, 239, 228)",
+					"overflow": false
+				},
+				{
+					"text": "Посмотреть доску",
+					"selector": "[data-verdict=\"board\"]",
+					"box": {
+						"x": 43,
+						"y": 697,
+						"width": 304,
+						"height": 44,
+						"right": 347,
+						"bottom": 741
+					},
+					"textBox": {
+						"x": 137.09375,
+						"y": 712,
+						"width": 115.8125,
+						"height": 14,
+						"right": 252.90625,
+						"bottom": 726
+					},
+					"color": "rgb(244, 239, 228)",
+					"overflow": false
+				},
+				{
+					"text": "В меню",
+					"selector": "[data-verdict=\"menu\"]",
+					"box": {
+						"x": 43,
+						"y": 747,
+						"width": 304,
+						"height": 44,
+						"right": 347,
+						"bottom": 791
+					},
+					"textBox": {
+						"x": 171.78125,
+						"y": 762,
+						"width": 46.4375,
+						"height": 14,
+						"right": 218.21875,
+						"bottom": 776
+					},
+					"color": "rgb(195, 197, 185)",
+					"overflow": false
+				}
+			],
+			"upper": null,
+			"lower": null,
+			"overflow": false
+		},
+		"errors": [],
+		"blockedExternalRequests": 27
+	},
+	{
+		"name": "after-loss-390-dpr2",
+		"phase": "after",
+		"width": 390,
+		"dpr": 2,
+		"outcome": "loss",
+		"scenario": "controlled runtime: explicit createResultOverlay over actual GameScene board; no completed match",
+		"geometry": {
+			"panel": {
+				"x": 12,
+				"y": 406.671875,
+				"width": 366,
+				"height": 413.328125,
+				"right": 378,
+				"bottom": 820
+			},
+			"labels": [
+				{
+					"text": "ПАРТИЯ ЗАВЕРШЕНА",
+					"selector": ".verdict-eyebrow",
+					"box": {
+						"x": 96,
+						"y": 453.671875,
+						"width": 198,
+						"height": 14,
+						"right": 294,
+						"bottom": 467.671875
+					},
+					"textBox": {
+						"x": 133.015625,
+						"y": 454.671875,
+						"width": 123.953125,
+						"height": 11,
+						"right": 256.96875,
+						"bottom": 465.671875
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "ПОРАЖЕНИЕ",
+					"selector": "#verdict-heading",
+					"box": {
+						"x": 96,
+						"y": 473.671875,
+						"width": 198,
+						"height": 54,
+						"right": 294,
+						"bottom": 527.671875
+					},
+					"textBox": {
+						"x": 108.5,
+						"y": 471.671875,
+						"width": 173,
+						"height": 37,
+						"right": 281.5,
+						"bottom": 508.671875
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "У вас закончилось время",
+					"selector": "#verdict-reason",
+					"box": {
+						"x": 96,
+						"y": 554.671875,
+						"width": 198,
+						"height": 42,
+						"right": 294,
+						"bottom": 596.671875
+					},
+					"textBox": {
+						"x": 109.484375,
+						"y": 568.171875,
+						"width": 171.03125,
+						"height": 15,
+						"right": 280.515625,
+						"bottom": 583.171875
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "Ещё партия",
+					"selector": "[data-verdict=\"again\"]",
+					"box": {
+						"x": 12,
+						"y": 648,
+						"width": 366,
+						"height": 64,
+						"right": 378,
+						"bottom": 712
+					},
+					"textBox": {
+						"x": 140.4375,
+						"y": 670.5,
+						"width": 109.109375,
+						"height": 19,
+						"right": 249.546875,
+						"bottom": 689.5
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "Посмотреть доску",
+					"selector": "[data-verdict=\"board\"]",
+					"box": {
+						"x": 24,
+						"y": 718,
+						"width": 342,
+						"height": 52,
+						"right": 366,
+						"bottom": 770
+					},
+					"textBox": {
+						"x": 127.4375,
+						"y": 736,
+						"width": 135.125,
+						"height": 16,
+						"right": 262.5625,
+						"bottom": 752
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "В меню",
+					"selector": "[data-verdict=\"menu\"]",
+					"box": {
+						"x": 36,
+						"y": 776,
+						"width": 318,
+						"height": 44,
+						"right": 354,
+						"bottom": 820
+					},
+					"textBox": {
+						"x": 169.84375,
+						"y": 790.5,
+						"width": 50.3125,
+						"height": 15,
+						"right": 220.15625,
+						"bottom": 805.5
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				}
+			],
+			"upper": {
+				"x": 96,
+				"y": 453.671875,
+				"right": 294,
+				"bottom": 527.671875
+			},
+			"lower": {
+				"x": 96,
+				"y": 554.671875,
+				"right": 294,
+				"bottom": 596.671875
+			},
+			"overflow": false
+		},
+		"errors": [],
+		"blockedExternalRequests": 29
+	},
+	{
+		"name": "after-win-390-dpr2",
+		"phase": "after",
+		"width": 390,
+		"dpr": 2,
+		"outcome": "win",
+		"scenario": "controlled runtime: explicit createResultOverlay over actual GameScene board; no completed match",
+		"geometry": {
+			"panel": {
+				"x": 12,
+				"y": 406.671875,
+				"width": 366,
+				"height": 413.328125,
+				"right": 378,
+				"bottom": 820
+			},
+			"labels": [
+				{
+					"text": "ПАРТИЯ ЗАВЕРШЕНА",
+					"selector": ".verdict-eyebrow",
+					"box": {
+						"x": 96,
+						"y": 453.671875,
+						"width": 198,
+						"height": 14,
+						"right": 294,
+						"bottom": 467.671875
+					},
+					"textBox": {
+						"x": 133.015625,
+						"y": 454.671875,
+						"width": 123.953125,
+						"height": 11,
+						"right": 256.96875,
+						"bottom": 465.671875
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "ПОБЕДА",
+					"selector": "#verdict-heading",
+					"box": {
+						"x": 96,
+						"y": 473.671875,
+						"width": 198,
+						"height": 54,
+						"right": 294,
+						"bottom": 527.671875
+					},
+					"textBox": {
+						"x": 140.5,
+						"y": 471.671875,
+						"width": 109,
+						"height": 37,
+						"right": 249.5,
+						"bottom": 508.671875
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "У соперника не осталось шашек",
+					"selector": "#verdict-reason",
+					"box": {
+						"x": 96,
+						"y": 554.671875,
+						"width": 198,
+						"height": 42,
+						"right": 294,
+						"bottom": 596.671875
+					},
+					"textBox": {
+						"x": 109.421875,
+						"y": 558.671875,
+						"width": 171.15625,
+						"height": 34,
+						"right": 280.578125,
+						"bottom": 592.671875
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "Ещё партия",
+					"selector": "[data-verdict=\"again\"]",
+					"box": {
+						"x": 12,
+						"y": 648,
+						"width": 366,
+						"height": 64,
+						"right": 378,
+						"bottom": 712
+					},
+					"textBox": {
+						"x": 140.4375,
+						"y": 670.5,
+						"width": 109.109375,
+						"height": 19,
+						"right": 249.546875,
+						"bottom": 689.5
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "Посмотреть доску",
+					"selector": "[data-verdict=\"board\"]",
+					"box": {
+						"x": 24,
+						"y": 718,
+						"width": 342,
+						"height": 52,
+						"right": 366,
+						"bottom": 770
+					},
+					"textBox": {
+						"x": 127.4375,
+						"y": 736,
+						"width": 135.125,
+						"height": 16,
+						"right": 262.5625,
+						"bottom": 752
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "В меню",
+					"selector": "[data-verdict=\"menu\"]",
+					"box": {
+						"x": 36,
+						"y": 776,
+						"width": 318,
+						"height": 44,
+						"right": 354,
+						"bottom": 820
+					},
+					"textBox": {
+						"x": 169.84375,
+						"y": 790.5,
+						"width": 50.3125,
+						"height": 15,
+						"right": 220.15625,
+						"bottom": 805.5
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				}
+			],
+			"upper": {
+				"x": 96,
+				"y": 453.671875,
+				"right": 294,
+				"bottom": 527.671875
+			},
+			"lower": {
+				"x": 96,
+				"y": 554.671875,
+				"right": 294,
+				"bottom": 596.671875
+			},
+			"overflow": false
+		},
+		"errors": [],
+		"blockedExternalRequests": 32
+	},
+	{
+		"name": "after-draw-390-dpr2",
+		"phase": "after",
+		"width": 390,
+		"dpr": 2,
+		"outcome": "draw",
+		"scenario": "controlled runtime: explicit createResultOverlay over actual GameScene board; no completed match",
+		"geometry": {
+			"panel": {
+				"x": 12,
+				"y": 406.671875,
+				"width": 366,
+				"height": 413.328125,
+				"right": 378,
+				"bottom": 820
+			},
+			"labels": [
+				{
+					"text": "ПАРТИЯ ЗАВЕРШЕНА",
+					"selector": ".verdict-eyebrow",
+					"box": {
+						"x": 96,
+						"y": 453.671875,
+						"width": 198,
+						"height": 14,
+						"right": 294,
+						"bottom": 467.671875
+					},
+					"textBox": {
+						"x": 133.015625,
+						"y": 454.671875,
+						"width": 123.953125,
+						"height": 11,
+						"right": 256.96875,
+						"bottom": 465.671875
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "НИЧЬЯ",
+					"selector": "#verdict-heading",
+					"box": {
+						"x": 96,
+						"y": 473.671875,
+						"width": 198,
+						"height": 54,
+						"right": 294,
+						"bottom": 527.671875
+					},
+					"textBox": {
+						"x": 146.5,
+						"y": 471.671875,
+						"width": 97,
+						"height": 37,
+						"right": 243.5,
+						"bottom": 508.671875
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "Позиция повторилась трижды",
+					"selector": "#verdict-reason",
+					"box": {
+						"x": 96,
+						"y": 554.671875,
+						"width": 198,
+						"height": 42,
+						"right": 294,
+						"bottom": 596.671875
+					},
+					"textBox": {
+						"x": 120.109375,
+						"y": 558.671875,
+						"width": 149.78125,
+						"height": 34,
+						"right": 269.890625,
+						"bottom": 592.671875
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "Ещё партия",
+					"selector": "[data-verdict=\"again\"]",
+					"box": {
+						"x": 12,
+						"y": 648,
+						"width": 366,
+						"height": 64,
+						"right": 378,
+						"bottom": 712
+					},
+					"textBox": {
+						"x": 140.4375,
+						"y": 670.5,
+						"width": 109.109375,
+						"height": 19,
+						"right": 249.546875,
+						"bottom": 689.5
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "Посмотреть доску",
+					"selector": "[data-verdict=\"board\"]",
+					"box": {
+						"x": 24,
+						"y": 718,
+						"width": 342,
+						"height": 52,
+						"right": 366,
+						"bottom": 770
+					},
+					"textBox": {
+						"x": 127.4375,
+						"y": 736,
+						"width": 135.125,
+						"height": 16,
+						"right": 262.5625,
+						"bottom": 752
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "В меню",
+					"selector": "[data-verdict=\"menu\"]",
+					"box": {
+						"x": 36,
+						"y": 776,
+						"width": 318,
+						"height": 44,
+						"right": 354,
+						"bottom": 820
+					},
+					"textBox": {
+						"x": 169.84375,
+						"y": 790.5,
+						"width": 50.3125,
+						"height": 15,
+						"right": 220.15625,
+						"bottom": 805.5
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				}
+			],
+			"upper": {
+				"x": 96,
+				"y": 453.671875,
+				"right": 294,
+				"bottom": 527.671875
+			},
+			"lower": {
+				"x": 96,
+				"y": 554.671875,
+				"right": 294,
+				"bottom": 596.671875
+			},
+			"overflow": false
+		},
+		"errors": [],
+		"blockedExternalRequests": 34
+	},
+	{
+		"width": 390,
+		"dpr": 2,
+		"stateResults": [
+			{
+				"action": "again",
+				"state": "rest",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/primary-rest.webp\")",
+				"stateName": "state-primary-rest-390-dpr2",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "again",
+				"state": "hover",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/primary-hover.webp\")",
+				"stateName": "state-primary-hover-390-dpr2",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "again",
+				"state": "pressed",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/primary-pressed.webp\")",
+				"stateName": "state-primary-pressed-390-dpr2",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "again",
+				"state": "disabled",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/primary-disabled.webp\")",
+				"stateName": "state-primary-disabled-390-dpr2",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "board",
+				"state": "rest",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/secondary-rest.webp\")",
+				"stateName": "state-secondary-rest-390-dpr2",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "board",
+				"state": "hover",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/secondary-hover.webp\")",
+				"stateName": "state-secondary-hover-390-dpr2",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "board",
+				"state": "pressed",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/secondary-pressed.webp\")",
+				"stateName": "state-secondary-pressed-390-dpr2",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "board",
+				"state": "disabled",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/secondary-disabled.webp\")",
+				"stateName": "state-secondary-disabled-390-dpr2",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "menu",
+				"state": "rest",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/quiet-rest.webp\")",
+				"stateName": "state-quiet-rest-390-dpr2",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "menu",
+				"state": "hover",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/quiet-hover.webp\")",
+				"stateName": "state-quiet-hover-390-dpr2",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "menu",
+				"state": "pressed",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/quiet-pressed.webp\")",
+				"stateName": "state-quiet-pressed-390-dpr2",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "menu",
+				"state": "disabled",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/quiet-disabled.webp\")",
+				"stateName": "state-quiet-disabled-390-dpr2",
+				"ink": "rgb(255, 248, 235)"
+			}
+		],
+		"collapsed": [
+			{
+				"label": "ПОРАЖЕНИЕ · Действия",
+				"x": 20,
+				"right": 241.6875,
+				"height": 44,
+				"leftInset": 35,
+				"rightInset": 35,
+				"overflow": false
+			},
+			{
+				"label": "В меню",
+				"x": 249.6875,
+				"right": 370,
+				"height": 44,
+				"leftInset": 35,
+				"rightInset": 35,
+				"overflow": false
+			}
+		],
+		"keyboardMenu": true
+	},
+	{
+		"name": "before-loss-390-dpr3",
+		"phase": "before",
+		"width": 390,
+		"dpr": 3,
+		"outcome": "loss",
+		"scenario": "controlled runtime: explicit createResultOverlay over actual GameScene board; no completed match",
+		"geometry": {
+			"panel": {
+				"x": 18,
+				"y": 516.5,
+				"width": 354,
+				"height": 303.5,
+				"right": 372,
+				"bottom": 820
+			},
+			"labels": [
+				{
+					"text": "ПАРТИЯ ЗАВЕРШЕНА",
+					"selector": ".verdict-eyebrow",
+					"box": {
+						"x": 43,
+						"y": 549.5,
+						"width": 304,
+						"height": 11,
+						"right": 347,
+						"bottom": 560.5
+					},
+					"textBox": {
+						"x": 125.015625,
+						"y": 549.5,
+						"width": 139.953125,
+						"height": 11,
+						"right": 264.96875,
+						"bottom": 560.5
+					},
+					"color": "rgb(182, 182, 168)",
+					"overflow": false
+				},
+				{
+					"text": "ПОРАЖЕНИЕ",
+					"selector": "#verdict-heading",
+					"box": {
+						"x": 43,
+						"y": 567.5,
+						"width": 304,
+						"height": 32.5,
+						"right": 347,
+						"bottom": 600
+					},
+					"textBox": {
+						"x": 104,
+						"y": 564.5,
+						"width": 182,
+						"height": 37,
+						"right": 286,
+						"bottom": 601.5
+					},
+					"color": "rgb(182, 201, 206)",
+					"overflow": false
+				},
+				{
+					"text": "У вас закончилось время",
+					"selector": "#verdict-reason",
+					"box": {
+						"x": 43,
+						"y": 607,
+						"width": 304,
+						"height": 24,
+						"right": 347,
+						"bottom": 631
+					},
+					"textBox": {
+						"x": 102.90625,
+						"y": 609,
+						"width": 184.1875,
+						"height": 16,
+						"right": 287.09375,
+						"bottom": 625
+					},
+					"color": "rgb(208, 210, 200)",
+					"overflow": false
+				},
+				{
+					"text": "Ещё партия",
+					"selector": "[data-verdict=\"again\"]",
+					"box": {
+						"x": 43,
+						"y": 647,
+						"width": 304,
+						"height": 44,
+						"right": 347,
+						"bottom": 691
+					},
+					"textBox": {
+						"x": 145.0625,
+						"y": 659.5,
+						"width": 99.875,
+						"height": 19,
+						"right": 244.9375,
+						"bottom": 678.5
+					},
+					"color": "rgb(244, 239, 228)",
+					"overflow": false
+				},
+				{
+					"text": "Посмотреть доску",
+					"selector": "[data-verdict=\"board\"]",
+					"box": {
+						"x": 43,
+						"y": 697,
+						"width": 304,
+						"height": 44,
+						"right": 347,
+						"bottom": 741
+					},
+					"textBox": {
+						"x": 137.09375,
+						"y": 712,
+						"width": 115.8125,
+						"height": 14,
+						"right": 252.90625,
+						"bottom": 726
+					},
+					"color": "rgb(244, 239, 228)",
+					"overflow": false
+				},
+				{
+					"text": "В меню",
+					"selector": "[data-verdict=\"menu\"]",
+					"box": {
+						"x": 43,
+						"y": 747,
+						"width": 304,
+						"height": 44,
+						"right": 347,
+						"bottom": 791
+					},
+					"textBox": {
+						"x": 171.78125,
+						"y": 762,
+						"width": 46.4375,
+						"height": 14,
+						"right": 218.21875,
+						"bottom": 776
+					},
+					"color": "rgb(195, 197, 185)",
+					"overflow": false
+				}
+			],
+			"upper": null,
+			"lower": null,
+			"overflow": false
+		},
+		"errors": [],
+		"blockedExternalRequests": 22
+	},
+	{
+		"name": "before-win-390-dpr3",
+		"phase": "before",
+		"width": 390,
+		"dpr": 3,
+		"outcome": "win",
+		"scenario": "controlled runtime: explicit createResultOverlay over actual GameScene board; no completed match",
+		"geometry": {
+			"panel": {
+				"x": 18,
+				"y": 516.5,
+				"width": 354,
+				"height": 303.5,
+				"right": 372,
+				"bottom": 820
+			},
+			"labels": [
+				{
+					"text": "ПАРТИЯ ЗАВЕРШЕНА",
+					"selector": ".verdict-eyebrow",
+					"box": {
+						"x": 43,
+						"y": 549.5,
+						"width": 304,
+						"height": 11,
+						"right": 347,
+						"bottom": 560.5
+					},
+					"textBox": {
+						"x": 125.015625,
+						"y": 549.5,
+						"width": 139.953125,
+						"height": 11,
+						"right": 264.96875,
+						"bottom": 560.5
+					},
+					"color": "rgb(182, 182, 168)",
+					"overflow": false
+				},
+				{
+					"text": "ПОБЕДА",
+					"selector": "#verdict-heading",
+					"box": {
+						"x": 43,
+						"y": 567.5,
+						"width": 304,
+						"height": 32.5,
+						"right": 347,
+						"bottom": 600
+					},
+					"textBox": {
+						"x": 137.5,
+						"y": 564.5,
+						"width": 115,
+						"height": 37,
+						"right": 252.5,
+						"bottom": 601.5
+					},
+					"color": "rgb(217, 192, 139)",
+					"overflow": false
+				},
+				{
+					"text": "У соперника не осталось шашек",
+					"selector": "#verdict-reason",
+					"box": {
+						"x": 43,
+						"y": 607,
+						"width": 304,
+						"height": 24,
+						"right": 347,
+						"bottom": 631
+					},
+					"textBox": {
+						"x": 74.984375,
+						"y": 609,
+						"width": 240.03125,
+						"height": 16,
+						"right": 315.015625,
+						"bottom": 625
+					},
+					"color": "rgb(208, 210, 200)",
+					"overflow": false
+				},
+				{
+					"text": "Ещё партия",
+					"selector": "[data-verdict=\"again\"]",
+					"box": {
+						"x": 43,
+						"y": 647,
+						"width": 304,
+						"height": 44,
+						"right": 347,
+						"bottom": 691
+					},
+					"textBox": {
+						"x": 145.0625,
+						"y": 659.5,
+						"width": 99.875,
+						"height": 19,
+						"right": 244.9375,
+						"bottom": 678.5
+					},
+					"color": "rgb(244, 239, 228)",
+					"overflow": false
+				},
+				{
+					"text": "Посмотреть доску",
+					"selector": "[data-verdict=\"board\"]",
+					"box": {
+						"x": 43,
+						"y": 697,
+						"width": 304,
+						"height": 44,
+						"right": 347,
+						"bottom": 741
+					},
+					"textBox": {
+						"x": 137.09375,
+						"y": 712,
+						"width": 115.8125,
+						"height": 14,
+						"right": 252.90625,
+						"bottom": 726
+					},
+					"color": "rgb(244, 239, 228)",
+					"overflow": false
+				},
+				{
+					"text": "В меню",
+					"selector": "[data-verdict=\"menu\"]",
+					"box": {
+						"x": 43,
+						"y": 747,
+						"width": 304,
+						"height": 44,
+						"right": 347,
+						"bottom": 791
+					},
+					"textBox": {
+						"x": 171.78125,
+						"y": 762,
+						"width": 46.4375,
+						"height": 14,
+						"right": 218.21875,
+						"bottom": 776
+					},
+					"color": "rgb(195, 197, 185)",
+					"overflow": false
+				}
+			],
+			"upper": null,
+			"lower": null,
+			"overflow": false
+		},
+		"errors": [],
+		"blockedExternalRequests": 24
+	},
+	{
+		"name": "before-draw-390-dpr3",
+		"phase": "before",
+		"width": 390,
+		"dpr": 3,
+		"outcome": "draw",
+		"scenario": "controlled runtime: explicit createResultOverlay over actual GameScene board; no completed match",
+		"geometry": {
+			"panel": {
+				"x": 18,
+				"y": 516.5,
+				"width": 354,
+				"height": 303.5,
+				"right": 372,
+				"bottom": 820
+			},
+			"labels": [
+				{
+					"text": "ПАРТИЯ ЗАВЕРШЕНА",
+					"selector": ".verdict-eyebrow",
+					"box": {
+						"x": 43,
+						"y": 549.5,
+						"width": 304,
+						"height": 11,
+						"right": 347,
+						"bottom": 560.5
+					},
+					"textBox": {
+						"x": 125.015625,
+						"y": 549.5,
+						"width": 139.953125,
+						"height": 11,
+						"right": 264.96875,
+						"bottom": 560.5
+					},
+					"color": "rgb(182, 182, 168)",
+					"overflow": false
+				},
+				{
+					"text": "НИЧЬЯ",
+					"selector": "#verdict-heading",
+					"box": {
+						"x": 43,
+						"y": 567.5,
+						"width": 304,
+						"height": 32.5,
+						"right": 347,
+						"bottom": 600
+					},
+					"textBox": {
+						"x": 144,
+						"y": 564.5,
+						"width": 102,
+						"height": 37,
+						"right": 246,
+						"bottom": 601.5
+					},
+					"color": "rgb(210, 211, 200)",
+					"overflow": false
+				},
+				{
+					"text": "Позиция повторилась трижды",
+					"selector": "#verdict-reason",
+					"box": {
+						"x": 43,
+						"y": 607,
+						"width": 304,
+						"height": 24,
+						"right": 347,
+						"bottom": 631
+					},
+					"textBox": {
+						"x": 82.375,
+						"y": 609,
+						"width": 225.234375,
+						"height": 16,
+						"right": 307.609375,
+						"bottom": 625
+					},
+					"color": "rgb(208, 210, 200)",
+					"overflow": false
+				},
+				{
+					"text": "Ещё партия",
+					"selector": "[data-verdict=\"again\"]",
+					"box": {
+						"x": 43,
+						"y": 647,
+						"width": 304,
+						"height": 44,
+						"right": 347,
+						"bottom": 691
+					},
+					"textBox": {
+						"x": 145.0625,
+						"y": 659.5,
+						"width": 99.875,
+						"height": 19,
+						"right": 244.9375,
+						"bottom": 678.5
+					},
+					"color": "rgb(244, 239, 228)",
+					"overflow": false
+				},
+				{
+					"text": "Посмотреть доску",
+					"selector": "[data-verdict=\"board\"]",
+					"box": {
+						"x": 43,
+						"y": 697,
+						"width": 304,
+						"height": 44,
+						"right": 347,
+						"bottom": 741
+					},
+					"textBox": {
+						"x": 137.09375,
+						"y": 712,
+						"width": 115.8125,
+						"height": 14,
+						"right": 252.90625,
+						"bottom": 726
+					},
+					"color": "rgb(244, 239, 228)",
+					"overflow": false
+				},
+				{
+					"text": "В меню",
+					"selector": "[data-verdict=\"menu\"]",
+					"box": {
+						"x": 43,
+						"y": 747,
+						"width": 304,
+						"height": 44,
+						"right": 347,
+						"bottom": 791
+					},
+					"textBox": {
+						"x": 171.78125,
+						"y": 762,
+						"width": 46.4375,
+						"height": 14,
+						"right": 218.21875,
+						"bottom": 776
+					},
+					"color": "rgb(195, 197, 185)",
+					"overflow": false
+				}
+			],
+			"upper": null,
+			"lower": null,
+			"overflow": false
+		},
+		"errors": [],
+		"blockedExternalRequests": 26
+	},
+	{
+		"name": "after-loss-390-dpr3",
+		"phase": "after",
+		"width": 390,
+		"dpr": 3,
+		"outcome": "loss",
+		"scenario": "controlled runtime: explicit createResultOverlay over actual GameScene board; no completed match",
+		"geometry": {
+			"panel": {
+				"x": 12,
+				"y": 406.671875,
+				"width": 366,
+				"height": 413.328125,
+				"right": 378,
+				"bottom": 820
+			},
+			"labels": [
+				{
+					"text": "ПАРТИЯ ЗАВЕРШЕНА",
+					"selector": ".verdict-eyebrow",
+					"box": {
+						"x": 96,
+						"y": 453.671875,
+						"width": 198,
+						"height": 14,
+						"right": 294,
+						"bottom": 467.671875
+					},
+					"textBox": {
+						"x": 133.015625,
+						"y": 454.671875,
+						"width": 123.953125,
+						"height": 11,
+						"right": 256.96875,
+						"bottom": 465.671875
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "ПОРАЖЕНИЕ",
+					"selector": "#verdict-heading",
+					"box": {
+						"x": 96,
+						"y": 473.671875,
+						"width": 198,
+						"height": 54,
+						"right": 294,
+						"bottom": 527.671875
+					},
+					"textBox": {
+						"x": 108.5,
+						"y": 471.671875,
+						"width": 173,
+						"height": 37,
+						"right": 281.5,
+						"bottom": 508.671875
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "У вас закончилось время",
+					"selector": "#verdict-reason",
+					"box": {
+						"x": 96,
+						"y": 554.671875,
+						"width": 198,
+						"height": 42,
+						"right": 294,
+						"bottom": 596.671875
+					},
+					"textBox": {
+						"x": 109.484375,
+						"y": 568.171875,
+						"width": 171.03125,
+						"height": 15,
+						"right": 280.515625,
+						"bottom": 583.171875
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "Ещё партия",
+					"selector": "[data-verdict=\"again\"]",
+					"box": {
+						"x": 12,
+						"y": 648,
+						"width": 366,
+						"height": 64,
+						"right": 378,
+						"bottom": 712
+					},
+					"textBox": {
+						"x": 140.4375,
+						"y": 670.5,
+						"width": 109.109375,
+						"height": 19,
+						"right": 249.546875,
+						"bottom": 689.5
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "Посмотреть доску",
+					"selector": "[data-verdict=\"board\"]",
+					"box": {
+						"x": 24,
+						"y": 718,
+						"width": 342,
+						"height": 52,
+						"right": 366,
+						"bottom": 770
+					},
+					"textBox": {
+						"x": 127.4375,
+						"y": 736,
+						"width": 135.125,
+						"height": 16,
+						"right": 262.5625,
+						"bottom": 752
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "В меню",
+					"selector": "[data-verdict=\"menu\"]",
+					"box": {
+						"x": 36,
+						"y": 776,
+						"width": 318,
+						"height": 44,
+						"right": 354,
+						"bottom": 820
+					},
+					"textBox": {
+						"x": 169.84375,
+						"y": 790.5,
+						"width": 50.3125,
+						"height": 15,
+						"right": 220.15625,
+						"bottom": 805.5
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				}
+			],
+			"upper": {
+				"x": 96,
+				"y": 453.671875,
+				"right": 294,
+				"bottom": 527.671875
+			},
+			"lower": {
+				"x": 96,
+				"y": 554.671875,
+				"right": 294,
+				"bottom": 596.671875
+			},
+			"overflow": false
+		},
+		"errors": [],
+		"blockedExternalRequests": 28
+	},
+	{
+		"name": "after-win-390-dpr3",
+		"phase": "after",
+		"width": 390,
+		"dpr": 3,
+		"outcome": "win",
+		"scenario": "controlled runtime: explicit createResultOverlay over actual GameScene board; no completed match",
+		"geometry": {
+			"panel": {
+				"x": 12,
+				"y": 406.671875,
+				"width": 366,
+				"height": 413.328125,
+				"right": 378,
+				"bottom": 820
+			},
+			"labels": [
+				{
+					"text": "ПАРТИЯ ЗАВЕРШЕНА",
+					"selector": ".verdict-eyebrow",
+					"box": {
+						"x": 96,
+						"y": 453.671875,
+						"width": 198,
+						"height": 14,
+						"right": 294,
+						"bottom": 467.671875
+					},
+					"textBox": {
+						"x": 133.015625,
+						"y": 454.671875,
+						"width": 123.953125,
+						"height": 11,
+						"right": 256.96875,
+						"bottom": 465.671875
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "ПОБЕДА",
+					"selector": "#verdict-heading",
+					"box": {
+						"x": 96,
+						"y": 473.671875,
+						"width": 198,
+						"height": 54,
+						"right": 294,
+						"bottom": 527.671875
+					},
+					"textBox": {
+						"x": 140.5,
+						"y": 471.671875,
+						"width": 109,
+						"height": 37,
+						"right": 249.5,
+						"bottom": 508.671875
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "У соперника не осталось шашек",
+					"selector": "#verdict-reason",
+					"box": {
+						"x": 96,
+						"y": 554.671875,
+						"width": 198,
+						"height": 42,
+						"right": 294,
+						"bottom": 596.671875
+					},
+					"textBox": {
+						"x": 109.421875,
+						"y": 558.671875,
+						"width": 171.15625,
+						"height": 34,
+						"right": 280.578125,
+						"bottom": 592.671875
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "Ещё партия",
+					"selector": "[data-verdict=\"again\"]",
+					"box": {
+						"x": 12,
+						"y": 648,
+						"width": 366,
+						"height": 64,
+						"right": 378,
+						"bottom": 712
+					},
+					"textBox": {
+						"x": 140.4375,
+						"y": 670.5,
+						"width": 109.109375,
+						"height": 19,
+						"right": 249.546875,
+						"bottom": 689.5
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "Посмотреть доску",
+					"selector": "[data-verdict=\"board\"]",
+					"box": {
+						"x": 24,
+						"y": 718,
+						"width": 342,
+						"height": 52,
+						"right": 366,
+						"bottom": 770
+					},
+					"textBox": {
+						"x": 127.4375,
+						"y": 736,
+						"width": 135.125,
+						"height": 16,
+						"right": 262.5625,
+						"bottom": 752
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "В меню",
+					"selector": "[data-verdict=\"menu\"]",
+					"box": {
+						"x": 36,
+						"y": 776,
+						"width": 318,
+						"height": 44,
+						"right": 354,
+						"bottom": 820
+					},
+					"textBox": {
+						"x": 169.84375,
+						"y": 790.5,
+						"width": 50.3125,
+						"height": 15,
+						"right": 220.15625,
+						"bottom": 805.5
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				}
+			],
+			"upper": {
+				"x": 96,
+				"y": 453.671875,
+				"right": 294,
+				"bottom": 527.671875
+			},
+			"lower": {
+				"x": 96,
+				"y": 554.671875,
+				"right": 294,
+				"bottom": 596.671875
+			},
+			"overflow": false
+		},
+		"errors": [],
+		"blockedExternalRequests": 30
+	},
+	{
+		"name": "after-draw-390-dpr3",
+		"phase": "after",
+		"width": 390,
+		"dpr": 3,
+		"outcome": "draw",
+		"scenario": "controlled runtime: explicit createResultOverlay over actual GameScene board; no completed match",
+		"geometry": {
+			"panel": {
+				"x": 12,
+				"y": 406.671875,
+				"width": 366,
+				"height": 413.328125,
+				"right": 378,
+				"bottom": 820
+			},
+			"labels": [
+				{
+					"text": "ПАРТИЯ ЗАВЕРШЕНА",
+					"selector": ".verdict-eyebrow",
+					"box": {
+						"x": 96,
+						"y": 453.671875,
+						"width": 198,
+						"height": 14,
+						"right": 294,
+						"bottom": 467.671875
+					},
+					"textBox": {
+						"x": 133.015625,
+						"y": 454.671875,
+						"width": 123.953125,
+						"height": 11,
+						"right": 256.96875,
+						"bottom": 465.671875
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "НИЧЬЯ",
+					"selector": "#verdict-heading",
+					"box": {
+						"x": 96,
+						"y": 473.671875,
+						"width": 198,
+						"height": 54,
+						"right": 294,
+						"bottom": 527.671875
+					},
+					"textBox": {
+						"x": 146.5,
+						"y": 471.671875,
+						"width": 97,
+						"height": 37,
+						"right": 243.5,
+						"bottom": 508.671875
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "Позиция повторилась трижды",
+					"selector": "#verdict-reason",
+					"box": {
+						"x": 96,
+						"y": 554.671875,
+						"width": 198,
+						"height": 42,
+						"right": 294,
+						"bottom": 596.671875
+					},
+					"textBox": {
+						"x": 120.109375,
+						"y": 558.671875,
+						"width": 149.78125,
+						"height": 34,
+						"right": 269.890625,
+						"bottom": 592.671875
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "Ещё партия",
+					"selector": "[data-verdict=\"again\"]",
+					"box": {
+						"x": 12,
+						"y": 648,
+						"width": 366,
+						"height": 64,
+						"right": 378,
+						"bottom": 712
+					},
+					"textBox": {
+						"x": 140.4375,
+						"y": 670.5,
+						"width": 109.109375,
+						"height": 19,
+						"right": 249.546875,
+						"bottom": 689.5
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "Посмотреть доску",
+					"selector": "[data-verdict=\"board\"]",
+					"box": {
+						"x": 24,
+						"y": 718,
+						"width": 342,
+						"height": 52,
+						"right": 366,
+						"bottom": 770
+					},
+					"textBox": {
+						"x": 127.4375,
+						"y": 736,
+						"width": 135.125,
+						"height": 16,
+						"right": 262.5625,
+						"bottom": 752
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "В меню",
+					"selector": "[data-verdict=\"menu\"]",
+					"box": {
+						"x": 36,
+						"y": 776,
+						"width": 318,
+						"height": 44,
+						"right": 354,
+						"bottom": 820
+					},
+					"textBox": {
+						"x": 169.84375,
+						"y": 790.5,
+						"width": 50.3125,
+						"height": 15,
+						"right": 220.15625,
+						"bottom": 805.5
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				}
+			],
+			"upper": {
+				"x": 96,
+				"y": 453.671875,
+				"right": 294,
+				"bottom": 527.671875
+			},
+			"lower": {
+				"x": 96,
+				"y": 554.671875,
+				"right": 294,
+				"bottom": 596.671875
+			},
+			"overflow": false
+		},
+		"errors": [],
+		"blockedExternalRequests": 34
+	},
+	{
+		"width": 390,
+		"dpr": 3,
+		"stateResults": [
+			{
+				"action": "again",
+				"state": "rest",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/primary-rest.webp\")",
+				"stateName": "state-primary-rest-390-dpr3",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "again",
+				"state": "hover",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/primary-hover.webp\")",
+				"stateName": "state-primary-hover-390-dpr3",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "again",
+				"state": "pressed",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/primary-pressed.webp\")",
+				"stateName": "state-primary-pressed-390-dpr3",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "again",
+				"state": "disabled",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/primary-disabled.webp\")",
+				"stateName": "state-primary-disabled-390-dpr3",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "board",
+				"state": "rest",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/secondary-rest.webp\")",
+				"stateName": "state-secondary-rest-390-dpr3",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "board",
+				"state": "hover",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/secondary-hover.webp\")",
+				"stateName": "state-secondary-hover-390-dpr3",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "board",
+				"state": "pressed",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/secondary-pressed.webp\")",
+				"stateName": "state-secondary-pressed-390-dpr3",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "board",
+				"state": "disabled",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/secondary-disabled.webp\")",
+				"stateName": "state-secondary-disabled-390-dpr3",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "menu",
+				"state": "rest",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/quiet-rest.webp\")",
+				"stateName": "state-quiet-rest-390-dpr3",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "menu",
+				"state": "hover",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/quiet-hover.webp\")",
+				"stateName": "state-quiet-hover-390-dpr3",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "menu",
+				"state": "pressed",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/quiet-pressed.webp\")",
+				"stateName": "state-quiet-pressed-390-dpr3",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "menu",
+				"state": "disabled",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/quiet-disabled.webp\")",
+				"stateName": "state-quiet-disabled-390-dpr3",
+				"ink": "rgb(255, 248, 235)"
+			}
+		],
+		"collapsed": [
+			{
+				"label": "ПОРАЖЕНИЕ · Действия",
+				"x": 20,
+				"right": 241.6875,
+				"height": 44,
+				"leftInset": 35,
+				"rightInset": 35,
+				"overflow": false
+			},
+			{
+				"label": "В меню",
+				"x": 249.6875,
+				"right": 370,
+				"height": 44,
+				"leftInset": 35,
+				"rightInset": 35,
+				"overflow": false
+			}
+		],
+		"keyboardMenu": true
+	},
+	{
+		"name": "before-loss-1280-dpr2",
+		"phase": "before",
+		"width": 1280,
+		"dpr": 2,
+		"outcome": "loss",
+		"scenario": "controlled runtime: explicit createResultOverlay over actual GameScene board; no completed match",
+		"geometry": {
+			"panel": {
+				"x": 458,
+				"y": 262.796875,
+				"width": 364,
+				"height": 318.390625,
+				"right": 822,
+				"bottom": 581.1875
+			},
+			"labels": [
+				{
+					"text": "ПАРТИЯ ЗАВЕРШЕНА",
+					"selector": ".verdict-eyebrow",
+					"box": {
+						"x": 479,
+						"y": 288.796875,
+						"width": 322,
+						"height": 12,
+						"right": 801,
+						"bottom": 300.796875
+					},
+					"textBox": {
+						"x": 569,
+						"y": 288.796875,
+						"width": 142,
+						"height": 12,
+						"right": 711,
+						"bottom": 300.796875
+					},
+					"color": "rgb(182, 182, 168)",
+					"overflow": false
+				},
+				{
+					"text": "ПОРАЖЕНИЕ",
+					"selector": "#verdict-heading",
+					"box": {
+						"x": 479,
+						"y": 310.796875,
+						"width": 322,
+						"height": 36.390625,
+						"right": 801,
+						"bottom": 347.1875
+					},
+					"textBox": {
+						"x": 538.5,
+						"y": 307.796875,
+						"width": 203,
+						"height": 42,
+						"right": 741.5,
+						"bottom": 349.796875
+					},
+					"color": "rgb(182, 201, 206)",
+					"overflow": false
+				},
+				{
+					"text": "У вас закончилось время",
+					"selector": "#verdict-reason",
+					"box": {
+						"x": 479,
+						"y": 357.1875,
+						"width": 322,
+						"height": 42,
+						"right": 801,
+						"bottom": 399.1875
+					},
+					"textBox": {
+						"x": 552,
+						"y": 359.1875,
+						"width": 176,
+						"height": 17,
+						"right": 728,
+						"bottom": 376.1875
+					},
+					"color": "rgb(208, 210, 200)",
+					"overflow": false
+				},
+				{
+					"text": "Ещё партия",
+					"selector": "[data-verdict=\"again\"]",
+					"box": {
+						"x": 479,
+						"y": 415.1875,
+						"width": 322,
+						"height": 44,
+						"right": 801,
+						"bottom": 459.1875
+					},
+					"textBox": {
+						"x": 594,
+						"y": 427.1875,
+						"width": 92,
+						"height": 20,
+						"right": 686,
+						"bottom": 447.1875
+					},
+					"color": "rgb(244, 239, 228)",
+					"overflow": false
+				},
+				{
+					"text": "Посмотреть доску",
+					"selector": "[data-verdict=\"board\"]",
+					"box": {
+						"x": 479,
+						"y": 467.1875,
+						"width": 322,
+						"height": 44,
+						"right": 801,
+						"bottom": 511.1875
+					},
+					"textBox": {
+						"x": 566.5,
+						"y": 479.1875,
+						"width": 147,
+						"height": 20,
+						"right": 713.5,
+						"bottom": 499.1875
+					},
+					"color": "rgb(244, 239, 228)",
+					"overflow": false
+				},
+				{
+					"text": "В меню",
+					"selector": "[data-verdict=\"menu\"]",
+					"box": {
+						"x": 479,
+						"y": 519.1875,
+						"width": 322,
+						"height": 44,
+						"right": 801,
+						"bottom": 563.1875
+					},
+					"textBox": {
+						"x": 616.5,
+						"y": 533.1875,
+						"width": 47,
+						"height": 16,
+						"right": 663.5,
+						"bottom": 549.1875
+					},
+					"color": "rgb(195, 197, 185)",
+					"overflow": false
+				}
+			],
+			"upper": null,
+			"lower": null,
+			"overflow": false
+		},
+		"errors": [],
+		"blockedExternalRequests": 26
+	},
+	{
+		"name": "before-win-1280-dpr2",
+		"phase": "before",
+		"width": 1280,
+		"dpr": 2,
+		"outcome": "win",
+		"scenario": "controlled runtime: explicit createResultOverlay over actual GameScene board; no completed match",
+		"geometry": {
+			"panel": {
+				"x": 458,
+				"y": 262.796875,
+				"width": 364,
+				"height": 318.390625,
+				"right": 822,
+				"bottom": 581.1875
+			},
+			"labels": [
+				{
+					"text": "ПАРТИЯ ЗАВЕРШЕНА",
+					"selector": ".verdict-eyebrow",
+					"box": {
+						"x": 479,
+						"y": 288.796875,
+						"width": 322,
+						"height": 12,
+						"right": 801,
+						"bottom": 300.796875
+					},
+					"textBox": {
+						"x": 569,
+						"y": 288.796875,
+						"width": 142,
+						"height": 12,
+						"right": 711,
+						"bottom": 300.796875
+					},
+					"color": "rgb(182, 182, 168)",
+					"overflow": false
+				},
+				{
+					"text": "ПОБЕДА",
+					"selector": "#verdict-heading",
+					"box": {
+						"x": 479,
+						"y": 310.796875,
+						"width": 322,
+						"height": 36.390625,
+						"right": 801,
+						"bottom": 347.1875
+					},
+					"textBox": {
+						"x": 575.5,
+						"y": 307.796875,
+						"width": 129,
+						"height": 42,
+						"right": 704.5,
+						"bottom": 349.796875
+					},
+					"color": "rgb(217, 192, 139)",
+					"overflow": false
+				},
+				{
+					"text": "У соперника не осталось шашек",
+					"selector": "#verdict-reason",
+					"box": {
+						"x": 479,
+						"y": 357.1875,
+						"width": 322,
+						"height": 42,
+						"right": 801,
+						"bottom": 399.1875
+					},
+					"textBox": {
+						"x": 527.5,
+						"y": 359.1875,
+						"width": 225,
+						"height": 17,
+						"right": 752.5,
+						"bottom": 376.1875
+					},
+					"color": "rgb(208, 210, 200)",
+					"overflow": false
+				},
+				{
+					"text": "Ещё партия",
+					"selector": "[data-verdict=\"again\"]",
+					"box": {
+						"x": 479,
+						"y": 415.1875,
+						"width": 322,
+						"height": 44,
+						"right": 801,
+						"bottom": 459.1875
+					},
+					"textBox": {
+						"x": 594,
+						"y": 427.1875,
+						"width": 92,
+						"height": 20,
+						"right": 686,
+						"bottom": 447.1875
+					},
+					"color": "rgb(244, 239, 228)",
+					"overflow": false
+				},
+				{
+					"text": "Посмотреть доску",
+					"selector": "[data-verdict=\"board\"]",
+					"box": {
+						"x": 479,
+						"y": 467.1875,
+						"width": 322,
+						"height": 44,
+						"right": 801,
+						"bottom": 511.1875
+					},
+					"textBox": {
+						"x": 566.5,
+						"y": 479.1875,
+						"width": 147,
+						"height": 20,
+						"right": 713.5,
+						"bottom": 499.1875
+					},
+					"color": "rgb(244, 239, 228)",
+					"overflow": false
+				},
+				{
+					"text": "В меню",
+					"selector": "[data-verdict=\"menu\"]",
+					"box": {
+						"x": 479,
+						"y": 519.1875,
+						"width": 322,
+						"height": 44,
+						"right": 801,
+						"bottom": 563.1875
+					},
+					"textBox": {
+						"x": 616.5,
+						"y": 533.1875,
+						"width": 47,
+						"height": 16,
+						"right": 663.5,
+						"bottom": 549.1875
+					},
+					"color": "rgb(195, 197, 185)",
+					"overflow": false
+				}
+			],
+			"upper": null,
+			"lower": null,
+			"overflow": false
+		},
+		"errors": [],
+		"blockedExternalRequests": 28
+	},
+	{
+		"name": "before-draw-1280-dpr2",
+		"phase": "before",
+		"width": 1280,
+		"dpr": 2,
+		"outcome": "draw",
+		"scenario": "controlled runtime: explicit createResultOverlay over actual GameScene board; no completed match",
+		"geometry": {
+			"panel": {
+				"x": 458,
+				"y": 262.796875,
+				"width": 364,
+				"height": 318.390625,
+				"right": 822,
+				"bottom": 581.1875
+			},
+			"labels": [
+				{
+					"text": "ПАРТИЯ ЗАВЕРШЕНА",
+					"selector": ".verdict-eyebrow",
+					"box": {
+						"x": 479,
+						"y": 288.796875,
+						"width": 322,
+						"height": 12,
+						"right": 801,
+						"bottom": 300.796875
+					},
+					"textBox": {
+						"x": 569,
+						"y": 288.796875,
+						"width": 142,
+						"height": 12,
+						"right": 711,
+						"bottom": 300.796875
+					},
+					"color": "rgb(182, 182, 168)",
+					"overflow": false
+				},
+				{
+					"text": "НИЧЬЯ",
+					"selector": "#verdict-heading",
+					"box": {
+						"x": 479,
+						"y": 310.796875,
+						"width": 322,
+						"height": 36.390625,
+						"right": 801,
+						"bottom": 347.1875
+					},
+					"textBox": {
+						"x": 583,
+						"y": 307.796875,
+						"width": 114,
+						"height": 42,
+						"right": 697,
+						"bottom": 349.796875
+					},
+					"color": "rgb(210, 211, 200)",
+					"overflow": false
+				},
+				{
+					"text": "Позиция повторилась трижды",
+					"selector": "#verdict-reason",
+					"box": {
+						"x": 479,
+						"y": 357.1875,
+						"width": 322,
+						"height": 42,
+						"right": 801,
+						"bottom": 399.1875
+					},
+					"textBox": {
+						"x": 534.5,
+						"y": 359.1875,
+						"width": 211,
+						"height": 17,
+						"right": 745.5,
+						"bottom": 376.1875
+					},
+					"color": "rgb(208, 210, 200)",
+					"overflow": false
+				},
+				{
+					"text": "Ещё партия",
+					"selector": "[data-verdict=\"again\"]",
+					"box": {
+						"x": 479,
+						"y": 415.1875,
+						"width": 322,
+						"height": 44,
+						"right": 801,
+						"bottom": 459.1875
+					},
+					"textBox": {
+						"x": 594,
+						"y": 427.1875,
+						"width": 92,
+						"height": 20,
+						"right": 686,
+						"bottom": 447.1875
+					},
+					"color": "rgb(244, 239, 228)",
+					"overflow": false
+				},
+				{
+					"text": "Посмотреть доску",
+					"selector": "[data-verdict=\"board\"]",
+					"box": {
+						"x": 479,
+						"y": 467.1875,
+						"width": 322,
+						"height": 44,
+						"right": 801,
+						"bottom": 511.1875
+					},
+					"textBox": {
+						"x": 566.5,
+						"y": 479.1875,
+						"width": 147,
+						"height": 20,
+						"right": 713.5,
+						"bottom": 499.1875
+					},
+					"color": "rgb(244, 239, 228)",
+					"overflow": false
+				},
+				{
+					"text": "В меню",
+					"selector": "[data-verdict=\"menu\"]",
+					"box": {
+						"x": 479,
+						"y": 519.1875,
+						"width": 322,
+						"height": 44,
+						"right": 801,
+						"bottom": 563.1875
+					},
+					"textBox": {
+						"x": 616.5,
+						"y": 533.1875,
+						"width": 47,
+						"height": 16,
+						"right": 663.5,
+						"bottom": 549.1875
+					},
+					"color": "rgb(195, 197, 185)",
+					"overflow": false
+				}
+			],
+			"upper": null,
+			"lower": null,
+			"overflow": false
+		},
+		"errors": [],
+		"blockedExternalRequests": 29
+	},
+	{
+		"name": "after-loss-1280-dpr2",
+		"phase": "after",
+		"width": 1280,
+		"dpr": 2,
+		"outcome": "loss",
+		"scenario": "controlled runtime: explicit createResultOverlay over actual GameScene board; no completed match",
+		"geometry": {
+			"panel": {
+				"x": 400,
+				"y": 215.328125,
+				"width": 480,
+				"height": 413.328125,
+				"right": 880,
+				"bottom": 628.65625
+			},
+			"labels": [
+				{
+					"text": "ПАРТИЯ ЗАВЕРШЕНА",
+					"selector": ".verdict-eyebrow",
+					"box": {
+						"x": 484,
+						"y": 262.328125,
+						"width": 312,
+						"height": 14,
+						"right": 796,
+						"bottom": 276.328125
+					},
+					"textBox": {
+						"x": 577,
+						"y": 263.328125,
+						"width": 126,
+						"height": 12,
+						"right": 703,
+						"bottom": 275.328125
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "ПОРАЖЕНИЕ",
+					"selector": "#verdict-heading",
+					"box": {
+						"x": 484,
+						"y": 282.328125,
+						"width": 312,
+						"height": 54,
+						"right": 796,
+						"bottom": 336.328125
+					},
+					"textBox": {
+						"x": 553.5,
+						"y": 280.328125,
+						"width": 173,
+						"height": 37,
+						"right": 726.5,
+						"bottom": 317.328125
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "У вас закончилось время",
+					"selector": "#verdict-reason",
+					"box": {
+						"x": 484,
+						"y": 363.328125,
+						"width": 312,
+						"height": 42,
+						"right": 796,
+						"bottom": 405.328125
+					},
+					"textBox": {
+						"x": 560,
+						"y": 375.828125,
+						"width": 160,
+						"height": 16,
+						"right": 720,
+						"bottom": 391.828125
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "Ещё партия",
+					"selector": "[data-verdict=\"again\"]",
+					"box": {
+						"x": 400,
+						"y": 456.65625,
+						"width": 480,
+						"height": 64,
+						"right": 880,
+						"bottom": 520.65625
+					},
+					"textBox": {
+						"x": 593.5,
+						"y": 478.65625,
+						"width": 93,
+						"height": 20,
+						"right": 686.5,
+						"bottom": 498.65625
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "Посмотреть доску",
+					"selector": "[data-verdict=\"board\"]",
+					"box": {
+						"x": 412,
+						"y": 526.65625,
+						"width": 456,
+						"height": 52,
+						"right": 868,
+						"bottom": 578.65625
+					},
+					"textBox": {
+						"x": 576.5,
+						"y": 544.15625,
+						"width": 127,
+						"height": 17,
+						"right": 703.5,
+						"bottom": 561.15625
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "В меню",
+					"selector": "[data-verdict=\"menu\"]",
+					"box": {
+						"x": 424,
+						"y": 584.65625,
+						"width": 432,
+						"height": 44,
+						"right": 856,
+						"bottom": 628.65625
+					},
+					"textBox": {
+						"x": 616.5,
+						"y": 598.65625,
+						"width": 47,
+						"height": 16,
+						"right": 663.5,
+						"bottom": 614.65625
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				}
+			],
+			"upper": {
+				"x": 484,
+				"y": 262.328125,
+				"right": 796,
+				"bottom": 336.328125
+			},
+			"lower": {
+				"x": 484,
+				"y": 363.328125,
+				"right": 796,
+				"bottom": 405.328125
+			},
+			"overflow": false
+		},
+		"errors": [],
+		"blockedExternalRequests": 34
+	},
+	{
+		"name": "after-win-1280-dpr2",
+		"phase": "after",
+		"width": 1280,
+		"dpr": 2,
+		"outcome": "win",
+		"scenario": "controlled runtime: explicit createResultOverlay over actual GameScene board; no completed match",
+		"geometry": {
+			"panel": {
+				"x": 400,
+				"y": 215.328125,
+				"width": 480,
+				"height": 413.328125,
+				"right": 880,
+				"bottom": 628.65625
+			},
+			"labels": [
+				{
+					"text": "ПАРТИЯ ЗАВЕРШЕНА",
+					"selector": ".verdict-eyebrow",
+					"box": {
+						"x": 484,
+						"y": 262.328125,
+						"width": 312,
+						"height": 14,
+						"right": 796,
+						"bottom": 276.328125
+					},
+					"textBox": {
+						"x": 577,
+						"y": 263.328125,
+						"width": 126,
+						"height": 12,
+						"right": 703,
+						"bottom": 275.328125
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "ПОБЕДА",
+					"selector": "#verdict-heading",
+					"box": {
+						"x": 484,
+						"y": 282.328125,
+						"width": 312,
+						"height": 54,
+						"right": 796,
+						"bottom": 336.328125
+					},
+					"textBox": {
+						"x": 585.5,
+						"y": 280.328125,
+						"width": 109,
+						"height": 37,
+						"right": 694.5,
+						"bottom": 317.328125
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "У соперника не осталось шашек",
+					"selector": "#verdict-reason",
+					"box": {
+						"x": 484,
+						"y": 363.328125,
+						"width": 312,
+						"height": 42,
+						"right": 796,
+						"bottom": 405.328125
+					},
+					"textBox": {
+						"x": 536,
+						"y": 375.828125,
+						"width": 208,
+						"height": 16,
+						"right": 744,
+						"bottom": 391.828125
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "Ещё партия",
+					"selector": "[data-verdict=\"again\"]",
+					"box": {
+						"x": 400,
+						"y": 456.65625,
+						"width": 480,
+						"height": 64,
+						"right": 880,
+						"bottom": 520.65625
+					},
+					"textBox": {
+						"x": 593.5,
+						"y": 478.65625,
+						"width": 93,
+						"height": 20,
+						"right": 686.5,
+						"bottom": 498.65625
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "Посмотреть доску",
+					"selector": "[data-verdict=\"board\"]",
+					"box": {
+						"x": 412,
+						"y": 526.65625,
+						"width": 456,
+						"height": 52,
+						"right": 868,
+						"bottom": 578.65625
+					},
+					"textBox": {
+						"x": 576.5,
+						"y": 544.15625,
+						"width": 127,
+						"height": 17,
+						"right": 703.5,
+						"bottom": 561.15625
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "В меню",
+					"selector": "[data-verdict=\"menu\"]",
+					"box": {
+						"x": 424,
+						"y": 584.65625,
+						"width": 432,
+						"height": 44,
+						"right": 856,
+						"bottom": 628.65625
+					},
+					"textBox": {
+						"x": 616.5,
+						"y": 598.65625,
+						"width": 47,
+						"height": 16,
+						"right": 663.5,
+						"bottom": 614.65625
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				}
+			],
+			"upper": {
+				"x": 484,
+				"y": 262.328125,
+				"right": 796,
+				"bottom": 336.328125
+			},
+			"lower": {
+				"x": 484,
+				"y": 363.328125,
+				"right": 796,
+				"bottom": 405.328125
+			},
+			"overflow": false
+		},
+		"errors": [],
+		"blockedExternalRequests": 37
+	},
+	{
+		"name": "after-draw-1280-dpr2",
+		"phase": "after",
+		"width": 1280,
+		"dpr": 2,
+		"outcome": "draw",
+		"scenario": "controlled runtime: explicit createResultOverlay over actual GameScene board; no completed match",
+		"geometry": {
+			"panel": {
+				"x": 400,
+				"y": 215.328125,
+				"width": 480,
+				"height": 413.328125,
+				"right": 880,
+				"bottom": 628.65625
+			},
+			"labels": [
+				{
+					"text": "ПАРТИЯ ЗАВЕРШЕНА",
+					"selector": ".verdict-eyebrow",
+					"box": {
+						"x": 484,
+						"y": 262.328125,
+						"width": 312,
+						"height": 14,
+						"right": 796,
+						"bottom": 276.328125
+					},
+					"textBox": {
+						"x": 577,
+						"y": 263.328125,
+						"width": 126,
+						"height": 12,
+						"right": 703,
+						"bottom": 275.328125
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "НИЧЬЯ",
+					"selector": "#verdict-heading",
+					"box": {
+						"x": 484,
+						"y": 282.328125,
+						"width": 312,
+						"height": 54,
+						"right": 796,
+						"bottom": 336.328125
+					},
+					"textBox": {
+						"x": 591.5,
+						"y": 280.328125,
+						"width": 97,
+						"height": 37,
+						"right": 688.5,
+						"bottom": 317.328125
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "Позиция повторилась трижды",
+					"selector": "#verdict-reason",
+					"box": {
+						"x": 484,
+						"y": 363.328125,
+						"width": 312,
+						"height": 42,
+						"right": 796,
+						"bottom": 405.328125
+					},
+					"textBox": {
+						"x": 543.5,
+						"y": 375.828125,
+						"width": 193,
+						"height": 16,
+						"right": 736.5,
+						"bottom": 391.828125
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "Ещё партия",
+					"selector": "[data-verdict=\"again\"]",
+					"box": {
+						"x": 400,
+						"y": 456.65625,
+						"width": 480,
+						"height": 64,
+						"right": 880,
+						"bottom": 520.65625
+					},
+					"textBox": {
+						"x": 593.5,
+						"y": 478.65625,
+						"width": 93,
+						"height": 20,
+						"right": 686.5,
+						"bottom": 498.65625
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "Посмотреть доску",
+					"selector": "[data-verdict=\"board\"]",
+					"box": {
+						"x": 412,
+						"y": 526.65625,
+						"width": 456,
+						"height": 52,
+						"right": 868,
+						"bottom": 578.65625
+					},
+					"textBox": {
+						"x": 576.5,
+						"y": 544.15625,
+						"width": 127,
+						"height": 17,
+						"right": 703.5,
+						"bottom": 561.15625
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "В меню",
+					"selector": "[data-verdict=\"menu\"]",
+					"box": {
+						"x": 424,
+						"y": 584.65625,
+						"width": 432,
+						"height": 44,
+						"right": 856,
+						"bottom": 628.65625
+					},
+					"textBox": {
+						"x": 616.5,
+						"y": 598.65625,
+						"width": 47,
+						"height": 16,
+						"right": 663.5,
+						"bottom": 614.65625
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				}
+			],
+			"upper": {
+				"x": 484,
+				"y": 262.328125,
+				"right": 796,
+				"bottom": 336.328125
+			},
+			"lower": {
+				"x": 484,
+				"y": 363.328125,
+				"right": 796,
+				"bottom": 405.328125
+			},
+			"overflow": false
+		},
+		"errors": [],
+		"blockedExternalRequests": 39
+	},
+	{
+		"width": 1280,
+		"dpr": 2,
+		"stateResults": [
+			{
+				"action": "again",
+				"state": "rest",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/primary-rest.webp\")",
+				"stateName": "state-primary-rest-1280-dpr2",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "again",
+				"state": "hover",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/primary-hover.webp\")",
+				"stateName": "state-primary-hover-1280-dpr2",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "again",
+				"state": "pressed",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/primary-pressed.webp\")",
+				"stateName": "state-primary-pressed-1280-dpr2",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "again",
+				"state": "disabled",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/primary-disabled.webp\")",
+				"stateName": "state-primary-disabled-1280-dpr2",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "board",
+				"state": "rest",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/secondary-rest.webp\")",
+				"stateName": "state-secondary-rest-1280-dpr2",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "board",
+				"state": "hover",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/secondary-hover.webp\")",
+				"stateName": "state-secondary-hover-1280-dpr2",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "board",
+				"state": "pressed",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/secondary-pressed.webp\")",
+				"stateName": "state-secondary-pressed-1280-dpr2",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "board",
+				"state": "disabled",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/secondary-disabled.webp\")",
+				"stateName": "state-secondary-disabled-1280-dpr2",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "menu",
+				"state": "rest",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/quiet-rest.webp\")",
+				"stateName": "state-quiet-rest-1280-dpr2",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "menu",
+				"state": "hover",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/quiet-hover.webp\")",
+				"stateName": "state-quiet-hover-1280-dpr2",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "menu",
+				"state": "pressed",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/quiet-pressed.webp\")",
+				"stateName": "state-quiet-pressed-1280-dpr2",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "menu",
+				"state": "disabled",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/quiet-disabled.webp\")",
+				"stateName": "state-quiet-disabled-1280-dpr2",
+				"ink": "rgb(255, 248, 235)"
+			}
+		],
+		"collapsed": [
+			{
+				"label": "ПОРАЖЕНИЕ · Действия",
+				"x": 470.5,
+				"right": 684.5,
+				"height": 44,
+				"leftInset": 35,
+				"rightInset": 35,
+				"overflow": false
+			},
+			{
+				"label": "В меню",
+				"x": 692.5,
+				"right": 809.5,
+				"height": 44,
+				"leftInset": 35,
+				"rightInset": 35,
+				"overflow": false
+			}
+		],
+		"keyboardMenu": true
+	},
+	{
+		"name": "before-loss-1280-dpr3",
+		"phase": "before",
+		"width": 1280,
+		"dpr": 3,
+		"outcome": "loss",
+		"scenario": "controlled runtime: explicit createResultOverlay over actual GameScene board; no completed match",
+		"geometry": {
+			"panel": {
+				"x": 458,
+				"y": 263.296875,
+				"width": 364,
+				"height": 317.390625,
+				"right": 822,
+				"bottom": 580.6875
+			},
+			"labels": [
+				{
+					"text": "ПАРТИЯ ЗАВЕРШЕНА",
+					"selector": ".verdict-eyebrow",
+					"box": {
+						"x": 479,
+						"y": 289.296875,
+						"width": 322,
+						"height": 11,
+						"right": 801,
+						"bottom": 300.296875
+					},
+					"textBox": {
+						"x": 570.015625,
+						"y": 289.296875,
+						"width": 139.953125,
+						"height": 11,
+						"right": 709.96875,
+						"bottom": 300.296875
+					},
+					"color": "rgb(182, 182, 168)",
+					"overflow": false
+				},
+				{
+					"text": "ПОРАЖЕНИЕ",
+					"selector": "#verdict-heading",
+					"box": {
+						"x": 479,
+						"y": 310.296875,
+						"width": 322,
+						"height": 36.390625,
+						"right": 801,
+						"bottom": 346.6875
+					},
+					"textBox": {
+						"x": 538.5,
+						"y": 307.296875,
+						"width": 203,
+						"height": 42,
+						"right": 741.5,
+						"bottom": 349.296875
+					},
+					"color": "rgb(182, 201, 206)",
+					"overflow": false
+				},
+				{
+					"text": "У вас закончилось время",
+					"selector": "#verdict-reason",
+					"box": {
+						"x": 479,
+						"y": 356.6875,
+						"width": 322,
+						"height": 42,
+						"right": 801,
+						"bottom": 398.6875
+					},
+					"textBox": {
+						"x": 547.90625,
+						"y": 358.6875,
+						"width": 184.1875,
+						"height": 16,
+						"right": 732.09375,
+						"bottom": 374.6875
+					},
+					"color": "rgb(208, 210, 200)",
+					"overflow": false
+				},
+				{
+					"text": "Ещё партия",
+					"selector": "[data-verdict=\"again\"]",
+					"box": {
+						"x": 479,
+						"y": 414.6875,
+						"width": 322,
+						"height": 44,
+						"right": 801,
+						"bottom": 458.6875
+					},
+					"textBox": {
+						"x": 590.0625,
+						"y": 427.1875,
+						"width": 99.875,
+						"height": 19,
+						"right": 689.9375,
+						"bottom": 446.1875
+					},
+					"color": "rgb(244, 239, 228)",
+					"overflow": false
+				},
+				{
+					"text": "Посмотреть доску",
+					"selector": "[data-verdict=\"board\"]",
+					"box": {
+						"x": 479,
+						"y": 466.6875,
+						"width": 322,
+						"height": 44,
+						"right": 801,
+						"bottom": 510.6875
+					},
+					"textBox": {
+						"x": 562.78125,
+						"y": 479.1875,
+						"width": 154.421875,
+						"height": 19,
+						"right": 717.203125,
+						"bottom": 498.1875
+					},
+					"color": "rgb(244, 239, 228)",
+					"overflow": false
+				},
+				{
+					"text": "В меню",
+					"selector": "[data-verdict=\"menu\"]",
+					"box": {
+						"x": 479,
+						"y": 518.6875,
+						"width": 322,
+						"height": 44,
+						"right": 801,
+						"bottom": 562.6875
+					},
+					"textBox": {
+						"x": 614.84375,
+						"y": 533.1875,
+						"width": 50.3125,
+						"height": 15,
+						"right": 665.15625,
+						"bottom": 548.1875
+					},
+					"color": "rgb(195, 197, 185)",
+					"overflow": false
+				}
+			],
+			"upper": null,
+			"lower": null,
+			"overflow": false
+		},
+		"errors": [],
+		"blockedExternalRequests": 32
+	},
+	{
+		"name": "before-win-1280-dpr3",
+		"phase": "before",
+		"width": 1280,
+		"dpr": 3,
+		"outcome": "win",
+		"scenario": "controlled runtime: explicit createResultOverlay over actual GameScene board; no completed match",
+		"geometry": {
+			"panel": {
+				"x": 458,
+				"y": 263.296875,
+				"width": 364,
+				"height": 317.390625,
+				"right": 822,
+				"bottom": 580.6875
+			},
+			"labels": [
+				{
+					"text": "ПАРТИЯ ЗАВЕРШЕНА",
+					"selector": ".verdict-eyebrow",
+					"box": {
+						"x": 479,
+						"y": 289.296875,
+						"width": 322,
+						"height": 11,
+						"right": 801,
+						"bottom": 300.296875
+					},
+					"textBox": {
+						"x": 570.015625,
+						"y": 289.296875,
+						"width": 139.953125,
+						"height": 11,
+						"right": 709.96875,
+						"bottom": 300.296875
+					},
+					"color": "rgb(182, 182, 168)",
+					"overflow": false
+				},
+				{
+					"text": "ПОБЕДА",
+					"selector": "#verdict-heading",
+					"box": {
+						"x": 479,
+						"y": 310.296875,
+						"width": 322,
+						"height": 36.390625,
+						"right": 801,
+						"bottom": 346.6875
+					},
+					"textBox": {
+						"x": 575.5,
+						"y": 307.296875,
+						"width": 129,
+						"height": 42,
+						"right": 704.5,
+						"bottom": 349.296875
+					},
+					"color": "rgb(217, 192, 139)",
+					"overflow": false
+				},
+				{
+					"text": "У соперника не осталось шашек",
+					"selector": "#verdict-reason",
+					"box": {
+						"x": 479,
+						"y": 356.6875,
+						"width": 322,
+						"height": 42,
+						"right": 801,
+						"bottom": 398.6875
+					},
+					"textBox": {
+						"x": 519.984375,
+						"y": 358.6875,
+						"width": 240.03125,
+						"height": 16,
+						"right": 760.015625,
+						"bottom": 374.6875
+					},
+					"color": "rgb(208, 210, 200)",
+					"overflow": false
+				},
+				{
+					"text": "Ещё партия",
+					"selector": "[data-verdict=\"again\"]",
+					"box": {
+						"x": 479,
+						"y": 414.6875,
+						"width": 322,
+						"height": 44,
+						"right": 801,
+						"bottom": 458.6875
+					},
+					"textBox": {
+						"x": 590.0625,
+						"y": 427.1875,
+						"width": 99.875,
+						"height": 19,
+						"right": 689.9375,
+						"bottom": 446.1875
+					},
+					"color": "rgb(244, 239, 228)",
+					"overflow": false
+				},
+				{
+					"text": "Посмотреть доску",
+					"selector": "[data-verdict=\"board\"]",
+					"box": {
+						"x": 479,
+						"y": 466.6875,
+						"width": 322,
+						"height": 44,
+						"right": 801,
+						"bottom": 510.6875
+					},
+					"textBox": {
+						"x": 562.78125,
+						"y": 479.1875,
+						"width": 154.421875,
+						"height": 19,
+						"right": 717.203125,
+						"bottom": 498.1875
+					},
+					"color": "rgb(244, 239, 228)",
+					"overflow": false
+				},
+				{
+					"text": "В меню",
+					"selector": "[data-verdict=\"menu\"]",
+					"box": {
+						"x": 479,
+						"y": 518.6875,
+						"width": 322,
+						"height": 44,
+						"right": 801,
+						"bottom": 562.6875
+					},
+					"textBox": {
+						"x": 614.84375,
+						"y": 533.1875,
+						"width": 50.3125,
+						"height": 15,
+						"right": 665.15625,
+						"bottom": 548.1875
+					},
+					"color": "rgb(195, 197, 185)",
+					"overflow": false
+				}
+			],
+			"upper": null,
+			"lower": null,
+			"overflow": false
+		},
+		"errors": [],
+		"blockedExternalRequests": 35
+	},
+	{
+		"name": "before-draw-1280-dpr3",
+		"phase": "before",
+		"width": 1280,
+		"dpr": 3,
+		"outcome": "draw",
+		"scenario": "controlled runtime: explicit createResultOverlay over actual GameScene board; no completed match",
+		"geometry": {
+			"panel": {
+				"x": 458,
+				"y": 263.296875,
+				"width": 364,
+				"height": 317.390625,
+				"right": 822,
+				"bottom": 580.6875
+			},
+			"labels": [
+				{
+					"text": "ПАРТИЯ ЗАВЕРШЕНА",
+					"selector": ".verdict-eyebrow",
+					"box": {
+						"x": 479,
+						"y": 289.296875,
+						"width": 322,
+						"height": 11,
+						"right": 801,
+						"bottom": 300.296875
+					},
+					"textBox": {
+						"x": 570.015625,
+						"y": 289.296875,
+						"width": 139.953125,
+						"height": 11,
+						"right": 709.96875,
+						"bottom": 300.296875
+					},
+					"color": "rgb(182, 182, 168)",
+					"overflow": false
+				},
+				{
+					"text": "НИЧЬЯ",
+					"selector": "#verdict-heading",
+					"box": {
+						"x": 479,
+						"y": 310.296875,
+						"width": 322,
+						"height": 36.390625,
+						"right": 801,
+						"bottom": 346.6875
+					},
+					"textBox": {
+						"x": 583,
+						"y": 307.296875,
+						"width": 114,
+						"height": 42,
+						"right": 697,
+						"bottom": 349.296875
+					},
+					"color": "rgb(210, 211, 200)",
+					"overflow": false
+				},
+				{
+					"text": "Позиция повторилась трижды",
+					"selector": "#verdict-reason",
+					"box": {
+						"x": 479,
+						"y": 356.6875,
+						"width": 322,
+						"height": 42,
+						"right": 801,
+						"bottom": 398.6875
+					},
+					"textBox": {
+						"x": 527.375,
+						"y": 358.6875,
+						"width": 225.234375,
+						"height": 16,
+						"right": 752.609375,
+						"bottom": 374.6875
+					},
+					"color": "rgb(208, 210, 200)",
+					"overflow": false
+				},
+				{
+					"text": "Ещё партия",
+					"selector": "[data-verdict=\"again\"]",
+					"box": {
+						"x": 479,
+						"y": 414.6875,
+						"width": 322,
+						"height": 44,
+						"right": 801,
+						"bottom": 458.6875
+					},
+					"textBox": {
+						"x": 590.0625,
+						"y": 427.1875,
+						"width": 99.875,
+						"height": 19,
+						"right": 689.9375,
+						"bottom": 446.1875
+					},
+					"color": "rgb(244, 239, 228)",
+					"overflow": false
+				},
+				{
+					"text": "Посмотреть доску",
+					"selector": "[data-verdict=\"board\"]",
+					"box": {
+						"x": 479,
+						"y": 466.6875,
+						"width": 322,
+						"height": 44,
+						"right": 801,
+						"bottom": 510.6875
+					},
+					"textBox": {
+						"x": 562.78125,
+						"y": 479.1875,
+						"width": 154.421875,
+						"height": 19,
+						"right": 717.203125,
+						"bottom": 498.1875
+					},
+					"color": "rgb(244, 239, 228)",
+					"overflow": false
+				},
+				{
+					"text": "В меню",
+					"selector": "[data-verdict=\"menu\"]",
+					"box": {
+						"x": 479,
+						"y": 518.6875,
+						"width": 322,
+						"height": 44,
+						"right": 801,
+						"bottom": 562.6875
+					},
+					"textBox": {
+						"x": 614.84375,
+						"y": 533.1875,
+						"width": 50.3125,
+						"height": 15,
+						"right": 665.15625,
+						"bottom": 548.1875
+					},
+					"color": "rgb(195, 197, 185)",
+					"overflow": false
+				}
+			],
+			"upper": null,
+			"lower": null,
+			"overflow": false
+		},
+		"errors": [],
+		"blockedExternalRequests": 38
+	},
+	{
+		"name": "after-loss-1280-dpr3",
+		"phase": "after",
+		"width": 1280,
+		"dpr": 3,
+		"outcome": "loss",
+		"scenario": "controlled runtime: explicit createResultOverlay over actual GameScene board; no completed match",
+		"geometry": {
+			"panel": {
+				"x": 400,
+				"y": 215.328125,
+				"width": 480,
+				"height": 413.328125,
+				"right": 880,
+				"bottom": 628.65625
+			},
+			"labels": [
+				{
+					"text": "ПАРТИЯ ЗАВЕРШЕНА",
+					"selector": ".verdict-eyebrow",
+					"box": {
+						"x": 484,
+						"y": 262.328125,
+						"width": 312,
+						"height": 14,
+						"right": 796,
+						"bottom": 276.328125
+					},
+					"textBox": {
+						"x": 578.015625,
+						"y": 263.328125,
+						"width": 123.953125,
+						"height": 11,
+						"right": 701.96875,
+						"bottom": 274.328125
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "ПОРАЖЕНИЕ",
+					"selector": "#verdict-heading",
+					"box": {
+						"x": 484,
+						"y": 282.328125,
+						"width": 312,
+						"height": 54,
+						"right": 796,
+						"bottom": 336.328125
+					},
+					"textBox": {
+						"x": 553.5,
+						"y": 280.328125,
+						"width": 173,
+						"height": 37,
+						"right": 726.5,
+						"bottom": 317.328125
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "У вас закончилось время",
+					"selector": "#verdict-reason",
+					"box": {
+						"x": 484,
+						"y": 363.328125,
+						"width": 312,
+						"height": 42,
+						"right": 796,
+						"bottom": 405.328125
+					},
+					"textBox": {
+						"x": 554.484375,
+						"y": 376.828125,
+						"width": 171.03125,
+						"height": 15,
+						"right": 725.515625,
+						"bottom": 391.828125
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "Ещё партия",
+					"selector": "[data-verdict=\"again\"]",
+					"box": {
+						"x": 400,
+						"y": 456.65625,
+						"width": 480,
+						"height": 64,
+						"right": 880,
+						"bottom": 520.65625
+					},
+					"textBox": {
+						"x": 585.4375,
+						"y": 479.15625,
+						"width": 109.109375,
+						"height": 19,
+						"right": 694.546875,
+						"bottom": 498.15625
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "Посмотреть доску",
+					"selector": "[data-verdict=\"board\"]",
+					"box": {
+						"x": 412,
+						"y": 526.65625,
+						"width": 456,
+						"height": 52,
+						"right": 868,
+						"bottom": 578.65625
+					},
+					"textBox": {
+						"x": 572.4375,
+						"y": 544.65625,
+						"width": 135.125,
+						"height": 16,
+						"right": 707.5625,
+						"bottom": 560.65625
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "В меню",
+					"selector": "[data-verdict=\"menu\"]",
+					"box": {
+						"x": 424,
+						"y": 584.65625,
+						"width": 432,
+						"height": 44,
+						"right": 856,
+						"bottom": 628.65625
+					},
+					"textBox": {
+						"x": 614.84375,
+						"y": 599.15625,
+						"width": 50.3125,
+						"height": 15,
+						"right": 665.15625,
+						"bottom": 614.15625
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				}
+			],
+			"upper": {
+				"x": 484,
+				"y": 262.328125,
+				"right": 796,
+				"bottom": 336.328125
+			},
+			"lower": {
+				"x": 484,
+				"y": 363.328125,
+				"right": 796,
+				"bottom": 405.328125
+			},
+			"overflow": false
+		},
+		"errors": [],
+		"blockedExternalRequests": 41
+	},
+	{
+		"name": "after-win-1280-dpr3",
+		"phase": "after",
+		"width": 1280,
+		"dpr": 3,
+		"outcome": "win",
+		"scenario": "controlled runtime: explicit createResultOverlay over actual GameScene board; no completed match",
+		"geometry": {
+			"panel": {
+				"x": 400,
+				"y": 215.328125,
+				"width": 480,
+				"height": 413.328125,
+				"right": 880,
+				"bottom": 628.65625
+			},
+			"labels": [
+				{
+					"text": "ПАРТИЯ ЗАВЕРШЕНА",
+					"selector": ".verdict-eyebrow",
+					"box": {
+						"x": 484,
+						"y": 262.328125,
+						"width": 312,
+						"height": 14,
+						"right": 796,
+						"bottom": 276.328125
+					},
+					"textBox": {
+						"x": 578.015625,
+						"y": 263.328125,
+						"width": 123.953125,
+						"height": 11,
+						"right": 701.96875,
+						"bottom": 274.328125
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "ПОБЕДА",
+					"selector": "#verdict-heading",
+					"box": {
+						"x": 484,
+						"y": 282.328125,
+						"width": 312,
+						"height": 54,
+						"right": 796,
+						"bottom": 336.328125
+					},
+					"textBox": {
+						"x": 585.5,
+						"y": 280.328125,
+						"width": 109,
+						"height": 37,
+						"right": 694.5,
+						"bottom": 317.328125
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "У соперника не осталось шашек",
+					"selector": "#verdict-reason",
+					"box": {
+						"x": 484,
+						"y": 363.328125,
+						"width": 312,
+						"height": 42,
+						"right": 796,
+						"bottom": 405.328125
+					},
+					"textBox": {
+						"x": 528.546875,
+						"y": 376.828125,
+						"width": 222.890625,
+						"height": 15,
+						"right": 751.4375,
+						"bottom": 391.828125
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "Ещё партия",
+					"selector": "[data-verdict=\"again\"]",
+					"box": {
+						"x": 400,
+						"y": 456.65625,
+						"width": 480,
+						"height": 64,
+						"right": 880,
+						"bottom": 520.65625
+					},
+					"textBox": {
+						"x": 585.4375,
+						"y": 479.15625,
+						"width": 109.109375,
+						"height": 19,
+						"right": 694.546875,
+						"bottom": 498.15625
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "Посмотреть доску",
+					"selector": "[data-verdict=\"board\"]",
+					"box": {
+						"x": 412,
+						"y": 526.65625,
+						"width": 456,
+						"height": 52,
+						"right": 868,
+						"bottom": 578.65625
+					},
+					"textBox": {
+						"x": 572.4375,
+						"y": 544.65625,
+						"width": 135.125,
+						"height": 16,
+						"right": 707.5625,
+						"bottom": 560.65625
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "В меню",
+					"selector": "[data-verdict=\"menu\"]",
+					"box": {
+						"x": 424,
+						"y": 584.65625,
+						"width": 432,
+						"height": 44,
+						"right": 856,
+						"bottom": 628.65625
+					},
+					"textBox": {
+						"x": 614.84375,
+						"y": 599.15625,
+						"width": 50.3125,
+						"height": 15,
+						"right": 665.15625,
+						"bottom": 614.15625
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				}
+			],
+			"upper": {
+				"x": 484,
+				"y": 262.328125,
+				"right": 796,
+				"bottom": 336.328125
+			},
+			"lower": {
+				"x": 484,
+				"y": 363.328125,
+				"right": 796,
+				"bottom": 405.328125
+			},
+			"overflow": false
+		},
+		"errors": [],
+		"blockedExternalRequests": 48
+	},
+	{
+		"name": "after-draw-1280-dpr3",
+		"phase": "after",
+		"width": 1280,
+		"dpr": 3,
+		"outcome": "draw",
+		"scenario": "controlled runtime: explicit createResultOverlay over actual GameScene board; no completed match",
+		"geometry": {
+			"panel": {
+				"x": 400,
+				"y": 215.328125,
+				"width": 480,
+				"height": 413.328125,
+				"right": 880,
+				"bottom": 628.65625
+			},
+			"labels": [
+				{
+					"text": "ПАРТИЯ ЗАВЕРШЕНА",
+					"selector": ".verdict-eyebrow",
+					"box": {
+						"x": 484,
+						"y": 262.328125,
+						"width": 312,
+						"height": 14,
+						"right": 796,
+						"bottom": 276.328125
+					},
+					"textBox": {
+						"x": 578.015625,
+						"y": 263.328125,
+						"width": 123.953125,
+						"height": 11,
+						"right": 701.96875,
+						"bottom": 274.328125
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "НИЧЬЯ",
+					"selector": "#verdict-heading",
+					"box": {
+						"x": 484,
+						"y": 282.328125,
+						"width": 312,
+						"height": 54,
+						"right": 796,
+						"bottom": 336.328125
+					},
+					"textBox": {
+						"x": 591.5,
+						"y": 280.328125,
+						"width": 97,
+						"height": 37,
+						"right": 688.5,
+						"bottom": 317.328125
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "Позиция повторилась трижды",
+					"selector": "#verdict-reason",
+					"box": {
+						"x": 484,
+						"y": 363.328125,
+						"width": 312,
+						"height": 42,
+						"right": 796,
+						"bottom": 405.328125
+					},
+					"textBox": {
+						"x": 535.421875,
+						"y": 376.828125,
+						"width": 209.140625,
+						"height": 15,
+						"right": 744.5625,
+						"bottom": 391.828125
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "Ещё партия",
+					"selector": "[data-verdict=\"again\"]",
+					"box": {
+						"x": 400,
+						"y": 456.65625,
+						"width": 480,
+						"height": 64,
+						"right": 880,
+						"bottom": 520.65625
+					},
+					"textBox": {
+						"x": 585.4375,
+						"y": 479.15625,
+						"width": 109.109375,
+						"height": 19,
+						"right": 694.546875,
+						"bottom": 498.15625
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "Посмотреть доску",
+					"selector": "[data-verdict=\"board\"]",
+					"box": {
+						"x": 412,
+						"y": 526.65625,
+						"width": 456,
+						"height": 52,
+						"right": 868,
+						"bottom": 578.65625
+					},
+					"textBox": {
+						"x": 572.4375,
+						"y": 544.65625,
+						"width": 135.125,
+						"height": 16,
+						"right": 707.5625,
+						"bottom": 560.65625
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				},
+				{
+					"text": "В меню",
+					"selector": "[data-verdict=\"menu\"]",
+					"box": {
+						"x": 424,
+						"y": 584.65625,
+						"width": 432,
+						"height": 44,
+						"right": 856,
+						"bottom": 628.65625
+					},
+					"textBox": {
+						"x": 614.84375,
+						"y": 599.15625,
+						"width": 50.3125,
+						"height": 15,
+						"right": 665.15625,
+						"bottom": 614.15625
+					},
+					"color": "rgb(255, 248, 235)",
+					"overflow": false
+				}
+			],
+			"upper": {
+				"x": 484,
+				"y": 262.328125,
+				"right": 796,
+				"bottom": 336.328125
+			},
+			"lower": {
+				"x": 484,
+				"y": 363.328125,
+				"right": 796,
+				"bottom": 405.328125
+			},
+			"overflow": false
+		},
+		"errors": [],
+		"blockedExternalRequests": 51
+	},
+	{
+		"width": 1280,
+		"dpr": 3,
+		"stateResults": [
+			{
+				"action": "again",
+				"state": "rest",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/primary-rest.webp\")",
+				"stateName": "state-primary-rest-1280-dpr3",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "again",
+				"state": "hover",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/primary-hover.webp\")",
+				"stateName": "state-primary-hover-1280-dpr3",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "again",
+				"state": "pressed",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/primary-pressed.webp\")",
+				"stateName": "state-primary-pressed-1280-dpr3",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "again",
+				"state": "disabled",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/primary-disabled.webp\")",
+				"stateName": "state-primary-disabled-1280-dpr3",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "board",
+				"state": "rest",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/secondary-rest.webp\")",
+				"stateName": "state-secondary-rest-1280-dpr3",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "board",
+				"state": "hover",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/secondary-hover.webp\")",
+				"stateName": "state-secondary-hover-1280-dpr3",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "board",
+				"state": "pressed",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/secondary-pressed.webp\")",
+				"stateName": "state-secondary-pressed-1280-dpr3",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "board",
+				"state": "disabled",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/secondary-disabled.webp\")",
+				"stateName": "state-secondary-disabled-1280-dpr3",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "menu",
+				"state": "rest",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/quiet-rest.webp\")",
+				"stateName": "state-quiet-rest-1280-dpr3",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "menu",
+				"state": "hover",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/quiet-hover.webp\")",
+				"stateName": "state-quiet-hover-1280-dpr3",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "menu",
+				"state": "pressed",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/quiet-pressed.webp\")",
+				"stateName": "state-quiet-pressed-1280-dpr3",
+				"ink": "rgb(255, 248, 235)"
+			},
+			{
+				"action": "menu",
+				"state": "disabled",
+				"source": "url(\"http://127.0.0.1:5197/src/client/app/ui/verdict/quiet-disabled.webp\")",
+				"stateName": "state-quiet-disabled-1280-dpr3",
+				"ink": "rgb(255, 248, 235)"
+			}
+		],
+		"collapsed": [
+			{
+				"label": "ПОРАЖЕНИЕ · Действия",
+				"x": 465,
+				"right": 686.6875,
+				"height": 44,
+				"leftInset": 35,
+				"rightInset": 35,
+				"overflow": false
+			},
+			{
+				"label": "В меню",
+				"x": 694.6875,
+				"right": 815,
+				"height": 44,
+				"leftInset": 35,
+				"rightInset": 35,
+				"overflow": false
+			}
+		],
+		"keyboardMenu": true
+	}
+]

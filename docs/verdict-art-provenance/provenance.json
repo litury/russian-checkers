@@ -1,0 +1,129 @@
+{
+  "tool": "Codex built-in image_gen via cx (no API fallback, no PixelLab)",
+  "task": "t_1577b2be — экраны итога: пазы под текст, кнопки без растяжения",
+  "approved_decision": "По решению координатора от 09.10.2026 применён запасной путь: одна одобренная владельцем общая плита заголовка на все три исхода (победа/поражение/ничья); различие исходов несёт текст заголовка, а не цвет. Причина: дополнительные попытки генерации давали красные ядра и разъезжавшуюся геометрию пазов.",
+  "records": "docs/verdict-art-provenance/records/ — фактические промпты, session/provenance JSON, sha256 сырых ответов по каждому вызову",
+  "masters": "docs/verdict-art-provenance/masters/ — фактические оригиналы генерации (PNG), не домашний каталог Codex",
+  "normalization": "Прямоугольные кадры и lossless WebP; никаких фильтров, порогов, перекраски и апскейла. Растяжка в CSS убрана (border-image со stretch удалён), старые frame-*.webp удалены из рантайма.",
+  "published_files": [
+    {
+      "file": "title",
+      "size": [
+        2172,
+        724
+      ],
+      "dpr": 3,
+      "sha256": "5f8ef22468f5326c14e403d127310b3a1da661150da43990e66b34ca1d8a615c"
+    },
+    {
+      "file": "primary-rest",
+      "size": [
+        1448,
+        94
+      ],
+      "dpr": 3,
+      "sha256": "bb0915c53a764773d5edbc23316a1281cbc6ed393f26b885f87f30173df32cc1"
+    },
+    {
+      "file": "primary-hover",
+      "size": [
+        1448,
+        89
+      ],
+      "dpr": 3,
+      "sha256": "49a59bdbba7bc119717f5d481d95816c58de2d5354afdfcfbaf3fc841dc424db"
+    },
+    {
+      "file": "primary-pressed",
+      "size": [
+        1448,
+        87
+      ],
+      "dpr": 3,
+      "sha256": "e1877620e870f7d9dca226309ae6b4f4eea6aca83b3c4920d735330c07147502"
+    },
+    {
+      "file": "primary-disabled",
+      "size": [
+        1448,
+        92
+      ],
+      "dpr": 3,
+      "sha256": "a39f36c4d7364a337b54ad1fc711b98012babe208afec3751883aa3df4a978ff"
+    },
+    {
+      "file": "secondary-rest",
+      "size": [
+        1448,
+        88
+      ],
+      "dpr": 3,
+      "sha256": "b7967eaa79c4818f903dedb15b1d00e9f99ac0737e8d6331f9c70bbb8fcf76a5"
+    },
+    {
+      "file": "secondary-hover",
+      "size": [
+        1448,
+        85
+      ],
+      "dpr": 3,
+      "sha256": "f0cdc2e971bd1aa6a7bc4d191de342f4ce88970f663763896080aca885d00967"
+    },
+    {
+      "file": "secondary-pressed",
+      "size": [
+        1448,
+        89
+      ],
+      "dpr": 3,
+      "sha256": "186a368fed0b3aab7999946f10697ebbd8ed078fc096394f6af0f452211b369a"
+    },
+    {
+      "file": "secondary-disabled",
+      "size": [
+        1448,
+        94
+      ],
+      "dpr": 3,
+      "sha256": "b72f4331ad6eb9faaef4a8cc17952abef2504a1f10f939f4cc120c970626624e"
+    },
+    {
+      "file": "quiet-rest",
+      "size": [
+        1448,
+        90
+      ],
+      "dpr": 3,
+      "sha256": "95b20e68af3ed41d455a3d2f54e8092f38eaa8d33b301d9117d74ccd7344a685"
+    },
+    {
+      "file": "quiet-hover",
+      "size": [
+        1448,
+        87
+      ],
+      "dpr": 3,
+      "sha256": "2ad3e9690aa65b3632afc681278c6521c3009277486b3cb2ccdc967722fe269f"
+    },
+    {
+      "file": "quiet-pressed",
+      "size": [
+        1448,
+        88
+      ],
+      "dpr": 3,
+      "sha256": "dbdcdd5c1895a5dcd9ed85b6ce7bf880a8f7d045382963aa2c2eb2e24a306584"
+    },
+    {
+      "file": "quiet-disabled",
+      "size": [
+        1448,
+        103
+      ],
+      "dpr": 3,
+      "sha256": "fa61dc92b14bc4723f651d764c8de217a7d243365908c75481ced4f7022875f8"
+    }
+  ],
+  "assembled_by": "координатор при публикации из записей карточки (иллюстратор не закоммитил провенанс)",
+  "date": "2026-10-09"
+}

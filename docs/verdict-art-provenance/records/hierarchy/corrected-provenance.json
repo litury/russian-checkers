@@ -1,0 +1,35 @@
+{
+  "tool": "built-in image_gen.imagegen",
+  "correction_calls_this_request": 1,
+  "retries": 0,
+  "edit_target": "raw.png",
+  "prompt": "corrected-prompt.txt",
+  "output": "corrected.png",
+  "tool_output_source": "/home/hermes/.codex-account1/generated_images/01a11c2a-36be-7990-821c-04b54d36e832/exec-96e0848c-9617-4894-a1b9-b8efa0074aa0.png",
+  "raw_bytes_preserved": true,
+  "sha256": "ba2aa42b658470046d8dbeff663bff831cc4c93c49ea3baa1acfd8472229c509",
+  "width": 1672,
+  "height": 941,
+  "mode": "RGBA",
+  "alpha_extrema": [
+    0,
+    255
+  ],
+  "preferred_dimensions": [
+    3840,
+    2160
+  ],
+  "minimum_dimensions": [
+    3344,
+    1882
+  ],
+  "minimum_resolution_met": false,
+  "individual_button_1000_source_pixels_met": false,
+  "native_high_resolution_verified": false,
+  "provenance_limit": "This is the unmodified raw built-in tool output. The tool supplied 1672x941 despite the prompt request. No claim of native high-resolution rendering or internal tool processing is made.",
+  "postprocessing": "none; byte-for-byte copy only; no resizing, upscaling, blur, threshold, or alpha modification",
+  "visual_review": "3 columns and 4 rows and blank recesses retained visually; primary amber lights, unlit secondary studs, and graphite quiet column retained. Thin colored exterior fringes remain visible. Exact geometry preservation is not verified.",
+  "acceptance": "Requested correction did not meet resolution or complete fringe-removal requirements. No retry performed.",
+  "existing_files": "preserved",
+  "runtime_changes": false
+}

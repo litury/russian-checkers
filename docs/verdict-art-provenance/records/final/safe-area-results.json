@@ -1,0 +1,2978 @@
+[
+  {
+    "width": 390,
+    "dpr": 2,
+    "reducedMotion": "no-preference",
+    "outcome": "win",
+    "state": "expanded",
+    "geometry": [
+      {
+        "label": "Ещё партия",
+        "width": 366,
+        "height": 64,
+        "x": 12,
+        "right": 378,
+        "leftInset": 136.5,
+        "rightInset": 136.5,
+        "overflow": false
+      },
+      {
+        "label": "Посмотреть доску",
+        "width": 366,
+        "height": 52,
+        "x": 12,
+        "right": 378,
+        "leftInset": 119.5,
+        "rightInset": 119.5,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 366,
+        "height": 44,
+        "x": 12,
+        "right": 378,
+        "leftInset": 159.5,
+        "rightInset": 159.5,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОБЕДА",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 366,
+        "height": 64
+      },
+      {
+        "width": 366,
+        "height": 52
+      },
+      {
+        "width": 366,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "dpr": 2,
+    "reducedMotion": "no-preference",
+    "outcome": "win",
+    "state": "collapsed",
+    "geometry": [
+      {
+        "label": "ПОБЕДА · Действия",
+        "width": 187,
+        "height": 44,
+        "x": 39,
+        "right": 226,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 117,
+        "height": 44,
+        "x": 234,
+        "right": 351,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОБЕДА",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 366,
+        "height": 64
+      },
+      {
+        "width": 366,
+        "height": 52
+      },
+      {
+        "width": 366,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "dpr": 2,
+    "reducedMotion": "no-preference",
+    "outcome": "loss",
+    "state": "expanded",
+    "geometry": [
+      {
+        "label": "Ещё партия",
+        "width": 366,
+        "height": 64,
+        "x": 12,
+        "right": 378,
+        "leftInset": 136.5,
+        "rightInset": 136.5,
+        "overflow": false
+      },
+      {
+        "label": "Посмотреть доску",
+        "width": 366,
+        "height": 52,
+        "x": 12,
+        "right": 378,
+        "leftInset": 119.5,
+        "rightInset": 119.5,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 366,
+        "height": 44,
+        "x": 12,
+        "right": 378,
+        "leftInset": 159.5,
+        "rightInset": 159.5,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОРАЖЕНИЕ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 366,
+        "height": 64
+      },
+      {
+        "width": 366,
+        "height": 52
+      },
+      {
+        "width": 366,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "dpr": 2,
+    "reducedMotion": "no-preference",
+    "outcome": "loss",
+    "state": "collapsed",
+    "geometry": [
+      {
+        "label": "ПОРАЖЕНИЕ · Действия",
+        "width": 214,
+        "height": 44,
+        "x": 25.5,
+        "right": 239.5,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 117,
+        "height": 44,
+        "x": 247.5,
+        "right": 364.5,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОРАЖЕНИЕ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 366,
+        "height": 64
+      },
+      {
+        "width": 366,
+        "height": 52
+      },
+      {
+        "width": 366,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "dpr": 2,
+    "reducedMotion": "no-preference",
+    "outcome": "draw",
+    "state": "expanded",
+    "geometry": [
+      {
+        "label": "Ещё партия",
+        "width": 366,
+        "height": 64,
+        "x": 12,
+        "right": 378,
+        "leftInset": 136.5,
+        "rightInset": 136.5,
+        "overflow": false
+      },
+      {
+        "label": "Посмотреть доску",
+        "width": 366,
+        "height": 52,
+        "x": 12,
+        "right": 378,
+        "leftInset": 119.5,
+        "rightInset": 119.5,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 366,
+        "height": 44,
+        "x": 12,
+        "right": 378,
+        "leftInset": 159.5,
+        "rightInset": 159.5,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "НИЧЬЯ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 366,
+        "height": 64
+      },
+      {
+        "width": 366,
+        "height": 52
+      },
+      {
+        "width": 366,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "dpr": 2,
+    "reducedMotion": "no-preference",
+    "outcome": "draw",
+    "state": "collapsed",
+    "geometry": [
+      {
+        "label": "НИЧЬЯ · Действия",
+        "width": 179,
+        "height": 44,
+        "x": 43,
+        "right": 222,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 117,
+        "height": 44,
+        "x": 230,
+        "right": 347,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "НИЧЬЯ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 366,
+        "height": 64
+      },
+      {
+        "width": 366,
+        "height": 52
+      },
+      {
+        "width": 366,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "dpr": 2,
+    "reducedMotion": "reduce",
+    "outcome": "win",
+    "state": "expanded",
+    "geometry": [
+      {
+        "label": "Ещё партия",
+        "width": 366,
+        "height": 64,
+        "x": 12,
+        "right": 378,
+        "leftInset": 136.5,
+        "rightInset": 136.5,
+        "overflow": false
+      },
+      {
+        "label": "Посмотреть доску",
+        "width": 366,
+        "height": 52,
+        "x": 12,
+        "right": 378,
+        "leftInset": 119.5,
+        "rightInset": 119.5,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 366,
+        "height": 44,
+        "x": 12,
+        "right": 378,
+        "leftInset": 159.5,
+        "rightInset": 159.5,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОБЕДА",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 366,
+        "height": 64
+      },
+      {
+        "width": 366,
+        "height": 52
+      },
+      {
+        "width": 366,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "dpr": 2,
+    "reducedMotion": "reduce",
+    "outcome": "win",
+    "state": "collapsed",
+    "geometry": [
+      {
+        "label": "ПОБЕДА · Действия",
+        "width": 187,
+        "height": 44,
+        "x": 39,
+        "right": 226,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 117,
+        "height": 44,
+        "x": 234,
+        "right": 351,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОБЕДА",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 366,
+        "height": 64
+      },
+      {
+        "width": 366,
+        "height": 52
+      },
+      {
+        "width": 366,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "dpr": 2,
+    "reducedMotion": "reduce",
+    "outcome": "loss",
+    "state": "expanded",
+    "geometry": [
+      {
+        "label": "Ещё партия",
+        "width": 366,
+        "height": 64,
+        "x": 12,
+        "right": 378,
+        "leftInset": 136.5,
+        "rightInset": 136.5,
+        "overflow": false
+      },
+      {
+        "label": "Посмотреть доску",
+        "width": 366,
+        "height": 52,
+        "x": 12,
+        "right": 378,
+        "leftInset": 119.5,
+        "rightInset": 119.5,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 366,
+        "height": 44,
+        "x": 12,
+        "right": 378,
+        "leftInset": 159.5,
+        "rightInset": 159.5,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОРАЖЕНИЕ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 366,
+        "height": 64
+      },
+      {
+        "width": 366,
+        "height": 52
+      },
+      {
+        "width": 366,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "dpr": 2,
+    "reducedMotion": "reduce",
+    "outcome": "loss",
+    "state": "collapsed",
+    "geometry": [
+      {
+        "label": "ПОРАЖЕНИЕ · Действия",
+        "width": 214,
+        "height": 44,
+        "x": 25.5,
+        "right": 239.5,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 117,
+        "height": 44,
+        "x": 247.5,
+        "right": 364.5,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОРАЖЕНИЕ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 366,
+        "height": 64
+      },
+      {
+        "width": 366,
+        "height": 52
+      },
+      {
+        "width": 366,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "dpr": 2,
+    "reducedMotion": "reduce",
+    "outcome": "draw",
+    "state": "expanded",
+    "geometry": [
+      {
+        "label": "Ещё партия",
+        "width": 366,
+        "height": 64,
+        "x": 12,
+        "right": 378,
+        "leftInset": 136.5,
+        "rightInset": 136.5,
+        "overflow": false
+      },
+      {
+        "label": "Посмотреть доску",
+        "width": 366,
+        "height": 52,
+        "x": 12,
+        "right": 378,
+        "leftInset": 119.5,
+        "rightInset": 119.5,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 366,
+        "height": 44,
+        "x": 12,
+        "right": 378,
+        "leftInset": 159.5,
+        "rightInset": 159.5,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "НИЧЬЯ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 366,
+        "height": 64
+      },
+      {
+        "width": 366,
+        "height": 52
+      },
+      {
+        "width": 366,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "dpr": 2,
+    "reducedMotion": "reduce",
+    "outcome": "draw",
+    "state": "collapsed",
+    "geometry": [
+      {
+        "label": "НИЧЬЯ · Действия",
+        "width": 179,
+        "height": 44,
+        "x": 43,
+        "right": 222,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 117,
+        "height": 44,
+        "x": 230,
+        "right": 347,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "НИЧЬЯ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 366,
+        "height": 64
+      },
+      {
+        "width": 366,
+        "height": 52
+      },
+      {
+        "width": 366,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "dpr": 3,
+    "reducedMotion": "no-preference",
+    "outcome": "win",
+    "state": "expanded",
+    "geometry": [
+      {
+        "label": "Ещё партия",
+        "width": 366,
+        "height": 64,
+        "x": 12,
+        "right": 378,
+        "leftInset": 136.5,
+        "rightInset": 136.5,
+        "overflow": false
+      },
+      {
+        "label": "Посмотреть доску",
+        "width": 366,
+        "height": 52,
+        "x": 12,
+        "right": 378,
+        "leftInset": 119.5,
+        "rightInset": 119.5,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 366,
+        "height": 44,
+        "x": 12,
+        "right": 378,
+        "leftInset": 159.5,
+        "rightInset": 159.5,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОБЕДА",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 366,
+        "height": 64
+      },
+      {
+        "width": 366,
+        "height": 52
+      },
+      {
+        "width": 366,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "dpr": 3,
+    "reducedMotion": "no-preference",
+    "outcome": "win",
+    "state": "collapsed",
+    "geometry": [
+      {
+        "label": "ПОБЕДА · Действия",
+        "width": 187,
+        "height": 44,
+        "x": 39,
+        "right": 226,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 117,
+        "height": 44,
+        "x": 234,
+        "right": 351,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОБЕДА",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 366,
+        "height": 64
+      },
+      {
+        "width": 366,
+        "height": 52
+      },
+      {
+        "width": 366,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "dpr": 3,
+    "reducedMotion": "no-preference",
+    "outcome": "loss",
+    "state": "expanded",
+    "geometry": [
+      {
+        "label": "Ещё партия",
+        "width": 366,
+        "height": 64,
+        "x": 12,
+        "right": 378,
+        "leftInset": 136.5,
+        "rightInset": 136.5,
+        "overflow": false
+      },
+      {
+        "label": "Посмотреть доску",
+        "width": 366,
+        "height": 52,
+        "x": 12,
+        "right": 378,
+        "leftInset": 119.5,
+        "rightInset": 119.5,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 366,
+        "height": 44,
+        "x": 12,
+        "right": 378,
+        "leftInset": 159.5,
+        "rightInset": 159.5,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОРАЖЕНИЕ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 366,
+        "height": 64
+      },
+      {
+        "width": 366,
+        "height": 52
+      },
+      {
+        "width": 366,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "dpr": 3,
+    "reducedMotion": "no-preference",
+    "outcome": "loss",
+    "state": "collapsed",
+    "geometry": [
+      {
+        "label": "ПОРАЖЕНИЕ · Действия",
+        "width": 214,
+        "height": 44,
+        "x": 25.5,
+        "right": 239.5,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 117,
+        "height": 44,
+        "x": 247.5,
+        "right": 364.5,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОРАЖЕНИЕ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 366,
+        "height": 64
+      },
+      {
+        "width": 366,
+        "height": 52
+      },
+      {
+        "width": 366,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "dpr": 3,
+    "reducedMotion": "no-preference",
+    "outcome": "draw",
+    "state": "expanded",
+    "geometry": [
+      {
+        "label": "Ещё партия",
+        "width": 366,
+        "height": 64,
+        "x": 12,
+        "right": 378,
+        "leftInset": 136.5,
+        "rightInset": 136.5,
+        "overflow": false
+      },
+      {
+        "label": "Посмотреть доску",
+        "width": 366,
+        "height": 52,
+        "x": 12,
+        "right": 378,
+        "leftInset": 119.5,
+        "rightInset": 119.5,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 366,
+        "height": 44,
+        "x": 12,
+        "right": 378,
+        "leftInset": 159.5,
+        "rightInset": 159.5,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "НИЧЬЯ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 366,
+        "height": 64
+      },
+      {
+        "width": 366,
+        "height": 52
+      },
+      {
+        "width": 366,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "dpr": 3,
+    "reducedMotion": "no-preference",
+    "outcome": "draw",
+    "state": "collapsed",
+    "geometry": [
+      {
+        "label": "НИЧЬЯ · Действия",
+        "width": 179,
+        "height": 44,
+        "x": 43,
+        "right": 222,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 117,
+        "height": 44,
+        "x": 230,
+        "right": 347,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "НИЧЬЯ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 366,
+        "height": 64
+      },
+      {
+        "width": 366,
+        "height": 52
+      },
+      {
+        "width": 366,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "dpr": 3,
+    "reducedMotion": "reduce",
+    "outcome": "win",
+    "state": "expanded",
+    "geometry": [
+      {
+        "label": "Ещё партия",
+        "width": 366,
+        "height": 64,
+        "x": 12,
+        "right": 378,
+        "leftInset": 136.5,
+        "rightInset": 136.5,
+        "overflow": false
+      },
+      {
+        "label": "Посмотреть доску",
+        "width": 366,
+        "height": 52,
+        "x": 12,
+        "right": 378,
+        "leftInset": 119.5,
+        "rightInset": 119.5,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 366,
+        "height": 44,
+        "x": 12,
+        "right": 378,
+        "leftInset": 159.5,
+        "rightInset": 159.5,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОБЕДА",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 366,
+        "height": 64
+      },
+      {
+        "width": 366,
+        "height": 52
+      },
+      {
+        "width": 366,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "dpr": 3,
+    "reducedMotion": "reduce",
+    "outcome": "win",
+    "state": "collapsed",
+    "geometry": [
+      {
+        "label": "ПОБЕДА · Действия",
+        "width": 187,
+        "height": 44,
+        "x": 39,
+        "right": 226,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 117,
+        "height": 44,
+        "x": 234,
+        "right": 351,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОБЕДА",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 366,
+        "height": 64
+      },
+      {
+        "width": 366,
+        "height": 52
+      },
+      {
+        "width": 366,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "dpr": 3,
+    "reducedMotion": "reduce",
+    "outcome": "loss",
+    "state": "expanded",
+    "geometry": [
+      {
+        "label": "Ещё партия",
+        "width": 366,
+        "height": 64,
+        "x": 12,
+        "right": 378,
+        "leftInset": 136.5,
+        "rightInset": 136.5,
+        "overflow": false
+      },
+      {
+        "label": "Посмотреть доску",
+        "width": 366,
+        "height": 52,
+        "x": 12,
+        "right": 378,
+        "leftInset": 119.5,
+        "rightInset": 119.5,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 366,
+        "height": 44,
+        "x": 12,
+        "right": 378,
+        "leftInset": 159.5,
+        "rightInset": 159.5,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОРАЖЕНИЕ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 366,
+        "height": 64
+      },
+      {
+        "width": 366,
+        "height": 52
+      },
+      {
+        "width": 366,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "dpr": 3,
+    "reducedMotion": "reduce",
+    "outcome": "loss",
+    "state": "collapsed",
+    "geometry": [
+      {
+        "label": "ПОРАЖЕНИЕ · Действия",
+        "width": 214,
+        "height": 44,
+        "x": 25.5,
+        "right": 239.5,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 117,
+        "height": 44,
+        "x": 247.5,
+        "right": 364.5,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОРАЖЕНИЕ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 366,
+        "height": 64
+      },
+      {
+        "width": 366,
+        "height": 52
+      },
+      {
+        "width": 366,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "dpr": 3,
+    "reducedMotion": "reduce",
+    "outcome": "draw",
+    "state": "expanded",
+    "geometry": [
+      {
+        "label": "Ещё партия",
+        "width": 366,
+        "height": 64,
+        "x": 12,
+        "right": 378,
+        "leftInset": 136.5,
+        "rightInset": 136.5,
+        "overflow": false
+      },
+      {
+        "label": "Посмотреть доску",
+        "width": 366,
+        "height": 52,
+        "x": 12,
+        "right": 378,
+        "leftInset": 119.5,
+        "rightInset": 119.5,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 366,
+        "height": 44,
+        "x": 12,
+        "right": 378,
+        "leftInset": 159.5,
+        "rightInset": 159.5,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "НИЧЬЯ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 366,
+        "height": 64
+      },
+      {
+        "width": 366,
+        "height": 52
+      },
+      {
+        "width": 366,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "dpr": 3,
+    "reducedMotion": "reduce",
+    "outcome": "draw",
+    "state": "collapsed",
+    "geometry": [
+      {
+        "label": "НИЧЬЯ · Действия",
+        "width": 179,
+        "height": 44,
+        "x": 43,
+        "right": 222,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 117,
+        "height": 44,
+        "x": 230,
+        "right": 347,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "НИЧЬЯ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 366,
+        "height": 64
+      },
+      {
+        "width": 366,
+        "height": 52
+      },
+      {
+        "width": 366,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 1280,
+    "dpr": 2,
+    "reducedMotion": "no-preference",
+    "outcome": "win",
+    "state": "expanded",
+    "geometry": [
+      {
+        "label": "Ещё партия",
+        "width": 480,
+        "height": 64,
+        "x": 400,
+        "right": 880,
+        "leftInset": 193.5,
+        "rightInset": 193.5,
+        "overflow": false
+      },
+      {
+        "label": "Посмотреть доску",
+        "width": 480,
+        "height": 52,
+        "x": 400,
+        "right": 880,
+        "leftInset": 176.5,
+        "rightInset": 176.5,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 480,
+        "height": 44,
+        "x": 400,
+        "right": 880,
+        "leftInset": 216.5,
+        "rightInset": 216.5,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОБЕДА",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 480,
+        "height": 64
+      },
+      {
+        "width": 480,
+        "height": 52
+      },
+      {
+        "width": 480,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 1280,
+    "dpr": 2,
+    "reducedMotion": "no-preference",
+    "outcome": "win",
+    "state": "collapsed",
+    "geometry": [
+      {
+        "label": "ПОБЕДА · Действия",
+        "width": 187,
+        "height": 44,
+        "x": 484,
+        "right": 671,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 117,
+        "height": 44,
+        "x": 679,
+        "right": 796,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОБЕДА",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 480,
+        "height": 64
+      },
+      {
+        "width": 480,
+        "height": 52
+      },
+      {
+        "width": 480,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 1280,
+    "dpr": 2,
+    "reducedMotion": "no-preference",
+    "outcome": "loss",
+    "state": "expanded",
+    "geometry": [
+      {
+        "label": "Ещё партия",
+        "width": 480,
+        "height": 64,
+        "x": 400,
+        "right": 880,
+        "leftInset": 193.5,
+        "rightInset": 193.5,
+        "overflow": false
+      },
+      {
+        "label": "Посмотреть доску",
+        "width": 480,
+        "height": 52,
+        "x": 400,
+        "right": 880,
+        "leftInset": 176.5,
+        "rightInset": 176.5,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 480,
+        "height": 44,
+        "x": 400,
+        "right": 880,
+        "leftInset": 216.5,
+        "rightInset": 216.5,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОРАЖЕНИЕ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 480,
+        "height": 64
+      },
+      {
+        "width": 480,
+        "height": 52
+      },
+      {
+        "width": 480,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 1280,
+    "dpr": 2,
+    "reducedMotion": "no-preference",
+    "outcome": "loss",
+    "state": "collapsed",
+    "geometry": [
+      {
+        "label": "ПОРАЖЕНИЕ · Действия",
+        "width": 214,
+        "height": 44,
+        "x": 470.5,
+        "right": 684.5,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 117,
+        "height": 44,
+        "x": 692.5,
+        "right": 809.5,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОРАЖЕНИЕ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 480,
+        "height": 64
+      },
+      {
+        "width": 480,
+        "height": 52
+      },
+      {
+        "width": 480,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 1280,
+    "dpr": 2,
+    "reducedMotion": "no-preference",
+    "outcome": "draw",
+    "state": "expanded",
+    "geometry": [
+      {
+        "label": "Ещё партия",
+        "width": 480,
+        "height": 64,
+        "x": 400,
+        "right": 880,
+        "leftInset": 193.5,
+        "rightInset": 193.5,
+        "overflow": false
+      },
+      {
+        "label": "Посмотреть доску",
+        "width": 480,
+        "height": 52,
+        "x": 400,
+        "right": 880,
+        "leftInset": 176.5,
+        "rightInset": 176.5,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 480,
+        "height": 44,
+        "x": 400,
+        "right": 880,
+        "leftInset": 216.5,
+        "rightInset": 216.5,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "НИЧЬЯ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 480,
+        "height": 64
+      },
+      {
+        "width": 480,
+        "height": 52
+      },
+      {
+        "width": 480,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 1280,
+    "dpr": 2,
+    "reducedMotion": "no-preference",
+    "outcome": "draw",
+    "state": "collapsed",
+    "geometry": [
+      {
+        "label": "НИЧЬЯ · Действия",
+        "width": 179,
+        "height": 44,
+        "x": 488,
+        "right": 667,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 117,
+        "height": 44,
+        "x": 675,
+        "right": 792,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "НИЧЬЯ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 480,
+        "height": 64
+      },
+      {
+        "width": 480,
+        "height": 52
+      },
+      {
+        "width": 480,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 1280,
+    "dpr": 2,
+    "reducedMotion": "reduce",
+    "outcome": "win",
+    "state": "expanded",
+    "geometry": [
+      {
+        "label": "Ещё партия",
+        "width": 480,
+        "height": 64,
+        "x": 400,
+        "right": 880,
+        "leftInset": 193.5,
+        "rightInset": 193.5,
+        "overflow": false
+      },
+      {
+        "label": "Посмотреть доску",
+        "width": 480,
+        "height": 52,
+        "x": 400,
+        "right": 880,
+        "leftInset": 176.5,
+        "rightInset": 176.5,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 480,
+        "height": 44,
+        "x": 400,
+        "right": 880,
+        "leftInset": 216.5,
+        "rightInset": 216.5,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОБЕДА",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 480,
+        "height": 64
+      },
+      {
+        "width": 480,
+        "height": 52
+      },
+      {
+        "width": 480,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 1280,
+    "dpr": 2,
+    "reducedMotion": "reduce",
+    "outcome": "win",
+    "state": "collapsed",
+    "geometry": [
+      {
+        "label": "ПОБЕДА · Действия",
+        "width": 187,
+        "height": 44,
+        "x": 484,
+        "right": 671,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 117,
+        "height": 44,
+        "x": 679,
+        "right": 796,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОБЕДА",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 480,
+        "height": 64
+      },
+      {
+        "width": 480,
+        "height": 52
+      },
+      {
+        "width": 480,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 1280,
+    "dpr": 2,
+    "reducedMotion": "reduce",
+    "outcome": "loss",
+    "state": "expanded",
+    "geometry": [
+      {
+        "label": "Ещё партия",
+        "width": 480,
+        "height": 64,
+        "x": 400,
+        "right": 880,
+        "leftInset": 193.5,
+        "rightInset": 193.5,
+        "overflow": false
+      },
+      {
+        "label": "Посмотреть доску",
+        "width": 480,
+        "height": 52,
+        "x": 400,
+        "right": 880,
+        "leftInset": 176.5,
+        "rightInset": 176.5,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 480,
+        "height": 44,
+        "x": 400,
+        "right": 880,
+        "leftInset": 216.5,
+        "rightInset": 216.5,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОРАЖЕНИЕ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 480,
+        "height": 64
+      },
+      {
+        "width": 480,
+        "height": 52
+      },
+      {
+        "width": 480,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 1280,
+    "dpr": 2,
+    "reducedMotion": "reduce",
+    "outcome": "loss",
+    "state": "collapsed",
+    "geometry": [
+      {
+        "label": "ПОРАЖЕНИЕ · Действия",
+        "width": 214,
+        "height": 44,
+        "x": 470.5,
+        "right": 684.5,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 117,
+        "height": 44,
+        "x": 692.5,
+        "right": 809.5,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОРАЖЕНИЕ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 480,
+        "height": 64
+      },
+      {
+        "width": 480,
+        "height": 52
+      },
+      {
+        "width": 480,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 1280,
+    "dpr": 2,
+    "reducedMotion": "reduce",
+    "outcome": "draw",
+    "state": "expanded",
+    "geometry": [
+      {
+        "label": "Ещё партия",
+        "width": 480,
+        "height": 64,
+        "x": 400,
+        "right": 880,
+        "leftInset": 193.5,
+        "rightInset": 193.5,
+        "overflow": false
+      },
+      {
+        "label": "Посмотреть доску",
+        "width": 480,
+        "height": 52,
+        "x": 400,
+        "right": 880,
+        "leftInset": 176.5,
+        "rightInset": 176.5,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 480,
+        "height": 44,
+        "x": 400,
+        "right": 880,
+        "leftInset": 216.5,
+        "rightInset": 216.5,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "НИЧЬЯ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 480,
+        "height": 64
+      },
+      {
+        "width": 480,
+        "height": 52
+      },
+      {
+        "width": 480,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 1280,
+    "dpr": 2,
+    "reducedMotion": "reduce",
+    "outcome": "draw",
+    "state": "collapsed",
+    "geometry": [
+      {
+        "label": "НИЧЬЯ · Действия",
+        "width": 179,
+        "height": 44,
+        "x": 488,
+        "right": 667,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 117,
+        "height": 44,
+        "x": 675,
+        "right": 792,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "НИЧЬЯ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 480,
+        "height": 64
+      },
+      {
+        "width": 480,
+        "height": 52
+      },
+      {
+        "width": 480,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 1280,
+    "dpr": 3,
+    "reducedMotion": "no-preference",
+    "outcome": "win",
+    "state": "expanded",
+    "geometry": [
+      {
+        "label": "Ещё партия",
+        "width": 480,
+        "height": 64,
+        "x": 400,
+        "right": 880,
+        "leftInset": 193.5,
+        "rightInset": 193.5,
+        "overflow": false
+      },
+      {
+        "label": "Посмотреть доску",
+        "width": 480,
+        "height": 52,
+        "x": 400,
+        "right": 880,
+        "leftInset": 176.5,
+        "rightInset": 176.5,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 480,
+        "height": 44,
+        "x": 400,
+        "right": 880,
+        "leftInset": 216.5,
+        "rightInset": 216.5,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОБЕДА",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 480,
+        "height": 64
+      },
+      {
+        "width": 480,
+        "height": 52
+      },
+      {
+        "width": 480,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 1280,
+    "dpr": 3,
+    "reducedMotion": "no-preference",
+    "outcome": "win",
+    "state": "collapsed",
+    "geometry": [
+      {
+        "label": "ПОБЕДА · Действия",
+        "width": 187,
+        "height": 44,
+        "x": 484,
+        "right": 671,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 117,
+        "height": 44,
+        "x": 679,
+        "right": 796,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОБЕДА",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 480,
+        "height": 64
+      },
+      {
+        "width": 480,
+        "height": 52
+      },
+      {
+        "width": 480,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 1280,
+    "dpr": 3,
+    "reducedMotion": "no-preference",
+    "outcome": "loss",
+    "state": "expanded",
+    "geometry": [
+      {
+        "label": "Ещё партия",
+        "width": 480,
+        "height": 64,
+        "x": 400,
+        "right": 880,
+        "leftInset": 193.5,
+        "rightInset": 193.5,
+        "overflow": false
+      },
+      {
+        "label": "Посмотреть доску",
+        "width": 480,
+        "height": 52,
+        "x": 400,
+        "right": 880,
+        "leftInset": 176.5,
+        "rightInset": 176.5,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 480,
+        "height": 44,
+        "x": 400,
+        "right": 880,
+        "leftInset": 216.5,
+        "rightInset": 216.5,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОРАЖЕНИЕ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 480,
+        "height": 64
+      },
+      {
+        "width": 480,
+        "height": 52
+      },
+      {
+        "width": 480,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 1280,
+    "dpr": 3,
+    "reducedMotion": "no-preference",
+    "outcome": "loss",
+    "state": "collapsed",
+    "geometry": [
+      {
+        "label": "ПОРАЖЕНИЕ · Действия",
+        "width": 214,
+        "height": 44,
+        "x": 470.5,
+        "right": 684.5,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 117,
+        "height": 44,
+        "x": 692.5,
+        "right": 809.5,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОРАЖЕНИЕ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 480,
+        "height": 64
+      },
+      {
+        "width": 480,
+        "height": 52
+      },
+      {
+        "width": 480,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 1280,
+    "dpr": 3,
+    "reducedMotion": "no-preference",
+    "outcome": "draw",
+    "state": "expanded",
+    "geometry": [
+      {
+        "label": "Ещё партия",
+        "width": 480,
+        "height": 64,
+        "x": 400,
+        "right": 880,
+        "leftInset": 193.5,
+        "rightInset": 193.5,
+        "overflow": false
+      },
+      {
+        "label": "Посмотреть доску",
+        "width": 480,
+        "height": 52,
+        "x": 400,
+        "right": 880,
+        "leftInset": 176.5,
+        "rightInset": 176.5,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 480,
+        "height": 44,
+        "x": 400,
+        "right": 880,
+        "leftInset": 216.5,
+        "rightInset": 216.5,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "НИЧЬЯ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 480,
+        "height": 64
+      },
+      {
+        "width": 480,
+        "height": 52
+      },
+      {
+        "width": 480,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 1280,
+    "dpr": 3,
+    "reducedMotion": "no-preference",
+    "outcome": "draw",
+    "state": "collapsed",
+    "geometry": [
+      {
+        "label": "НИЧЬЯ · Действия",
+        "width": 179,
+        "height": 44,
+        "x": 488,
+        "right": 667,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 117,
+        "height": 44,
+        "x": 675,
+        "right": 792,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "НИЧЬЯ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 480,
+        "height": 64
+      },
+      {
+        "width": 480,
+        "height": 52
+      },
+      {
+        "width": 480,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 1280,
+    "dpr": 3,
+    "reducedMotion": "reduce",
+    "outcome": "win",
+    "state": "expanded",
+    "geometry": [
+      {
+        "label": "Ещё партия",
+        "width": 480,
+        "height": 64,
+        "x": 400,
+        "right": 880,
+        "leftInset": 193.5,
+        "rightInset": 193.5,
+        "overflow": false
+      },
+      {
+        "label": "Посмотреть доску",
+        "width": 480,
+        "height": 52,
+        "x": 400,
+        "right": 880,
+        "leftInset": 176.5,
+        "rightInset": 176.5,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 480,
+        "height": 44,
+        "x": 400,
+        "right": 880,
+        "leftInset": 216.5,
+        "rightInset": 216.5,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОБЕДА",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 480,
+        "height": 64
+      },
+      {
+        "width": 480,
+        "height": 52
+      },
+      {
+        "width": 480,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 1280,
+    "dpr": 3,
+    "reducedMotion": "reduce",
+    "outcome": "win",
+    "state": "collapsed",
+    "geometry": [
+      {
+        "label": "ПОБЕДА · Действия",
+        "width": 187,
+        "height": 44,
+        "x": 484,
+        "right": 671,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 117,
+        "height": 44,
+        "x": 679,
+        "right": 796,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОБЕДА",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 480,
+        "height": 64
+      },
+      {
+        "width": 480,
+        "height": 52
+      },
+      {
+        "width": 480,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 1280,
+    "dpr": 3,
+    "reducedMotion": "reduce",
+    "outcome": "loss",
+    "state": "expanded",
+    "geometry": [
+      {
+        "label": "Ещё партия",
+        "width": 480,
+        "height": 64,
+        "x": 400,
+        "right": 880,
+        "leftInset": 193.5,
+        "rightInset": 193.5,
+        "overflow": false
+      },
+      {
+        "label": "Посмотреть доску",
+        "width": 480,
+        "height": 52,
+        "x": 400,
+        "right": 880,
+        "leftInset": 176.5,
+        "rightInset": 176.5,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 480,
+        "height": 44,
+        "x": 400,
+        "right": 880,
+        "leftInset": 216.5,
+        "rightInset": 216.5,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОРАЖЕНИЕ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 480,
+        "height": 64
+      },
+      {
+        "width": 480,
+        "height": 52
+      },
+      {
+        "width": 480,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 1280,
+    "dpr": 3,
+    "reducedMotion": "reduce",
+    "outcome": "loss",
+    "state": "collapsed",
+    "geometry": [
+      {
+        "label": "ПОРАЖЕНИЕ · Действия",
+        "width": 214,
+        "height": 44,
+        "x": 470.5,
+        "right": 684.5,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 117,
+        "height": 44,
+        "x": 692.5,
+        "right": 809.5,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "ПОРАЖЕНИЕ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 480,
+        "height": 64
+      },
+      {
+        "width": 480,
+        "height": 52
+      },
+      {
+        "width": 480,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 1280,
+    "dpr": 3,
+    "reducedMotion": "reduce",
+    "outcome": "draw",
+    "state": "expanded",
+    "geometry": [
+      {
+        "label": "Ещё партия",
+        "width": 480,
+        "height": 64,
+        "x": 400,
+        "right": 880,
+        "leftInset": 193.5,
+        "rightInset": 193.5,
+        "overflow": false
+      },
+      {
+        "label": "Посмотреть доску",
+        "width": 480,
+        "height": 52,
+        "x": 400,
+        "right": 880,
+        "leftInset": 176.5,
+        "rightInset": 176.5,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 480,
+        "height": 44,
+        "x": 400,
+        "right": 880,
+        "leftInset": 216.5,
+        "rightInset": 216.5,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "НИЧЬЯ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 480,
+        "height": 64
+      },
+      {
+        "width": 480,
+        "height": 52
+      },
+      {
+        "width": 480,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "width": 1280,
+    "dpr": 3,
+    "reducedMotion": "reduce",
+    "outcome": "draw",
+    "state": "collapsed",
+    "geometry": [
+      {
+        "label": "НИЧЬЯ · Действия",
+        "width": 179,
+        "height": 44,
+        "x": 488,
+        "right": 667,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      },
+      {
+        "label": "В меню",
+        "width": 117,
+        "height": 44,
+        "x": 675,
+        "right": 792,
+        "leftInset": 35,
+        "rightInset": 35,
+        "overflow": false
+      }
+    ],
+    "slots": [
+      {
+        "text": "ПАРТИЯ ЗАВЕРШЕНА",
+        "contained": true
+      },
+      {
+        "text": "НИЧЬЯ",
+        "contained": true
+      },
+      {
+        "text": "Партия завершена",
+        "contained": true
+      }
+    ],
+    "sizes": [
+      {
+        "width": 480,
+        "height": 64
+      },
+      {
+        "width": 480,
+        "height": 52
+      },
+      {
+        "width": 480,
+        "height": 44
+      }
+    ]
+  }
+]

@@ -1,0 +1,1492 @@
+ src/client/app/boardVerdict.css                   | 242 +++++++++++++++---
+ src/client/app/boardVerdict.ts                    |  81 ++++--
+ src/client/app/matchActionArtWarmup.spec.ts       | 250 +++++++++++++------
+ src/client/app/matchActionArtWarmup.ts            | 148 +++++++----
+ src/client/app/ui/verdict/frame-draw.webp         | Bin 534726 -> 0 bytes
+ src/client/app/ui/verdict/frame-loss.webp         | Bin 532194 -> 0 bytes
+ src/client/app/ui/verdict/frame-win.webp          | Bin 535006 -> 0 bytes
+ src/client/app/ui/verdict/manifest.json           | 247 +++++++-----------
+ src/client/app/ui/verdict/master.png              | Bin 2456142 -> 0 bytes
+ src/client/app/ui/verdict/primary-disabled.webp   | Bin 199546 -> 112068 bytes
+ src/client/app/ui/verdict/primary-hover.webp      | Bin 245854 -> 131358 bytes
+ src/client/app/ui/verdict/primary-pressed.webp    | Bin 226896 -> 118050 bytes
+ src/client/app/ui/verdict/primary-rest.webp       | Bin 243172 -> 118092 bytes
+ src/client/app/ui/verdict/prompt.txt              |   9 -
+ src/client/app/ui/verdict/provenance.json         |  12 -
+ src/client/app/ui/verdict/secondary-disabled.webp | Bin 110922 -> 112242 bytes
+ src/client/app/ui/verdict/secondary-hover.webp    | Bin 135306 -> 117958 bytes
+ src/client/app/ui/verdict/secondary-pressed.webp  | Bin 117738 -> 107752 bytes
+ src/client/app/ui/verdict/secondary-rest.webp     | Bin 132906 -> 110222 bytes
+ src/client/app/verdictSprites.spec.ts             |  86 +++++--
+ tests/verdict-safe-area.cjs                       | 291 +++++++++++++++++++---
+ 21 files changed, 956 insertions(+), 410 deletions(-)
+
+New runtime files (untracked, included in changed-files.json):
+src/client/app/ui/verdict/quiet-disabled.webp
+src/client/app/ui/verdict/quiet-hover.webp
+src/client/app/ui/verdict/quiet-pressed.webp
+src/client/app/ui/verdict/quiet-rest.webp
+src/client/app/ui/verdict/title.webp
+
+diff --git a/src/client/app/boardVerdict.css b/src/client/app/boardVerdict.css
+index 6ad6544..ca27c3c 100644
+--- a/src/client/app/boardVerdict.css
++++ b/src/client/app/boardVerdict.css
+@@ -1,40 +1,204 @@
+-.board-verdict { position: fixed; inset: 0; z-index: 10010; display: flex; align-items: center; justify-content: center; pointer-events: none; color: #f4efe4; font-family: 'Golos Text', sans-serif; --verdict-accent: #d9c08b; }
+-.board-verdict[hidden], .board-verdict [hidden] { display: none !important; }
+-.board-verdict[data-outcome="loss"] { --verdict-accent: #b6c9ce; }
+-.board-verdict[data-outcome="draw"] { --verdict-accent: #d2d3c8; }
+-.verdict-panel { box-sizing: border-box; pointer-events: auto; position: relative; width: min(364px, calc(100% - 36px)); padding: 25px 20px 17px; text-align: center; isolation: isolate; border: 1px solid transparent; background: transparent; }
+-.verdict-panel::before { content: ''; pointer-events: none; position: absolute; inset: 0; z-index: -1; border: 24px solid transparent; border-image: url('./ui/verdict/frame-win.webp') 48 fill / 24px stretch; }
+-.board-verdict[data-outcome="loss"] .verdict-panel::before { border-image-source: url('./ui/verdict/frame-loss.webp'); }
+-.board-verdict[data-outcome="draw"] .verdict-panel::before { border-image-source: url('./ui/verdict/frame-draw.webp'); }
+-.verdict-panel p { margin: 0; }
+-.verdict-eyebrow { font-size: 10px; letter-spacing: 2px; color: #b6b6a8; }
+-.verdict-panel h1 { height: auto; font-family: Literata, serif; font-weight: 600; font-size: 28px; line-height: 1.3; letter-spacing: 1px; margin: 10px 0; color: var(--verdict-accent); }
+-#verdict-reason { font-size: 14px; line-height: 1.5; color: #d0d2c8; min-height: 42px; }
+-.verdict-actions { display: grid; gap: 8px; margin-top: 16px; }
+-.board-verdict button { box-sizing: border-box; font: inherit; cursor: pointer; color: inherit; min-height: 44px; border: 1px solid transparent; background: transparent; border-image: url('./ui/verdict/secondary-rest.webp') 32 fill / 16px stretch; padding: 10px 24px; text-decoration: none; box-shadow: none; }
+-.board-verdict button:hover { border-image-source: url('./ui/verdict/secondary-hover.webp'); }
+-.board-verdict button:active { border-image-source: url('./ui/verdict/secondary-pressed.webp'); }
+-.board-verdict button:disabled { border-image-source: url('./ui/verdict/secondary-disabled.webp'); cursor: default; }
+-.board-verdict [data-verdict="again"] { border-image: url('./ui/verdict/primary-rest.webp') 48 fill / 24px stretch; }
+-.board-verdict [data-verdict="again"]:hover { border-image-source: url('./ui/verdict/primary-hover.webp'); }
+-.board-verdict [data-verdict="again"]:active { border-image-source: url('./ui/verdict/primary-pressed.webp'); }
+-.board-verdict [data-verdict="again"]:disabled { border-image-source: url('./ui/verdict/primary-disabled.webp'); }
+-.board-verdict button::before, .board-verdict button::after { content: none; }
+-.board-verdict button:focus-visible, .verdict-panel:focus-visible { outline: 3px solid #efce89; outline-offset: 3px; }
+-.board-verdict button:active { transform: translateY(1px); }
+-.verdict-actions [data-verdict="menu"] { font-size: 13px; color: #c3c5b9; padding: 10px 24px; }
+-.verdict-panel.enter { animation: verdict-enter 260ms ease-out both; }
+-.verdict-status { pointer-events: auto; position: absolute; bottom: max(18px, env(safe-area-inset-bottom)); display: flex; gap: 8px; max-width: calc(100% - 24px); }
+-.verdict-status button { font-size: 13px; }
+-@keyframes verdict-enter { from { opacity: .2; transform: translateY(6px); } to { opacity: 1; transform: none; } }
++.board-verdict {
++	position: fixed;
++	inset: 0;
++	z-index: 10010;
++	display: flex;
++	align-items: center;
++	justify-content: center;
++	pointer-events: none;
++	color: #fff8eb;
++	font-family: "Golos Text", sans-serif;
++}
++.board-verdict[hidden],
++.board-verdict [hidden] {
++	display: none !important;
++}
++.verdict-panel {
++	box-sizing: border-box;
++	pointer-events: auto;
++	position: relative;
++	width: min(480px, calc(100% - 24px));
++	text-align: center;
++	border: 0;
++	padding: 0;
++	background: transparent;
++}
++/* Native DPR3 corners. Only the middle columns extend horizontally; the
++   title's native height preserves both recesses and their separating rail. */
++.verdict-title {
++	position: relative;
++	height: calc(724px / 3);
++	isolation: isolate;
++}
++.verdict-title::before {
++	content: "";
++	pointer-events: none;
++	position: absolute;
++	inset: 0;
++	z-index: -1;
++	border: 0 solid transparent;
++	border-image:
++		url("./ui/verdict/title.webp") 400 330 300 330 fill / calc(400px / 3) 110px
++		100px 110px / 0 stretch;
++}
++.verdict-panel p {
++	margin: 0;
++}
++.verdict-upper {
++	position: absolute;
++	top: 47px;
++	left: 84px;
++	right: 84px;
++	height: 74px;
++	display: flex;
++	flex-direction: column;
++	justify-content: center;
++	gap: 6px;
++}
++.verdict-eyebrow {
++	font-size: 10px;
++	line-height: 14px;
++	letter-spacing: 1px;
++	color: inherit;
++	white-space: nowrap;
++}
++.verdict-panel h1 {
++	font-family: Literata, serif;
++	font-weight: 600;
++	font-size: 25px;
++	line-height: 34px;
++	letter-spacing: 0;
++	margin: 0;
++	color: inherit;
++}
++#verdict-reason {
++	position: absolute;
++	top: 148px;
++	left: 84px;
++	right: 84px;
++	height: 42px;
++	display: flex;
++	align-items: center;
++	justify-content: center;
++	font-size: 13px;
++	line-height: 19px;
++	color: inherit;
++}
++.verdict-actions {
++	display: grid;
++	justify-items: center;
++	gap: 6px;
++	margin-top: 0;
++}
++/* 105 x 30 source corners become fixed 35 x 10 CSS pixels at every width.
++   The nine-slice center absorbs the different action heights. */
++.board-verdict button {
++	box-sizing: border-box;
++	font: inherit;
++	cursor: pointer;
++	color: inherit;
++	min-height: 44px;
++	border: 0 solid transparent;
++	background: transparent;
++	border-image:
++		url("./ui/verdict/secondary-rest.webp") 30 105 30 105 fill / 10px 35px / 0
++		stretch;
++	padding: 12px 38px;
++	text-decoration: none;
++	box-shadow: none;
++}
++.board-verdict button:hover {
++	border-image-source: url("./ui/verdict/secondary-hover.webp");
++}
++.board-verdict button:active {
++	border-image-source: url("./ui/verdict/secondary-pressed.webp");
++}
++.board-verdict button:disabled {
++	border-image-source: url("./ui/verdict/secondary-disabled.webp");
++	cursor: default;
++}
++.verdict-actions button {
++	width: calc(100% - 24px);
++	min-height: 52px;
++	font-size: 14px;
++}
++.board-verdict [data-verdict="again"] {
++	width: 100%;
++	min-height: 64px;
++	font-size: 16px;
++	font-weight: 600;
++	border-image-source: url("./ui/verdict/primary-rest.webp");
++}
++.board-verdict [data-verdict="again"]:hover {
++	border-image-source: url("./ui/verdict/primary-hover.webp");
++}
++.board-verdict [data-verdict="again"]:active {
++	border-image-source: url("./ui/verdict/primary-pressed.webp");
++}
++.board-verdict [data-verdict="again"]:disabled {
++	border-image-source: url("./ui/verdict/primary-disabled.webp");
++}
++.board-verdict [data-verdict="menu"] {
++	font-size: 13px;
++	border-image-source: url("./ui/verdict/quiet-rest.webp");
++}
++.board-verdict [data-verdict="menu"]:hover {
++	border-image-source: url("./ui/verdict/quiet-hover.webp");
++}
++.board-verdict [data-verdict="menu"]:active {
++	border-image-source: url("./ui/verdict/quiet-pressed.webp");
++}
++.board-verdict [data-verdict="menu"]:disabled {
++	border-image-source: url("./ui/verdict/quiet-disabled.webp");
++}
++.verdict-actions [data-verdict="menu"] {
++	width: calc(100% - 48px);
++	min-height: 44px;
++}
++.board-verdict button::before,
++.board-verdict button::after {
++	content: none;
++}
++.board-verdict button:focus-visible {
++	outline: 3px solid #efce89;
++	outline-offset: 3px;
++}
++.verdict-panel.enter {
++	animation: verdict-enter 260ms ease-out both;
++}
++.verdict-status {
++	pointer-events: auto;
++	position: absolute;
++	bottom: max(18px, env(safe-area-inset-bottom));
++	display: flex;
++	gap: 8px;
++	max-width: calc(100% - 24px);
++}
++.verdict-panel:focus {
++	outline: none;
++}
++.verdict-status button {
++	font-size: 12px;
++	padding: 12px 35px;
++}
++@keyframes verdict-enter {
++	from {
++		opacity: 0.2;
++		transform: translateY(6px);
++	}
++	to {
++		opacity: 1;
++		transform: none;
++	}
++}
+ @media (max-width: 500px) {
+- .board-verdict { align-items: flex-end; padding-bottom: max(24px, env(safe-area-inset-bottom)); }
+- .verdict-panel { padding: 32px 24px 28px; }
+- .verdict-panel h1 { margin: 7px 0; font-size: 25px; }
+- #verdict-reason { min-height: 24px; }
+- .verdict-actions { grid-template-columns: 1fr; gap: 6px; }
+- .board-verdict [data-verdict="again"] { grid-column: 1/-1; }
+- /* A11's 16px decorative corners need a clear text inset, not a smaller label. */
+- .verdict-actions [data-verdict="board"], .verdict-actions [data-verdict="menu"] { font-size: 12px; padding: 10px 24px; }
+-}
+-@media (prefers-reduced-motion: reduce) { .verdict-panel.enter, .board-verdict[data-outcome="win"] .verdict-panel.enter::after { animation: none; } .board-verdict[data-outcome="win"] .verdict-panel.enter::after { display: none; } .board-verdict button:active { transform: none; } }
++	.board-verdict {
++		align-items: flex-end;
++		padding-bottom: max(24px, env(safe-area-inset-bottom));
++	}
++}
++@media (prefers-reduced-motion: reduce) {
++	.verdict-panel.enter {
++		animation: none;
++	}
++}
+diff --git a/src/client/app/boardVerdict.ts b/src/client/app/boardVerdict.ts
+index e1a25b4..d659214 100644
+--- a/src/client/app/boardVerdict.ts
++++ b/src/client/app/boardVerdict.ts
+@@ -10,21 +10,29 @@ export type Verdict = {
+ };
+ 
+ /** Ready with the scene bundle: no loader, decode, API or sound gate. */
+-export function createResultOverlay(scene: Phaser.Scene, handlers: {
+-	onPlayAgain: () => void;
+-	onMenu: () => void;
+-}) {
++export function createResultOverlay(
++	scene: Phaser.Scene,
++	handlers: {
++		onPlayAgain: () => void;
++		onMenu: () => void;
++	},
++) {
+ 	const root = document.createElement('div');
+ 	root.className = 'board-verdict';
+ 	root.hidden = true;
+-	root.innerHTML = '<section class="verdict-panel" role="dialog" aria-modal="true" aria-labelledby="verdict-heading" aria-describedby="verdict-reason" tabindex="-1"><p class="verdict-eyebrow">ПАРТИЯ ЗАВЕРШЕНА</p><h1 id="verdict-heading"></h1><p id="verdict-reason"></p><div class="verdict-actions"><button type="button" data-verdict="again">Ещё партия</button><button type="button" data-verdict="board">Посмотреть доску</button><button type="button" data-verdict="menu">В меню</button></div></section><div class="verdict-status" hidden><button type="button" data-verdict="open"></button><button type="button" data-verdict="menu">В меню</button></div>';
++	root.innerHTML =
++		'<section class="verdict-panel" role="dialog" aria-modal="true" aria-labelledby="verdict-heading" aria-describedby="verdict-reason" tabindex="-1"><div class="verdict-title"><div class="verdict-upper"><p class="verdict-eyebrow">ПАРТИЯ ЗАВЕРШЕНА</p><h1 id="verdict-heading"></h1></div><p id="verdict-reason"></p></div><div class="verdict-actions"><button type="button" data-verdict="again">Ещё партия</button><button type="button" data-verdict="board">Посмотреть доску</button><button type="button" data-verdict="menu">В меню</button></div></section><div class="verdict-status" hidden><button type="button" data-verdict="open"></button><button type="button" data-verdict="menu">В меню</button></div>';
+ 	document.body.append(root);
+ 	const panel = root.querySelector<HTMLElement>('.verdict-panel')!;
+ 	const status = root.querySelector<HTMLElement>('.verdict-status')!;
+ 	const heading = root.querySelector<HTMLElement>('#verdict-heading')!;
+ 	const reason = root.querySelector<HTMLElement>('#verdict-reason')!;
+-	const again = root.querySelector<HTMLButtonElement>('[data-verdict="again"]')!;
+-	const reopen = root.querySelector<HTMLButtonElement>('[data-verdict="open"]')!;
++	const again = root.querySelector<HTMLButtonElement>(
++		'[data-verdict="again"]',
++	)!;
++	const reopen = root.querySelector<HTMLButtonElement>(
++		'[data-verdict="open"]',
++	)!;
+ 	const inert = new Map<HTMLElement, boolean>();
+ 	let previous: HTMLElement | null = null;
+ 	let shown = false;
+@@ -59,17 +67,34 @@ export function createResultOverlay(scene: Phaser.Scene, handlers: {
+ 		root.hidden = true;
+ 		panel.classList.remove('enter');
+ 		release();
+-		if (root.contains(document.activeElement) && previous?.isConnected && !previous.inert) previous.focus({ preventScroll: true });
++		if (
++			root.contains(document.activeElement) &&
++			previous?.isConnected &&
++			!previous.inert
++		)
++			previous.focus({ preventScroll: true });
+ 		previous = null;
+ 	}
+ 	function click(event: MouseEvent) {
+-		const button = (event.target as Element).closest<HTMLButtonElement>('button[data-verdict]');
++		const button = (event.target as Element).closest<HTMLButtonElement>(
++			'button[data-verdict]',
++		);
+ 		if (!shown || !button) return;
+ 		switch (button.dataset.verdict) {
+-			case 'board': collapse(); break;
+-			case 'open': open(); break;
+-			case 'again': hide(); handlers.onPlayAgain(); break;
+-			case 'menu': hide(); handlers.onMenu(); break;
++			case 'board':
++				collapse();
++				break;
++			case 'open':
++				open();
++				break;
++			case 'again':
++				hide();
++				handlers.onPlayAgain();
++				break;
++			case 'menu':
++				hide();
++				handlers.onMenu();
++				break;
+ 		}
+ 	}
+ 	function keydown(event: KeyboardEvent) {
+@@ -77,14 +102,24 @@ export function createResultOverlay(scene: Phaser.Scene, handlers: {
+ 		if (event.key === 'Escape') {
+ 			event.preventDefault();
+ 			event.stopPropagation();
+-			if (panel.hidden) open(); else collapse();
++			if (panel.hidden) open();
++			else collapse();
+ 		}
+ 		if (event.key === 'Tab' && !panel.hidden) {
+-			const buttons = Array.from(panel.querySelectorAll<HTMLButtonElement>('button'));
+-			const index = buttons.indexOf(document.activeElement as HTMLButtonElement);
++			const buttons = Array.from(
++				panel.querySelectorAll<HTMLButtonElement>('button'),
++			);
++			const index = buttons.indexOf(
++				document.activeElement as HTMLButtonElement,
++			);
+ 			event.preventDefault();
+-			const next = index < 0 ? (event.shiftKey ? buttons.length - 1 : 0)
+-				: (index + (event.shiftKey ? -1 : 1) + buttons.length) % buttons.length;
++			const next =
++				index < 0
++					? event.shiftKey
++						? buttons.length - 1
++						: 0
++					: (index + (event.shiftKey ? -1 : 1) + buttons.length) %
++						buttons.length;
+ 			buttons[next].focus();
+ 		}
+ 	}
+@@ -104,9 +139,15 @@ export function createResultOverlay(scene: Phaser.Scene, handlers: {
+ 			if (disposed || shown) return;
+ 			shown = true;
+ 			previous = document.activeElement as HTMLElement | null;
+-			const state = verdict.winner === 'draw' ? 'draw' : verdict.winner === verdict.humanSide ? 'win' : 'loss';
++			const state =
++				verdict.winner === 'draw'
++					? 'draw'
++					: verdict.winner === verdict.humanSide
++						? 'win'
++						: 'loss';
+ 			root.dataset.outcome = state;
+-			heading.textContent = state === 'win' ? 'ПОБЕДА' : state === 'loss' ? 'ПОРАЖЕНИЕ' : 'НИЧЬЯ';
++			heading.textContent =
++				state === 'win' ? 'ПОБЕДА' : state === 'loss' ? 'ПОРАЖЕНИЕ' : 'НИЧЬЯ';
+ 			reason.textContent = verdict.reason;
+ 			again.textContent = verdict.online ? 'Найти соперника' : 'Ещё партия';
+ 			reopen.textContent = `${heading.textContent} · Действия`;
+diff --git a/src/client/app/matchActionArtWarmup.spec.ts b/src/client/app/matchActionArtWarmup.spec.ts
+index 27139f0..1f61b43 100644
+--- a/src/client/app/matchActionArtWarmup.spec.ts
++++ b/src/client/app/matchActionArtWarmup.spec.ts
+@@ -1,80 +1,174 @@
+-import { beforeEach, afterEach, describe, it, expect, vi } from 'vitest';
++import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
++
+ describe('match action entry warmup', () => {
+- let pending: Array<{resolve:()=>void; reject:()=>void}>;
+- let images: Array<{src:string; fetchPriority:string}>;
+- let events: Record<string,(event:any)=>void>;
+- let hidden: boolean;
+- beforeEach(()=>{
+-  vi.resetModules(); pending=[]; images=[]; events={}; hidden=false;
+-  performance.clearMarks();
+-  vi.stubGlobal('document',{get hidden(){return hidden;},addEventListener:(name:string,fn:any)=>{events[name]=fn;}});
+-  vi.stubGlobal('window',{addEventListener:(name:string,fn:any)=>{events[name]=fn;},requestIdleCallback:()=>{}});
+-  vi.stubGlobal('Image',class {
+-   src=''; fetchPriority=''; decoding='';
+-   constructor(){images.push(this);}
+-   decode(){return new Promise<void>((resolve,reject)=>pending.push({resolve,reject:()=>reject(new Error('offline'))}));}
+-  });
+- });
+- afterEach(()=>vi.unstubAllGlobals());
+- const settle=async()=>{pending.shift()?.resolve(); await new Promise(resolve=>setTimeout(resolve,0));};
+- it('keeps only seven runtime URLs and no PNG controls masters; immediate two-flight low priority and idempotency',async()=>{
+-  const m=await import('./matchActionArtWarmup');
+-  expect(m.matchActionArtUrls.map(url=>url.split('/').pop()).sort()).toEqual(['dialog.webp','dialog-neutral.webp','dialog-copper.webp',...['undo','resign'].flatMap(action=>['atlas','icon'].map(state=>`${action}-${state}.webp`))].sort());
+-  m.warmMatchActionArt(); m.warmMatchActionArt();
+-  expect(images).toHaveLength(2); expect(images[0].src).toContain('dialog.webp');
+-  expect(images.every(image=>image.fetchPriority==='low')).toBe(true);
+-  await settle(); expect(images).toHaveLength(3);
+- });
+- it('absorbs failures without retries and finishes incomplete rather than claiming warm',async()=>{
+-  const m=await import('./matchActionArtWarmup');m.warmMatchActionArt();
+-  pending.shift()?.reject();await new Promise(resolve=>setTimeout(resolve,0));
+-  while(pending.length) await settle();
+-  expect(images).toHaveLength(7);
+-  expect(performance.getEntriesByName('damka:match-action-art-incomplete')).toHaveLength(1);
+-  expect(performance.getEntriesByName('damka:match-action-art-warm')).toHaveLength(0);
+- });
+- it('resumes remaining URLs after persisted pageshow, no duplicate active flights',async()=>{
+-  const m=await import('./matchActionArtWarmup');m.warmMatchActionArt();events.pagehide({});
+-  await settle();expect(images).toHaveLength(2);
+-  events.pageshow({persisted:false});expect(images).toHaveLength(2);
+-  events.pageshow({persisted:true});expect(images).toHaveLength(3);
+-  events.pageshow({persisted:true});expect(images).toHaveLength(3);
+-  while(pending.length)await settle();
+-  expect(new Set(images.map(image=>image.src)).size).toBe(7);
+-  expect(performance.getEntriesByName('damka:match-action-art-warm')).toHaveLength(1);
+- });
+- it('resumes a hidden document and warms the complete dialog set',async()=>{
+-  const m=await import('./matchActionArtWarmup');hidden=true;m.warmMatchActionArt();expect(images).toHaveLength(0);
+-  hidden=false;events.visibilitychange({});expect(images).toHaveLength(2);
+-  expect(m.resignArtReady()).toBe(false);
+-  while(pending.length)await settle();expect(m.resignArtReady()).toBe(true);
+-  await expect(m.prepareResignArt()).resolves.toBe(true);expect(images).toHaveLength(7);
+- });
+- it('explicit preparation retries failed dialog decode without redownloading decoded URLs',async()=>{
+-  const m=await import('./matchActionArtWarmup');
+-  const first=m.prepareResignArt();
+-  pending.shift()?.reject();await settle();await settle();
+-  await expect(first).resolves.toBe(false);
+-  expect(m.resignArtReady()).toBe(false);
+-  const retry=m.prepareResignArt();expect(images).toHaveLength(4);
+-  await settle();await expect(retry).resolves.toBe(true);
+-  expect(m.resignArtReady()).toBe(true);
+- });
+- it('feedback decode shares the rest URL and states stay cold until decoded',async()=>{
+-  const m=await import('./matchActionArtWarmup');
+-  expect(m.resignStatesReady()).toBe(false);
+-  const rest=m.prepareResignFeedback();expect(images).toHaveLength(0);
+-  m.warmMatchActionArt();expect(images).toHaveLength(2);expect(images[1].src).toContain('resign-atlas');
+-  await settle();await settle();await expect(rest).resolves.toBe(true);
+-  expect(m.resignStatesReady()).toBe(true);
+-  while(pending.length)await settle();
+-  expect(m.resignStatesReady()).toBe(true);
+-  expect(images.filter(image=>image.src.includes('resign-atlas'))).toHaveLength(1);
+- });
+- it('on-demand dialog preparation shares in-flight URLs with background queue',async()=>{
+-  const m=await import('./matchActionArtWarmup');m.warmMatchActionArt();const result=m.prepareResignArt();
+-  // Entry starts dialog+rest; explicit dialog prep shares dialog and adds only its two plates.
+-  expect(images).toHaveLength(4);await settle();await settle();await settle();await settle();await expect(result).resolves.toBe(true);
+-  while(pending.length)await settle();expect(new Set(images.map(image=>image.src)).size).toBe(images.length);
+- });
++	let pending: Array<{ resolve: () => void; reject: () => void }>;
++	let images: Array<{ src: string; fetchPriority: string }>;
++	let events: Record<string, (event: any) => void>;
++	let hidden: boolean;
++	beforeEach(() => {
++		vi.resetModules();
++		pending = [];
++		images = [];
++		events = {};
++		hidden = false;
++		performance.clearMarks();
++		vi.stubGlobal('document', {
++			get hidden() {
++				return hidden;
++			},
++			addEventListener: (name: string, fn: any) => {
++				events[name] = fn;
++			},
++		});
++		vi.stubGlobal('window', {
++			addEventListener: (name: string, fn: any) => {
++				events[name] = fn;
++			},
++			requestIdleCallback: () => {},
++		});
++		vi.stubGlobal(
++			'Image',
++			class {
++				src = '';
++				fetchPriority = '';
++				decoding = '';
++				constructor() {
++					images.push(this);
++				}
++				decode() {
++					return new Promise<void>((resolve, reject) =>
++						pending.push({
++							resolve,
++							reject: () => reject(new Error('offline')),
++						}),
++					);
++				}
++			},
++		);
++	});
++	afterEach(() => vi.unstubAllGlobals());
++	const settle = async () => {
++		pending.shift()?.resolve();
++		await new Promise((resolve) => setTimeout(resolve, 0));
++	};
++	it('warms controls and all thirteen verdict plates without PNG masters; immediate two-flight low priority and idempotency', async () => {
++		const m = await import('./matchActionArtWarmup');
++		expect(
++			m.matchActionArtUrls.map((url) => url.split('/').pop()).sort(),
++		).toEqual(
++			[
++				'dialog.webp',
++				'dialog-neutral.webp',
++				'dialog-copper.webp',
++				'title.webp',
++				...['primary', 'secondary', 'quiet'].flatMap((tier) =>
++					['rest', 'hover', 'pressed', 'disabled'].map(
++						(state) => `${tier}-${state}.webp`,
++					),
++				),
++				...['undo', 'resign'].flatMap((action) =>
++					['atlas', 'icon'].map((state) => `${action}-${state}.webp`),
++				),
++			].sort(),
++		);
++		m.warmMatchActionArt();
++		m.warmMatchActionArt();
++		expect(images).toHaveLength(2);
++		expect(images[0].src).toContain('dialog.webp');
++		expect(images.every((image) => image.fetchPriority === 'low')).toBe(true);
++		await settle();
++		expect(images).toHaveLength(3);
++	});
++	it('absorbs failures without retries and finishes incomplete rather than claiming warm', async () => {
++		const m = await import('./matchActionArtWarmup');
++		m.warmMatchActionArt();
++		pending.shift()?.reject();
++		await new Promise((resolve) => setTimeout(resolve, 0));
++		while (pending.length) await settle();
++		expect(images).toHaveLength(20);
++		expect(
++			performance.getEntriesByName('damka:match-action-art-incomplete'),
++		).toHaveLength(1);
++		expect(
++			performance.getEntriesByName('damka:match-action-art-warm'),
++		).toHaveLength(0);
++	});
++	it('resumes remaining URLs after persisted pageshow, no duplicate active flights', async () => {
++		const m = await import('./matchActionArtWarmup');
++		m.warmMatchActionArt();
++		events.pagehide({});
++		await settle();
++		expect(images).toHaveLength(2);
++		events.pageshow({ persisted: false });
++		expect(images).toHaveLength(2);
++		events.pageshow({ persisted: true });
++		expect(images).toHaveLength(3);
++		events.pageshow({ persisted: true });
++		expect(images).toHaveLength(3);
++		while (pending.length) await settle();
++		expect(new Set(images.map((image) => image.src)).size).toBe(20);
++		expect(
++			performance.getEntriesByName('damka:match-action-art-warm'),
++		).toHaveLength(1);
++	});
++	it('resumes a hidden document and warms the complete dialog set', async () => {
++		const m = await import('./matchActionArtWarmup');
++		hidden = true;
++		m.warmMatchActionArt();
++		expect(images).toHaveLength(0);
++		hidden = false;
++		events.visibilitychange({});
++		expect(images).toHaveLength(2);
++		expect(m.resignArtReady()).toBe(false);
++		while (pending.length) await settle();
++		expect(m.resignArtReady()).toBe(true);
++		await expect(m.prepareResignArt()).resolves.toBe(true);
++		expect(images).toHaveLength(20);
++	});
++	it('explicit preparation retries failed dialog decode without redownloading decoded URLs', async () => {
++		const m = await import('./matchActionArtWarmup');
++		const first = m.prepareResignArt();
++		pending.shift()?.reject();
++		await settle();
++		await settle();
++		await expect(first).resolves.toBe(false);
++		expect(m.resignArtReady()).toBe(false);
++		const retry = m.prepareResignArt();
++		expect(images).toHaveLength(4);
++		await settle();
++		await expect(retry).resolves.toBe(true);
++		expect(m.resignArtReady()).toBe(true);
++	});
++	it('feedback decode shares the rest URL and states stay cold until decoded', async () => {
++		const m = await import('./matchActionArtWarmup');
++		expect(m.resignStatesReady()).toBe(false);
++		const rest = m.prepareResignFeedback();
++		expect(images).toHaveLength(0);
++		m.warmMatchActionArt();
++		expect(images).toHaveLength(2);
++		expect(images[1].src).toContain('resign-atlas');
++		await settle();
++		await settle();
++		await expect(rest).resolves.toBe(true);
++		expect(m.resignStatesReady()).toBe(true);
++		while (pending.length) await settle();
++		expect(m.resignStatesReady()).toBe(true);
++		expect(
++			images.filter((image) => image.src.includes('resign-atlas')),
++		).toHaveLength(1);
++	});
++	it('on-demand dialog preparation shares in-flight URLs with background queue', async () => {
++		const m = await import('./matchActionArtWarmup');
++		m.warmMatchActionArt();
++		const result = m.prepareResignArt();
++		// Entry starts dialog+rest; explicit dialog prep shares dialog and adds only its two plates.
++		expect(images).toHaveLength(4);
++		await settle();
++		await settle();
++		await settle();
++		await settle();
++		await expect(result).resolves.toBe(true);
++		while (pending.length) await settle();
++		expect(new Set(images.map((image) => image.src)).size).toBe(images.length);
++	});
+ });
+diff --git a/src/client/app/matchActionArtWarmup.ts b/src/client/app/matchActionArtWarmup.ts
+index feb25dc..e8fcadc 100644
+--- a/src/client/app/matchActionArtWarmup.ts
++++ b/src/client/app/matchActionArtWarmup.ts
+@@ -1,11 +1,32 @@
+ /** Decoration cache only: never a game readiness barrier. */
+-const assets = import.meta.glob<string>(['./ui/match-actions/dialog*.webp', './ui/match-actions/*-atlas.webp', './ui/match-actions/*-icon.webp'], {
+- eager: true, query: '?url', import: 'default',
+-}) as Record<string, string>;
+-export const matchActionArtUrls = Object.entries(assets).sort(([a], [b]) => {
+- const rank = (name: string) => name.endsWith('/dialog.webp') ? 0 : name.endsWith('/resign-atlas.webp') ? 0.5 : name.includes('dialog') ? 1 : /hover|pressed|focus/.test(name) ? 2 : 3;
+- return rank(a) - rank(b) || a.localeCompare(b);
+-}).map(([, url]) => url);
++const assets = import.meta.glob<string>(
++	[
++		'./ui/match-actions/dialog*.webp',
++		'./ui/match-actions/*-atlas.webp',
++		'./ui/match-actions/*-icon.webp',
++		'./ui/verdict/*.webp',
++	],
++	{
++		eager: true,
++		query: '?url',
++		import: 'default',
++	},
++) as Record<string, string>;
++export const matchActionArtUrls = Object.entries(assets)
++	.sort(([a], [b]) => {
++		const rank = (name: string) =>
++			name.endsWith('/dialog.webp')
++				? 0
++				: name.endsWith('/resign-atlas.webp')
++					? 0.5
++					: name.includes('dialog')
++						? 1
++						: /hover|pressed|focus/.test(name)
++							? 2
++							: 3;
++		return rank(a) - rank(b) || a.localeCompare(b);
++	})
++	.map(([, url]) => url);
+ const retained = new Map<string, HTMLImageElement>();
+ const pending = new Map<string, Promise<boolean>>();
+ const feedbackWaiters: Array<(ready: boolean) => void> = [];
+@@ -15,58 +36,93 @@ let index = 0;
+ let active = 0;
+ let completed = false;
+ function load(url: string): Promise<boolean> {
+- const existing = pending.get(url);
+- if (existing) return existing;
+- const image = new Image();
+- image.fetchPriority = 'low'; image.decoding = 'async'; image.src = url;
+- const result = image.decode().then(() => { retained.set(url, image); return true; }, () => {
+-  // A failed decode must not poison an explicit retry for the rest of the page.
+-  pending.delete(url);
+-  return false;
+- }).then(ready => {
+-  if (url === assets['./ui/match-actions/resign-atlas.webp']) feedbackWaiters.splice(0).forEach(resolve => resolve(ready));
+-  return ready;
+- });
+- pending.set(url, result);
+- return result;
++	const existing = pending.get(url);
++	if (existing) return existing;
++	const image = new Image();
++	image.fetchPriority = 'low';
++	image.decoding = 'async';
++	image.src = url;
++	const result = image
++		.decode()
++		.then(
++			() => {
++				retained.set(url, image);
++				return true;
++			},
++			() => {
++				// A failed decode must not poison an explicit retry for the rest of the page.
++				pending.delete(url);
++				return false;
++			},
++		)
++		.then((ready) => {
++			if (url === assets['./ui/match-actions/resign-atlas.webp'])
++				feedbackWaiters.splice(0).forEach((resolve) => {
++					resolve(ready);
++				});
++			return ready;
++		});
++	pending.set(url, result);
++	return result;
+ }
+ function pump(): void {
+- if (stopped || document.hidden) return;
+- while (active < 2 && index < matchActionArtUrls.length) {
+-  const url = matchActionArtUrls[index++]; active++;
+-  void load(url).finally(() => { active--; pump(); });
+- }
+- if (!active && index === matchActionArtUrls.length && !completed) {
+-  completed = true;
+-  performance.mark(retained.size === matchActionArtUrls.length ? 'damka:match-action-art-warm' : 'damka:match-action-art-incomplete');
+- }
++	if (stopped || document.hidden) return;
++	while (active < 2 && index < matchActionArtUrls.length) {
++		const url = matchActionArtUrls[index++];
++		active++;
++		void load(url).finally(() => {
++			active--;
++			pump();
++		});
++	}
++	if (!active && index === matchActionArtUrls.length && !completed) {
++		completed = true;
++		performance.mark(
++			retained.size === matchActionArtUrls.length
++				? 'damka:match-action-art-warm'
++				: 'damka:match-action-art-incomplete',
++		);
++	}
+ }
+ /** Called after the first rendered board frame; two low-priority flights, no idle delay. */
+ export function warmMatchActionArt(): void {
+- if (started) return;
+- started = true;
+- window.addEventListener('pagehide', () => { stopped = true; });
+- window.addEventListener('pageshow', event => { if (event.persisted) { stopped = false; pump(); } });
+- document.addEventListener('visibilitychange', () => { if (!document.hidden) pump(); });
+- performance.mark('damka:match-action-art-start');
+- pump();
+- if ('requestIdleCallback' in window) window.requestIdleCallback(pump, { timeout: 1500 });
+- else setTimeout(pump, 250);
++	if (started) return;
++	started = true;
++	window.addEventListener('pagehide', () => {
++		stopped = true;
++	});
++	window.addEventListener('pageshow', (event) => {
++		if (event.persisted) {
++			stopped = false;
++			pump();
++		}
++	});
++	document.addEventListener('visibilitychange', () => {
++		if (!document.hidden) pump();
++	});
++	performance.mark('damka:match-action-art-start');
++	pump();
++	if ('requestIdleCallback' in window)
++		window.requestIdleCallback(pump, { timeout: 1500 });
++	else setTimeout(pump, 250);
+ }
+ // Диалог отдаётся как lossless WebP; PNG-мастера остаются в репозитории
+ // только как исходники и в рантайме не запрашиваются.
+-const dialogUrls = () => matchActionArtUrls.filter(url => /\/dialog[^/]*\.webp$/.test(url));
++const dialogUrls = () =>
++	matchActionArtUrls.filter((url) => /\/dialog[^/]*\.webp$/.test(url));
+ export function resignStatesReady(): boolean {
+- return retained.has(assets['./ui/match-actions/resign-atlas.webp']);
++	return retained.has(assets['./ui/match-actions/resign-atlas.webp']);
+ }
+ export function resignArtReady(): boolean {
+- return dialogUrls().every(url => retained.has(url));
++	return dialogUrls().every((url) => retained.has(url));
+ }
+ export function prepareResignFeedback(): Promise<boolean> {
+- if (started) return load(assets['./ui/match-actions/resign-atlas.webp']);
+- // Binding controls must not start decoration traffic ahead of the first board frame.
+- return new Promise(resolve => feedbackWaiters.push(resolve));
++	if (started) return load(assets['./ui/match-actions/resign-atlas.webp']);
++	// Binding controls must not start decoration traffic ahead of the first board frame.
++	return new Promise((resolve) => feedbackWaiters.push(resolve));
+ }
+ export function prepareResignArt(): Promise<boolean> {
+- return Promise.all(dialogUrls().map(load)).then(results => results.every(Boolean));
++	return Promise.all(dialogUrls().map(load)).then((results) =>
++		results.every(Boolean),
++	);
+ }
+diff --git a/src/client/app/ui/verdict/manifest.json b/src/client/app/ui/verdict/manifest.json
+index c0a1e1b..b2a93dd 100644
+--- a/src/client/app/ui/verdict/manifest.json
++++ b/src/client/app/ui/verdict/manifest.json
+@@ -1,156 +1,93 @@
+ [
+-  {
+-    "name": "frame-win",
+-    "crop": [
+-      254,
+-      24,
+-      734,
+-      405
+-    ],
+-    "size": [
+-      728,
+-      640
+-    ],
+-    "slice": 48
+-  },
+-  {
+-    "name": "frame-loss",
+-    "crop": [
+-      747,
+-      24,
+-      1227,
+-      405
+-    ],
+-    "size": [
+-      728,
+-      640
+-    ],
+-    "slice": 48
+-  },
+-  {
+-    "name": "frame-draw",
+-    "crop": [
+-      1240,
+-      24,
+-      1720,
+-      405
+-    ],
+-    "size": [
+-      728,
+-      640
+-    ],
+-    "slice": 48
+-  },
+-  {
+-    "name": "primary-rest",
+-    "crop": [
+-      28,
+-      440,
+-      480,
+-      572
+-    ],
+-    "size": [
+-      1288,
+-      184
+-    ],
+-    "slice": 48
+-  },
+-  {
+-    "name": "primary-hover",
+-    "crop": [
+-      510,
+-      440,
+-      962,
+-      572
+-    ],
+-    "size": [
+-      1288,
+-      184
+-    ],
+-    "slice": 48
+-  },
+-  {
+-    "name": "primary-pressed",
+-    "crop": [
+-      1002,
+-      440,
+-      1454,
+-      572
+-    ],
+-    "size": [
+-      1288,
+-      184
+-    ],
+-    "slice": 48
+-  },
+-  {
+-    "name": "primary-disabled",
+-    "crop": [
+-      1498,
+-      440,
+-      1950,
+-      572
+-    ],
+-    "size": [
+-      1288,
+-      184
+-    ],
+-    "slice": 48
+-  },
+-  {
+-    "name": "secondary-rest",
+-    "crop": [
+-      272,
+-      615,
+-      592,
+-      719
+-    ],
+-    "size": [
+-      644,
+-      184
+-    ],
+-    "slice": 32
+-  },
+-  {
+-    "name": "secondary-hover",
+-    "crop": [
+-      642,
+-      615,
+-      962,
+-      719
+-    ],
+-    "size": [
+-      644,
+-      184
+-    ],
+-    "slice": 32
+-  },
+-  {
+-    "name": "secondary-pressed",
+-    "crop": [
+-      1004,
+-      615,
+-      1324,
+-      719
+-    ],
+-    "size": [
+-      644,
+-      184
+-    ],
+-    "slice": 32
+-  },
+-  {
+-    "name": "secondary-disabled",
+-    "crop": [
+-      1384,
+-      615,
+-      1704,
+-      719
+-    ],
+-    "size": [
+-      644,
+-      184
+-    ],
+-    "slice": 32
+-  }
+-]
+\ No newline at end of file
++	{
++		"name": "title",
++		"size": [2172, 724],
++		"slice": [400, 330, 300, 330],
++		"dpr": 3,
++		"sha256": "5f8ef22468f5326c14e403d127310b3a1da661150da43990e66b34ca1d8a615c"
++	},
++	{
++		"name": "primary-rest",
++		"size": [1448, 94],
++		"slice": [30, 105, 30, 105],
++		"dpr": 3,
++		"sha256": "bb0915c53a764773d5edbc23316a1281cbc6ed393f26b885f87f30173df32cc1"
++	},
++	{
++		"name": "primary-hover",
++		"size": [1448, 89],
++		"slice": [30, 105, 30, 105],
++		"dpr": 3,
++		"sha256": "49a59bdbba7bc119717f5d481d95816c58de2d5354afdfcfbaf3fc841dc424db"
++	},
++	{
++		"name": "primary-pressed",
++		"size": [1448, 87],
++		"slice": [30, 105, 30, 105],
++		"dpr": 3,
++		"sha256": "e1877620e870f7d9dca226309ae6b4f4eea6aca83b3c4920d735330c07147502"
++	},
++	{
++		"name": "primary-disabled",
++		"size": [1448, 92],
++		"slice": [30, 105, 30, 105],
++		"dpr": 3,
++		"sha256": "a39f36c4d7364a337b54ad1fc711b98012babe208afec3751883aa3df4a978ff"
++	},
++	{
++		"name": "secondary-rest",
++		"size": [1448, 88],
++		"slice": [30, 105, 30, 105],
++		"dpr": 3,
++		"sha256": "b7967eaa79c4818f903dedb15b1d00e9f99ac0737e8d6331f9c70bbb8fcf76a5"
++	},
++	{
++		"name": "secondary-hover",
++		"size": [1448, 85],
++		"slice": [30, 105, 30, 105],
++		"dpr": 3,
++		"sha256": "f0cdc2e971bd1aa6a7bc4d191de342f4ce88970f663763896080aca885d00967"
++	},
++	{
++		"name": "secondary-pressed",
++		"size": [1448, 89],
++		"slice": [30, 105, 30, 105],
++		"dpr": 3,
++		"sha256": "186a368fed0b3aab7999946f10697ebbd8ed078fc096394f6af0f452211b369a"
++	},
++	{
++		"name": "secondary-disabled",
++		"size": [1448, 94],
++		"slice": [30, 105, 30, 105],
++		"dpr": 3,
++		"sha256": "b72f4331ad6eb9faaef4a8cc17952abef2504a1f10f939f4cc120c970626624e"
++	},
++	{
++		"name": "quiet-rest",
++		"size": [1448, 90],
++		"slice": [30, 105, 30, 105],
++		"dpr": 3,
++		"sha256": "95b20e68af3ed41d455a3d2f54e8092f38eaa8d33b301d9117d74ccd7344a685"
++	},
++	{
++		"name": "quiet-hover",
++		"size": [1448, 87],
++		"slice": [30, 105, 30, 105],
++		"dpr": 3,
++		"sha256": "2ad3e9690aa65b3632afc681278c6521c3009277486b3cb2ccdc967722fe269f"
++	},
++	{
++		"name": "quiet-pressed",
++		"size": [1448, 88],
++		"slice": [30, 105, 30, 105],
++		"dpr": 3,
++		"sha256": "dbdcdd5c1895a5dcd9ed85b6ce7bf880a8f7d045382963aa2c2eb2e24a306584"
++	},
++	{
++		"name": "quiet-disabled",
++		"size": [1448, 103],
++		"slice": [30, 105, 30, 105],
++		"dpr": 3,
++		"sha256": "fa61dc92b14bc4723f651d764c8de217a7d243365908c75481ced4f7022875f8"
++	}
++]
+diff --git a/src/client/app/verdictSprites.spec.ts b/src/client/app/verdictSprites.spec.ts
+index 3e4eea4..e61cc24 100644
+--- a/src/client/app/verdictSprites.spec.ts
++++ b/src/client/app/verdictSprites.spec.ts
+@@ -1,17 +1,75 @@
++import { createHash } from 'node:crypto';
++import { readdirSync, readFileSync } from 'node:fs';
+ import { expect, it } from 'vitest';
+-import { readFileSync, existsSync } from 'node:fs';
+ import manifest from './ui/verdict/manifest.json';
+-const css=readFileSync(new URL('./boardVerdict.css',import.meta.url),'utf8');
+-it('uses generated frames and four state plates without CSS metal painting',()=>{
+- expect(css).not.toContain('linear-gradient');
+- expect(css).not.toContain('box-shadow: 0');
+- expect(manifest).toHaveLength(11);
+- for(const asset of manifest){
+-  expect(existsSync(new URL(`./ui/verdict/${asset.name}.webp`,import.meta.url))).toBe(true);
+-  expect(css).toContain(`${asset.name}.webp`);
+-  expect(asset.slice).toBe(asset.name.startsWith('secondary')?32:48);
+- }
+- expect(css).toContain('min-height: 44px');
+- expect(css).toContain(':focus-visible');
+- expect(css).toContain('prefers-reduced-motion');
++
++const directory = new URL('./ui/verdict/', import.meta.url);
++const css = readFileSync(
++	new URL('./boardVerdict.css', import.meta.url),
++	'utf8',
++);
++const states = ['rest', 'hover', 'pressed', 'disabled'];
++const names = [
++	'title',
++	...['primary', 'secondary', 'quiet'].flatMap((tier) =>
++		states.map((state) => `${tier}-${state}`),
++	),
++];
++
++it('delivers exactly the title and twelve distinct native lossless plates', () => {
++	expect(manifest.map((asset) => asset.name)).toEqual(names);
++	expect(readdirSync(directory).sort()).toEqual(
++		['manifest.json', ...names.map((name) => `${name}.webp`)].sort(),
++	);
++	const hashes = new Set<string>();
++	for (const asset of manifest) {
++		const bytes = readFileSync(new URL(`${asset.name}.webp`, directory));
++		expect(bytes.toString('ascii', 0, 4)).toBe('RIFF');
++		expect(bytes.toString('ascii', 8, 12)).toBe('WEBP');
++		// VP8L is the lossless bitstream; dimensions come from its packed header.
++		const offset = bytes.indexOf(Buffer.from('VP8L'));
++		expect(offset).toBeGreaterThanOrEqual(12);
++		expect(bytes[offset + 8]).toBe(0x2f);
++		const header = bytes.readUInt32LE(offset + 9);
++		expect([(header & 0x3fff) + 1, ((header >>> 14) & 0x3fff) + 1]).toEqual(
++			asset.size,
++		);
++		expect((header >>> 28) & 1).toBe(1); // Native alpha is present.
++		const hash = createHash('sha256').update(bytes).digest('hex');
++		expect(hash).toBe(asset.sha256);
++		hashes.add(hash);
++		expect(css).toContain(`${asset.name}.webp`);
++		expect(asset.dpr).toBe(3);
++		expect(asset.slice).toEqual(
++			asset.name === 'title' ? [400, 330, 300, 330] : [30, 105, 30, 105],
++		);
++		expect(asset.slice[1] + asset.slice[3]).toBeLessThan(asset.size[0]);
++		expect(asset.slice[0] + asset.slice[2]).toBeLessThan(asset.size[1]);
++	}
++	expect(hashes.size).toBe(13);
++});
++it('uses fixed DPR3 nine-slice corners, unified materials and accessible controls', () => {
++	expect(css).toMatch(/30 105 30 105 fill\s*\/\s*10px 35px\s*\/\s*0\s+stretch/);
++	expect(css).toMatch(/400 330 300 330 fill/);
++	expect(css).not.toMatch(
++		/gradient|filter\s*:|data-outcome|frame-(win|loss|draw)|48 fill/,
++	);
++	expect(css).not.toContain('box-shadow: 0');
++	expect(css).toContain('min-height: 44px');
++	expect(css).toContain('min-height: 64px');
++	expect(css).toContain(':focus-visible');
++	expect(css).toContain('prefers-reduced-motion');
++	for (const [action, tier] of [
++		['again', 'primary'],
++		['menu', 'quiet'],
++	]) {
++		for (const state of states.slice(1)) {
++			const pseudo = state === 'pressed' ? 'active' : state;
++			expect(css).toMatch(
++				new RegExp(
++					`\\[data-verdict="${action}"\\]:${pseudo}\\s*\\{[^}]*${tier}-${state}\\.webp`,
++				),
++			);
++		}
++	}
+ });
+diff --git a/tests/verdict-safe-area.cjs b/tests/verdict-safe-area.cjs
+index 5746f22..c2255b6 100644
+--- a/tests/verdict-safe-area.cjs
++++ b/tests/verdict-safe-area.cjs
+@@ -1,43 +1,260 @@
+-// Run with STUDIO_PLAYWRIGHT=/path/to/playwright node tests/verdict-safe-area.cjs
+-// Requires this worktree's Vite on VERDICT_PREVIEW (default localhost:4242).
++// Isolated, temporary headless Chromium; local Vite serves the real runtime module.
++// STUDIO_PLAYWRIGHT=/path/to/playwright VERDICT_PREVIEW=http://127.0.0.1:5197
++// VERDICT_EVIDENCE=docs/preview-t_1577b2be/final node tests/verdict-safe-area.cjs
+ const { chromium } = require(process.env.STUDIO_PLAYWRIGHT || 'playwright');
+ const assert = require('node:assert/strict');
+ const fs = require('node:fs');
+ const origin = process.env.VERDICT_PREVIEW || 'http://127.0.0.1:4242';
+ const evidence = process.env.VERDICT_EVIDENCE || '.';
+-const fixture = `<!doctype html><meta charset="utf-8"><style>body{margin:0;background:#151918}</style><script type="module">import {createResultOverlay} from '/src/client/app/boardVerdict.ts';window.overlay=createResultOverlay({events:{once(){}}},{onPlayAgain(){},onMenu(){window.action='menu'}});window.showVerdict=outcome=>window.overlay.show({winner:outcome==='draw'?'draw':outcome==='win'?'white':'black',humanSide:'white',reason:'Партия завершена',online:false});</script>`;
++const fontFaces = fs
++	.readFileSync('index.html', 'utf8')
++	.match(/@font-face\{[^}]+\}/g)
++	.join('\n');
++const fixture = `<!doctype html><meta charset="utf-8"><style>${fontFaces}body{margin:0;background:#151918}</style><script type="module">import '/src/client/fonts/fonts.css';import {createResultOverlay} from '/src/client/app/boardVerdict.ts';window.overlay=createResultOverlay({events:{once(){}}},{onPlayAgain(){window.action='again'},onMenu(){window.action='menu'}});window.showVerdict=(outcome,reason='Партия завершена')=>window.overlay.show({winner:outcome==='draw'?'draw':outcome==='win'?'white':'black',humanSide:'white',reason,online:false});</script>`;
+ (async () => {
+- const browser = await chromium.launch({headless:true, executablePath:'/usr/local/bin/google-chrome',args:['--no-sandbox']});
+- const results=[];
+- try {
+-  for(const width of [390,1280]) for(const reducedMotion of ['no-preference','reduce']) {
+-   const context=await browser.newContext({viewport:{width,height:844},reducedMotion});
+-   await context.route('**/*',r=>r.request().url().startsWith(origin+'/') ? r.continue() : r.abort());
+-   // Serve the fixture through Vite, rather than synthetic navigation interception.
+-   await context.addInitScript(() => { window.__verdictRegression = true; });
+-   await context.routeWebSocket('**/*', ws=>ws.close());
+-   const page=await context.newPage(); const errors=[];page.on('pageerror',e=>errors.push(e.message));
+-   fs.writeFileSync(require('node:path').join(__dirname,'verdict-fixture.html'),fixture);
+-   await page.goto(origin+'/tests/verdict-fixture.html',{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.showVerdict);
+-   for(const outcome of ['win','loss','draw']) {
+-    await page.evaluate(o=>{window.overlay.hide();window.showVerdict(o)},outcome);
+-    await page.waitForTimeout(350);
+-    for(const state of ['expanded','collapsed']) {
+-     if(state==='collapsed')await page.locator('[data-verdict="board"]').click();
+-     const geometry=await page.evaluate(()=>[...document.querySelectorAll('.board-verdict button')].filter(b=>b.getBoundingClientRect().height).map(b=>{
+-      const rect=b.getBoundingClientRect();const range=document.createRange();range.selectNodeContents(b);const text=range.getBoundingClientRect();
+-      return {label:b.textContent,width:rect.width,height:rect.height,x:rect.x,right:rect.right,leftInset:text.left-rect.left,rightInset:rect.right-text.right,overflow:b.scrollWidth>b.clientWidth};
+-     }));
+-     for(const b of geometry){assert(b.height>=44,b.label+' target');assert(b.x>=0&&b.right<=width,b.label+' viewport overflow');assert(!b.overflow,b.label+' text overflow');assert(b.leftInset>=23&&b.rightInset>=23,b.label+' decorative safe-area');}
+-     await page.screenshot({path:`${evidence}/safe-${width}-${reducedMotion}-${outcome}-${state}.png`});
+-     results.push({width,reducedMotion,outcome,state,geometry});
+-    }
+-    await page.locator('[data-verdict="open"]').click();await page.keyboard.press('Tab');
+-    assert(await page.locator('[data-verdict="again"]').evaluate(b=>b===document.activeElement),'keyboard focus');
+-    await page.locator('.verdict-panel [data-verdict="menu"]').click();assert.equal(await page.evaluate(()=>window.action),'menu');
+-   }
+-   assert.deepEqual(errors,[]);await context.close();
+-  }
+-  fs.writeFileSync(`${evidence}/safe-area-results.json`,JSON.stringify(results,null,2));console.log(`PASS ${results.length} real-browser geometry cases; keyboard/reopen/menu; no JS errors`);
+- } finally {await browser.close();}
+-})().catch(e=>{console.error(e);process.exitCode=1;});
++	const browser = await chromium.launch({
++		headless: true,
++		executablePath: '/usr/local/bin/google-chrome',
++		args: ['--no-sandbox'],
++	});
++	const results = [];
++	try {
++		for (const width of [390, 1280])
++			for (const dpr of [2, 3])
++				for (const reducedMotion of ['no-preference', 'reduce']) {
++					const context = await browser.newContext({
++						viewport: { width, height: 844 },
++						deviceScaleFactor: dpr,
++						reducedMotion,
++					});
++					await context.route('**/*', (r) =>
++						new URL(r.request().url()).origin === origin
++							? r.continue()
++							: r.abort(),
++					);
++					await context.route(origin + '/tests/verdict-fixture.html', (r) =>
++						r.fulfill({ contentType: 'text/html', body: fixture }),
++					);
++					await context.routeWebSocket('**/*', (ws) => ws.close());
++					const page = await context.newPage();
++					const errors = [];
++					page.on('pageerror', (e) => errors.push(e.message));
++					await page.goto(origin + '/tests/verdict-fixture.html', {
++						waitUntil: 'domcontentloaded',
++					});
++					await page.waitForFunction(() => window.showVerdict);
++					await page.evaluate(async () => {
++						const faces = await Promise.all(
++							[
++								'600 25px Literata',
++								'400 13px "Golos Text"',
++								'600 16px "Golos Text"',
++							].map((font) => document.fonts.load(font, 'ПАРТИЯ ПОРАЖЕНИЕ')),
++						);
++						if (faces.some((group) => group.length === 0))
++							throw new Error('Production fonts unavailable');
++						await document.fonts.ready;
++					});
++					for (const outcome of ['win', 'loss', 'draw']) {
++						await page.evaluate((o) => {
++							window.overlay.hide();
++							window.showVerdict(o);
++						}, outcome);
++						await page.waitForTimeout(350);
++						const slots = await page.evaluate(() => {
++							const title = document
++								.querySelector('.verdict-title')
++								.getBoundingClientRect();
++							return [
++								...document.querySelectorAll(
++									'.verdict-eyebrow,#verdict-heading,#verdict-reason',
++								),
++							].map((e) => {
++								const range = document.createRange();
++								range.selectNodeContents(e);
++								const r = range.getBoundingClientRect(),
++									lower = e.id === 'verdict-reason';
++								return {
++									text: e.textContent,
++									contained:
++										r.left >= title.left + 84 &&
++										r.right <= title.right - 84 &&
++										r.top >= title.top + (lower ? 148 : 47) &&
++										r.bottom <= title.top + (lower ? 190 : 121),
++								};
++							});
++						});
++						assert(
++							slots.every((s) => s.contained),
++							JSON.stringify(slots),
++						);
++						const slice = await page
++							.locator('[data-verdict="again"]')
++							.evaluate((e) => {
++								const s = getComputedStyle(e);
++								return {
++									slice: s.borderImageSlice,
++									width: s.borderImageWidth,
++									filter: s.filter,
++								};
++							});
++						assert.equal(slice.slice, '30 105 fill');
++						assert.equal(slice.width, '10px 35px');
++						assert.equal(slice.filter, 'none');
++						const sizes = await page
++							.locator('.verdict-actions button')
++							.evaluateAll((es) =>
++								es.map((e) => ({
++									width: e.offsetWidth,
++									height: e.offsetHeight,
++								})),
++							);
++						assert(
++							sizes[0].width > sizes[1].width &&
++								sizes[0].height > sizes[1].height &&
++								sizes[1].height > sizes[2].height,
++							'action hierarchy',
++						);
++						for (const state of ['expanded', 'collapsed']) {
++							if (state === 'collapsed')
++								await page.locator('[data-verdict="board"]').click();
++							const geometry = await page.evaluate(() =>
++								[...document.querySelectorAll('.board-verdict button')]
++									.filter((b) => b.getBoundingClientRect().height)
++									.map((b) => {
++										const rect = b.getBoundingClientRect();
++										const range = document.createRange();
++										range.selectNodeContents(b);
++										const text = range.getBoundingClientRect();
++										return {
++											label: b.textContent,
++											width: rect.width,
++											height: rect.height,
++											x: rect.x,
++											right: rect.right,
++											leftInset: text.left - rect.left,
++											rightInset: rect.right - text.right,
++											overflow: b.scrollWidth > b.clientWidth,
++										};
++									}),
++							);
++							for (const b of geometry) {
++								assert(b.height >= 44, b.label + ' target');
++								assert(
++									b.x >= 0 && b.right <= width,
++									b.label + ' viewport overflow',
++								);
++								assert(!b.overflow, b.label + ' text overflow');
++								assert(
++									b.leftInset >= 23 && b.rightInset >= 23,
++									b.label + ' decorative safe-area',
++								);
++							}
++							await page.screenshot({
++								path: `${evidence}/safe-${width}-dpr${dpr}-${reducedMotion}-${outcome}-${state}.png`,
++							});
++							results.push({
++								width,
++								dpr,
++								reducedMotion,
++								outcome,
++								state,
++								geometry,
++								slots,
++								sizes,
++							});
++						}
++						await page.locator('[data-verdict="open"]').click();
++						await page.keyboard.press('Tab');
++						assert(
++							await page
++								.locator('[data-verdict="again"]')
++								.evaluate((b) => b === document.activeElement),
++							'keyboard focus',
++						);
++						await page.locator('.verdict-panel [data-verdict="menu"]').click();
++						assert.equal(await page.evaluate(() => window.action), 'menu');
++					}
++					// Exercise all distinct CSS states using real pointer input and native disabled state.
++					await page.evaluate(() => window.showVerdict('win'));
++					for (const [action, tier] of [
++						['again', 'primary'],
++						['board', 'secondary'],
++						['menu', 'quiet'],
++					]) {
++						const b = page.locator(`.verdict-panel [data-verdict="${action}"]`);
++						for (const state of ['rest', 'hover', 'pressed', 'disabled']) {
++							await page.mouse.move(0, 0);
++							await b.evaluate((e) => (e.disabled = false));
++							if (state === 'hover' || state === 'pressed') await b.hover();
++							if (state === 'pressed') await page.mouse.down();
++							if (state === 'disabled')
++								await b.evaluate((e) => (e.disabled = true));
++							assert(
++								(
++									await b.evaluate((e) => getComputedStyle(e).borderImageSource)
++								).includes(`${tier}-${state}.webp`),
++							);
++							if (state === 'pressed') {
++								await b.evaluate((e) => (e.disabled = true));
++								await page.mouse.up();
++							}
++						}
++						await b.evaluate((e) => (e.disabled = false));
++					}
++					// Every shipped reason must fit the lower recess; no truncation or text rewrite.
++					for (const reason of [
++						'Игроки не вернулись в партию',
++						'Соперник не вернулся в партию',
++						'Вы не вернулись в партию',
++						'Соперник сдался',
++						'Вы сдались',
++						'У соперника закончилось время',
++						'У вас закончилось время',
++						'Партия завершена',
++						'Позиция повторилась трижды',
++						'Ничья по правилам',
++						'У соперника не осталось ходов',
++						'У вас не осталось ходов',
++						'У соперника не осталось шашек',
++						'У вас не осталось шашек',
++					]) {
++						await page.evaluate((reason) => {
++							window.overlay.hide();
++							window.showVerdict('loss', reason);
++						}, reason);
++						await page.waitForTimeout(280);
++						assert(
++							await page.locator('#verdict-reason').evaluate((e) => {
++								const r = e.getBoundingClientRect(),
++									t = document.createRange();
++								t.selectNodeContents(e);
++								const b = t.getBoundingClientRect();
++								return (
++									b.x >= r.x &&
++									b.right <= r.right &&
++									b.y >= r.y &&
++									b.bottom <= r.bottom &&
++									e.scrollHeight <= e.clientHeight
++								);
++							}),
++							reason,
++						);
++					}
++					assert.deepEqual(errors, []);
++					await context.close();
++				}
++		fs.writeFileSync(
++			`${evidence}/safe-area-results.json`,
++			JSON.stringify(results, null, 2),
++		);
++		console.log(
++			`Verified ${results.length} real-browser geometry cases; twelve states, all fourteen reasons, keyboard/reopen/menu; no JS errors`,
++		);
++	} finally {
++		await browser.close();
++	}
++})().catch((e) => {
++	console.error(e);
++	process.exitCode = 1;
++});

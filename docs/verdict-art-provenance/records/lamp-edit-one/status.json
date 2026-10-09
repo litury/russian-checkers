@@ -1,0 +1,30 @@
+{
+  "status": "raw_output_saved",
+  "tool": "built-in image_gen",
+  "calls": 1,
+  "edit_target": "docs/preview-t_1577b2be/wide-title/wide-title-original.png",
+  "output": "raw-output.png",
+  "prompt": "prompt.txt",
+  "sha256": "24853e0b8b966db3d36d00c10109d26be81c95d42efab5f5d0a26383a2286170",
+  "size": [
+    1254,
+    1254
+  ],
+  "mode": "RGBA",
+  "alpha_extrema": [
+    0,
+    255
+  ],
+  "postprocessing": "none; byte-for-byte copy",
+  "pixel_fidelity": "not verified",
+  "AGENTS.md": "not found in workspace or ancestor directories",
+  "visual_review": {
+    "three_stacked_plates": true,
+    "lettering": false,
+    "limitations": [
+      "Exact pixel-faithful geometry and identical rows are not achieved; visible detail differences remain.",
+      "Top lamps retain bright yellow cores; bottom lamps are brighter than requested."
+    ],
+    "acceptance": "does not fully meet requested invariants; raw output retained without edits or retry"
+  }
+}

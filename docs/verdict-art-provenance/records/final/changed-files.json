@@ -1,0 +1,163 @@
+{
+	"branch": "wt/t_1577b2be",
+	"head": "a97b8d012d4de8b35a5dc414e22ce4f288fb4a52",
+	"scopeVerified": true,
+	"files": [
+		{
+			"path": "src/client/app/boardVerdict.css",
+			"status": "modified",
+			"bytes": 4587,
+			"sha256": "44c46416e4f96752ca1b11562ffd4af6fefb0834b08bed80e187a5b83b6eb7cf"
+		},
+		{
+			"path": "src/client/app/boardVerdict.ts",
+			"status": "modified",
+			"bytes": 5294,
+			"sha256": "9ce9c0cadba81e10db64236288e5b85235b09a11019198a18248ae1889ca8065"
+		},
+		{
+			"path": "src/client/app/matchActionArtWarmup.spec.ts",
+			"status": "modified",
+			"bytes": 5750,
+			"sha256": "b26b286b8d67330ade392b7e75a13b7232eebefd2910e89aaee5de0defb79a90"
+		},
+		{
+			"path": "src/client/app/matchActionArtWarmup.ts",
+			"status": "modified",
+			"bytes": 3791,
+			"sha256": "f5ef0f91141eedf2ce52dbd6d886e3a7bb25ee7aaf77f2dcc1848bccbd51ff8e"
+		},
+		{
+			"path": "src/client/app/ui/verdict/frame-draw.webp",
+			"status": "deleted",
+			"bytes": null,
+			"sha256": null
+		},
+		{
+			"path": "src/client/app/ui/verdict/frame-loss.webp",
+			"status": "deleted",
+			"bytes": null,
+			"sha256": null
+		},
+		{
+			"path": "src/client/app/ui/verdict/frame-win.webp",
+			"status": "deleted",
+			"bytes": null,
+			"sha256": null
+		},
+		{
+			"path": "src/client/app/ui/verdict/manifest.json",
+			"status": "modified",
+			"bytes": 2325,
+			"sha256": "91f319a53ae3d19a04f8e969bd5f7da1debda6a06f3b17fe794fe09af09715dc"
+		},
+		{
+			"path": "src/client/app/ui/verdict/master.png",
+			"status": "deleted",
+			"bytes": null,
+			"sha256": null
+		},
+		{
+			"path": "src/client/app/ui/verdict/primary-disabled.webp",
+			"status": "modified",
+			"bytes": 112068,
+			"sha256": "a39f36c4d7364a337b54ad1fc711b98012babe208afec3751883aa3df4a978ff"
+		},
+		{
+			"path": "src/client/app/ui/verdict/primary-hover.webp",
+			"status": "modified",
+			"bytes": 131358,
+			"sha256": "49a59bdbba7bc119717f5d481d95816c58de2d5354afdfcfbaf3fc841dc424db"
+		},
+		{
+			"path": "src/client/app/ui/verdict/primary-pressed.webp",
+			"status": "modified",
+			"bytes": 118050,
+			"sha256": "e1877620e870f7d9dca226309ae6b4f4eea6aca83b3c4920d735330c07147502"
+		},
+		{
+			"path": "src/client/app/ui/verdict/primary-rest.webp",
+			"status": "modified",
+			"bytes": 118092,
+			"sha256": "bb0915c53a764773d5edbc23316a1281cbc6ed393f26b885f87f30173df32cc1"
+		},
+		{
+			"path": "src/client/app/ui/verdict/prompt.txt",
+			"status": "deleted",
+			"bytes": null,
+			"sha256": null
+		},
+		{
+			"path": "src/client/app/ui/verdict/provenance.json",
+			"status": "deleted",
+			"bytes": null,
+			"sha256": null
+		},
+		{
+			"path": "src/client/app/ui/verdict/quiet-disabled.webp",
+			"status": "added",
+			"bytes": 102056,
+			"sha256": "fa61dc92b14bc4723f651d764c8de217a7d243365908c75481ced4f7022875f8"
+		},
+		{
+			"path": "src/client/app/ui/verdict/quiet-hover.webp",
+			"status": "added",
+			"bytes": 108284,
+			"sha256": "2ad3e9690aa65b3632afc681278c6521c3009277486b3cb2ccdc967722fe269f"
+		},
+		{
+			"path": "src/client/app/ui/verdict/quiet-pressed.webp",
+			"status": "added",
+			"bytes": 96468,
+			"sha256": "dbdcdd5c1895a5dcd9ed85b6ce7bf880a8f7d045382963aa2c2eb2e24a306584"
+		},
+		{
+			"path": "src/client/app/ui/verdict/quiet-rest.webp",
+			"status": "added",
+			"bytes": 97060,
+			"sha256": "95b20e68af3ed41d455a3d2f54e8092f38eaa8d33b301d9117d74ccd7344a685"
+		},
+		{
+			"path": "src/client/app/ui/verdict/secondary-disabled.webp",
+			"status": "modified",
+			"bytes": 112242,
+			"sha256": "b72f4331ad6eb9faaef4a8cc17952abef2504a1f10f939f4cc120c970626624e"
+		},
+		{
+			"path": "src/client/app/ui/verdict/secondary-hover.webp",
+			"status": "modified",
+			"bytes": 117958,
+			"sha256": "f0cdc2e971bd1aa6a7bc4d191de342f4ce88970f663763896080aca885d00967"
+		},
+		{
+			"path": "src/client/app/ui/verdict/secondary-pressed.webp",
+			"status": "modified",
+			"bytes": 107752,
+			"sha256": "186a368fed0b3aab7999946f10697ebbd8ed078fc096394f6af0f452211b369a"
+		},
+		{
+			"path": "src/client/app/ui/verdict/secondary-rest.webp",
+			"status": "modified",
+			"bytes": 110222,
+			"sha256": "b7967eaa79c4818f903dedb15b1d00e9f99ac0737e8d6331f9c70bbb8fcf76a5"
+		},
+		{
+			"path": "src/client/app/ui/verdict/title.webp",
+			"status": "added",
+			"bytes": 1306182,
+			"sha256": "5f8ef22468f5326c14e403d127310b3a1da661150da43990e66b34ca1d8a615c"
+		},
+		{
+			"path": "src/client/app/verdictSprites.spec.ts",
+			"status": "modified",
+			"bytes": 2818,
+			"sha256": "8706dfb280d0286e9071b03b1fb927fb3d304405c4911c14f0defe3ae0d79c5a"
+		},
+		{
+			"path": "tests/verdict-safe-area.cjs",
+			"status": "modified",
+			"bytes": 9594,
+			"sha256": "721d82760bcced2b4c2af6f671ef43fdc555092b8ff5a6fc4c15842a37d43e89"
+		}
+	]
+}

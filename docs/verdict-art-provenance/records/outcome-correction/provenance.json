@@ -1,0 +1,23 @@
+{
+  "tool": "built-in image_gen",
+  "calls_this_turn": 1,
+  "budget_context": "Final remaining correction call of user-approved 3-call budget",
+  "source_output": "/home/hermes/.codex-account1/generated_images/01a11c78-0f26-7281-85b1-74a289be9dd6/exec-9f45576f-6521-4d03-b77d-2b16893f7215.png",
+  "saved_raw_original": "docs/preview-t_1577b2be/outcome-correction/outcome-correction-original.png",
+  "sha256": "803510646262f7fdf5f14067a3c72c76d1d772b8917312cfdc906eabfffa2164",
+  "size": [
+    1254,
+    1254
+  ],
+  "mode": "RGBA",
+  "alpha_extrema": [
+    0,
+    255
+  ],
+  "references": [
+    "src/client/app/ui/verdict/title.webp",
+    "docs/preview-t_1577b2be/wide-title/wide-title-original.png"
+  ],
+  "prompt_file": "prompt.txt",
+  "postprocessing": "None; byte-for-byte copy"
+}
