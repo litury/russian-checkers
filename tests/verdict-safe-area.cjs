@@ -110,7 +110,8 @@ const fixture = `<!doctype html><meta charset="utf-8"><style>${fontFaces}body{ma
 								})),
 							);
 						assert(
-							sizes[0].width > sizes[1].width &&
+							sizes[0].width === sizes[1].width &&
+								sizes[1].width === sizes[2].width &&
 								sizes[0].height > sizes[1].height &&
 								sizes[1].height > sizes[2].height,
 							'action hierarchy',

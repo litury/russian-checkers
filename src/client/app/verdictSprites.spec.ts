@@ -51,12 +51,14 @@ it('delivers exactly the title and twelve distinct native lossless plates', () =
 it('uses fixed DPR3 nine-slice corners, unified materials and accessible controls', () => {
 	expect(css).toMatch(/30 105 30 105 fill\s*\/\s*10px 35px\s*\/\s*0\s+stretch/);
 	expect(css).toMatch(/400 330 300 330 fill/);
-	expect(css).not.toMatch(
-		/gradient|filter\s*:|data-outcome|frame-(win|loss|draw)|48 fill/,
-	);
+	expect(css).not.toMatch(/gradient|filter\s*:|frame-(win|loss|draw)|48 fill/);
 	expect(css).not.toContain('box-shadow: 0');
 	expect(css).toContain('min-height: 44px');
 	expect(css).toContain('min-height: 64px');
+	expect(css).toMatch(/\.verdict-actions button\s*\{\s*width: 100%/);
+	expect(css).toMatch(
+		/\.verdict-actions \[data-verdict="menu"\]\s*\{\s*width: 100%/,
+	);
 	expect(css).toContain(':focus-visible');
 	expect(css).toContain('prefers-reduced-motion');
 	for (const [action, tier] of [

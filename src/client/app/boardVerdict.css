@@ -23,7 +23,9 @@
 	padding: 0;
 	background: transparent;
 }
-/* Native DPR3 corners. Only the middle columns extend horizontally; the
+/* Coordinator-approved fallback: one plate for all outcomes; the heading
+   communicates the result without relying on color. Native DPR3 corners.
+   Only the middle columns extend horizontally; the
    title's native height preserves both recesses and their separating rail. */
 .verdict-title {
 	position: relative;
@@ -118,7 +120,7 @@
 	cursor: default;
 }
 .verdict-actions button {
-	width: calc(100% - 24px);
+	width: 100%;
 	min-height: 52px;
 	font-size: 14px;
 }
@@ -152,7 +154,7 @@
 	border-image-source: url("./ui/verdict/quiet-disabled.webp");
 }
 .verdict-actions [data-verdict="menu"] {
-	width: calc(100% - 48px);
+	width: 100%;
 	min-height: 44px;
 }
 .board-verdict button::before,
