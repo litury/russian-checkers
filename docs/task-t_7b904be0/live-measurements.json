@@ -1,0 +1,1214 @@
+[
+  {
+    "width": 390,
+    "dpr": 2,
+    "measurements": [
+      {
+        "phase": "online-hub",
+        "title": {
+          "text": "Онлайн",
+          "field": 178,
+          "lines": [
+            {
+              "width": 77,
+              "left": 0,
+              "right": 101
+            }
+          ],
+          "visible": true,
+          "font": "600 19px / 22.8px Literata, serif"
+        },
+        "count": null,
+        "back": {
+          "text": "В меню",
+          "field": 72,
+          "lines": [
+            {
+              "width": 54.171875,
+              "left": 8.90625,
+              "right": 8.921875
+            }
+          ]
+        }
+      },
+      {
+        "phase": "searching",
+        "title": {
+          "text": "Ищем соперника · 0 с",
+          "field": 278.1875,
+          "lines": [
+            {
+              "width": 185.53125,
+              "left": 46.328125,
+              "right": 46.328125
+            }
+          ],
+          "visible": true,
+          "font": "600 16.328px / 17.1444px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 1",
+          "field": 119.09375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 30.625,
+              "right": 30.625
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "waiting",
+        "title": {
+          "text": "Ждём второго игрока · 2 с",
+          "field": 278.1875,
+          "lines": [
+            {
+              "width": 223.171875,
+              "left": 27.5,
+              "right": 27.515625
+            }
+          ],
+          "visible": true,
+          "font": "600 16.328px / 17.1444px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 1",
+          "field": 119.09375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 30.625,
+              "right": 30.625
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "waiting-late",
+        "title": {
+          "text": "Ждём второго игрока · 40 с",
+          "field": 278.1875,
+          "lines": [
+            {
+              "width": 234.5,
+              "left": 21.84375,
+              "right": 21.84375
+            }
+          ],
+          "visible": true,
+          "font": "600 16.328px / 17.1444px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 1",
+          "field": 119.09375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 30.625,
+              "right": 30.625
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "timeout-offer",
+        "title": {
+          "text": "Пока никого",
+          "field": 278.1875,
+          "lines": [
+            {
+              "width": 109.59375,
+              "left": 84.296875,
+              "right": 84.296875
+            }
+          ],
+          "visible": true,
+          "font": "600 16.328px / 17.1444px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 1",
+          "field": 119.09375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 30.625,
+              "right": 30.625
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "friend-enter",
+        "title": {
+          "text": "Введите код",
+          "field": 278.1875,
+          "lines": [
+            {
+              "width": 105.59375,
+              "left": 86.296875,
+              "right": 86.296875
+            }
+          ],
+          "visible": true,
+          "font": "600 16.328px / 17.1444px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 1",
+          "field": 119.09375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 30.625,
+              "right": 30.625
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "friend-miss",
+        "title": {
+          "text": "нет комнаты",
+          "field": 278.1875,
+          "lines": [
+            {
+              "width": 113.59375,
+              "left": 82.296875,
+              "right": 82.296875
+            }
+          ],
+          "visible": true,
+          "font": "600 16.328px / 17.1444px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 1",
+          "field": 119.09375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 30.625,
+              "right": 30.625
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "friend-wait",
+        "title": {
+          "text": "Ждём друга · 940704",
+          "field": 278.1875,
+          "lines": [
+            {
+              "width": 175.21875,
+              "left": 51.484375,
+              "right": 51.484375
+            }
+          ],
+          "visible": true,
+          "font": "600 16.328px / 17.1444px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 1",
+          "field": 119.09375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 30.625,
+              "right": 30.625
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "found",
+        "title": {
+          "text": "Соперник найден",
+          "field": 278.1875,
+          "lines": [
+            {
+              "width": 152.90625,
+              "left": 62.640625,
+              "right": 62.640625
+            }
+          ],
+          "visible": true,
+          "font": "600 16.328px / 17.1444px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 2",
+          "field": 119.09375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 30.625,
+              "right": 30.625
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "offline",
+        "title": {
+          "text": "Нет связи с сервером",
+          "field": 278.1875,
+          "lines": [
+            {
+              "width": 185.53125,
+              "left": 46.328125,
+              "right": 46.328125
+            }
+          ],
+          "visible": true,
+          "font": "600 16.328px / 17.1444px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 4",
+          "field": 119.09375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 30.625,
+              "right": 30.625
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      }
+    ],
+    "errors": [],
+    "twoClients": {
+      "code": "940704",
+      "hostFound": "Соперник найден",
+      "joinerText": "Введите код",
+      "note": "Host browser clock paused before real join solely to capture 800ms found hold; real API/WebSocket, not a full game assertion"
+    },
+    "network": []
+  },
+  {
+    "width": 390,
+    "dpr": 3,
+    "measurements": [
+      {
+        "phase": "online-hub",
+        "title": {
+          "text": "Онлайн",
+          "field": 178,
+          "lines": [
+            {
+              "width": 77,
+              "left": 0,
+              "right": 101
+            }
+          ],
+          "visible": true,
+          "font": "600 19px / 22.8px Literata, serif"
+        },
+        "count": null,
+        "back": {
+          "text": "В меню",
+          "field": 72,
+          "lines": [
+            {
+              "width": 54.171875,
+              "left": 8.90625,
+              "right": 8.921875
+            }
+          ]
+        }
+      },
+      {
+        "phase": "searching",
+        "title": {
+          "text": "Ищем соперника · 0 с",
+          "field": 278.1875,
+          "lines": [
+            {
+              "width": 185.53125,
+              "left": 46.328125,
+              "right": 46.328125
+            }
+          ],
+          "visible": true,
+          "font": "600 16.328px / 17.1444px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 3",
+          "field": 119.09375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 30.625,
+              "right": 30.625
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "waiting",
+        "title": {
+          "text": "Ждём второго игрока · 2 с",
+          "field": 278.1875,
+          "lines": [
+            {
+              "width": 223.171875,
+              "left": 27.5,
+              "right": 27.515625
+            }
+          ],
+          "visible": true,
+          "font": "600 16.328px / 17.1444px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 3",
+          "field": 119.09375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 30.625,
+              "right": 30.625
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "waiting-late",
+        "title": {
+          "text": "Ждём второго игрока · 40 с",
+          "field": 278.1875,
+          "lines": [
+            {
+              "width": 234.5,
+              "left": 21.84375,
+              "right": 21.84375
+            }
+          ],
+          "visible": true,
+          "font": "600 16.328px / 17.1444px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 1",
+          "field": 119.09375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 30.625,
+              "right": 30.625
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "timeout-offer",
+        "title": {
+          "text": "Пока никого",
+          "field": 278.1875,
+          "lines": [
+            {
+              "width": 109.59375,
+              "left": 84.296875,
+              "right": 84.296875
+            }
+          ],
+          "visible": true,
+          "font": "600 16.328px / 17.1444px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 1",
+          "field": 119.09375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 30.625,
+              "right": 30.625
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "friend-enter",
+        "title": {
+          "text": "Введите код",
+          "field": 278.1875,
+          "lines": [
+            {
+              "width": 105.59375,
+              "left": 86.296875,
+              "right": 86.296875
+            }
+          ],
+          "visible": true,
+          "font": "600 16.328px / 17.1444px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 1",
+          "field": 119.09375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 30.625,
+              "right": 30.625
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "friend-miss",
+        "title": {
+          "text": "нет комнаты",
+          "field": 278.1875,
+          "lines": [
+            {
+              "width": 113.59375,
+              "left": 82.296875,
+              "right": 82.296875
+            }
+          ],
+          "visible": true,
+          "font": "600 16.328px / 17.1444px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 1",
+          "field": 119.09375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 30.625,
+              "right": 30.625
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "friend-wait",
+        "title": {
+          "text": "Ждём друга · 968272",
+          "field": 278.1875,
+          "lines": [
+            {
+              "width": 171.21875,
+              "left": 53.484375,
+              "right": 53.484375
+            }
+          ],
+          "visible": true,
+          "font": "600 16.328px / 17.1444px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 1",
+          "field": 119.09375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 30.625,
+              "right": 30.625
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "found",
+        "title": {
+          "text": "Соперник найден",
+          "field": 278.1875,
+          "lines": [
+            {
+              "width": 152.90625,
+              "left": 62.640625,
+              "right": 62.640625
+            }
+          ],
+          "visible": true,
+          "font": "600 16.328px / 17.1444px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 2",
+          "field": 119.09375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 30.625,
+              "right": 30.625
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "offline",
+        "title": {
+          "text": "Нет связи с сервером",
+          "field": 278.1875,
+          "lines": [
+            {
+              "width": 185.53125,
+              "left": 46.328125,
+              "right": 46.328125
+            }
+          ],
+          "visible": true,
+          "font": "600 16.328px / 17.1444px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 4",
+          "field": 119.09375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 30.625,
+              "right": 30.625
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      }
+    ],
+    "errors": [],
+    "twoClients": {
+      "code": "968272",
+      "hostFound": "Соперник найден",
+      "joinerText": "Введите код",
+      "note": "Host browser clock paused before real join solely to capture 800ms found hold; real API/WebSocket, not a full game assertion"
+    },
+    "network": []
+  },
+  {
+    "width": 1280,
+    "dpr": 2,
+    "measurements": [
+      {
+        "phase": "online-hub",
+        "title": {
+          "text": "Онлайн",
+          "field": 408,
+          "lines": [
+            {
+              "width": 105,
+              "left": 0,
+              "right": 303
+            }
+          ],
+          "visible": true,
+          "font": "600 26px / 31.2px Literata, serif"
+        },
+        "count": null,
+        "back": {
+          "text": "В меню",
+          "field": 80,
+          "lines": [
+            {
+              "width": 61.90625,
+              "left": 9.046875,
+              "right": 9.046875
+            }
+          ]
+        }
+      },
+      {
+        "phase": "searching",
+        "title": {
+          "text": "Ищем соперника · 0 с",
+          "field": 317.6875,
+          "lines": [
+            {
+              "width": 205.203125,
+              "left": 56.234375,
+              "right": 56.25
+            }
+          ],
+          "visible": true,
+          "font": "600 18px / 18.9px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 3",
+          "field": 138.84375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 40.5,
+              "right": 40.5
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "waiting",
+        "title": {
+          "text": "Ждём второго игрока · 5 с",
+          "field": 317.6875,
+          "lines": [
+            {
+              "width": 248,
+              "left": 34.84375,
+              "right": 34.84375
+            }
+          ],
+          "visible": true,
+          "font": "600 18px / 18.9px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 2",
+          "field": 138.84375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 40.5,
+              "right": 40.5
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "waiting-late",
+        "title": {
+          "text": "Ждём второго игрока · 43 с",
+          "field": 317.6875,
+          "lines": [
+            {
+              "width": 259.375,
+              "left": 29.15625,
+              "right": 29.15625
+            }
+          ],
+          "visible": true,
+          "font": "600 18px / 18.9px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 1",
+          "field": 138.84375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 40.5,
+              "right": 40.5
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "timeout-offer",
+        "title": {
+          "text": "Пока никого",
+          "field": 317.6875,
+          "lines": [
+            {
+              "width": 120.96875,
+              "left": 98.359375,
+              "right": 98.359375
+            }
+          ],
+          "visible": true,
+          "font": "600 18px / 18.9px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 1",
+          "field": 138.84375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 40.5,
+              "right": 40.5
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "friend-enter",
+        "title": {
+          "text": "Введите код",
+          "field": 317.6875,
+          "lines": [
+            {
+              "width": 116.96875,
+              "left": 100.359375,
+              "right": 100.359375
+            }
+          ],
+          "visible": true,
+          "font": "600 18px / 18.9px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 1",
+          "field": 138.84375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 40.5,
+              "right": 40.5
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "friend-miss",
+        "title": {
+          "text": "нет комнаты",
+          "field": 317.6875,
+          "lines": [
+            {
+              "width": 124.96875,
+              "left": 96.359375,
+              "right": 96.359375
+            }
+          ],
+          "visible": true,
+          "font": "600 18px / 18.9px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 1",
+          "field": 138.84375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 40.5,
+              "right": 40.5
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "friend-wait",
+        "title": {
+          "text": "Ждём друга · 985934",
+          "field": 317.6875,
+          "lines": [
+            {
+              "width": 191.84375,
+              "left": 62.921875,
+              "right": 62.921875
+            }
+          ],
+          "visible": true,
+          "font": "600 18px / 18.9px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 1",
+          "field": 138.84375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 40.5,
+              "right": 40.5
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "found",
+        "title": {
+          "text": "Соперник найден",
+          "field": 317.6875,
+          "lines": [
+            {
+              "width": 169.40625,
+              "left": 74.140625,
+              "right": 74.140625
+            }
+          ],
+          "visible": true,
+          "font": "600 18px / 18.9px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 2",
+          "field": 138.84375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 40.5,
+              "right": 40.5
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "offline",
+        "title": {
+          "text": "Нет связи с сервером",
+          "field": 317.6875,
+          "lines": [
+            {
+              "width": 203.203125,
+              "left": 57.234375,
+              "right": 57.25
+            }
+          ],
+          "visible": true,
+          "font": "600 18px / 18.9px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 3",
+          "field": 138.84375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 40.5,
+              "right": 40.5
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      }
+    ],
+    "errors": [],
+    "twoClients": {
+      "code": "985934",
+      "hostFound": "Соперник найден",
+      "joinerText": "Введите код",
+      "note": "Host browser clock paused before real join solely to capture 800ms found hold; real API/WebSocket, not a full game assertion"
+    },
+    "network": []
+  },
+  {
+    "width": 1280,
+    "dpr": 3,
+    "measurements": [
+      {
+        "phase": "online-hub",
+        "title": {
+          "text": "Онлайн",
+          "field": 408,
+          "lines": [
+            {
+              "width": 105,
+              "left": 0,
+              "right": 303
+            }
+          ],
+          "visible": true,
+          "font": "600 26px / 31.2px Literata, serif"
+        },
+        "count": null,
+        "back": {
+          "text": "В меню",
+          "field": 80,
+          "lines": [
+            {
+              "width": 61.90625,
+              "left": 9.046875,
+              "right": 9.046875
+            }
+          ]
+        }
+      },
+      {
+        "phase": "searching",
+        "title": {
+          "text": "Ищем соперника · 0 с",
+          "field": 317.6875,
+          "lines": [
+            {
+              "width": 205.203125,
+              "left": 56.234375,
+              "right": 56.25
+            }
+          ],
+          "visible": true,
+          "font": "600 18px / 18.9px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 2",
+          "field": 138.84375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 40.5,
+              "right": 40.5
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "waiting",
+        "title": {
+          "text": "Ждём второго игрока · 5 с",
+          "field": 317.6875,
+          "lines": [
+            {
+              "width": 248,
+              "left": 34.84375,
+              "right": 34.84375
+            }
+          ],
+          "visible": true,
+          "font": "600 18px / 18.9px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 1",
+          "field": 138.84375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 40.5,
+              "right": 40.5
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "waiting-late",
+        "title": {
+          "text": "Ждём второго игрока · 40 с",
+          "field": 317.6875,
+          "lines": [
+            {
+              "width": 260.375,
+              "left": 28.65625,
+              "right": 28.65625
+            }
+          ],
+          "visible": true,
+          "font": "600 18px / 18.9px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 1",
+          "field": 138.84375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 40.5,
+              "right": 40.5
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "timeout-offer",
+        "title": {
+          "text": "Пока никого",
+          "field": 317.6875,
+          "lines": [
+            {
+              "width": 120.96875,
+              "left": 98.359375,
+              "right": 98.359375
+            }
+          ],
+          "visible": true,
+          "font": "600 18px / 18.9px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 1",
+          "field": 138.84375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 40.5,
+              "right": 40.5
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "friend-enter",
+        "title": {
+          "text": "Введите код",
+          "field": 317.6875,
+          "lines": [
+            {
+              "width": 116.96875,
+              "left": 100.359375,
+              "right": 100.359375
+            }
+          ],
+          "visible": true,
+          "font": "600 18px / 18.9px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 1",
+          "field": 138.84375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 40.5,
+              "right": 40.5
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "friend-miss",
+        "title": {
+          "text": "нет комнаты",
+          "field": 317.6875,
+          "lines": [
+            {
+              "width": 124.96875,
+              "left": 96.359375,
+              "right": 96.359375
+            }
+          ],
+          "visible": true,
+          "font": "600 18px / 18.9px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 1",
+          "field": 138.84375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 40.5,
+              "right": 40.5
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "friend-wait",
+        "title": {
+          "text": "Ждём друга · 076689",
+          "field": 317.6875,
+          "lines": [
+            {
+              "width": 189.84375,
+              "left": 63.921875,
+              "right": 63.921875
+            }
+          ],
+          "visible": true,
+          "font": "600 18px / 18.9px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 1",
+          "field": 138.84375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 40.5,
+              "right": 40.5
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "found",
+        "title": {
+          "text": "Соперник найден",
+          "field": 317.6875,
+          "lines": [
+            {
+              "width": 169.40625,
+              "left": 74.140625,
+              "right": 74.140625
+            }
+          ],
+          "visible": true,
+          "font": "600 18px / 18.9px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 2",
+          "field": 138.84375,
+          "lines": [
+            {
+              "width": 57.84375,
+              "left": 40.5,
+              "right": 40.5
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      },
+      {
+        "phase": "offline",
+        "title": {
+          "text": "Нет связи с сервером",
+          "field": 317.6875,
+          "lines": [
+            {
+              "width": 203.203125,
+              "left": 57.234375,
+              "right": 57.25
+            }
+          ],
+          "visible": true,
+          "font": "600 18px / 18.9px Literata, Georgia, serif"
+        },
+        "count": {
+          "text": "Онлайн: 4",
+          "field": 138.84375,
+          "lines": [
+            {
+              "width": 50,
+              "left": 44.421875,
+              "right": 44.421875
+            }
+          ],
+          "visible": true,
+          "font": "600 10px / 10px \"Golos Text\", sans-serif"
+        }
+      }
+    ],
+    "errors": [],
+    "twoClients": {
+      "code": "076689",
+      "hostFound": "Соперник найден",
+      "joinerText": "Введите код",
+      "note": "Host browser clock paused before real join solely to capture 800ms found hold; real API/WebSocket, not a full game assertion"
+    },
+    "network": []
+  }
+]

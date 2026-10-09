@@ -1,0 +1,39 @@
+{
+  "code": "396069",
+  "clients": [
+    {
+      "events": [
+        {
+          "type": "start",
+          "color": "white",
+          "matchId": "fb6cd9aa-f4a7-498e-af5b-e70c4313b535",
+          "begun": false
+        },
+        {
+          "type": "begin",
+          "matchId": "fb6cd9aa-f4a7-498e-af5b-e70c4313b535",
+          "begun": true
+        }
+      ],
+      "openingHidden": true,
+      "canvas": 1
+    },
+    {
+      "events": [
+        {
+          "type": "start",
+          "color": "black",
+          "matchId": "fb6cd9aa-f4a7-498e-af5b-e70c4313b535",
+          "begun": false
+        },
+        {
+          "type": "begin",
+          "matchId": "fb6cd9aa-f4a7-498e-af5b-e70c4313b535",
+          "begun": true
+        }
+      ],
+      "openingHidden": true,
+      "canvas": 1
+    }
+  ]
+}

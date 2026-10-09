@@ -1,0 +1,1193 @@
+[
+  {
+    "width": 390,
+    "dpr": 2,
+    "assets": [
+      {
+        "url": "http://127.0.0.1:4292/assets/search-body-C4lecUNQ.webp",
+        "bytes": 421626,
+        "transfer": 421926
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-disabled-a44WsTGY.webp",
+        "bytes": 29026,
+        "transfer": 29326
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-focus-qobhRein.webp",
+        "bytes": 28290,
+        "transfer": 28590
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-hover-ZVBCo86H.webp",
+        "bytes": 29088,
+        "transfer": 29388
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-pressed-DUNE6vuJ.webp",
+        "bytes": 26536,
+        "transfer": 26836
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-rest-scchn-hu.webp",
+        "bytes": 25924,
+        "transfer": 26224
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-count-BP7PK3JC.webp",
+        "bytes": 9186,
+        "transfer": 9486
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-header-NaARhmu5.webp",
+        "bytes": 138730,
+        "transfer": 139030
+      }
+    ],
+    "old": [],
+    "resources": [
+      {
+        "url": "http://127.0.0.1:4292/assets/gate-1536-Bq1fl366.avif",
+        "bytes": 64917,
+        "transfer": 65217
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/button-steel-rest-xfr5-aZn.webp",
+        "bytes": 44114,
+        "transfer": 44414
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/cassette-title-1120-DGSZuHu1.avif",
+        "bytes": 70729,
+        "transfer": 71029
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/frame-667-BDaPzIe8.avif",
+        "bytes": 45349,
+        "transfer": 45649
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/white-55-7xnhnyYo.webp",
+        "bytes": 65474,
+        "transfer": 65774
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/black-00-D_uDTvU9.webp",
+        "bytes": 78498,
+        "transfer": 78798
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-body-C4lecUNQ.webp",
+        "bytes": 421626,
+        "transfer": 421926
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-disabled-a44WsTGY.webp",
+        "bytes": 29026,
+        "transfer": 29326
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-focus-qobhRein.webp",
+        "bytes": 28290,
+        "transfer": 28590
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-hover-ZVBCo86H.webp",
+        "bytes": 29088,
+        "transfer": 29388
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-pressed-DUNE6vuJ.webp",
+        "bytes": 26536,
+        "transfer": 26836
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-rest-scchn-hu.webp",
+        "bytes": 25924,
+        "transfer": 26224
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-count-BP7PK3JC.webp",
+        "bytes": 9186,
+        "transfer": 9486
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-header-NaARhmu5.webp",
+        "bytes": 138730,
+        "transfer": 139030
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/slate_tile-D6cvA3LU.webp",
+        "bytes": 83950,
+        "transfer": 84250
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/frame-CnaZNKfk.webp",
+        "bytes": 370868,
+        "transfer": 371168
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/black_king-256-DJDcS6vO.webp",
+        "bytes": 13224,
+        "transfer": 13524
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/board-frames-1520-CumhWPZ1.webp",
+        "bytes": 113940,
+        "transfer": 114240
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/board-4jAz_ONv.webp",
+        "bytes": 64136,
+        "transfer": 64436
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/ivory_king-256-ByOqruhk.webp",
+        "bytes": 13278,
+        "transfer": 13578
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/black_disk-256-Bkf6gn8m.webp",
+        "bytes": 13524,
+        "transfer": 13824
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/ivory_disk-256-Bp18_pZt.webp",
+        "bytes": 8728,
+        "transfer": 9028
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/black-base-D43LxL2F.webp",
+        "bytes": 149150,
+        "transfer": 149450
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/black-front-CeFoQO5X.webp",
+        "bytes": 71516,
+        "transfer": 71816
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/black-moving-humVrddL.webp",
+        "bytes": 81908,
+        "transfer": 82208
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/white-base-BxoBb04r.webp",
+        "bytes": 137512,
+        "transfer": 137812
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/white-front-B7Bn2qog.webp",
+        "bytes": 68248,
+        "transfer": 68548
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/white-moving-BO1U9vHR.webp",
+        "bytes": 75078,
+        "transfer": 75378
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/staples-C-5qxdXN.png",
+        "bytes": 15407,
+        "transfer": 15707
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/staples-amber-DzYBEe4G.png",
+        "bytes": 14840,
+        "transfer": 15140
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/staples-copper-Bwr16ZVL.png",
+        "bytes": 14786,
+        "transfer": 15086
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/arrow-amber-tz06aS1K.png",
+        "bytes": 49178,
+        "transfer": 49478
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/arrow-copper-Bm2lfQ_O.png",
+        "bytes": 48726,
+        "transfer": 49026
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/cut-DYJBW1yU.png",
+        "bytes": 95244,
+        "transfer": 95544
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/panel-opponent-face-BYf7PMMS.webp",
+        "bytes": 11112,
+        "transfer": 11412
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/panel-own-face-prepared-LMtVb63E.webp",
+        "bytes": 11118,
+        "transfer": 11418
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/panel-own-face-ready-Bu2ovEFY.webp",
+        "bytes": 11272,
+        "transfer": 11572
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/rear-niche-JBAfsHcp.webp",
+        "bytes": 13000,
+        "transfer": 13300
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/steam-sheet-DizK0wwi.webp",
+        "bytes": 7638,
+        "transfer": 7938
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/frame-c-active-BWl0YNmb.webp",
+        "bytes": 10182,
+        "transfer": 10482
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/frame-c-Ccwmiwhw.webp",
+        "bytes": 10080,
+        "transfer": 10380
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/menu-selection-fire-CuU1bnq3.webp",
+        "bytes": 125176,
+        "transfer": 125476
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/select_enter-01-eRlw5LqA.png",
+        "bytes": 4228,
+        "transfer": 4528
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/select_enter-02-C_BMEXyj.png",
+        "bytes": 7882,
+        "transfer": 8182
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/select_enter-03-C_ISasyO.png",
+        "bytes": 9536,
+        "transfer": 9836
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/select_enter-04-TPcpjny3.png",
+        "bytes": 10744,
+        "transfer": 11044
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/select_exit-01-7qIQBC5q.png",
+        "bytes": 9217,
+        "transfer": 9517
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/select_exit-02-BZi0Pz2x.png",
+        "bytes": 6583,
+        "transfer": 6883
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/select_hold-01-C1ANk4f8.png",
+        "bytes": 10791,
+        "transfer": 11091
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/select_hold-02-BZmse8E9.png",
+        "bytes": 10597,
+        "transfer": 10897
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "dpr": 3,
+    "assets": [
+      {
+        "url": "http://127.0.0.1:4292/assets/search-body-C4lecUNQ.webp",
+        "bytes": 421626,
+        "transfer": 421926
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-disabled-a44WsTGY.webp",
+        "bytes": 29026,
+        "transfer": 29326
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-focus-qobhRein.webp",
+        "bytes": 28290,
+        "transfer": 28590
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-hover-ZVBCo86H.webp",
+        "bytes": 29088,
+        "transfer": 29388
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-pressed-DUNE6vuJ.webp",
+        "bytes": 26536,
+        "transfer": 26836
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-rest-scchn-hu.webp",
+        "bytes": 25924,
+        "transfer": 26224
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-count-BP7PK3JC.webp",
+        "bytes": 9186,
+        "transfer": 9486
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-header-NaARhmu5.webp",
+        "bytes": 138730,
+        "transfer": 139030
+      }
+    ],
+    "old": [],
+    "resources": [
+      {
+        "url": "http://127.0.0.1:4292/assets/gate-1536-Bq1fl366.avif",
+        "bytes": 64917,
+        "transfer": 65217
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/button-steel-rest-xfr5-aZn.webp",
+        "bytes": 44114,
+        "transfer": 44414
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/cassette-title-1120-DGSZuHu1.avif",
+        "bytes": 70729,
+        "transfer": 71029
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/frame-667-BDaPzIe8.avif",
+        "bytes": 45349,
+        "transfer": 45649
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/white-55-7xnhnyYo.webp",
+        "bytes": 65474,
+        "transfer": 65774
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/black-00-D_uDTvU9.webp",
+        "bytes": 78498,
+        "transfer": 78798
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-body-C4lecUNQ.webp",
+        "bytes": 421626,
+        "transfer": 421926
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-disabled-a44WsTGY.webp",
+        "bytes": 29026,
+        "transfer": 29326
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-focus-qobhRein.webp",
+        "bytes": 28290,
+        "transfer": 28590
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-hover-ZVBCo86H.webp",
+        "bytes": 29088,
+        "transfer": 29388
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-pressed-DUNE6vuJ.webp",
+        "bytes": 26536,
+        "transfer": 26836
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-rest-scchn-hu.webp",
+        "bytes": 25924,
+        "transfer": 26224
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-count-BP7PK3JC.webp",
+        "bytes": 9186,
+        "transfer": 9486
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-header-NaARhmu5.webp",
+        "bytes": 138730,
+        "transfer": 139030
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/slate_tile-D6cvA3LU.webp",
+        "bytes": 83950,
+        "transfer": 84250
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/frame-CnaZNKfk.webp",
+        "bytes": 370868,
+        "transfer": 371168
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/black_king-256-DJDcS6vO.webp",
+        "bytes": 13224,
+        "transfer": 13524
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/board-frames-1520-CumhWPZ1.webp",
+        "bytes": 113940,
+        "transfer": 114240
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/board-4jAz_ONv.webp",
+        "bytes": 64136,
+        "transfer": 64436
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/ivory_king-256-ByOqruhk.webp",
+        "bytes": 13278,
+        "transfer": 13578
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/black_disk-256-Bkf6gn8m.webp",
+        "bytes": 13524,
+        "transfer": 13824
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/ivory_disk-256-Bp18_pZt.webp",
+        "bytes": 8728,
+        "transfer": 9028
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/black-base-D43LxL2F.webp",
+        "bytes": 149150,
+        "transfer": 149450
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/black-front-CeFoQO5X.webp",
+        "bytes": 71516,
+        "transfer": 71816
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/black-moving-humVrddL.webp",
+        "bytes": 81908,
+        "transfer": 82208
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/white-base-BxoBb04r.webp",
+        "bytes": 137512,
+        "transfer": 137812
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/white-front-B7Bn2qog.webp",
+        "bytes": 68248,
+        "transfer": 68548
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/white-moving-BO1U9vHR.webp",
+        "bytes": 75078,
+        "transfer": 75378
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/staples-C-5qxdXN.png",
+        "bytes": 15407,
+        "transfer": 15707
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/staples-amber-DzYBEe4G.png",
+        "bytes": 14840,
+        "transfer": 15140
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/staples-copper-Bwr16ZVL.png",
+        "bytes": 14786,
+        "transfer": 15086
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/arrow-amber-tz06aS1K.png",
+        "bytes": 49178,
+        "transfer": 49478
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/arrow-copper-Bm2lfQ_O.png",
+        "bytes": 48726,
+        "transfer": 49026
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/cut-DYJBW1yU.png",
+        "bytes": 95244,
+        "transfer": 95544
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/panel-opponent-face-BYf7PMMS.webp",
+        "bytes": 11112,
+        "transfer": 11412
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/panel-own-face-prepared-LMtVb63E.webp",
+        "bytes": 11118,
+        "transfer": 11418
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/panel-own-face-ready-Bu2ovEFY.webp",
+        "bytes": 11272,
+        "transfer": 11572
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/rear-niche-JBAfsHcp.webp",
+        "bytes": 13000,
+        "transfer": 13300
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/steam-sheet-DizK0wwi.webp",
+        "bytes": 7638,
+        "transfer": 7938
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/frame-c-active-BWl0YNmb.webp",
+        "bytes": 10182,
+        "transfer": 10482
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/frame-c-Ccwmiwhw.webp",
+        "bytes": 10080,
+        "transfer": 10380
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/menu-selection-fire-CuU1bnq3.webp",
+        "bytes": 125176,
+        "transfer": 125476
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/select_enter-01-eRlw5LqA.png",
+        "bytes": 4228,
+        "transfer": 4528
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/select_enter-02-C_BMEXyj.png",
+        "bytes": 7882,
+        "transfer": 8182
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/select_enter-03-C_ISasyO.png",
+        "bytes": 9536,
+        "transfer": 9836
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/select_enter-04-TPcpjny3.png",
+        "bytes": 10744,
+        "transfer": 11044
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/select_exit-01-7qIQBC5q.png",
+        "bytes": 9217,
+        "transfer": 9517
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/select_exit-02-BZi0Pz2x.png",
+        "bytes": 6583,
+        "transfer": 6883
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/select_hold-01-C1ANk4f8.png",
+        "bytes": 10791,
+        "transfer": 11091
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/select_hold-02-BZmse8E9.png",
+        "bytes": 10597,
+        "transfer": 10897
+      }
+    ]
+  },
+  {
+    "width": 1280,
+    "dpr": 2,
+    "assets": [
+      {
+        "url": "http://127.0.0.1:4292/assets/search-body-C4lecUNQ.webp",
+        "bytes": 421626,
+        "transfer": 421926
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-disabled-a44WsTGY.webp",
+        "bytes": 29026,
+        "transfer": 29326
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-focus-qobhRein.webp",
+        "bytes": 28290,
+        "transfer": 28590
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-hover-ZVBCo86H.webp",
+        "bytes": 29088,
+        "transfer": 29388
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-pressed-DUNE6vuJ.webp",
+        "bytes": 26536,
+        "transfer": 26836
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-rest-scchn-hu.webp",
+        "bytes": 25924,
+        "transfer": 26224
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-count-BP7PK3JC.webp",
+        "bytes": 9186,
+        "transfer": 9486
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-header-NaARhmu5.webp",
+        "bytes": 138730,
+        "transfer": 139030
+      }
+    ],
+    "old": [],
+    "resources": [
+      {
+        "url": "http://127.0.0.1:4292/assets/gate-1536-Bq1fl366.avif",
+        "bytes": 64917,
+        "transfer": 65217
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/button-steel-rest-xfr5-aZn.webp",
+        "bytes": 44114,
+        "transfer": 44414
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/cassette-title-1120-DGSZuHu1.avif",
+        "bytes": 70729,
+        "transfer": 71029
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/frame-667-BDaPzIe8.avif",
+        "bytes": 45349,
+        "transfer": 45649
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/white-55-7xnhnyYo.webp",
+        "bytes": 65474,
+        "transfer": 65774
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/black-00-D_uDTvU9.webp",
+        "bytes": 78498,
+        "transfer": 78798
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/button-steel-desk-disabled-u9s8Rxna.webp",
+        "bytes": 75022,
+        "transfer": 75322
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/button-steel-desk-rest-CbPLuXuH.webp",
+        "bytes": 62992,
+        "transfer": 63292
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/button-steel-desk-hover-krz4IsWU.webp",
+        "bytes": 70756,
+        "transfer": 71056
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-body-C4lecUNQ.webp",
+        "bytes": 421626,
+        "transfer": 421926
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-disabled-a44WsTGY.webp",
+        "bytes": 29026,
+        "transfer": 29326
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-focus-qobhRein.webp",
+        "bytes": 28290,
+        "transfer": 28590
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-hover-ZVBCo86H.webp",
+        "bytes": 29088,
+        "transfer": 29388
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-pressed-DUNE6vuJ.webp",
+        "bytes": 26536,
+        "transfer": 26836
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-rest-scchn-hu.webp",
+        "bytes": 25924,
+        "transfer": 26224
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-count-BP7PK3JC.webp",
+        "bytes": 9186,
+        "transfer": 9486
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-header-NaARhmu5.webp",
+        "bytes": 138730,
+        "transfer": 139030
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/slate_tile-D6cvA3LU.webp",
+        "bytes": 83950,
+        "transfer": 84250
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/frame-CnaZNKfk.webp",
+        "bytes": 370868,
+        "transfer": 371168
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/black_king-256-DJDcS6vO.webp",
+        "bytes": 13224,
+        "transfer": 13524
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/board-frames-1520-CumhWPZ1.webp",
+        "bytes": 113940,
+        "transfer": 114240
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/board-4jAz_ONv.webp",
+        "bytes": 64136,
+        "transfer": 64436
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/ivory_king-256-ByOqruhk.webp",
+        "bytes": 13278,
+        "transfer": 13578
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/black_disk-256-Bkf6gn8m.webp",
+        "bytes": 13524,
+        "transfer": 13824
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/ivory_disk-256-Bp18_pZt.webp",
+        "bytes": 8728,
+        "transfer": 9028
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/black-base-D43LxL2F.webp",
+        "bytes": 149150,
+        "transfer": 149450
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/black-front-CeFoQO5X.webp",
+        "bytes": 71516,
+        "transfer": 71816
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/black-moving-humVrddL.webp",
+        "bytes": 81908,
+        "transfer": 82208
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/white-base-BxoBb04r.webp",
+        "bytes": 137512,
+        "transfer": 137812
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/white-front-B7Bn2qog.webp",
+        "bytes": 68248,
+        "transfer": 68548
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/white-moving-BO1U9vHR.webp",
+        "bytes": 75078,
+        "transfer": 75378
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/staples-C-5qxdXN.png",
+        "bytes": 15407,
+        "transfer": 15707
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/staples-amber-DzYBEe4G.png",
+        "bytes": 14840,
+        "transfer": 15140
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/staples-copper-Bwr16ZVL.png",
+        "bytes": 14786,
+        "transfer": 15086
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/arrow-amber-tz06aS1K.png",
+        "bytes": 49178,
+        "transfer": 49478
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/arrow-copper-Bm2lfQ_O.png",
+        "bytes": 48726,
+        "transfer": 49026
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/cut-DYJBW1yU.png",
+        "bytes": 95244,
+        "transfer": 95544
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/panel-opponent-face-BYf7PMMS.webp",
+        "bytes": 11112,
+        "transfer": 11412
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/panel-own-face-prepared-LMtVb63E.webp",
+        "bytes": 11118,
+        "transfer": 11418
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/panel-own-face-ready-Bu2ovEFY.webp",
+        "bytes": 11272,
+        "transfer": 11572
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/rear-niche-JBAfsHcp.webp",
+        "bytes": 13000,
+        "transfer": 13300
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/steam-sheet-DizK0wwi.webp",
+        "bytes": 7638,
+        "transfer": 7938
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/frame-c-active-BWl0YNmb.webp",
+        "bytes": 10182,
+        "transfer": 10482
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/frame-c-Ccwmiwhw.webp",
+        "bytes": 10080,
+        "transfer": 10380
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/menu-selection-fire-CuU1bnq3.webp",
+        "bytes": 125176,
+        "transfer": 125476
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/select_enter-01-eRlw5LqA.png",
+        "bytes": 4228,
+        "transfer": 4528
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/select_enter-02-C_BMEXyj.png",
+        "bytes": 7882,
+        "transfer": 8182
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/select_enter-03-C_ISasyO.png",
+        "bytes": 9536,
+        "transfer": 9836
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/select_enter-04-TPcpjny3.png",
+        "bytes": 10744,
+        "transfer": 11044
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/select_exit-01-7qIQBC5q.png",
+        "bytes": 9217,
+        "transfer": 9517
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/select_exit-02-BZi0Pz2x.png",
+        "bytes": 6583,
+        "transfer": 6883
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/select_hold-01-C1ANk4f8.png",
+        "bytes": 10791,
+        "transfer": 11091
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/select_hold-02-BZmse8E9.png",
+        "bytes": 10597,
+        "transfer": 10897
+      }
+    ]
+  },
+  {
+    "width": 1280,
+    "dpr": 3,
+    "assets": [
+      {
+        "url": "http://127.0.0.1:4292/assets/search-body-C4lecUNQ.webp",
+        "bytes": 421626,
+        "transfer": 421926
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-disabled-a44WsTGY.webp",
+        "bytes": 29026,
+        "transfer": 29326
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-focus-qobhRein.webp",
+        "bytes": 28290,
+        "transfer": 28590
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-hover-ZVBCo86H.webp",
+        "bytes": 29088,
+        "transfer": 29388
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-pressed-DUNE6vuJ.webp",
+        "bytes": 26536,
+        "transfer": 26836
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-rest-scchn-hu.webp",
+        "bytes": 25924,
+        "transfer": 26224
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-count-BP7PK3JC.webp",
+        "bytes": 9186,
+        "transfer": 9486
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-header-NaARhmu5.webp",
+        "bytes": 138730,
+        "transfer": 139030
+      }
+    ],
+    "old": [],
+    "resources": [
+      {
+        "url": "http://127.0.0.1:4292/assets/gate-1536-Bq1fl366.avif",
+        "bytes": 64917,
+        "transfer": 65217
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/button-steel-rest-xfr5-aZn.webp",
+        "bytes": 44114,
+        "transfer": 44414
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/cassette-title-1120-DGSZuHu1.avif",
+        "bytes": 70729,
+        "transfer": 71029
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/frame-667-BDaPzIe8.avif",
+        "bytes": 45349,
+        "transfer": 45649
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/white-55-7xnhnyYo.webp",
+        "bytes": 65474,
+        "transfer": 65774
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/black-00-D_uDTvU9.webp",
+        "bytes": 78498,
+        "transfer": 78798
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/button-steel-desk-disabled-u9s8Rxna.webp",
+        "bytes": 75022,
+        "transfer": 75322
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/button-steel-desk-rest-CbPLuXuH.webp",
+        "bytes": 62992,
+        "transfer": 63292
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/button-steel-desk-hover-krz4IsWU.webp",
+        "bytes": 70756,
+        "transfer": 71056
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-body-C4lecUNQ.webp",
+        "bytes": 421626,
+        "transfer": 421926
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-disabled-a44WsTGY.webp",
+        "bytes": 29026,
+        "transfer": 29326
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-focus-qobhRein.webp",
+        "bytes": 28290,
+        "transfer": 28590
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-hover-ZVBCo86H.webp",
+        "bytes": 29088,
+        "transfer": 29388
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-pressed-DUNE6vuJ.webp",
+        "bytes": 26536,
+        "transfer": 26836
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-button-rest-scchn-hu.webp",
+        "bytes": 25924,
+        "transfer": 26224
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-count-BP7PK3JC.webp",
+        "bytes": 9186,
+        "transfer": 9486
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/search-header-NaARhmu5.webp",
+        "bytes": 138730,
+        "transfer": 139030
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/slate_tile-D6cvA3LU.webp",
+        "bytes": 83950,
+        "transfer": 84250
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/frame-CnaZNKfk.webp",
+        "bytes": 370868,
+        "transfer": 371168
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/black_king-256-DJDcS6vO.webp",
+        "bytes": 13224,
+        "transfer": 13524
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/board-frames-1520-CumhWPZ1.webp",
+        "bytes": 113940,
+        "transfer": 114240
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/board-4jAz_ONv.webp",
+        "bytes": 64136,
+        "transfer": 64436
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/ivory_king-256-ByOqruhk.webp",
+        "bytes": 13278,
+        "transfer": 13578
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/black_disk-256-Bkf6gn8m.webp",
+        "bytes": 13524,
+        "transfer": 13824
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/ivory_disk-256-Bp18_pZt.webp",
+        "bytes": 8728,
+        "transfer": 9028
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/black-base-D43LxL2F.webp",
+        "bytes": 149150,
+        "transfer": 149450
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/black-front-CeFoQO5X.webp",
+        "bytes": 71516,
+        "transfer": 71816
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/black-moving-humVrddL.webp",
+        "bytes": 81908,
+        "transfer": 82208
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/white-base-BxoBb04r.webp",
+        "bytes": 137512,
+        "transfer": 137812
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/white-front-B7Bn2qog.webp",
+        "bytes": 68248,
+        "transfer": 68548
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/white-moving-BO1U9vHR.webp",
+        "bytes": 75078,
+        "transfer": 75378
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/staples-C-5qxdXN.png",
+        "bytes": 15407,
+        "transfer": 15707
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/staples-amber-DzYBEe4G.png",
+        "bytes": 14840,
+        "transfer": 15140
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/staples-copper-Bwr16ZVL.png",
+        "bytes": 14786,
+        "transfer": 15086
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/arrow-amber-tz06aS1K.png",
+        "bytes": 49178,
+        "transfer": 49478
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/arrow-copper-Bm2lfQ_O.png",
+        "bytes": 48726,
+        "transfer": 49026
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/cut-DYJBW1yU.png",
+        "bytes": 95244,
+        "transfer": 95544
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/panel-opponent-face-BYf7PMMS.webp",
+        "bytes": 11112,
+        "transfer": 11412
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/panel-own-face-prepared-LMtVb63E.webp",
+        "bytes": 11118,
+        "transfer": 11418
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/panel-own-face-ready-Bu2ovEFY.webp",
+        "bytes": 11272,
+        "transfer": 11572
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/rear-niche-JBAfsHcp.webp",
+        "bytes": 13000,
+        "transfer": 13300
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/steam-sheet-DizK0wwi.webp",
+        "bytes": 7638,
+        "transfer": 7938
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/frame-c-active-BWl0YNmb.webp",
+        "bytes": 10182,
+        "transfer": 10482
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/frame-c-Ccwmiwhw.webp",
+        "bytes": 10080,
+        "transfer": 10380
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/menu-selection-fire-CuU1bnq3.webp",
+        "bytes": 125176,
+        "transfer": 125476
+      },
+      {
+        "url": "http://127.0.0.1:4292/assets/select_enter-01-eRlw5LqA.png",
+        "bytes": 4228,
+        "transfer": 4528
+      }
+    ]
+  }
+]

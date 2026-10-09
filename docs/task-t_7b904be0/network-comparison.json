@@ -1,0 +1,807 @@
+[
+  {
+    "version": "before",
+    "width": 390,
+    "dpr": 2,
+    "images": [
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/delivery/gate-1536.avif",
+        "bytes": 64917,
+        "transfer": 65217
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-rest.webp",
+        "bytes": 44114,
+        "transfer": 44414
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/delivery/cassette-title-1120.avif",
+        "bytes": 70729,
+        "transfer": 71029
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/delivery/frame-667.avif",
+        "bytes": 45349,
+        "transfer": 45649
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/delivery/eyelet-90.webp",
+        "bytes": 3594,
+        "transfer": 3894
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/gate.webp",
+        "bytes": 303864,
+        "transfer": 304164
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-314-rest.webp",
+        "bytes": 18852,
+        "transfer": 19152
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/panel-revision2/frame.webp",
+        "bytes": 370868,
+        "transfer": 371168
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/delivery/cassette-title-560.webp",
+        "bytes": 23932,
+        "transfer": 24232
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-314-hover.webp",
+        "bytes": 21684,
+        "transfer": 21984
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-314-pressed.webp",
+        "bytes": 18550,
+        "transfer": 18850
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-314-focus.webp",
+        "bytes": 18924,
+        "transfer": 19224
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-314-disabled.webp",
+        "bytes": 23324,
+        "transfer": 23624
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-152-hover.webp",
+        "bytes": 13546,
+        "transfer": 13846
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-152-rest.webp",
+        "bytes": 12316,
+        "transfer": 12616
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-152-pressed.webp",
+        "bytes": 12096,
+        "transfer": 12396
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-152-disabled.webp",
+        "bytes": 13656,
+        "transfer": 13956
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-98-hover.webp",
+        "bytes": 9550,
+        "transfer": 9850
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-98-rest.webp",
+        "bytes": 8680,
+        "transfer": 8980
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-98-pressed.webp",
+        "bytes": 8614,
+        "transfer": 8914
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-98-disabled.webp",
+        "bytes": 9138,
+        "transfer": 9438
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-314-rest.webp",
+        "bytes": 18852,
+        "transfer": 19152
+      }
+    ],
+    "requests": 22,
+    "bytes": 1135149,
+    "transfer": 1141749
+  },
+  {
+    "version": "before",
+    "width": 390,
+    "dpr": 3,
+    "images": [
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/delivery/gate-1536.avif",
+        "bytes": 64917,
+        "transfer": 65217
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-rest.webp",
+        "bytes": 44114,
+        "transfer": 44414
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/delivery/cassette-title-1120.avif",
+        "bytes": 70729,
+        "transfer": 71029
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/delivery/frame-667.avif",
+        "bytes": 45349,
+        "transfer": 45649
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/delivery/eyelet-90.webp",
+        "bytes": 3594,
+        "transfer": 3894
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/gate.webp",
+        "bytes": 303864,
+        "transfer": 304164
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-314-rest.webp",
+        "bytes": 18852,
+        "transfer": 19152
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/panel-revision2/frame.webp",
+        "bytes": 370868,
+        "transfer": 371168
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/delivery/cassette-title-560.webp",
+        "bytes": 23932,
+        "transfer": 24232
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-314-hover.webp",
+        "bytes": 21684,
+        "transfer": 21984
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-314-pressed.webp",
+        "bytes": 18550,
+        "transfer": 18850
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-314-disabled.webp",
+        "bytes": 23324,
+        "transfer": 23624
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-152-hover.webp",
+        "bytes": 13546,
+        "transfer": 13846
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-152-rest.webp",
+        "bytes": 12316,
+        "transfer": 12616
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-152-pressed.webp",
+        "bytes": 12096,
+        "transfer": 12396
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-152-disabled.webp",
+        "bytes": 13656,
+        "transfer": 13956
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-98-pressed.webp",
+        "bytes": 8614,
+        "transfer": 8914
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-98-disabled.webp",
+        "bytes": 9138,
+        "transfer": 9438
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-314-rest.webp",
+        "bytes": 18852,
+        "transfer": 19152
+      }
+    ],
+    "requests": 19,
+    "bytes": 1097995,
+    "transfer": 1103695
+  },
+  {
+    "version": "before",
+    "width": 1280,
+    "dpr": 2,
+    "images": [
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/delivery/gate-1536.avif",
+        "bytes": 64917,
+        "transfer": 65217
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-rest.webp",
+        "bytes": 44114,
+        "transfer": 44414
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/delivery/cassette-title-1120.avif",
+        "bytes": 70729,
+        "transfer": 71029
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/delivery/frame-667.avif",
+        "bytes": 45349,
+        "transfer": 45649
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/delivery/eyelet-90.webp",
+        "bytes": 3594,
+        "transfer": 3894
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-desk-disabled.webp",
+        "bytes": 75022,
+        "transfer": 75322
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-desk-rest.webp",
+        "bytes": 62992,
+        "transfer": 63292
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/gate.webp",
+        "bytes": 303864,
+        "transfer": 304164
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-366-rest.webp",
+        "bytes": 20556,
+        "transfer": 20856
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/panel-revision2/frame.webp",
+        "bytes": 370868,
+        "transfer": 371168
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/delivery/cassette-title-560.webp",
+        "bytes": 23932,
+        "transfer": 24232
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-366-hover.webp",
+        "bytes": 23612,
+        "transfer": 23912
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-366-pressed.webp",
+        "bytes": 20118,
+        "transfer": 20418
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-366-focus.webp",
+        "bytes": 20668,
+        "transfer": 20968
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-366-disabled.webp",
+        "bytes": 25748,
+        "transfer": 26048
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-178-hover.webp",
+        "bytes": 15240,
+        "transfer": 15540
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-178-rest.webp",
+        "bytes": 13878,
+        "transfer": 14178
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-178-pressed.webp",
+        "bytes": 13524,
+        "transfer": 13824
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-178-disabled.webp",
+        "bytes": 15226,
+        "transfer": 15526
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-115-hover.webp",
+        "bytes": 10716,
+        "transfer": 11016
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-115-rest.webp",
+        "bytes": 9834,
+        "transfer": 10134
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-115-pressed.webp",
+        "bytes": 9588,
+        "transfer": 9888
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-115-disabled.webp",
+        "bytes": 10234,
+        "transfer": 10534
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-366-rest.webp",
+        "bytes": 20556,
+        "transfer": 20856
+      }
+    ],
+    "requests": 24,
+    "bytes": 1294879,
+    "transfer": 1302079
+  },
+  {
+    "version": "before",
+    "width": 1280,
+    "dpr": 3,
+    "images": [
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/delivery/gate-1536.avif",
+        "bytes": 64917,
+        "transfer": 65217
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-rest.webp",
+        "bytes": 44114,
+        "transfer": 44414
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/delivery/cassette-title-1120.avif",
+        "bytes": 70729,
+        "transfer": 71029
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/delivery/frame-667.avif",
+        "bytes": 45349,
+        "transfer": 45649
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/delivery/eyelet-90.webp",
+        "bytes": 3594,
+        "transfer": 3894
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-desk-disabled.webp",
+        "bytes": 75022,
+        "transfer": 75322
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-desk-rest.webp",
+        "bytes": 62992,
+        "transfer": 63292
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/gate.webp",
+        "bytes": 303864,
+        "transfer": 304164
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-366-rest.webp",
+        "bytes": 20556,
+        "transfer": 20856
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/panel-revision2/frame.webp",
+        "bytes": 370868,
+        "transfer": 371168
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/delivery/cassette-title-560.webp",
+        "bytes": 23932,
+        "transfer": 24232
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-366-hover.webp",
+        "bytes": 23612,
+        "transfer": 23912
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-366-pressed.webp",
+        "bytes": 20118,
+        "transfer": 20418
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-366-disabled.webp",
+        "bytes": 25748,
+        "transfer": 26048
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-178-hover.webp",
+        "bytes": 15240,
+        "transfer": 15540
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-178-rest.webp",
+        "bytes": 13878,
+        "transfer": 14178
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-178-pressed.webp",
+        "bytes": 13524,
+        "transfer": 13824
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-178-focus.webp",
+        "bytes": 13880,
+        "transfer": 14180
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-178-disabled.webp",
+        "bytes": 15226,
+        "transfer": 15526
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-115-hover.webp",
+        "bytes": 10716,
+        "transfer": 11016
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-115-rest.webp",
+        "bytes": 9834,
+        "transfer": 10134
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-115-pressed.webp",
+        "bytes": 9588,
+        "transfer": 9888
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-115-disabled.webp",
+        "bytes": 10234,
+        "transfer": 10534
+      },
+      {
+        "url": "http://127.0.0.1:4282/src/client/app/ui/siege/button-steel-search-366-rest.webp",
+        "bytes": 20556,
+        "transfer": 20856
+      }
+    ],
+    "requests": 24,
+    "bytes": 1288091,
+    "transfer": 1295291
+  },
+  {
+    "version": "after",
+    "width": 390,
+    "dpr": 2,
+    "images": [
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/delivery/gate-1536.avif",
+        "bytes": 64917,
+        "transfer": 65217
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/button-steel-rest.webp",
+        "bytes": 44114,
+        "transfer": 44414
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/delivery/cassette-title-1120.avif",
+        "bytes": 70729,
+        "transfer": 71029
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/delivery/frame-667.avif",
+        "bytes": 45349,
+        "transfer": 45649
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/delivery/eyelet-90.webp",
+        "bytes": 3594,
+        "transfer": 3894
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-body.webp",
+        "bytes": 421626,
+        "transfer": 421926
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-header.webp",
+        "bytes": 138730,
+        "transfer": 139030
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-button-disabled.webp",
+        "bytes": 29026,
+        "transfer": 29326
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-button-focus.webp",
+        "bytes": 28290,
+        "transfer": 28590
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-button-hover.webp",
+        "bytes": 29088,
+        "transfer": 29388
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-button-pressed.webp",
+        "bytes": 26536,
+        "transfer": 26836
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-button-rest.webp",
+        "bytes": 25924,
+        "transfer": 26224
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-count.webp",
+        "bytes": 9186,
+        "transfer": 9486
+      }
+    ],
+    "requests": 13,
+    "bytes": 937109,
+    "transfer": 941009
+  },
+  {
+    "version": "after",
+    "width": 390,
+    "dpr": 3,
+    "images": [
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/delivery/gate-1536.avif",
+        "bytes": 64917,
+        "transfer": 65217
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/button-steel-rest.webp",
+        "bytes": 44114,
+        "transfer": 44414
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/delivery/cassette-title-1120.avif",
+        "bytes": 70729,
+        "transfer": 71029
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/delivery/frame-667.avif",
+        "bytes": 45349,
+        "transfer": 45649
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/delivery/eyelet-90.webp",
+        "bytes": 3594,
+        "transfer": 3894
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-body.webp",
+        "bytes": 421626,
+        "transfer": 421926
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-header.webp",
+        "bytes": 138730,
+        "transfer": 139030
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-button-disabled.webp",
+        "bytes": 29026,
+        "transfer": 29326
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-button-focus.webp",
+        "bytes": 28290,
+        "transfer": 28590
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-button-hover.webp",
+        "bytes": 29088,
+        "transfer": 29388
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-button-pressed.webp",
+        "bytes": 26536,
+        "transfer": 26836
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-button-rest.webp",
+        "bytes": 25924,
+        "transfer": 26224
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-count.webp",
+        "bytes": 9186,
+        "transfer": 9486
+      }
+    ],
+    "requests": 13,
+    "bytes": 937109,
+    "transfer": 941009
+  },
+  {
+    "version": "after",
+    "width": 1280,
+    "dpr": 2,
+    "images": [
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/delivery/gate-1536.avif",
+        "bytes": 64917,
+        "transfer": 65217
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/button-steel-rest.webp",
+        "bytes": 44114,
+        "transfer": 44414
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/delivery/cassette-title-1120.avif",
+        "bytes": 70729,
+        "transfer": 71029
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/delivery/frame-667.avif",
+        "bytes": 45349,
+        "transfer": 45649
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/delivery/eyelet-90.webp",
+        "bytes": 3594,
+        "transfer": 3894
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/button-steel-desk-disabled.webp",
+        "bytes": 75022,
+        "transfer": 75322
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/button-steel-desk-rest.webp",
+        "bytes": 62992,
+        "transfer": 63292
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-body.webp",
+        "bytes": 421626,
+        "transfer": 421926
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-button-disabled.webp",
+        "bytes": 29026,
+        "transfer": 29326
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-header.webp",
+        "bytes": 138730,
+        "transfer": 139030
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-button-focus.webp",
+        "bytes": 28290,
+        "transfer": 28590
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-button-hover.webp",
+        "bytes": 29088,
+        "transfer": 29388
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-button-pressed.webp",
+        "bytes": 26536,
+        "transfer": 26836
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-button-rest.webp",
+        "bytes": 25924,
+        "transfer": 26224
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-count.webp",
+        "bytes": 9186,
+        "transfer": 9486
+      }
+    ],
+    "requests": 15,
+    "bytes": 1075123,
+    "transfer": 1079623
+  },
+  {
+    "version": "after",
+    "width": 1280,
+    "dpr": 3,
+    "images": [
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/delivery/gate-1536.avif",
+        "bytes": 64917,
+        "transfer": 65217
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/button-steel-rest.webp",
+        "bytes": 44114,
+        "transfer": 44414
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/delivery/cassette-title-1120.avif",
+        "bytes": 70729,
+        "transfer": 71029
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/delivery/frame-667.avif",
+        "bytes": 45349,
+        "transfer": 45649
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/delivery/eyelet-90.webp",
+        "bytes": 3594,
+        "transfer": 3894
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/button-steel-desk-disabled.webp",
+        "bytes": 75022,
+        "transfer": 75322
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/button-steel-desk-rest.webp",
+        "bytes": 62992,
+        "transfer": 63292
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-body.webp",
+        "bytes": 421626,
+        "transfer": 421926
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-header.webp",
+        "bytes": 138730,
+        "transfer": 139030
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-button-disabled.webp",
+        "bytes": 29026,
+        "transfer": 29326
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-button-focus.webp",
+        "bytes": 28290,
+        "transfer": 28590
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-button-hover.webp",
+        "bytes": 29088,
+        "transfer": 29388
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-button-pressed.webp",
+        "bytes": 26536,
+        "transfer": 26836
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-button-rest.webp",
+        "bytes": 25924,
+        "transfer": 26224
+      },
+      {
+        "url": "http://127.0.0.1:4281/src/client/app/ui/siege/search-count.webp",
+        "bytes": 9186,
+        "transfer": 9486
+      }
+    ],
+    "requests": 15,
+    "bytes": 1075123,
+    "transfer": 1079623
+  }
+]

@@ -1,0 +1,286 @@
+[
+  {
+    "width": 390,
+    "dpr": 2,
+    "states": [
+      {
+        "state": "rest",
+        "text": "Войти",
+        "width": 152,
+        "height": 70,
+        "field": 104,
+        "line": 44.59375,
+        "left": 29.703125,
+        "right": 29.703125,
+        "slice": "40 48 fill",
+        "corners": "20px 24px",
+        "source": "url(\"http://127.0.0.1:4292/assets/search-button-rest-scchn-hu.webp\")"
+      },
+      {
+        "state": "hover",
+        "text": "Войти",
+        "width": 152,
+        "height": 70,
+        "field": 104,
+        "line": 44.59375,
+        "left": 29.703125,
+        "right": 29.703125,
+        "slice": "40 48 fill",
+        "corners": "20px 24px",
+        "source": "url(\"http://127.0.0.1:4292/assets/search-button-hover-ZVBCo86H.webp\")"
+      },
+      {
+        "state": "focus",
+        "text": "Войти",
+        "width": 152,
+        "height": 70,
+        "field": 104,
+        "line": 44.59375,
+        "left": 29.703125,
+        "right": 29.703125,
+        "slice": "40 48 fill",
+        "corners": "20px 24px",
+        "source": "url(\"http://127.0.0.1:4292/assets/search-button-focus-qobhRein.webp\")"
+      },
+      {
+        "state": "pressed",
+        "text": "Войти",
+        "width": 152,
+        "height": 70,
+        "field": 104,
+        "line": 44.59375,
+        "left": 29.703125,
+        "right": 29.703125,
+        "slice": "40 48 fill",
+        "corners": "20px 24px",
+        "source": "url(\"http://127.0.0.1:4292/assets/search-button-pressed-DUNE6vuJ.webp\")"
+      },
+      {
+        "state": "disabled",
+        "text": "Войти",
+        "width": 152,
+        "height": 70,
+        "field": 104,
+        "line": 44.59375,
+        "left": 29.703125,
+        "right": 29.703125,
+        "slice": "40 48 fill",
+        "corners": "20px 24px",
+        "source": "url(\"http://127.0.0.1:4292/assets/search-button-disabled-a44WsTGY.webp\")"
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "dpr": 3,
+    "states": [
+      {
+        "state": "rest",
+        "text": "Войти",
+        "width": 152,
+        "height": 70,
+        "field": 104,
+        "line": 44.59375,
+        "left": 29.703125,
+        "right": 29.703125,
+        "slice": "40 48 fill",
+        "corners": "20px 24px",
+        "source": "url(\"http://127.0.0.1:4292/assets/search-button-rest-scchn-hu.webp\")"
+      },
+      {
+        "state": "hover",
+        "text": "Войти",
+        "width": 152,
+        "height": 70,
+        "field": 104,
+        "line": 44.59375,
+        "left": 29.703125,
+        "right": 29.703125,
+        "slice": "40 48 fill",
+        "corners": "20px 24px",
+        "source": "url(\"http://127.0.0.1:4292/assets/search-button-hover-ZVBCo86H.webp\")"
+      },
+      {
+        "state": "focus",
+        "text": "Войти",
+        "width": 152,
+        "height": 70,
+        "field": 104,
+        "line": 44.59375,
+        "left": 29.703125,
+        "right": 29.703125,
+        "slice": "40 48 fill",
+        "corners": "20px 24px",
+        "source": "url(\"http://127.0.0.1:4292/assets/search-button-focus-qobhRein.webp\")"
+      },
+      {
+        "state": "pressed",
+        "text": "Войти",
+        "width": 152,
+        "height": 70,
+        "field": 104,
+        "line": 44.59375,
+        "left": 29.703125,
+        "right": 29.703125,
+        "slice": "40 48 fill",
+        "corners": "20px 24px",
+        "source": "url(\"http://127.0.0.1:4292/assets/search-button-pressed-DUNE6vuJ.webp\")"
+      },
+      {
+        "state": "disabled",
+        "text": "Войти",
+        "width": 152,
+        "height": 70,
+        "field": 104,
+        "line": 44.59375,
+        "left": 29.703125,
+        "right": 29.703125,
+        "slice": "40 48 fill",
+        "corners": "20px 24px",
+        "source": "url(\"http://127.0.0.1:4292/assets/search-button-disabled-a44WsTGY.webp\")"
+      }
+    ]
+  },
+  {
+    "width": 1280,
+    "dpr": 2,
+    "states": [
+      {
+        "state": "rest",
+        "text": "Войти",
+        "width": 178,
+        "height": 70,
+        "field": 130,
+        "line": 48.9375,
+        "left": 40.53125,
+        "right": 40.53125,
+        "slice": "40 48 fill",
+        "corners": "20px 24px",
+        "source": "url(\"http://127.0.0.1:4292/assets/search-button-rest-scchn-hu.webp\")"
+      },
+      {
+        "state": "hover",
+        "text": "Войти",
+        "width": 178,
+        "height": 70,
+        "field": 130,
+        "line": 48.9375,
+        "left": 40.53125,
+        "right": 40.53125,
+        "slice": "40 48 fill",
+        "corners": "20px 24px",
+        "source": "url(\"http://127.0.0.1:4292/assets/search-button-hover-ZVBCo86H.webp\")"
+      },
+      {
+        "state": "focus",
+        "text": "Войти",
+        "width": 178,
+        "height": 70,
+        "field": 130,
+        "line": 48.9375,
+        "left": 40.53125,
+        "right": 40.53125,
+        "slice": "40 48 fill",
+        "corners": "20px 24px",
+        "source": "url(\"http://127.0.0.1:4292/assets/search-button-focus-qobhRein.webp\")"
+      },
+      {
+        "state": "pressed",
+        "text": "Войти",
+        "width": 178,
+        "height": 70,
+        "field": 130,
+        "line": 48.9375,
+        "left": 40.53125,
+        "right": 40.53125,
+        "slice": "40 48 fill",
+        "corners": "20px 24px",
+        "source": "url(\"http://127.0.0.1:4292/assets/search-button-pressed-DUNE6vuJ.webp\")"
+      },
+      {
+        "state": "disabled",
+        "text": "Войти",
+        "width": 178,
+        "height": 70,
+        "field": 130,
+        "line": 48.9375,
+        "left": 40.53125,
+        "right": 40.53125,
+        "slice": "40 48 fill",
+        "corners": "20px 24px",
+        "source": "url(\"http://127.0.0.1:4292/assets/search-button-disabled-a44WsTGY.webp\")"
+      }
+    ]
+  },
+  {
+    "width": 1280,
+    "dpr": 3,
+    "states": [
+      {
+        "state": "rest",
+        "text": "Войти",
+        "width": 178,
+        "height": 70,
+        "field": 130,
+        "line": 44,
+        "left": 43,
+        "right": 43,
+        "slice": "40 48 fill",
+        "corners": "20px 24px",
+        "source": "url(\"http://127.0.0.1:4292/assets/search-button-rest-scchn-hu.webp\")"
+      },
+      {
+        "state": "hover",
+        "text": "Войти",
+        "width": 178,
+        "height": 70,
+        "field": 130,
+        "line": 44,
+        "left": 43,
+        "right": 43,
+        "slice": "40 48 fill",
+        "corners": "20px 24px",
+        "source": "url(\"http://127.0.0.1:4292/assets/search-button-hover-ZVBCo86H.webp\")"
+      },
+      {
+        "state": "focus",
+        "text": "Войти",
+        "width": 178,
+        "height": 70,
+        "field": 130,
+        "line": 44,
+        "left": 43,
+        "right": 43,
+        "slice": "40 48 fill",
+        "corners": "20px 24px",
+        "source": "url(\"http://127.0.0.1:4292/assets/search-button-focus-qobhRein.webp\")"
+      },
+      {
+        "state": "pressed",
+        "text": "Войти",
+        "width": 178,
+        "height": 70,
+        "field": 130,
+        "line": 44,
+        "left": 43,
+        "right": 43,
+        "slice": "40 48 fill",
+        "corners": "20px 24px",
+        "source": "url(\"http://127.0.0.1:4292/assets/search-button-pressed-DUNE6vuJ.webp\")"
+      },
+      {
+        "state": "disabled",
+        "text": "Войти",
+        "width": 178,
+        "height": 70,
+        "field": 130,
+        "line": 44,
+        "left": 43,
+        "right": 43,
+        "slice": "40 48 fill",
+        "corners": "20px 24px",
+        "source": "url(\"http://127.0.0.1:4292/assets/search-button-disabled-a44WsTGY.webp\")"
+      }
+    ]
+  }
+]
