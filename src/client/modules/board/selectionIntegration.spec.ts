@@ -374,7 +374,8 @@ it('keeps the final promotion across a resize but not across a hidden playfield'
   expect(s.data.mode).toBe('ignite');
   expect(s.x).toBeCloseTo(damka.x);
   expect(s.y).toBeCloseTo(damka.y);
-  expect(s.scale).toBeCloseTo(66 / 44);
+  // Native frame grew from 64 to 256 px; verify the same physical width.
+  expect(s.scale * 256).toBeCloseTo(64 * 66 / 44);
  }
  expect(fire(h, 'idle')).toHaveLength(0);
  // The ignition still gives way to the standing flame on schedule.
@@ -385,7 +386,8 @@ it('keeps the final promotion across a resize but not across a hidden playfield'
  for (const s of standing) {
   expect(s.x).toBeCloseTo(damka.x);
   expect(s.y).toBeCloseTo(damka.y);
-  expect(s.scale).toBeCloseTo(66 / 44);
+  // Native frame grew from 64 to 256 px; verify the same physical width.
+  expect(s.scale * 256).toBeCloseTo(64 * 66 / 44);
  }
  h.board.setPlayfieldVisible(false);
  h.board.setPlayfieldVisible(true);

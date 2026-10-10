@@ -1,0 +1,26 @@
+{
+  "provenance": "Codex built-in image_gen output exec-8451d3f7-644a-42d7-afd8-1be67c1cb69e",
+  "approvedReuse": "t_91747d53 coordinator Plan B",
+  "source": "src/client/app/ui/siege/menu-selection-fire.webp",
+  "source_sha256": "1aea2e3f09f51e92e3d93499e043c89a7c6facd83ee5cc2c94dfc26f8d60a955",
+  "sha256": "c1e90014ad07a39dbfc56472335e9907bc9668e2f11fdc6e7666fcaee6ee78fa",
+  "canvas": [
+    1024,
+    512
+  ],
+  "frames": 8,
+  "columns": 4,
+  "cell": [
+    256,
+    256
+  ],
+  "pivot": [
+    128,
+    224
+  ],
+  "loop_ms": 1600,
+  "alpha_convention": "straight",
+  "export": "Pillow WebP lossless=True exact=True method=6; no painting/resampling; decoded RGBA and alpha exactly equal",
+  "differentPixels": 0,
+  "differentAlphaPixels": 0
+}

@@ -143,7 +143,9 @@ export class GameScene extends Phaser.Scene {
 		this.startupFailed = false;
 		// Title is HTML-first: do not queue heavy packs here — unlock must not wait on them.
 		window.checkersStartup?.status('Подключаем игру…');
-		this.load.on('loaderror', () => {
+		this.load.on('loaderror', (file: { key?: string }) => {
+			// Optional fire owns its diagnostics; a missing flame never blocks the game.
+			if (file.key?.startsWith('king-fire_')) return;
 			this.startupFailed = true;
 			clearTimeout(window.checkersStartup?.watchdog);
 			window.checkersStartup?.fail('Не удалось загрузить игровые ресурсы. Проверьте соединение и повторите загрузку.');

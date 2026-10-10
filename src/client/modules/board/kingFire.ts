@@ -1,4 +1,7 @@
 import type Phaser from 'phaser';
+import { KING_FIRE_FRAMES, kingFireTextureReady } from './kingFireAssets';
+const fireScale = (cell: number) => cell / 44 * 64 / 256;
+const loopFrame = (elapsed: number) => Math.floor(Math.max(0, elapsed) / 200) % KING_FIRE_FRAMES;
 import { kingFireIgniteSfx, kingFireTrailSfx } from '@/client/app/kingFireSfx';
 
 export type FirePoint = { x: number; y: number };
@@ -9,9 +12,11 @@ type Deposit = { sprite: Sprite; age: number; angle: number };
 export const KING_FIRE_TRAIL_LIMIT = 128;
 export const KING_FIRE_SPACING = 16;
 
-/** Baked v3 RGBA only, in world coordinates, never inside a piece container. */
+/** Accepted generated RGBA frames only, in world coordinates, never inside a piece container. */
 export class KingFire {
  private idle = new Map<object, Rest>();
+ private pending = new Map<object, Omit<Rest, 'sprites'>>();
+ private pendingIgnition = new Map<object, { point: FirePoint; cell: number }>();
  private bursts: Burst[] = [];
  private moving: Sprite | null = null;
  private previous: FirePoint | null = null;
@@ -26,25 +31,37 @@ export class KingFire {
  private kept: object | null = null;
  constructor(private scene: Phaser.Scene) {}
 
+ private unavailable = new Set<string>();
  private has(texture: string): boolean {
-  // Harness without exists() treats sheets as present; live path checks TextureManager.
-  if (typeof this.scene.textures?.exists !== 'function') return true;
-  return this.scene.textures.exists(`king-fire_${texture}`);
+  const ready = kingFireTextureReady(this.scene, texture);
+  if (ready) this.unavailable.delete(texture);
+  else if (!this.unavailable.has(texture)) {
+   this.unavailable.add(texture);
+   console.warn('[king-fire] effect unavailable: missing or incomplete sheet', `king-fire_${texture}`);
+  }
+  return ready;
  }
  private sprite(texture: string, p: FirePoint, cell: number, depth: number, mode: string) {
   const layer = texture.endsWith('-back') ? 'back' : texture.endsWith('-front') ? 'front' : mode;
-  return this.scene.add.sprite(p.x, p.y, `king-fire_${texture}`, 0)
-   // Cell top-left=(10,24); its center=(32,46) in each64x80 frame.
-   .setOrigin(0.5, 46 / 80).setScale(cell / 44).setDepth(depth)
+  const sprite = this.scene.add.sprite(p.x, p.y, `king-fire_${texture}`, 0)
+   // Generated master: native 256² frames, flame baseline at y=224.
+   .setOrigin(0.5, 224 / 256).setScale(fireScale(cell)).setDepth(depth)
    .setName(`king-fire-${layer}`).setData('mode', mode).setData('cell', cell);
+  // Front seam is a crop of the real sprite, not a painted replacement.
+  if (layer === 'front') sprite.setCrop(0, 200, 256, 32);
+  return sprite;
  }
  private dropIdle(id: object) {
   this.idle.get(id)?.sprites.forEach(s => s.destroy()); this.idle.delete(id);
  }
  rest(id: object, king: boolean, p: FirePoint, cell: number, reduced: boolean) {
   if (!king) { this.remove(id); return; }
-  // Sheets may still be background-loading; skip VFX until ready.
-  if (!(reduced ? this.has('static') : this.has('idle-back') && this.has('idle-front'))) return;
+  // Remember every king until background sheets arrive; update recovers without input.
+  if (!(reduced ? this.has('static') : this.has('idle-back') && this.has('idle-front'))) {
+   this.pending.set(id, { point: { ...p }, cell, reduced });
+   return;
+  }
+  this.pending.delete(id);
   const existing = this.idle.get(id);
   const previous = existing ? { x: existing.point.x, y: existing.point.y, cell: existing.cell } : null;
   if (existing?.reduced !== reduced) this.dropIdle(id);
@@ -62,14 +79,18 @@ export class KingFire {
    for (const burst of this.bursts)
     if (burst.owner === id && burst.point.x === previous.x && burst.point.y === previous.y) {
      burst.point = { x: p.x, y: p.y };
-     for (const s of burst.sprites) s.setPosition(p.x, p.y).setScale(cell / 44);
+     for (const s of burst.sprites) s.setPosition(p.x, p.y).setScale(fireScale(cell));
     }
   const igniting = this.bursts.some(b => b.owner === id && b.point.x === p.x && b.point.y === p.y);
-  for (const s of rest.sprites) s.setPosition(p.x, p.y).setScale(cell / 44).setVisible(!igniting);
+  for (const s of rest.sprites) s.setPosition(p.x, p.y).setScale(fireScale(cell)).setVisible(!igniting);
  }
  ignite(owner: object, p: FirePoint, cell: number, reduced: boolean) {
   if (reduced) return;
-  if (!this.has('ignite-back') || !this.has('ignite-front')) return;
+  if (!this.has('ignite-back') || !this.has('ignite-front')) {
+   this.pendingIgnition.set(owner, { point: { ...p }, cell });
+   return;
+  }
+  this.pendingIgnition.delete(owner);
   kingFireIgniteSfx(false);
   this.bursts.push({ owner, point: { x: p.x, y: p.y }, age: 0,
    sprites: [this.sprite('ignite-back', p, cell, 3.9, 'ignite'), this.sprite('ignite-front', p, cell, 4.1, 'ignite')],
@@ -84,7 +105,7 @@ export class KingFire {
   if (this.owner !== id || this.cell !== cell) this.remaining = KING_FIRE_SPACING * cell / 44;
   this.owner = id; this.cell = cell;
   this.previous = { x: p.x, y: p.y };
-  this.moving = this.sprite('trail', p, cell, 4.1, 'moving').setOrigin(0.5, 48 / 80);
+  this.moving = this.sprite('trail', p, cell, 4.1, 'moving');
  }
  move(p: FirePoint, delta = 0) {
   if (!this.moving || !this.previous) return;
@@ -106,20 +127,26 @@ export class KingFire {
   const n = this.serial++;
   const variation = ((Math.imul(n + 1, 1664525) + 1013904223) >>> 0) / 4294967296;
   const offset = (Math.sin(n * 2.399963) * 4.5) * this.cell / 44;
-  const size = (0.8 + variation * 0.2) * this.cell / 44;
+  const size = (0.8 + variation * 0.2) * fireScale(this.cell);
   p = { x: p.x - Math.sin(angle) * offset, y: p.y + Math.cos(angle) * offset };
   let drop = this.pool.find(d => d.age >= 2500);
   if (!drop && this.pool.length >= KING_FIRE_TRAIL_LIMIT) drop = this.pool.reduce((a, b) => a.age >= b.age ? a : b);
   if (!drop) {
-   drop = { sprite: this.sprite('trail', p, this.cell, 3.9, 'trail').setOrigin(0.5, 48 / 80), age: 0, angle };
+   drop = { sprite: this.sprite('trail', p, this.cell, 3.9, 'trail'), age: 0, angle };
    this.pool.push(drop);
   }
   drop.age = Math.max(0, age); drop.angle = angle;
-  drop.sprite.setPosition(p.x, p.y).setScale(size).setFrame(Math.min(24, Math.floor(drop.age / 100))).setRotation(0)
+  drop.sprite.setPosition(p.x, p.y).setScale(size).setFrame(loopFrame(drop.age)).setRotation(0).setAlpha(1)
    .setVisible(true).setActive(true).setData('age', drop.age).setData('angle', angle).setData('variation', variation);
  }
  land() { this.moving?.destroy(); this.moving = null; this.previous = null; }
  update(delta: number, reduced = false) {
+  for (const [id, rest] of [...this.pending]) this.rest(id, true, rest.point, rest.cell, reduced);
+  for (const [id, ignition] of [...this.pendingIgnition]) {
+   if (reduced) { this.pendingIgnition.delete(id); continue; }
+   const rest = this.pending.get(id) ?? this.idle.get(id);
+   this.ignite(id, rest?.point ?? ignition.point, rest?.cell ?? ignition.cell, false);
+  }
   if (reduced !== this.motionReduced) {
    this.motionReduced = reduced;
    if (reduced) this.clearTransient();
@@ -127,12 +154,12 @@ export class KingFire {
   }
   this.elapsed += Math.max(0, delta);
   for (const rest of this.idle.values()) if (!rest.reduced)
-   rest.sprites.forEach(s => s.setFrame(Math.floor(this.elapsed / 100) % 20));
-  this.moving?.setFrame(Math.floor(this.elapsed / 100) % 5);
+   rest.sprites.forEach(s => s.setFrame(loopFrame(this.elapsed)));
+  this.moving?.setFrame(loopFrame(this.elapsed));
   for (const burst of this.bursts) {
    burst.age += Math.max(0, delta);
    if (burst.age >= 1200) burst.sprites.forEach(s => s.destroy());
-   else burst.sprites.forEach(s => s.setFrame(Math.floor(burst.age / 100)).setData('age', burst.age));
+   else burst.sprites.forEach(s => s.setFrame(loopFrame(burst.age)).setAlpha(Math.min(1, burst.age / 200)).setData('age', burst.age));
   }
   this.bursts = this.bursts.filter(b => b.age < 1200);
   for (const [id, rest] of this.idle) {
@@ -143,14 +170,15 @@ export class KingFire {
    drop.age += Math.max(0, delta);
    if (drop.age >= 2500) { drop.sprite.setVisible(false).setActive(false); continue; }
    const frame = Math.floor(drop.age / 100);
-   // The bake contains550ms flame,400–1300ms embers,950–2500ms soot.
-   // Keep flame upright; align the mature soot with the movement diagonal.
-   drop.sprite.setFrame(frame).setRotation(frame >= 10 ? drop.angle + Math.PI / 4 : 0).setData('age', drop.age);
+   // Approved plan B: animate/fade the existing generated sprite; no painted soot.
+   drop.sprite.setFrame(loopFrame(drop.age)).setAlpha(Math.max(0, 1 - drop.age / 2500))
+    .setRotation(frame >= 10 ? drop.angle + Math.PI / 4 : 0).setData('age', drop.age);
   }
  }
  remove(id: object) {
   // A kept owner outlives its piece view: the final promotion keeps its flame.
   if (id === this.kept) return;
+  this.pending.delete(id); this.pendingIgnition.delete(id);
   this.dropIdle(id);
   for (const burst of this.bursts) if (burst.owner === id) burst.sprites.forEach(s => s.destroy());
   this.bursts = this.bursts.filter(b => b.owner !== id);
@@ -170,6 +198,8 @@ export class KingFire {
  /** Full clear unless `keepOwned`, which spares the kept owner only. */
  clear(keepOwned = false) {
   const kept = keepOwned ? this.kept : null;
+  for (const id of this.pending.keys()) if (id !== kept) this.pending.delete(id);
+  for (const id of this.pendingIgnition.keys()) if (id !== kept) this.pendingIgnition.delete(id);
   if (!kept) {
    this.clearTransient();
    this.kept = null;
