@@ -1,13 +1,14 @@
 import { afterEach, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { KingFire } from './kingFire';
-import { kingFireAssets, kingFireTextureReady, preloadKingFire } from './kingFireAssets';
+import { kingFireAssets, kingFireSheets, type KingFireSheet, kingFireTextureReady, preloadKingFire } from './kingFireAssets';
 vi.mock('@/client/app/kingFireSfx', () => ({ kingFireIgniteSfx: vi.fn(), kingFireTrailSfx: vi.fn() }));
 afterEach(() => vi.restoreAllMocks());
-function harness(present = true, frames = 9) {
+function harness(present = true, frames?: number) {
  const listeners = new Map<string, (...args: any[]) => void>();
  const sprites: any[] = [];
  const scene: any = {
-  textures: { exists: () => present, get: () => ({ frameTotal: frames }) },
+  textures: { exists: () => present, get: (key: string) => ({ frameTotal: frames ?? kingFireSheets[key.replace('king-fire_', '') as KingFireSheet].frames + 1 }) },
   load: { on: vi.fn((name, fn) => listeners.set(name, fn)), once: vi.fn((name, fn) => listeners.set(name, fn)), off: vi.fn(), spritesheet: vi.fn() },
   add: { sprite: vi.fn(() => {
    const s: any = { frame: 0, destroyed: false };
@@ -19,12 +20,15 @@ function harness(present = true, frames = 9) {
  };
  return { scene, listeners, sprites };
 }
-it('uses only the accepted native generated eight-frame sheet for every effect', () => {
+it('loads each restored contour sheet with its complete metadata frame range', () => {
  const h = harness(); preloadKingFire(h.scene);
- expect(new Set(Object.values(kingFireAssets)).size).toBe(1);
- expect(kingFireAssets.static).toContain('king-fire-generated.webp');
+ expect(new Set(Object.values(kingFireAssets)).size).toBe(6);
+ expect(kingFireAssets.static).toContain('king-fire/static.webp');
  expect(h.scene.load.spritesheet).toHaveBeenCalledTimes(6);
- for (const call of h.scene.load.spritesheet.mock.calls) expect(call[2]).toEqual({ frameWidth: 256, frameHeight: 256, endFrame: 7 });
+ for (const call of h.scene.load.spritesheet.mock.calls) {
+  const sheet = kingFireSheets[call[0].replace('king-fire_', '') as KingFireSheet];
+  expect(call[2]).toEqual({ frameWidth: sheet.width, frameHeight: sheet.height, endFrame: sheet.frames - 1 });
+ }
  const log = vi.spyOn(console, 'error').mockImplementation(() => {});
  h.listeners.get('complete')!(); expect(log).not.toHaveBeenCalled();
  expect(h.scene.load.off).toHaveBeenCalled();
@@ -51,12 +55,12 @@ it.each(['rest', 'ignite', 'takeoff'] as const)('rejects incomplete frames in %s
  else fire[method]({}, true, { x: 0, y: 0 }, 44, false);
  expect(log).toHaveBeenCalled(); expect(h.sprites).toHaveLength(0);
 });
-it('advances all eight frames sequentially then wraps, with reduced motion static', () => {
+it('advances all twenty idle frames sequentially then wraps, with reduced motion static', () => {
  const h = harness(), fire = new KingFire(h.scene), id = {};
  fire.rest(id, true, { x: 10, y: 20 }, 44, false);
  const frames = [h.sprites[0].frame];
- for (let i = 0; i < 8; i++) { fire.update(200); frames.push(h.sprites[0].frame); }
- expect(frames).toEqual([0,1,2,3,4,5,6,7,0]);
+ for (let i = 0; i < 20; i++) { fire.update(100); frames.push(h.sprites[0].frame); }
+ expect(frames).toEqual([...Array.from({length:20}, (_,i) => i),0]);
  fire.update(0, true); const staticSprite = h.sprites.at(-1); fire.update(9000, true);
  expect(staticSprite.frame).toBe(0);
 });
@@ -91,4 +95,43 @@ it('recovers standing fire when a background load eventually becomes available',
  h.scene.textures.exists = () => true;
  fire.rest(id, true, { x: 0, y: 0 }, 44, false);
  expect(h.sprites).toHaveLength(2); expect(log).toHaveBeenCalledTimes(1);
+});
+it('plays every ignition frame exactly once then reveals perpetual idle', () => {
+ const h = harness(), fire = new KingFire(h.scene), id = {};
+ fire.rest(id, true, { x: 10, y: 20 }, 44, false);
+ fire.ignite(id, { x: 10, y: 20 }, 44, false);
+ const seen = [h.sprites[2].frame];
+ for (let i = 1; i < 12; i++) {
+  fire.update(100); seen.push(h.sprites[2].frame);
+  expect(h.sprites[3].frame).toBe(i);
+ }
+ expect(seen).toEqual(Array.from({length:12}, (_,i) => i));
+ expect(h.sprites[2].destroyed).toBe(false);
+ fire.update(100);
+ expect(h.sprites.slice(2).every(s => s.destroyed)).toBe(true);
+ expect(h.sprites[0].setVisible).toHaveBeenLastCalledWith(true);
+ fire.update(60000);
+ expect(h.sprites[0].destroyed).toBe(false);
+});
+it('registers contour layers from sheet pivot without cropping the art', () => {
+ const h = harness(), fire = new KingFire(h.scene), id = {};
+ fire.rest(id, true, {x:12,y:34}, 66, false);
+ for (const sprite of h.sprites) {
+  expect(sprite.setOrigin).toHaveBeenCalledWith(32/64,46/80);
+  expect(sprite.setScale).toHaveBeenCalledWith(66/44);
+  expect(sprite.setCrop).not.toHaveBeenCalled();
+ }
+});
+it.each(Object.keys(kingFireAssets) as KingFireSheet[])('metadata matches actual lossless WebP dimensions for %s', name => {
+ const url = new URL(kingFireAssets[name]);
+ const bytes = readFileSync(url);
+ expect(bytes.toString('ascii',0,4)).toBe('RIFF');
+ expect(bytes.toString('ascii',8,12)).toBe('WEBP');
+ let offset = 12;
+ while (bytes.toString('ascii',offset,offset+4) !== 'VP8L' && offset < bytes.length)
+  offset += 8 + bytes.readUInt32LE(offset+4) + (bytes.readUInt32LE(offset+4) % 2);
+ expect(bytes.toString('ascii',offset,offset+4)).toBe('VP8L');
+ const bits = bytes.readUInt32LE(offset+9), sheet = kingFireSheets[name];
+ expect((bits & 0x3fff)+1).toBe(sheet.width * sheet.columns);
+ expect(((bits >>> 14)&0x3fff)+1).toBe(sheet.height * Math.ceil(sheet.frames/sheet.columns));
 });
