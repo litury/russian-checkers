@@ -1,14 +1,16 @@
 import type Phaser from 'phaser';
 
-/** Plan B approved in t_91747d53: reuse the QA-accepted generated master.
- * Lossless delivery copy; all decoded RGBA pixels and alpha match the source.
- * Source provenance: ui/siege/menu-selection-fire.json. Native frames are 256².
- */
-const master = new URL('./king-fire-generated.webp', import.meta.url).href;
-export const KING_FIRE_FRAMES = 8;
+import sheets from './kingFireSheets.json';
+export const kingFireSheets = sheets;
+export type KingFireSheet = keyof typeof sheets;
+/** Restore the previously shipped contour layers unchanged. */
 export const kingFireAssets = {
- 'idle-back': master, 'idle-front': master,
- 'ignite-back': master, 'ignite-front': master, trail: master, static: master,
+ 'idle-back': new URL('./king-fire-polish/idle-back.webp', import.meta.url).href,
+ 'idle-front': new URL('./king-fire-polish/idle-front.webp', import.meta.url).href,
+ 'ignite-back': new URL('./king-fire-polish/ignite-back.webp', import.meta.url).href,
+ 'ignite-front': new URL('./king-fire-polish/ignite-front.webp', import.meta.url).href,
+ trail: new URL('./king-fire/trail.webp', import.meta.url).href,
+ static: new URL('./king-fire/static.webp', import.meta.url).href,
 };
 export function kingFireTextureReady(scene: Phaser.Scene, name: string): boolean {
  const key = `king-fire_${name}`;
@@ -16,7 +18,7 @@ export function kingFireTextureReady(scene: Phaser.Scene, name: string): boolean
  if (typeof scene.textures?.exists !== 'function') return true;
  if (!scene.textures.exists(key)) return false;
  const texture = scene.textures.get(key);
- return texture.frameTotal === KING_FIRE_FRAMES + 1;
+ return texture.frameTotal === kingFireSheets[name as KingFireSheet]?.frames + 1;
 }
 export function preloadKingFire(scene: Phaser.Scene): void {
  const failed = (file: { key?: string }) => {
@@ -28,8 +30,10 @@ export function preloadKingFire(scene: Phaser.Scene): void {
   scene.load.off('loaderror', failed);
   for (const name of Object.keys(kingFireAssets))
    if (!kingFireTextureReady(scene, name))
-    console.error('[king-fire] missing or incomplete sheet', `king-fire_${name}`, `expected ${KING_FIRE_FRAMES} frames`);
+    console.error('[king-fire] missing or incomplete sheet', `king-fire_${name}`, `expected ${kingFireSheets[name as KingFireSheet].frames} frames`);
  });
- for (const [name, url] of Object.entries(kingFireAssets))
-  scene.load.spritesheet(`king-fire_${name}`, url, { frameWidth: 256, frameHeight: 256, endFrame: 7 });
+ for (const [name, url] of Object.entries(kingFireAssets)) {
+  const sheet = kingFireSheets[name as KingFireSheet];
+  scene.load.spritesheet(`king-fire_${name}`, url, { frameWidth: sheet.width, frameHeight: sheet.height, endFrame: sheet.frames - 1 });
+ }
 }

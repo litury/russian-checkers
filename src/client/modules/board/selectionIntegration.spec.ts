@@ -131,15 +131,15 @@ it('samples king trails by world distance, leaves source idle behind, and expire
  h.board.playMove({ from, path: [{ row: 7, col: 5 }] }, () => {});
  expect(fire(h, 'idle')).toHaveLength(0);
  const tween = h.tweens[0];
- tween.targets.x += 48; tween.onUpdate(tween, tween.targets, 'y');
+ tween.targets.x += 84; tween.onUpdate(tween, tween.targets, 'y');
  const drops = fire(h, 'trail'); expect(drops).toHaveLength(3);
- expect(drops.map(d => d.x)).toEqual([38, 54, 70]);
+ expect(drops.map(d => d.x)).toEqual([50, 78, 106]);
  expect(new Set(drops.map(d => d.y)).size).toBeGreaterThan(1);
  for (const drop of drops) expect(Math.abs(drop.y - 242)).toBeLessThanOrEqual(4.5);
  expect(old.x).toBe(22);
  tween.targets.x += 16; tween.onUpdate(tween, tween.targets, 'y');
- expect(drops[0].x).toBe(38);
- h.tick(2500); expect(fire(h, 'trail')).toHaveLength(0);
+ expect(drops[0].x).toBe(50);
+ h.tick(1500); expect(fire(h, 'trail')).toHaveLength(0);
 });
 it('suppresses idle under ignition, resumes after1200ms, and removes captured owner bursts', () => {
  const h = harness(); const start = { row: 6, col: 0 }, crown = { row: 7, col: 1 };
@@ -173,18 +173,18 @@ it('clears fire for the menu and resumes only idle on return', () => {
  blocked = false; h.tick(1); expect(fire(h, 'idle')).toHaveLength(2);
  expect(fire(h, 'ignite')).toHaveLength(0);
 });
-it('bounds trail allocations to128 and keeps early flames upright before aligned soot', () => {
+it('bounds trail allocations to48 and keeps early flames upright before aligned soot', () => {
  const h = harness(); h.board.sync(position('king'), [from], from);
  h.board.playMove({ from, path: [land] }, () => {});
  const tween = h.tweens[0];
  for (let i = 0; i < 200; i++) { tween.targets.x += 16; tween.onUpdate(tween, tween.targets, 'y'); }
- expect(h.objects.filter(o => o.name === 'king-fire-trail' && !o.destroyed)).toHaveLength(128);
- expect(fire(h, 'trail')).toHaveLength(128);
- h.tick(900); expect(fire(h, 'trail')[0].rotation).toBe(0);
- h.tick(100); expect(fire(h, 'trail')[0].rotation).toBeCloseTo(Math.PI / 4);
+ expect(h.objects.filter(o => o.name === 'king-fire-trail' && !o.destroyed)).toHaveLength(48);
+ expect(fire(h, 'trail')).toHaveLength(48);
+ h.tick(540); expect(fire(h, 'trail')[0].rotation).toBe(0);
+ h.tick(60); expect(fire(h, 'trail')[0].rotation).toBeCloseTo(Math.PI / 4);
  h.tick(1500); expect(fire(h, 'trail')).toHaveLength(0);
  tween.targets.x += 16; tween.onUpdate(tween, tween.targets, 'y');
- expect(h.objects.filter(o => o.name === 'king-fire-trail' && !o.destroyed)).toHaveLength(128);
+ expect(h.objects.filter(o => o.name === 'king-fire-trail' && !o.destroyed)).toHaveLength(48);
 });
 it('widens trail across the path without changing along-path spacing',()=>{
  const h=harness();h.board.sync(position('king'),[from],from);h.board.playMove({from,path:[land]},()=>{});
@@ -199,7 +199,7 @@ it('samples only after both Phaser tween properties update, never an L-shaped tr
  tween.targets.x += 44; tween.onUpdate(tween, tween.targets, 'x');
  expect(fire(h, 'trail')).toHaveLength(0);
  tween.targets.y -= 44; tween.onUpdate(tween, tween.targets, 'y');
- expect(fire(h, 'trail')).toHaveLength(3);
+ expect(fire(h, 'trail')).toHaveLength(2);
  for (const drop of fire(h, 'trail')) expect(drop.data.angle).toBeCloseTo(-Math.PI / 4);
 });
 it('moves the sole selected group without closing at departure, then closes at the landing', () => {
@@ -374,8 +374,8 @@ it('keeps the final promotion across a resize but not across a hidden playfield'
   expect(s.data.mode).toBe('ignite');
   expect(s.x).toBeCloseTo(damka.x);
   expect(s.y).toBeCloseTo(damka.y);
-  // Native frame grew from 64 to 256 px; verify the same physical width.
-  expect(s.scale * 256).toBeCloseTo(64 * 66 / 44);
+  // Restored native frame retains the registered physical width.
+  expect(s.scale * 64).toBeCloseTo(64 * 66 / 44);
  }
  expect(fire(h, 'idle')).toHaveLength(0);
  // The ignition still gives way to the standing flame on schedule.
@@ -386,8 +386,8 @@ it('keeps the final promotion across a resize but not across a hidden playfield'
  for (const s of standing) {
   expect(s.x).toBeCloseTo(damka.x);
   expect(s.y).toBeCloseTo(damka.y);
-  // Native frame grew from 64 to 256 px; verify the same physical width.
-  expect(s.scale * 256).toBeCloseTo(64 * 66 / 44);
+  // Restored native frame retains the registered physical width.
+  expect(s.scale * 64).toBeCloseTo(64 * 66 / 44);
  }
  h.board.setPlayfieldVisible(false);
  h.board.setPlayfieldVisible(true);

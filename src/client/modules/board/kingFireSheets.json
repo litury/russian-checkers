@@ -1,0 +1,8 @@
+{
+ "idle-back": {"width":64,"height":80,"columns":20,"frames":20,"pivot":[32,46],"cell":44,"frameMs":100},
+ "idle-front": {"width":64,"height":80,"columns":20,"frames":20,"pivot":[32,46],"cell":44,"frameMs":100},
+ "ignite-back": {"width":64,"height":80,"columns":12,"frames":12,"pivot":[32,46],"cell":44,"frameMs":100},
+ "ignite-front": {"width":64,"height":80,"columns":12,"frames":12,"pivot":[32,46],"cell":44,"frameMs":100},
+ "trail": {"width":64,"height":80,"columns":25,"frames":25,"pivot":[32,48],"cell":44,"frameMs":60,"movingFrames":5,"sootFrame":10},
+ "static": {"width":64,"height":80,"columns":1,"frames":1,"pivot":[32,46],"cell":44,"frameMs":100}
+}
