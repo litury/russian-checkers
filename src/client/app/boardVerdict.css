@@ -6,12 +6,18 @@
 	align-items: center;
 	justify-content: center;
 	pointer-events: none;
+	background: rgb(0 0 0 / 0%);
+	transition: background-color 280ms ease-out;
 	color: #fff8eb;
 	font-family: "Golos Text", sans-serif;
 }
 .board-verdict[hidden],
 .board-verdict [hidden] {
 	display: none !important;
+}
+.board-verdict.expanded {
+	pointer-events: auto;
+	background: rgb(0 0 0 / 65%);
 }
 .verdict-panel {
 	box-sizing: border-box;
@@ -64,6 +70,10 @@
 	color: inherit;
 	white-space: nowrap;
 }
+.verdict-panel h1,
+#verdict-reason {
+	background: #101214;
+}
 .verdict-panel h1 {
 	font-family: Literata, serif;
 	font-weight: 600;
@@ -88,12 +98,14 @@
 }
 .verdict-actions {
 	display: grid;
-	justify-items: center;
+	grid-template-columns: minmax(0, max-content);
+	justify-content: center;
 	gap: 6px;
-	margin-top: 0;
+	margin: 0 24px;
+	padding-bottom: 24px;
 }
-/* 105 x 30 source corners become fixed 35 x 10 CSS pixels at every width.
-   The nine-slice center absorbs the different action heights. */
+/* Source sides retain at least half their native width (105 -> 52.5).
+   Repeat the narrow center instead of stretching its texture into stripes. */
 .board-verdict button {
 	box-sizing: border-box;
 	font: inherit;
@@ -103,9 +115,9 @@
 	border: 0 solid transparent;
 	background: transparent;
 	border-image:
-		url("./ui/verdict/secondary-rest.webp") 30 105 30 105 fill / 10px 35px / 0
-		stretch;
-	padding: 12px 38px;
+		url("./ui/verdict/secondary-rest.webp") 30 105 30 105 fill / 15px 52.5px / 0
+		round;
+	padding: 12px 56px;
 	text-decoration: none;
 	box-shadow: none;
 }
@@ -113,6 +125,7 @@
 	border-image-source: url("./ui/verdict/secondary-hover.webp");
 }
 .board-verdict button:active {
+	transform: translateY(1px);
 	border-image-source: url("./ui/verdict/secondary-pressed.webp");
 }
 .board-verdict button:disabled {
@@ -122,7 +135,7 @@
 .verdict-actions button {
 	width: 100%;
 	min-height: 52px;
-	font-size: 14px;
+	font-size: 15px;
 }
 .board-verdict [data-verdict="again"] {
 	width: 100%;
@@ -141,7 +154,7 @@
 	border-image-source: url("./ui/verdict/primary-disabled.webp");
 }
 .board-verdict [data-verdict="menu"] {
-	font-size: 13px;
+	font-size: 15px;
 	border-image-source: url("./ui/verdict/quiet-rest.webp");
 }
 .board-verdict [data-verdict="menu"]:hover {
@@ -166,7 +179,7 @@
 	outline-offset: 3px;
 }
 .verdict-panel.enter {
-	animation: verdict-enter 260ms ease-out both;
+	animation: verdict-enter 280ms ease-out both;
 }
 .verdict-status {
 	pointer-events: auto;
@@ -180,13 +193,13 @@
 	outline: none;
 }
 .verdict-status button {
-	font-size: 12px;
+	font-size: 15px;
 	padding: 12px 35px;
 }
 @keyframes verdict-enter {
 	from {
 		opacity: 0.2;
-		transform: translateY(6px);
+		transform: translateY(100%);
 	}
 	to {
 		opacity: 1;
@@ -196,10 +209,18 @@
 @media (max-width: 500px) {
 	.board-verdict {
 		align-items: flex-end;
-		padding-bottom: max(24px, env(safe-area-inset-bottom));
+		padding-bottom: env(safe-area-inset-bottom);
+	}
+	.verdict-panel {
+		width: 100%;
+		max-height: 60dvh;
+		overflow-y: auto;
+		border-radius: 20px 20px 0 0;
+		background: #17191c;
 	}
 }
 @media (prefers-reduced-motion: reduce) {
+	.board-verdict { transition: none; }
 	.verdict-panel.enter {
 		animation: none;
 	}

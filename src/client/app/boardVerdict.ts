@@ -45,6 +45,7 @@ export function createResultOverlay(
 	}
 	function open(animate = false) {
 		panel.hidden = false;
+		root.classList.add('expanded');
 		status.hidden = true;
 		panel.classList.toggle('enter', animate);
 		for (const child of Array.from(document.body.children)) {
@@ -56,6 +57,7 @@ export function createResultOverlay(
 	}
 	function collapse() {
 		panel.hidden = true;
+		root.classList.remove('expanded');
 		panel.classList.remove('enter');
 		status.hidden = false;
 		release();
@@ -79,6 +81,10 @@ export function createResultOverlay(
 		const button = (event.target as Element).closest<HTMLButtonElement>(
 			'button[data-verdict]',
 		);
+		if (shown && event.target === root && !panel.hidden) {
+			collapse();
+			return;
+		}
 		if (!shown || !button) return;
 		switch (button.dataset.verdict) {
 			case 'board':

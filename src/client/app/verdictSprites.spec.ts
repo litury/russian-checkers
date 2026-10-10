@@ -48,8 +48,8 @@ it('delivers exactly the title and twelve distinct native lossless plates', () =
 	}
 	expect(hashes.size).toBe(13);
 });
-it('uses fixed DPR3 nine-slice corners, unified materials and accessible controls', () => {
-	expect(css).toMatch(/30 105 30 105 fill\s*\/\s*10px 35px\s*\/\s*0\s+stretch/);
+it('uses bounded native nine-slice corners, unified materials and accessible controls', () => {
+	expect(css).toMatch(/30 105 30 105 fill\s*\/\s*15px 52\.5px\s*\/\s*0\s+round/);
 	expect(css).toMatch(/400 330 300 330 fill/);
 	expect(css).not.toMatch(/gradient|filter\s*:|frame-(win|loss|draw)|48 fill/);
 	expect(css).not.toContain('box-shadow: 0');
@@ -59,6 +59,13 @@ it('uses fixed DPR3 nine-slice corners, unified materials and accessible control
 	expect(css).toMatch(
 		/\.verdict-actions \[data-verdict="menu"\]\s*\{\s*width: 100%/,
 	);
+	expect(css).toContain('grid-template-columns: minmax(0, max-content)');
+	expect(css).toContain('margin: 0 24px');
+	expect(css).toContain('padding-bottom: 24px');
+	expect(css).toContain('background: rgb(0 0 0 / 65%)');
+	expect(css).toContain('max-height: 60dvh');
+	expect(css).toContain('transform: translateY(100%)');
+	expect(css).toContain('font-size: 15px');
 	expect(css).toContain(':focus-visible');
 	expect(css).toContain('prefers-reduced-motion');
 	for (const [action, tier] of [
