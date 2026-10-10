@@ -65,6 +65,8 @@ it('uses bounded native nine-slice corners, unified materials and accessible con
 	expect(css).toContain('background: rgb(0 0 0 / 65%)');
 	expect(css).toContain('max-height: 60dvh');
 	expect(css).toContain('transform: translateY(100%)');
+	expect(css).toMatch(/\.verdict-panel\.enter::after\s*\{\s*animation: verdict-enter 280ms/);
+	expect(css).not.toMatch(/\.verdict-panel\.enter\s*\{[^}]*animation:/);
 	expect(css).toContain('font-size: 15px');
 	expect(css).toContain(':focus-visible');
 	expect(css).toContain('prefers-reduced-motion');

@@ -178,7 +178,20 @@
 	outline: 3px solid #efce89;
 	outline-offset: 3px;
 }
-.verdict-panel.enter {
+/* Slide only the sheet material, never its interactive content. Actions
+   occupy their final hitboxes from the first frame, including at 0ms. */
+.verdict-panel {
+	isolation: isolate;
+}
+.verdict-panel::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	pointer-events: none;
+	border-radius: inherit;
+}
+.verdict-panel.enter::after {
 	animation: verdict-enter 280ms ease-out both;
 }
 .verdict-status {
@@ -216,12 +229,14 @@
 		max-height: 60dvh;
 		overflow-y: auto;
 		border-radius: 20px 20px 0 0;
+	}
+	.verdict-panel::after {
 		background: #17191c;
 	}
 }
 @media (prefers-reduced-motion: reduce) {
 	.board-verdict { transition: none; }
-	.verdict-panel.enter {
+	.verdict-panel.enter::after {
 		animation: none;
 	}
 }
