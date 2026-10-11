@@ -22,7 +22,23 @@ export function bindResignConfirmation(
 	}).catch(() => {});
 	let waiting = false;
 	const reset = () => { waiting = false; trigger.removeAttribute('data-art-wait'); trigger.removeAttribute('aria-busy'); };
-	const dismiss = () => { generation++; reset(); status.textContent = ''; if (dialog.open) dialog.close(); };
+	let closing = false;
+	let closeTimer: ReturnType<typeof setTimeout> | undefined;
+	const finishClose = () => {
+		clearTimeout(closeTimer);
+		closing = false;
+		dialog.removeAttribute('data-closing');
+		if (dialog.open) dialog.close();
+	};
+	const dismiss = () => {
+		generation++; reset(); status.textContent = '';
+		if (!dialog.open || closing) return;
+		if (destroyed || typeof matchMedia !== 'function' || matchMedia('(prefers-reduced-motion: reduce)').matches) { finishClose(); return; }
+		closing = true;
+		dialog.setAttribute('data-closing', 'true');
+		closeTimer = setTimeout(finishClose, 280);
+	};
+	const cancel = (event: Event) => { event.preventDefault(); dismiss(); };
 	const reveal = () => {
 		if (trigger.disabled || !available() || dialog.open) return;
 		dialog.showModal();
@@ -60,8 +76,8 @@ export function bindResignConfirmation(
 		});
 	};
 	const commit = () => {
-		if (!dialog.open) return;
-		dismiss();
+		if (!dialog.open || closing) return;
+		finishClose();
 		if (available()) confirm();
 	};
 	const restore = () => {
@@ -77,6 +93,7 @@ export function bindResignConfirmation(
 	trigger.addEventListener('click', open);
 	resume.addEventListener('click', dismiss);
 	accept.addEventListener('click', commit);
+	dialog.addEventListener('cancel', cancel);
 	dialog.addEventListener('close', restore);
 	dialog.addEventListener('keydown', keydown);
 	return {
@@ -85,12 +102,14 @@ export function bindResignConfirmation(
 			destroyed = true;
 			for (const event of ['pointerenter', 'pointerdown', 'focus']) trigger.removeEventListener(event, refreshStates);
 			dismiss();
+			finishClose();
 			status.remove();
 			trigger.removeAttribute('data-rest-ready');
 			trigger.removeAttribute('data-art-cold');
 			trigger.removeEventListener('click', open);
 			resume.removeEventListener('click', dismiss);
 			accept.removeEventListener('click', commit);
+			dialog.removeEventListener('cancel', cancel);
 			dialog.removeEventListener('close', restore);
 			dialog.removeEventListener('keydown', keydown);
 		},

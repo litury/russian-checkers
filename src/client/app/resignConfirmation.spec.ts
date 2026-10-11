@@ -5,7 +5,7 @@ function setup(art?: Parameters<typeof bindResignConfirmation>[3]) {
  const doc={activeElement:null as unknown,getElementById:(id:string)=>nodes[id],createElement:()=>status};
  const button=()=>Object.assign(new EventTarget(),{disabled:false,hidden:false,attributes:new Map<string,string>(),setAttribute(name:string,value:string){this.attributes.set(name,value);},removeAttribute(name:string){this.attributes.delete(name);},focus(){doc.activeElement=this;}});
  const trigger=button(),resume=button(),accept=button();
- const dialog=Object.assign(new EventTarget(),{open:false,showModal(){this.open=true;},close(){this.open=false;this.dispatchEvent(new Event('close'));}});
+ const dialog=Object.assign(button(),{open:false,showModal(){this.open=true;},close(){this.open=false;this.dispatchEvent(new Event('close'));}});
  const nodes:Record<string,unknown>={'resign-confirmation':dialog,'resign-continue':resume,'resign-confirm':accept};
  vi.stubGlobal('document',doc);const confirm=vi.fn();let available=true;
  const binding=bindResignConfirmation(trigger as any,confirm,()=>available,art)!;

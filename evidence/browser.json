@@ -1,0 +1,94 @@
+[
+  {
+    "width": 390,
+    "delay": 50,
+    "animationTime": 50,
+    "confirmHit": true,
+    "elapsed": 187.10000014305115,
+    "hit": true,
+    "rect": {
+      "x": 45,
+      "y": 726.796875,
+      "width": 144,
+      "height": 48
+    },
+    "dialog": {
+      "x": 0,
+      "y": 600,
+      "width": 390,
+      "height": 244
+    },
+    "duration": "0.28s",
+    "transform": "matrix(1, 0, 0, 1, 0, 176.258)",
+    "backdrop": "rgba(0, 0, 0, 0.18)"
+  },
+  {
+    "width": 390,
+    "delay": 300,
+    "animationTime": 300,
+    "confirmHit": true,
+    "elapsed": 197.40000009536743,
+    "hit": true,
+    "rect": {
+      "x": 45,
+      "y": 726.796875,
+      "width": 144,
+      "height": 48
+    },
+    "dialog": {
+      "x": 0,
+      "y": 600,
+      "width": 390,
+      "height": 244
+    },
+    "duration": "0.28s",
+    "transform": "matrix(1, 0, 0, 1, 0, 0)",
+    "backdrop": "rgba(0, 0, 0, 0.65)"
+  },
+  {
+    "width": 1280,
+    "delay": 50,
+    "animationTime": 50,
+    "confirmHit": true,
+    "elapsed": 413.10000014305115,
+    "hit": true,
+    "rect": {
+      "x": 490,
+      "y": 426.796875,
+      "width": 144,
+      "height": 48
+    },
+    "dialog": {
+      "x": 450,
+      "y": 300,
+      "width": 380,
+      "height": 244
+    },
+    "duration": "0.28s",
+    "transform": "matrix(1, 0, 0, 1, 0, 176.258)",
+    "backdrop": "rgba(0, 0, 0, 0.18)"
+  },
+  {
+    "width": 1280,
+    "delay": 300,
+    "animationTime": 300,
+    "confirmHit": true,
+    "elapsed": 716.2000000476837,
+    "hit": true,
+    "rect": {
+      "x": 490,
+      "y": 426.796875,
+      "width": 144,
+      "height": 48
+    },
+    "dialog": {
+      "x": 450,
+      "y": 300,
+      "width": 380,
+      "height": 244
+    },
+    "duration": "0.28s",
+    "transform": "matrix(1, 0, 0, 1, 0, 0)",
+    "backdrop": "rgba(0, 0, 0, 0.65)"
+  }
+]
