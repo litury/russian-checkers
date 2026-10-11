@@ -14,6 +14,9 @@ function setup(reduced=false){
 }
 for(const delay of [50,300])it(`cancel at ${delay}ms retains modal for exit and restores focus`,()=>{
  const t=setup();vi.advanceTimersByTime(delay);t.resume.dispatchEvent(new Event('click'));
+ expect(t.dialog.style.setProperty).toHaveBeenCalledWith('--resign-exit-transform','matrix(1, 0, 0, 1, 0, 176.258)');
+ expect(t.dialog.style.setProperty).toHaveBeenCalledWith('--resign-exit-opacity','.42');
+ expect(t.dialog.style.setProperty).toHaveBeenCalledWith('--resign-exit-backdrop','rgba(0, 0, 0, 0.18)');
  expect(t.dialog.open).toBe(true);expect(t.attributes.get('data-closing')).toBe('true');
  t.accept.dispatchEvent(new Event('click'));expect(t.confirm).not.toHaveBeenCalled();
  vi.advanceTimersByTime(279);expect(t.dialog.open).toBe(true);vi.advanceTimersByTime(1);
