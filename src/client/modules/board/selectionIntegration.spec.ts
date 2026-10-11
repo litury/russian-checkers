@@ -529,7 +529,7 @@ it.each(['white', 'black'] as const)('reverses the %s upper tier continuously wh
  expect(base.texture.key).toBe(`piece-tier-${side}-base`);
  expect(piece.texture.key).toBe(`piece-tier-${side}-moving`);
  expect(base.y).toBeCloseTo(pieceTierPose(44, 0).y);
- expect(layer.y).toBe(0);
+ expect(layer.y).toBeCloseTo(44 * 0.025);
  expect(marks.map(o => [o.x, o.y])).toEqual(anchors);
  const midway = piece.y;
  h.board.sync(p, [from, other], other);
@@ -608,7 +608,7 @@ it('never points the layer at a missing texture while the pack is still loading'
  expect(h.objects.find(o => o.name === 'piece-front').visible).toBe(false);
  expect(h.objects.find(o => o.name === 'king-seal').visible).toBe(false);
 });
-it('lays the selection overlay above the sprite, cell-sized, hidden at rest', () => {
+it('lays the selection overlay above the sprite, enlarged to clear both tiers, hidden at rest', () => {
  const h = harness();
  h.board.sync(position(), [from], null);
  const layer = overlay(h), piece = h.sprite();
@@ -618,8 +618,9 @@ it('lays the selection overlay above the sprite, cell-sized, hidden at rest', ()
  expect(children[children.length - 1]).toBe(layer);
  expect(layer.visible).toBe(false);
  expect(layer.data.frame).toBe('none');
- expect(layer.displayWidth).toBe(44);
- expect(layer.displayHeight).toBe(44);
+ expect(layer.displayWidth).toBeCloseTo(44 * 1.2);
+ expect(layer.displayHeight).toBeCloseTo(44 * 1.2);
+ expect(layer.y).toBeCloseTo(44 * 0.025);
  expect(layer.originX).toBe(0.5);
  expect(piece.texture.key).toBe('manLight');
 });

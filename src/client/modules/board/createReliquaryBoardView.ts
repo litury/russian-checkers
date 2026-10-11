@@ -406,7 +406,8 @@ export function createBoardView(
 			.setPosition(0, 0)
 			.setDisplaySize(field.cell, field.cell)
 			.setData('temporaryRank', true);
-		// Selection overlay: its own layer above the piece, cell-sized, normal alpha over.
+		// Selection overlay: enlarged sprite clears both tiers and the king crown.
+		// The owner approved soft halo spill; the dense line stays within the cell.
 		// Frames 0 and exit-03 carry no ink, so both endpoints simply hide the layer.
 		const overlayFrame = selectionOverlayFrame(
 			view.motion.progress,
@@ -418,8 +419,8 @@ export function createBoardView(
 		view.overlay
 			.setVisible(overlayReady)
 			.setOrigin(0.5, 0.5)
-			.setPosition(0, 0)
-			.setDisplaySize(field.cell, field.cell)
+			.setPosition(0, field.cell * 0.025)
+			.setDisplaySize(field.cell * 1.2, field.cell * 1.2)
 			.setData('frame', overlayFrame)
 			.setData('progress', view.motion.progress);
 	};
