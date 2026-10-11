@@ -14,6 +14,28 @@ for(const width of [390,1280]){
  await page.locator('#match-resign').waitFor({state:'visible',timeout:60000});
  await page.waitForTimeout(2000);
  await page.locator('#match-resign').click();await page.locator('#resign-continue').click();await page.waitForTimeout(320);
+ for(const action of ['cancel','escape']) for(const phase of [0,50,150,300]){
+  const sample=await page.evaluate(async ({action,phase})=>{
+   const d=document.querySelector('#resign-confirmation');
+   document.querySelector('#match-resign').click();
+   await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+   for(const a of document.getAnimations().filter(a=>a.effect?.target===d)){a.pause();a.currentTime=phase;}
+   await new Promise(r=>requestAnimationFrame(r));
+   const read=()=>{const s=getComputedStyle(d,'::before');return {y:new DOMMatrix(s.transform).m42,opacity:Number(s.opacity),backdrop:getComputedStyle(d,'::backdrop').backgroundColor};};
+   const before=read();
+   if(action==='cancel')document.querySelector('#resign-continue').click();
+   else d.dispatchEvent(new Event('cancel',{cancelable:true}));
+   const after=read();
+   for(const a of document.getAnimations().filter(a=>a.effect?.target===d)){a.pause();a.currentTime=140;}
+   const middle=read();
+   return {before,after,middle};
+  },{action,phase});
+  if(Math.abs(sample.before.y-sample.after.y)>.01||Math.abs(sample.before.opacity-sample.after.opacity)>.001||sample.before.backdrop!==sample.after.backdrop)throw Error(`discontinuity ${width}/${action}/${phase}: ${JSON.stringify(sample)}`);
+  if(sample.middle.y<sample.after.y-.01)throw Error('exit moved upward');
+  results.push({width,action,phase,...sample});
+  await page.waitForTimeout(320);
+  if(!await page.locator('#match-resign').evaluate(b=>document.activeElement===b))throw Error('early focus');
+ }
  for(const delay of [50,300]){
   const sample=await page.evaluate(async delay=>{
    document.querySelector('#match-resign').click();

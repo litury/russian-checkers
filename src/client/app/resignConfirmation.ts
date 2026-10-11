@@ -34,6 +34,13 @@ export function bindResignConfirmation(
 		generation++; reset(); status.textContent = '';
 		if (!dialog.open || closing) return;
 		if (destroyed || typeof matchMedia !== 'function' || matchMedia('(prefers-reduced-motion: reduce)').matches) { finishClose(); return; }
+		// Capture the painted enter phase before replacing its animation. This also
+		// handles Cancel/Esc before the first frame without snapping to fully open.
+		const material = getComputedStyle(dialog, '::before');
+		const backdrop = getComputedStyle(dialog, '::backdrop');
+		dialog.style.setProperty('--resign-exit-transform', material.transform);
+		dialog.style.setProperty('--resign-exit-opacity', material.opacity);
+		dialog.style.setProperty('--resign-exit-backdrop', backdrop.backgroundColor);
 		closing = true;
 		dialog.setAttribute('data-closing', 'true');
 		closeTimer = setTimeout(finishClose, 280);

@@ -60,9 +60,9 @@
 #resign-confirmation[data-closing]::before{animation:resign-material-exit 280ms ease-out both}
 #resign-confirmation[data-closing]::backdrop{animation:resign-backdrop-exit 280ms ease-out both}
 @keyframes resign-material-enter{from{opacity:.2;transform:translateY(100%)}to{opacity:1;transform:none}}
-@keyframes resign-material-exit{from{opacity:1;transform:none}to{opacity:.2;transform:translateY(100%)}}
+@keyframes resign-material-exit{from{opacity:var(--resign-exit-opacity,1);transform:var(--resign-exit-transform,none)}to{opacity:.2;transform:translateY(100%)}}
 @keyframes resign-backdrop-enter{from{background:rgb(0 0 0 / 0%)}to{background:rgb(0 0 0 / 65%)}}
-@keyframes resign-backdrop-exit{from{background:rgb(0 0 0 / 65%)}to{background:rgb(0 0 0 / 0%)}}
+@keyframes resign-backdrop-exit{from{background:var(--resign-exit-backdrop,rgb(0 0 0 / 65%))}to{background:rgb(0 0 0 / 0%)}}
 @media(max-width:500px){
  #resign-confirmation{position:fixed;inset:auto 0 env(safe-area-inset-bottom);margin:0;width:100%;max-height:60dvh;border-radius:20px 20px 0 0}
  #resign-confirmation::before{background-color:#17191c}
