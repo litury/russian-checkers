@@ -1,7 +1,10 @@
-import { afterEach, expect, it } from 'vitest';
+import { afterEach, expect, it, vi } from 'vitest';
 import { markPerf, markPerfAt, readPerf, resetPerf } from './perfMarks';
 
-afterEach(() => resetPerf());
+afterEach(() => {
+	vi.restoreAllMocks();
+	resetPerf();
+});
 
 it('keeps the first timestamp for a repeated mark', () => {
 	const first = markPerf('play-intent');
@@ -51,18 +54,28 @@ it('covers the approved first-match timeline', () => {
 	expect(state.marks).toEqual({});
 });
 
-it('keeps the click instant as the intent mark so a busy thread cannot hide it', () => {
-	const dispatched = performance.now() - 137;
-	markPerfAt('play-intent', dispatched);
-	markPerf('play-handled');
-	const { marks, measures } = readPerf();
-	expect(marks['play-intent']).toBeCloseTo(dispatched, 2);
-	expect(measures['play-input-delay']).toBeGreaterThanOrEqual(137);
-	// A repeated or invalid stamp never rewrites the recorded instant.
-	markPerfAt('play-intent', 0);
-	markPerfAt('play-intent', Number.NaN);
-	expect(readPerf().marks['play-intent']).toBeCloseTo(dispatched, 2);
-});
+it.each([0, 105, 1000])(
+	'keeps the click instant as the intent mark so a busy thread cannot hide it (click at %d ms)',
+	(dispatched) => {
+		// Control the monotonic clock: even a click at time origin is valid.
+		// Advance processing by 137 ms instead of subtracting from runner uptime.
+		const clock = vi
+			.spyOn(performance, 'now')
+			.mockReturnValue(dispatched + 137);
+		markPerfAt('play-intent', dispatched);
+		markPerf('play-handled');
+		const { marks, measures } = readPerf();
+		expect(marks['play-intent']).toBeCloseTo(dispatched, 2);
+		expect(marks['play-handled']).toBe(dispatched + 137);
+		expect(measures['play-input-delay']).toBe(137);
+		// A repeated or invalid stamp never rewrites the recorded instant.
+		clock.mockReturnValue(dispatched + 274);
+		markPerfAt('play-intent', 0);
+		markPerfAt('play-intent', Number.NaN);
+		expect(readPerf().marks['play-intent']).toBeCloseTo(dispatched, 2);
+		expect(readPerf().measures['play-input-delay']).toBe(137);
+	},
+);
 
 it('resets for a warm run without reloading the page', () => {
 	markPerf('play-intent');
