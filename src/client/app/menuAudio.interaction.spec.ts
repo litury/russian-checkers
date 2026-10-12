@@ -288,9 +288,14 @@ it('does not replay a superseded help click after Play',async()=>{
  fire('pointerdown','opening-help');fire('click','opening-help');fire('pointerdown');fire('click');audio.depart();
  activation.resolve();await load('ui_click');await load('play-b');expect(starts).toEqual(['play-b']);
 });
-it('keeps cold help feedback working',async()=>{
- fire('pointerdown','opening-help');fire('click','opening-help');activation.resolve();await load('ui_click');
+it.each(['opening-help','opening-settings'])('keeps cold %s feedback working',async(id)=>{
+ fire('pointerdown',id);fire('click',id);activation.resolve();await load('ui_click');
  expect(starts).toEqual(['ui_click']);
+});
+it.each([['opening-play','play-b'],['opening-help','ui_click'],['opening-settings','ui_click'],['opening-options','ui-open']])('emits exactly the assigned warm cue for %s',async(id,cue)=>{
+ for(const name of ['play-b','ui_click','ui-open'])await load(name);
+ activation.resolve();fire('pointerdown',id);await flush();fire('click',id);await flush();
+ expect(starts).toEqual([cue]);
 });
 it('does not revive pending feedback after disposal from a match',async()=>{
  fire('click');audio.beginMatch();audio.dispose();activation.resolve();await load('play-b');

@@ -1,6 +1,6 @@
 # t_d50b3179 — аудио: кандидат реализации
 
-База: `a733b38b9c103ccb53d7ffa2370b7c07d82cbe78`. Работа только в текущем task worktree. Это авторская самопроверка, не независимый QA, не творческая приёмка и не deploy. Commit, push и действия с доской задач не выполнялись.
+Первоначальная база: `a733b38b9c103ccb53d7ffa2370b7c07d82cbe78`. Работа только в текущем task worktree. Это авторская самопроверка, не независимый QA, не творческая приёмка и не deploy. Исторические секции ниже описывают первый проход; актуальная доработка после QA приведена в конце. Кандидат закоммичен в ветке автора, публикации нет.
 
 ## Реализовано
 
@@ -102,3 +102,20 @@ Browser runner требует свободные 19452/19453/19454, уже ус�
 Полный `bash artifacts/browser/run-local.sh` повторно прошёл warm bot/duck/pause/Undo/modal/draw и cold/slow/muted/reduced-mobile, но online host code timeout на строке 69. Отрицательный результат сохранён как `browser/parent-recheck-failed-results.json` и отдельный online-a trace. Этот полный прогон НЕ объявляется зелёным. Причина timeout не установлена.
 
 Первый немедленный повтор был остановлен проверкой портов из-за TIME_WAIT (ss не показал listening сокетов). Проверка свободного bind теперь задаёт SO_REUSEADDR, сохраняя запрет занятого listening порта. Затем `ONLINE_ONLY=1 bash artifacts/browser/run-local.sh` прошёл с exit 0: два native клиента host/join/begin, совпавшие позиции ply=1, gate_stop/panel-ready по одному, modal cancel/resign/outcome обоим. Результат последнего отдельного online — `browser/results.json`; внешний HTTP/WS sentinel заблокирован у обоих, page errors пусты. Транспорт не менялся. Это повторная авторская проверка, НЕ независимый QA.
+
+## Доработка после независимого QA (12.10.2026)
+
+- Fetch и merge свежего `origin/main` = `cfeb6a503d87ec66fa6240ce488a3ab7495c28b0`. Сохранены whole-dialog анимация и `getComputedStyle(dialog)` capture interrupted exit; семантические audio callbacks остались на месте. Main не изменялся.
+- Исправлены устаревшие literal sound-call assertions в playPanel.spec.ts. Добавлены behavioral tests реального createMenuAudio: warm Play/Help/Settings/Options дают ровно назначенный cue, cold Help и Settings сохраняют ui_click. Ни один test не отключён.
+- Полный `npm run test`: **747 PASS / 144 files**, `checks/rework-all-tests.log`. `npm run build`: exit 0, `checks/rework-build.log`. `git diff --check`: exit 0.
+- `npm run check`: exit 1, **526 errors / 245 warnings / 46 infos**, `checks/rework-check.log`. Глобальный lint не объявляется зелёным; включает существующий долг и форматирование evidence.
+- Browser runner теперь логирует каждый socket отдельно, sent types, native received types, время и финальный search state. Tokens auth не логируются. Диагностическая обёртка 1500ms timeout вызывает оригинальный callback и не меняет delay или connect budget.
+- Desktop 1365x900 two-client timeout воспроизведён, а не скрыт. `checks/rework-desktop-budget-results.json` и `rework-desktop-online-b-trace.json`: join-клиент переходил в offline, send join отсутствует, собственный connect timer с delay=1500 срабатывал через 1582.4ms; на предыдущей попытке timer 2142.8ms. Native server ok присутствует. Это локализует отказ до команды host/join в handshake deadline, но само по себе НЕ доказывает конкретную причину задержки renderer/network и НЕ исправляет desktop online. Transport, таймеры и assertions не изменены.
+- Для воспроизводимой аудиопроверки два online клиента переведены на обычный **390x844** viewport (не reduced-motion). Остальные warm/cold/slow/muted desktop cases остались 1365x900. Desktop диагностика доступна через `ONLINE_ONLY=1 ONLINE_DESKTOP=1 bash artifacts/browser/run-local.sh`.
+- Финальный полный runner: **exit 0**, все шесть сценариев, `checks/rework-final-browser.log`, `checks/rework-final-full-results.json`. Отдельный последующий ONLINE_ONLY repeat: **exit 0**, `checks/rework-final-online-repeat.log`, `browser/results.json`. До них полный mobile-online и отдельный mobile-online также прошли. Это не автоматические retries внутри сценария: каждый запуск — отдельная disposable DB и два новых storage context.
+- У обоих клиентов реальные host/code/join/start/begin, c3-d4, ply=1 и полное равенство position; gate_stop=1 и panel-ready=1; Continue и подтверждённая сдача с результатом обоим. Моки WebSocket/AudioContext/host outcome не использованы.
+- Финальный warm browser дополнительно проверяет Escape при paused native CSS timeline 0/50/140ms: exit-transform совпадает с исходным transform, ui-close ровно один, dialog закрывается. Обычный Continue и confirm также прошли. Сохранён cfeb6a5 контракт.
+- Скриншоты online-0.png и resign-modal.png просмотрены: полноценная доска, часы, обе action-кнопки; у окна единая рамка/текст/две кнопки. Физическое прослушивание не заявляется. Console ERR_FAILED от намеренно заблокированного HTTP sentinel ожидаем; прочие pageerror не выявлены в финальных результатах.
+- Новых Stability запросов **0**, общий ledger остаётся **10/10**. Старые piece/music/voice assets не менялись. Optional A/B остаётся на blocked `t_a929ee5e`, не является QA/release child.
+
+Состояние: доработанный кандидат для повторного независимого QA @qa. Desktop handshake instability остаётся отдельным явно указанным ограничением, а не закрытым transport дефектом. Выпуска/main push/live проверки автор не выполнял.
