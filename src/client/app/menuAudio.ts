@@ -11,6 +11,8 @@ import {orcArenaLine} from './orcTurn';
 import {announcerCue} from './announcer';
 import {bindKingFireSfx} from './kingFireSfx';
 import {bindPieceSfx,bindPieceVoice,cancelPieceAh,voiceStealSec} from './pieceSfx';
+import {bindUiSfx} from './uiSfx';
+import {sfxCategory} from './sfxLimits';
 const urls=import.meta.glob('./audio/menu/*',{eager:true,query:'?url',import:'default'}) as Record<string,string>;
 /** The old Phaser sound manager is disabled. This menu-only Web Audio owner uses
  * the existing persisted settings and SDK, never creates an HTML media player. */
@@ -19,6 +21,9 @@ export function createMenuAudio(sdk:IYandexSdk) {
  let ctx:AudioContext|undefined, music:AudioBufferSourceNode|undefined, musicGain:GainNode|undefined;
  let match:AudioBufferSourceNode|undefined, matchGain:GainNode|undefined;
  const buffers=new Map<string,AudioBuffer>(), effects=new Set<AudioBufferSourceNode>();
+ const limited=new Map<AudioBufferSourceNode,string>();
+ const retiringVoices=new Set<AudioBufferSourceNode>();
+ let gateStopped=false;
  let voice:AudioBufferSourceNode|undefined, voiceGain:GainNode|undefined, voiceBark=false;
  let unlocked=false, musicEnded=false, fadeGen=0, fading=false;
  let epoch=0, clickSerial=0;
@@ -26,10 +31,10 @@ export function createMenuAudio(sdk:IYandexSdk) {
  const mechanisms=new Map<string,{source:AudioBufferSourceNode,gain:GainNode}|null>();
 
  const settings=()=>window.checkersSettings.get();
- const stopEffects=()=>{cancelPieceAh();if(voice){try{voice.stop()}catch{}voice=undefined;voiceGain=undefined;voiceBark=false;}for(const s of effects){try{s.stop()}catch{}}effects.clear();};
+ const stopEffects=()=>{cancelPieceAh();voice=undefined;voiceGain=undefined;voiceBark=false;for(const s of effects){try{s.stop()}catch{}}effects.clear();limited.clear();retiringVoices.clear();duckMatch();};
  const stopMusic=()=>{fadeGen++;fading=false;if(music){music.onended=null;try{music.stop()}catch{}music=undefined;}musicGain=undefined;};
  const stopMatch=()=>{if(match){match.onended=null;try{match.stop()}catch{}match=undefined;}matchGain=undefined;};
- const matchLevel=()=>settings().master*settings().music*matchMusicLevel*matchMusicCompensation;
+ const matchLevel=()=>settings().master*settings().music*matchMusicLevel*matchMusicCompensation*(voice?matchMusicDuck:1);
  const startMatch=()=>{
   if(match||!ctx||ctx.state!=='running')return;
   const buffer=buffers.get('match-b-90s');if(!buffer)return;
@@ -37,9 +42,10 @@ export function createMenuAudio(sdk:IYandexSdk) {
   matchGain=ctx.createGain();matchGain.gain.value=matchLevel();
   match.connect(matchGain).connect(ctx.destination);match.start();
  };
- const duckMatch=(on:boolean)=>{
+ const duckMatch=()=>{
   if(!matchGain||!ctx)return;
-  matchGain.gain.setTargetAtTime(matchLevel()*(on?matchMusicDuck:1),ctx.currentTime,.08);
+  matchGain.gain.cancelScheduledValues(ctx.currentTime);
+  matchGain.gain.setTargetAtTime(matchLevel(),ctx.currentTime,.08);
  };
  const fadeMusic=()=>{
   if(fading||!music||!musicGain||!ctx)return;
@@ -75,7 +81,7 @@ export function createMenuAudio(sdk:IYandexSdk) {
   }else if(menuMusicStopsInstantly(policy,unlocked,settings().music))stopMusic();
   else fadeMusic();
   if(matchMusicShouldPlay(policy,unlocked,settings().music)){
-   if(matchGain&&match&&ctx)matchGain.gain.setTargetAtTime(matchLevel(),ctx.currentTime,.08);
+   if(matchGain&&match&&ctx)duckMatch();
    else startMatch();
   }else stopMatch();
  };
@@ -122,33 +128,37 @@ export function createMenuAudio(sdk:IYandexSdk) {
   warmDeferred();
  };
  const sound=(name:string,level=1)=>{
-  sync();if(!policy.audible||!unlocked||ctx?.state!=='running'||!settings().effects)return;
+  sync();if(disposed||!policy.audible||!unlocked||ctx?.state!=='running'||!settings().effects||!settings().master)return;
   const buffer=buffers.get(name);if(!buffer)return; // Never queue a stale click.
+  const category=sfxCategory(name);
+  const peers=[...limited].filter(([,key])=>key===category.key);
+  if(peers.length>=category.cap){const old=peers[0][0];limited.delete(old);effects.delete(old);try{old.stop();}catch{}}
   const s=ctx.createBufferSource(),g=ctx.createGain();s.buffer=buffer;
   g.gain.value=settings().master*settings().effects*sfxBus*level;s.connect(g).connect(ctx.destination);
-  effects.add(s);s.onended=()=>{effects.delete(s);s.disconnect();g.disconnect();};s.start();
+  limited.set(s,category.key);
+  effects.add(s);s.onended=()=>{limited.delete(s);effects.delete(s);s.disconnect();g.disconnect();};s.start();
   return {source:s,gain:g};
  };
  const cutBark=()=>{
   if(!voiceBark||!voice)return;
-  try{voice.stop()}catch{}effects.delete(voice);voice=undefined;voiceGain=undefined;voiceBark=false;duckMatch(false);
+  const old=voice;voice=undefined;voiceGain=undefined;voiceBark=false;try{old.stop()}catch{}effects.delete(old);duckMatch();
  };
  const say=(name:string,level=1)=>{
+  sync();if(disposed||!policy.audible||!unlocked||ctx?.state!=='running'||!settings().effects||!settings().master)return;
+  const buffer=buffers.get(name);if(!buffer)return;
+  // At most one retiring tail. Its ended callback cannot release the new owner.
+  for(const old of retiringVoices){try{old.stop();}catch{}effects.delete(old);}retiringVoices.clear();
   if(voice&&voiceGain&&ctx){
    const dying=voice,g=voiceGain,t=ctx.currentTime;
    g.gain.cancelScheduledValues(t);
    g.gain.setValueAtTime(g.gain.value,t);
    g.gain.linearRampToValueAtTime(0,t+voiceStealSec);
-   window.setTimeout(()=>{try{dying.stop()}catch{}effects.delete(dying);},voiceStealSec*1000);
-   voice=undefined;voiceGain=undefined;voiceBark=false;duckMatch(false);
-  }else if(voice){try{voice.stop()}catch{}effects.delete(voice);voice=undefined;voiceGain=undefined;voiceBark=false;duckMatch(false);}
-  duckMatch(true);
-  sync();if(!policy.audible||!unlocked||ctx?.state!=='running'||!settings().effects){duckMatch(false);return;}
-  const buffer=buffers.get(name);if(!buffer){duckMatch(false);return;}
+   retiringVoices.add(dying);dying.stop(t+voiceStealSec);
+  }else if(voice){try{voice.stop()}catch{}effects.delete(voice);}
   const s=ctx.createBufferSource(),g=ctx.createGain();s.buffer=buffer;
   g.gain.value=settings().master*settings().effects*voiceBus*level;s.connect(g).connect(ctx.destination);
-  effects.add(s);s.onended=()=>{duckMatch(false);effects.delete(s);s.disconnect();g.disconnect();if(voice===s){voice=undefined;voiceGain=undefined;voiceBark=false;}};
-  voice=s;voiceGain=g;voiceBark=level<1;s.start();
+  effects.add(s);s.onended=()=>{retiringVoices.delete(s);effects.delete(s);s.disconnect();g.disconnect();if(voice===s){voice=undefined;voiceGain=undefined;voiceBark=false;duckMatch();}};
+  voice=s;voiceGain=g;voiceBark=level<1;duckMatch();s.start();
  };
  const gesture=(event:Event)=>{
   if(!event.isTrusted)return;
@@ -180,11 +190,12 @@ export function createMenuAudio(sdk:IYandexSdk) {
    return;
   }
   const play=Boolean(target.closest('#opening-play'));
-  if(!play&&!target.closest('#opening-help,#opening-settings'))return;
+  const options=target.closest('#opening-options');
+  if(!play&&!options&&!target.closest('#opening-help,#opening-settings'))return;
   sync();if(!policy.audible||!policy.menu||!settings().effects||!settings().master)return;
   if(play)policy.departing=true; // Also cover trusted click-only activation.
-  const name=play?'play-b':'ui_click',run=epoch,at=performance.now();
-  const emit=()=>{if(play)sound('play-b');else sound('ui_click',menuClickLevel);};
+  const name=play?'play-b':options?'ui-open':'ui_click',run=epoch,at=performance.now();
+  const emit=()=>sound(name,play?1:options?.3:menuClickLevel);
   if(ctx?.state==='running'&&buffers.has(name)){unlocked=true;emit();return;}
   prepare();
   // Only this cue and this trusted activation; music never gates game startup.
@@ -210,6 +221,13 @@ export function createMenuAudio(sdk:IYandexSdk) {
  window.addEventListener('checkers-settings-change',sync);
  sdk.onPause(()=>{policy.platform=true;sync();});sdk.onResume(()=>{policy.platform=false;sync();});
  for(const id of ['opening-help-dialog','opening-settings-dialog'])document.getElementById(id)!.addEventListener('close',()=>sound(menuBackSound,menuClickLevel));
+ const optionsDialog=document.getElementById('opening-options-dialog');
+ const optionsClosed=()=>{
+  // Options hands off to Settings/Help; their existing click owns that event.
+  if(['opening-help-dialog','opening-settings-dialog'].some(id=>(document.getElementById(id) as HTMLDialogElement|null)?.open))return;
+  sound('ui-close',.3);
+ };
+ optionsDialog?.addEventListener('close',optionsClosed);
  // No network before a native gesture. The engine itself is
  // imported only after the menu's first frame and the two-second critical window.
  try {ctx=new AudioContext();}catch{}
@@ -223,6 +241,7 @@ export function createMenuAudio(sdk:IYandexSdk) {
  bindKingFireSfx(sound);
  bindPieceSfx(sound);
  bindPieceVoice(say,cutBark);
+ bindUiSfx(cue=>sound(cue,cue==='draw-result'?.5:.3));
  let resultSource:AudioBufferSourceNode|undefined;
  const stopResultCeremonySound=()=>{try{resultSource?.stop();}catch{}resultSource=undefined;};
  return {
@@ -230,10 +249,10 @@ export function createMenuAudio(sdk:IYandexSdk) {
   stopResultCeremonySound,
   resultCeremonySound(win:boolean){stopResultCeremonySound();resultSource=sound(win?'result-ascension':'result-disposal',.7)?.source;},
   menuContact,
-  show(){epoch++;mechanisms.clear();policy.menu=true;policy.match=false;policy.departing=false;musicEnded=false;stopEffects();stopMatch();sync();},
-  hide(completed=false,reduced=false){epoch++;stopEffects();if(completed&&!reduced)sound('gate_stop');policy.menu=false;policy.departing=false;if(completed)policy.match=true;mechanisms.clear();sync();},
+  show(){epoch++;gateStopped=false;mechanisms.clear();policy.menu=true;policy.match=false;policy.departing=false;musicEnded=false;stopEffects();stopMatch();sync();},
+  hide(completed=false,reduced=false){epoch++;if(!gateStopped)stopEffects();if(completed&&!gateStopped){gateStopped=true;if(!reduced)sound('gate_stop');}policy.menu=false;policy.departing=false;if(completed)policy.match=true;mechanisms.clear();sync();},
   // Normal departure belongs to the Play intent; hide/show still invalidate it.
-  depart(){mechanisms.clear();policy.departing=true;sync();},
+  depart(){if(!policy.departing)gateStopped=false;mechanisms.clear();policy.departing=true;sync();},
   beginMatch(){epoch++;policy.match=true;policy.menu=false;policy.departing=false;mechanisms.clear();sync();},
   // Explicit completed-ply event only; sound() owns mute/hidden/SDK/autoplay policy.
   turnHandoff(){if(policy.match&&!policy.menu&&settings().master>0)sound('turn-handoff',.45);},
@@ -270,6 +289,6 @@ export function createMenuAudio(sdk:IYandexSdk) {
     }
    }
   },
-  dispose(){disposed=true;bindMenuPressSound(()=>{});bindKingFireSfx(()=>{});bindPieceSfx(()=>{});bindPieceVoice(()=>{});policy.menu=false;stopEffects();stopMusic();stopMatch();document.removeEventListener('pointerdown',gesture,true);document.removeEventListener('keydown',gesture,true);document.removeEventListener('click',click,true);document.removeEventListener('visibilitychange',sync);window.removeEventListener('checkers-settings-change',sync);void ctx?.close();},
+  dispose(){disposed=true;optionsDialog?.removeEventListener?.('close',optionsClosed);bindUiSfx(()=>{});bindMenuPressSound(()=>{});bindKingFireSfx(()=>{});bindPieceSfx(()=>{});bindPieceVoice(()=>{});policy.menu=false;stopEffects();stopMusic();stopMatch();document.removeEventListener('pointerdown',gesture,true);document.removeEventListener('keydown',gesture,true);document.removeEventListener('click',click,true);document.removeEventListener('visibilitychange',sync);window.removeEventListener('checkers-settings-change',sync);void ctx?.close();},
  };
 }

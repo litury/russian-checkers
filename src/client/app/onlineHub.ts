@@ -1,4 +1,5 @@
 import './onlineHub.css';
+import { uiSfx } from './uiSfx';
 
 /** The approved hub is a modal like «Партии». Matchmaking itself stays in the existing search UI. */
 export function createOnlineHub(actions: {
@@ -29,6 +30,7 @@ export function createOnlineHub(actions: {
   if (disposed || dialog.open || leaving || !wanted) return;
   history.pushState({...history.state, onlineHub: navigationKey}, '');
   dialog.showModal();
+  uiSfx('ui-open');
   title.focus({preventScroll: true});
  };
  const close = () => {
@@ -40,6 +42,7 @@ export function createOnlineHub(actions: {
   }
  };
  const cancel = () => {
+  if (dialog.open) uiSfx('ui-close');
   wanted = false;
   close();
   actions.cancel();
@@ -52,6 +55,7 @@ export function createOnlineHub(actions: {
   } else if (dialog.open && history.state?.onlineHub !== navigationKey) {
    wanted = false;
    dialog.close();
+   uiSfx('ui-close');
    actions.cancel();
    focusReturn();
   }
@@ -61,7 +65,7 @@ export function createOnlineHub(actions: {
   button.addEventListener('click', () => {
    const action = button.dataset.action as keyof typeof actions;
    if (action === 'cancel') cancel();
-   else actions[action]();
+   else { actions[action](); uiSfx('ui-tap'); }
   });
  });
  window.addEventListener('popstate', pop);

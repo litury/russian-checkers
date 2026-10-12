@@ -3,6 +3,9 @@ import {createMenuAudio} from './menuAudio';
 import type {IYandexSdk} from './IYandexSdk';
 import {menuMusicCompensation,matchMusicCompensation} from './musicDelivery';
 import {menuOrganLevel,matchMusicLevel} from './audioMix';
+import {matchMusicDuck} from './audioMix';
+import {uiSfx} from './uiSfx';
+import {pieceStepSfx} from './pieceSfx';
 // Each test is a fresh page; transport de-duplication has its own runtime tests.
 vi.mock('./assetLoader', () => ({loadBytes: async (url:string) => {
  const response=await fetch(url,{priority:'low'});
@@ -28,7 +31,7 @@ class FakeContext {
  close=vi.fn(async()=>{this.state='closed';});
  decodeAudioData=vi.fn(async(data:unknown)=>data);
  createBuffer=vi.fn(()=>({name:'menu_music_source',copyToChannel(){}}));
- createGain=vi.fn(()=>({gain:{value:0,cancelScheduledValues(){},setValueAtTime(){},linearRampToValueAtTime(){},setTargetAtTime(value:number){this.value=value;}},connect(){return this;},disconnect(){}}));
+ createGain=vi.fn(()=>({gain:{value:0,cancelScheduledValues:vi.fn(),setValueAtTime(){},linearRampToValueAtTime(){},setTargetAtTime(value:number){this.value=value;}},connect(){return this;},disconnect(){}}));
  createBufferSource=vi.fn(()=>({buffer:null as unknown,loop:false,onended:null,connect:(node:unknown)=>node,disconnect(){},stop(){stops.push((this.buffer as {name:string}).name);},start(){starts.push((this.buffer as {name:string}).name);}}));
 }
 function fire(type:string,id='opening-play',trusted=true){
@@ -368,4 +371,49 @@ it('drops failed music decode without preventing match or short cues',async()=>{
  audio.beginMatch();context.decodeAudioData.mockRejectedValueOnce(Error('decode failed'));
  await load('match-b-90s');await load('turn-handoff');audio.turnHandoff();
  expect(starts).toEqual(['turn-handoff']);
+});
+
+it('keeps duck ownership across sync, replacement, old ended and settings changes',async()=>{
+ settings.music=1;activation.resolve();fire('pointerdown','opening-play');await flush();
+ audio.beginMatch();await load('match-b-90s');await load('victory');await load('time-low');
+ const gain=context.createGain.mock.results[0].value.gain;
+ audio.resultSting(true,'victory','black');
+ const old=context.createBufferSource.mock.results.slice(-1)[0].value;
+ expect(gain.value).toBeCloseTo(matchMusicLevel*matchMusicCompensation*matchMusicDuck);
+ audio.speakOrcTurn('time-low','black');
+ const owner=context.createBufferSource.mock.results.slice(-1)[0].value;
+ (old.onended as unknown as ()=>void)();
+ fire('checkers-settings-change');settings.music=.5;fire('checkers-settings-change');
+ expect(gain.value).toBeCloseTo(.5*matchMusicLevel*matchMusicCompensation*matchMusicDuck);
+ expect(gain.cancelScheduledValues).toHaveBeenCalled();
+ (owner.onended as unknown as ()=>void)();
+ expect(gain.value).toBeCloseTo(.5*matchMusicLevel*matchMusicCompensation);
+});
+it('starts a late decoded match bed ducked under an active voice',async()=>{
+ settings.music=1;activation.resolve();fire('pointerdown','opening-play');await flush();
+ audio.beginMatch();await load('victory');audio.resultSting(true,'victory','black');await load('match-b-90s');
+ expect(context.createGain.mock.results.slice(-1)[0].value.gain.value).toBeCloseTo(matchMusicLevel*matchMusicCompensation*matchMusicDuck);
+});
+it('emits gate stop once across online hide/begin/hide and resets on new opening',async()=>{
+ await load('gate_stop');activation.resolve();fire('pointerdown');await flush();
+ audio.hide(true);audio.beginMatch();audio.hide(true);audio.beginMatch();
+ expect(starts).toEqual(['gate_stop']);expect(stops).toEqual([]);
+ audio.show();audio.depart();audio.hide(true);expect(starts).toEqual(['gate_stop','gate_stop']);
+});
+it('consumes muted or cold gate completion without stale replay',async()=>{
+ activation.resolve();fire('pointerdown');await flush();audio.hide(true);await load('gate_stop');audio.hide(true);
+ expect(starts).toEqual([]);audio.show();settings.muted=true;audio.hide(true);settings.muted=false;audio.hide(true);
+ expect(starts).toEqual([]);
+});
+it('bounds frequent UI and piece categories independently',async()=>{
+ await load('ui-tap');await load('move-w');activation.resolve();fire('pointerdown');await flush();audio.beginMatch();
+ for(let i=0;i<30;i++){uiSfx('ui-tap');pieceStepSfx(false,false,'white');}
+ expect(starts.filter(x=>x==='ui-tap').length-stops.filter(x=>x==='ui-tap').length).toBe(2);
+ expect(starts.filter(x=>x==='move-w').length-stops.filter(x=>x==='move-w').length).toBe(4);
+ pause();const count=starts.length;uiSfx('ui-tap');resume();expect(starts).toHaveLength(count);
+});
+it.each(['ui-open','ui-close','ui-tap','panel-ready','undo-applied','draw-result'] as const)('never replays cold/muted/paused %s',async cue=>{
+ activation.resolve();fire('pointerdown');await flush();uiSfx(cue);await load(cue);expect(starts).toEqual([]);
+ settings.muted=true;uiSfx(cue);settings.muted=false;pause();uiSfx(cue);resume();expect(starts).toEqual([]);
+ uiSfx(cue);expect(starts).toEqual([cue]);
 });

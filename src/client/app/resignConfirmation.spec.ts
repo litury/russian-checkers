@@ -1,5 +1,6 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import { bindResignConfirmation } from './resignConfirmation';
+import { bindUiSfx } from './uiSfx';
 function setup(art?: Parameters<typeof bindResignConfirmation>[3]) {
  const status={id:'',textContent:'',setAttribute(){},remove:vi.fn()};
  const doc={activeElement:null as unknown,getElementById:(id:string)=>nodes[id],createElement:()=>status};
@@ -12,7 +13,16 @@ function setup(art?: Parameters<typeof bindResignConfirmation>[3]) {
  return {doc,status,trigger,resume,accept,dialog,confirm,binding,unavailable:()=>{available=false;}};
 }
 const click=(el:EventTarget)=>el.dispatchEvent(new Event('click'));
-afterEach(()=>{vi.useRealTimers();vi.unstubAllGlobals();});
+afterEach(()=>{bindUiSfx(()=>{});vi.useRealTimers();vi.unstubAllGlobals();});
+it('one semantic cue for open/cancel, none for disabled or confirm outcome',()=>{
+ const cue=vi.fn();bindUiSfx(cue);const t=setup();
+ t.trigger.disabled=true;click(t.trigger);expect(cue).not.toHaveBeenCalled();t.trigger.disabled=false;
+ click(t.trigger);click(t.trigger);click(t.resume);click(t.resume);
+ expect(cue.mock.calls).toEqual([['ui-open'],['ui-close']]);cue.mockClear();
+ click(t.trigger);t.dialog.dispatchEvent(new Event('cancel',{cancelable:true}));
+ expect(cue.mock.calls).toEqual([['ui-open'],['ui-close']]);cue.mockClear();
+ click(t.trigger);click(t.accept);expect(cue.mock.calls).toEqual([['ui-open']]);
+});
 it('never reveals incomplete art; caps waiting at500ms and rejects late completion',async()=>{
  vi.useFakeTimers();let resolve!:(ready:boolean)=>void;
  const t=setup({ready:()=>false,prepare:()=>new Promise(r=>{resolve=r;})});

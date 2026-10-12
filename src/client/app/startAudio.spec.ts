@@ -37,7 +37,8 @@ it('binds timer slide/lock to actual HUD lift, availability once, RU voice at re
  expect(audio).toContain("startTimerSlide[0],startTimerSlide[1],'timer-slide'");
  expect(audio).not.toContain("['timer-slide',860");
  expect(audio).toContain('!reduced&&ms<end?sound');
- expect(audio).toContain("if(completed&&!reduced)sound('gate_stop')");
+ // Gate completion ownership is exercised by menuAudio.interaction.spec.ts.
+ expect(audio).toContain("if(completed&&!gateStopped)");
  expect(timerSeated(2479, false)).toBe(false);
  expect(timerSeated(2480, false)).toBe(true);
  expect(startVoiceName('ru')).toBe('start-ru');

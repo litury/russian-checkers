@@ -99,6 +99,7 @@ export function bindMatchHistory() {
     button.type = 'button';
     button.setAttribute('aria-label', `Смотреть: ${outcomeLabel(row)}, ${opponent(row)}, ${dateLabel(row.startedAt)}`);
     button.addEventListener('click', () => {
+     uiSfx('ui-tap');
      savedScroll = scroll.scrollTop;
      returnFocus = button;
      history.pushState({ mh: navigationKey, pane: 'record' }, '');
@@ -111,6 +112,7 @@ export function bindMatchHistory() {
   }
  };
  const restoreList = () => {
+  uiSfx('ui-close');
   generation++;
   selected = null;
   replay = null;
@@ -129,6 +131,7 @@ export function bindMatchHistory() {
  const close = () => {
   generation++;
   root.close();
+  uiSfx('ui-close');
   title.inert = false;
   open.focus({ preventScroll: true });
  };
@@ -241,7 +244,7 @@ export function bindMatchHistory() {
    const button = element('button', 'mh-move', `${Math.floor(i / 2) + 1}${i % 2 ? '…' : '.'} ${move}`);
    button.type = 'button';
    button.setAttribute('aria-label', `Полуход ${i + 1}: ${move}`);
-   button.addEventListener('click', () => paintPosition(i + 1));
+   button.addEventListener('click', () => { if (ply !== i + 1) uiSfx('ui-tap'); paintPosition(i + 1); });
    notation.append(button);
   });
   state.hidden = true;
@@ -255,6 +258,7 @@ export function bindMatchHistory() {
   if (root.open) return;
   title.inert = true;
   root.showModal();
+  uiSfx('ui-open');
   selected = null;
   returnFocus = null;
   savedScroll = 0;
@@ -273,12 +277,13 @@ export function bindMatchHistory() {
   if (event.state?.mh === navigationKey && event.state.pane === 'list') restoreList();
   else close();
  });
- retry.addEventListener('click', () => { focusHeading(); retryAction(); });
- filter.addEventListener('change', () => { paintList(); scroll.scrollTop = 0; });
- first.addEventListener('click', () => paintPosition(0));
- prev.addEventListener('click', () => paintPosition(ply - 1));
- next.addEventListener('click', () => paintPosition(ply + 1));
- end.addEventListener('click', () => paintPosition(replay?.plies.length ?? 0));
+ retry.addEventListener('click', () => { uiSfx('ui-tap'); focusHeading(); retryAction(); });
+ filter.addEventListener('change', () => { uiSfx('ui-tap'); paintList(); scroll.scrollTop = 0; });
+ const navigate = (target: number) => { if (replay && target !== ply && target >= 0 && target <= replay.plies.length) { uiSfx('ui-tap'); paintPosition(target); } };
+ first.addEventListener('click', () => navigate(0));
+ prev.addEventListener('click', () => navigate(ply - 1));
+ next.addEventListener('click', () => navigate(ply + 1));
+ end.addEventListener('click', () => navigate(replay?.plies.length ?? 0));
  root.addEventListener('keydown', event => {
   if (event.key === 'Tab') {
    const controls = [...root.querySelectorAll<HTMLElement>('button:not(:disabled),select:not(:disabled),[tabindex="0"]')]
@@ -298,3 +303,4 @@ export function bindMatchHistory() {
   if (event.key in positions) { event.preventDefault(); paintPosition(positions[event.key]); }
  });
 }
+import { uiSfx } from './uiSfx';

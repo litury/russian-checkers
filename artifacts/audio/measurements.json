@@ -1,0 +1,362 @@
+[
+  {
+    "name": "ui-open",
+    "original": {
+      "duration": 1.0,
+      "peak_dbfs": 3.010299807987141,
+      "rms_dbfs": -20.383528295403078,
+      "leading_silence_seconds": 0.0,
+      "trailing_silence_seconds": 0.25560090702947846,
+      "bytes": 194460,
+      "sha256": "df6682a88356cbb7265d865a594805d3d85a7d884c2a74ade1ebe7cdc5d7e3c2"
+    },
+    "processed": {
+      "duration": 0.22,
+      "peak_dbfs": -11.407508929619755,
+      "rms_dbfs": -35.159852909390324,
+      "leading_silence_seconds": 0.004671201814058957,
+      "trailing_silence_seconds": 0.008503401360544218,
+      "bytes": 19482,
+      "sha256": "432872487ec75aa5af639c6950c23e12d9f215981411501f7ab27ace0e788f95"
+    },
+    "ffmpeg_filter": "atrim=start=0:duration=0.22,asetpts=PTS-STARTPTS,volume=-9.010299807987142dB,afade=t=in:d=0.003,afade=t=out:st=0.19:d=0.03",
+    "listened": false,
+    "integrated": true
+  },
+  {
+    "name": "ui-close",
+    "original": {
+      "duration": 1.0,
+      "peak_dbfs": 3.010299807987141,
+      "rms_dbfs": -19.114792586726665,
+      "leading_silence_seconds": 0.026462585034013605,
+      "trailing_silence_seconds": 0.626984126984127,
+      "bytes": 194460,
+      "sha256": "6548e96e2bcde8a4c4fc8cf9da59a721404f3b7d5f0a2ae4eeedef9cec28ff73"
+    },
+    "processed": {
+      "duration": 0.2,
+      "peak_dbfs": -9.010110178422009,
+      "rms_dbfs": -24.64411337916846,
+      "leading_silence_seconds": 0.01909297052154195,
+      "trailing_silence_seconds": 0.0022448979591836735,
+      "bytes": 17718,
+      "sha256": "d39470a9c5cf6ecfa26e2ff7b86914a79708b3847b8b7cf7d62f3f70abfdbbb6"
+    },
+    "ffmpeg_filter": "atrim=start=0.021462585034013604:duration=0.2,asetpts=PTS-STARTPTS,volume=-9.010299807987142dB,afade=t=in:d=0.003,afade=t=out:st=0.17:d=0.03",
+    "listened": false,
+    "integrated": true
+  },
+  {
+    "name": "ui-tap",
+    "original": {
+      "duration": 1.0,
+      "peak_dbfs": 3.010299807987141,
+      "rms_dbfs": -20.927308692868127,
+      "leading_silence_seconds": 0.0,
+      "trailing_silence_seconds": 0.8285034013605442,
+      "bytes": 194460,
+      "sha256": "82ac836c1a90244bd0a8027443a1849c67fbfdfa3411fed37452457123e238a8"
+    },
+    "processed": {
+      "duration": 0.12,
+      "peak_dbfs": -9.010110178422009,
+      "rms_dbfs": -23.90669181068243,
+      "leading_silence_seconds": 0.00018140589569160998,
+      "trailing_silence_seconds": 0.013378684807256236,
+      "bytes": 10662,
+      "sha256": "31f86870be582dcd642c43335e5c2be162cb95327695a6fed10a83296e78f0e5"
+    },
+    "ffmpeg_filter": "atrim=start=0:duration=0.12,asetpts=PTS-STARTPTS,volume=-9.010299807987142dB,afade=t=in:d=0.003,afade=t=out:st=0.09:d=0.03",
+    "listened": false,
+    "integrated": true
+  },
+  {
+    "name": "panel-ready",
+    "original": {
+      "duration": 1.0,
+      "peak_dbfs": 3.010299807987141,
+      "rms_dbfs": -19.916572150440285,
+      "leading_silence_seconds": 0.0009750566893424037,
+      "trailing_silence_seconds": 0.6153514739229025,
+      "bytes": 194460,
+      "sha256": "625383f44aa8722e635b033fba03557cc2cda8316f05ab23a370a0db244cbe6c"
+    },
+    "processed": {
+      "duration": 0.18,
+      "peak_dbfs": -14.41226954290313,
+      "rms_dbfs": -39.5060292483469,
+      "leading_silence_seconds": 0.023582766439909298,
+      "trailing_silence_seconds": 0.004625850340136055,
+      "bytes": 15954,
+      "sha256": "9eb8906ebc59d502c8f67f1a1c0f4ac7cfa9a45fdacfe426c85f0cb49c7e86ce"
+    },
+    "ffmpeg_filter": "atrim=start=0:duration=0.18,asetpts=PTS-STARTPTS,volume=-9.010299807987142dB,afade=t=in:d=0.003,afade=t=out:st=0.15:d=0.03",
+    "listened": false,
+    "integrated": true
+  },
+  {
+    "name": "undo-applied",
+    "original": {
+      "duration": 1.0,
+      "peak_dbfs": 3.010299807987141,
+      "rms_dbfs": -18.814047603208568,
+      "leading_silence_seconds": 0.0,
+      "trailing_silence_seconds": 0.21662131519274377,
+      "bytes": 194460,
+      "sha256": "2e5255b1278220474485236b8f7c682d82345ee1a7781869737c50e469fd39d9"
+    },
+    "processed": {
+      "duration": 0.32,
+      "peak_dbfs": -9.010110178422009,
+      "rms_dbfs": -32.782025861482225,
+      "leading_silence_seconds": 0.004965986394557823,
+      "trailing_silence_seconds": 0.0051700680272108845,
+      "bytes": 28302,
+      "sha256": "7d3a21e4cf0321da9207118bcfb7b2a921aae5b92d7fd34a47dfdf95946b2736"
+    },
+    "ffmpeg_filter": "atrim=start=0:duration=0.32,asetpts=PTS-STARTPTS,volume=-9.010299807987142dB,afade=t=in:d=0.003,afade=t=out:st=0.29000000000000004:d=0.03",
+    "listened": false,
+    "integrated": true
+  },
+  {
+    "name": "draw-result",
+    "original": {
+      "duration": 1.0,
+      "peak_dbfs": 3.010299807987141,
+      "rms_dbfs": -19.182140363095293,
+      "leading_silence_seconds": 0.0,
+      "trailing_silence_seconds": 0.6824716553287982,
+      "bytes": 194460,
+      "sha256": "f106774c2498ddace9be8d978042b074e254e4663e1243a0c3f18ebe466af368"
+    },
+    "processed": {
+      "duration": 0.65,
+      "peak_dbfs": -9.010110178422009,
+      "rms_dbfs": -29.341067127520795,
+      "leading_silence_seconds": 0.00013605442176870748,
+      "trailing_silence_seconds": 0.4426077097505669,
+      "bytes": 57408,
+      "sha256": "7e6ca7e9316a10e2b2b56bc8440eafe499677d0376dd3b45f62d8a7b391bd8a8"
+    },
+    "ffmpeg_filter": "atrim=start=0:duration=0.65,asetpts=PTS-STARTPTS,volume=-9.010299807987142dB,afade=t=in:d=0.003,afade=t=out:st=0.62:d=0.03",
+    "listened": false,
+    "integrated": true
+  },
+  {
+    "name": "select-candidate",
+    "original": {
+      "duration": 1.0,
+      "peak_dbfs": 3.010299807987141,
+      "rms_dbfs": -22.02674842474551,
+      "leading_silence_seconds": 0.0,
+      "trailing_silence_seconds": 0.8841269841269841,
+      "bytes": 194460,
+      "sha256": "238dc23e423f8b36bf4dea127d7d9d16208db096be1c6fa980a3e5e5a84e2ad8"
+    },
+    "processed": {
+      "duration": 0.16,
+      "peak_dbfs": -9.010110178422009,
+      "rms_dbfs": -26.191891996811876,
+      "leading_silence_seconds": 0.00018140589569160998,
+      "trailing_silence_seconds": 0.07249433106575964,
+      "bytes": 14190,
+      "sha256": "35061e9290b6a2428d1cba9a8d1242e73d39dc0c2da8ca1bbfd1d436d2a3b367"
+    },
+    "ffmpeg_filter": "atrim=start=0:duration=0.16,asetpts=PTS-STARTPTS,volume=-9.010299807987142dB,afade=t=in:d=0.003,afade=t=out:st=0.13:d=0.03",
+    "listened": false,
+    "integrated": false
+  },
+  {
+    "name": "move-candidate",
+    "original": {
+      "duration": 1.0,
+      "peak_dbfs": 3.010299807987141,
+      "rms_dbfs": -18.572544948327135,
+      "leading_silence_seconds": 0.0,
+      "trailing_silence_seconds": 0.7479818594104308,
+      "bytes": 194460,
+      "sha256": "52611fdafde72c3820bbd7955650cc7aaf50c1cae0424ce176e5a203bc4a045a"
+    },
+    "processed": {
+      "duration": 0.22,
+      "peak_dbfs": -9.010110178422009,
+      "rms_dbfs": -24.02510879928306,
+      "leading_silence_seconds": 0.0006349206349206349,
+      "trailing_silence_seconds": 0.013605442176870748,
+      "bytes": 19482,
+      "sha256": "b2478d552cedf3d1cccb2dcb84f176a3377907727a6dbb5ebfdbbfcbc1f494bf"
+    },
+    "ffmpeg_filter": "atrim=start=0:duration=0.22,asetpts=PTS-STARTPTS,volume=-9.010299807987142dB,afade=t=in:d=0.003,afade=t=out:st=0.19:d=0.03",
+    "listened": false,
+    "integrated": false
+  },
+  {
+    "name": "capture-candidate",
+    "original": {
+      "duration": 1.0,
+      "peak_dbfs": 3.010299807987141,
+      "rms_dbfs": -19.54931734773471,
+      "leading_silence_seconds": 0.02387755102040816,
+      "trailing_silence_seconds": 0.23947845804988663,
+      "bytes": 194460,
+      "sha256": "8835282f57d7edb832f77f72a74bec2c6209f9e9b0203d03023ebff1a1a1783a"
+    },
+    "processed": {
+      "duration": 0.35,
+      "peak_dbfs": -9.010110178422009,
+      "rms_dbfs": -27.63355250857714,
+      "leading_silence_seconds": 0.05650793650793651,
+      "trailing_silence_seconds": 0.02659863945578231,
+      "bytes": 30948,
+      "sha256": "9b31559852d7d9b53fcf7cd69282ae0802e58551a40809a664977d283d7b017a"
+    },
+    "ffmpeg_filter": "atrim=start=0.01887755102040816:duration=0.35,asetpts=PTS-STARTPTS,volume=-9.010299807987142dB,afade=t=in:d=0.003,afade=t=out:st=0.31999999999999995:d=0.03",
+    "listened": false,
+    "integrated": false
+  },
+  {
+    "name": "promotion-candidate",
+    "original": {
+      "duration": 1.0,
+      "peak_dbfs": 3.010299807987141,
+      "rms_dbfs": -21.68367413010024,
+      "leading_silence_seconds": 4.5351473922902495e-05,
+      "trailing_silence_seconds": 0.8672789115646259,
+      "bytes": 194460,
+      "sha256": "f3c0d6344c4563183466b313de3cece1bf337767b782e041cf5918400243b3ae"
+    },
+    "processed": {
+      "duration": 0.5,
+      "peak_dbfs": -9.010110178422009,
+      "rms_dbfs": -30.69397913974307,
+      "leading_silence_seconds": 0.011768707482993197,
+      "trailing_silence_seconds": 0.3825396825396825,
+      "bytes": 44178,
+      "sha256": "d164ae857b76ca9d9dc2fc8a95e7816928abca02753a399a81cfa9f3ac017ccd"
+    },
+    "ffmpeg_filter": "atrim=start=0:duration=0.5,asetpts=PTS-STARTPTS,volume=-9.010299807987142dB,afade=t=in:d=0.003,afade=t=out:st=0.47:d=0.03",
+    "listened": false,
+    "integrated": false
+  },
+  {
+    "comparison": "select",
+    "old": {
+      "duration": 0.7221995464852607,
+      "peak_dbfs": 3.010299807987141,
+      "rms_dbfs": -17.85750160196224,
+      "leading_silence_seconds": 0.0,
+      "trailing_silence_seconds": 0.0,
+      "bytes": 127474,
+      "sha256": "af8c0d14aa44791a5222fc8e8342243012c007b0197b8d4a27a4ec52146cf5a8"
+    },
+    "candidate": {
+      "duration": 0.16,
+      "peak_dbfs": -9.010110178422009,
+      "rms_dbfs": -26.191891996811876,
+      "leading_silence_seconds": 0.00018140589569160998,
+      "trailing_silence_seconds": 0.07249433106575964,
+      "bytes": 14190,
+      "sha256": "35061e9290b6a2428d1cba9a8d1242e73d39dc0c2da8ca1bbfd1d436d2a3b367"
+    },
+    "matched_rms_dbfs": -26.191891996811876,
+    "order": "old, 600ms silence, new",
+    "physical_listening": false
+  },
+  {
+    "comparison": "move-white",
+    "old": {
+      "duration": 0.18,
+      "peak_dbfs": -1.4121828334625561,
+      "rms_dbfs": -26.38798062626657,
+      "leading_silence_seconds": 0.0,
+      "trailing_silence_seconds": 0.07038548752834467,
+      "bytes": 15954,
+      "sha256": "ea8f9014ebbe7b5a6d84e2ebb840ddc45436daecf0cf7eaf086e0d95a60672ed"
+    },
+    "candidate": {
+      "duration": 0.22,
+      "peak_dbfs": -9.010110178422009,
+      "rms_dbfs": -24.02510879928306,
+      "leading_silence_seconds": 0.0006349206349206349,
+      "trailing_silence_seconds": 0.013605442176870748,
+      "bytes": 19482,
+      "sha256": "b2478d552cedf3d1cccb2dcb84f176a3377907727a6dbb5ebfdbbfcbc1f494bf"
+    },
+    "matched_rms_dbfs": -26.38798062626657,
+    "order": "old, 600ms silence, new",
+    "physical_listening": false
+  },
+  {
+    "comparison": "move-black",
+    "old": {
+      "duration": 0.18,
+      "peak_dbfs": -0.9155032481583973,
+      "rms_dbfs": -20.884088779640607,
+      "leading_silence_seconds": 0.0,
+      "trailing_silence_seconds": 0.046870748299319726,
+      "bytes": 15954,
+      "sha256": "642350a7fcbf9bde5ad5a1ee27ea9c21253033548f2d88e18994be85154f5d33"
+    },
+    "candidate": {
+      "duration": 0.22,
+      "peak_dbfs": -9.010110178422009,
+      "rms_dbfs": -24.02510879928306,
+      "leading_silence_seconds": 0.0006349206349206349,
+      "trailing_silence_seconds": 0.013605442176870748,
+      "bytes": 19482,
+      "sha256": "b2478d552cedf3d1cccb2dcb84f176a3377907727a6dbb5ebfdbbfcbc1f494bf"
+    },
+    "matched_rms_dbfs": -24.02510879928306,
+    "order": "old, 600ms silence, new",
+    "physical_listening": false
+  },
+  {
+    "comparison": "capture",
+    "old": {
+      "duration": 0.592108843537415,
+      "peak_dbfs": 3.010299807987141,
+      "rms_dbfs": -12.988427854726844,
+      "leading_silence_seconds": 0.0006575963718820862,
+      "trailing_silence_seconds": 9.070294784580499e-05,
+      "bytes": 104526,
+      "sha256": "cc98337161f6355b86935c606996a92f139147ca35f14d7c74340e53e11c37b8"
+    },
+    "candidate": {
+      "duration": 0.35,
+      "peak_dbfs": -9.010110178422009,
+      "rms_dbfs": -27.63355250857714,
+      "leading_silence_seconds": 0.05650793650793651,
+      "trailing_silence_seconds": 0.02659863945578231,
+      "bytes": 30948,
+      "sha256": "9b31559852d7d9b53fcf7cd69282ae0802e58551a40809a664977d283d7b017a"
+    },
+    "matched_rms_dbfs": -27.63355250857714,
+    "order": "old, 600ms silence, new",
+    "physical_listening": false
+  },
+  {
+    "comparison": "promotion",
+    "old": {
+      "duration": 1.1562131519274377,
+      "peak_dbfs": 2.34046744975599,
+      "rms_dbfs": -12.036904092323795,
+      "leading_silence_seconds": 0.010612244897959184,
+      "trailing_silence_seconds": 0.019705215419501133,
+      "bytes": 204034,
+      "sha256": "dbc75d4299781d6cdbcee5d4dec8b1b756e7be7aa479b352ffa660664aba85e5"
+    },
+    "candidate": {
+      "duration": 0.5,
+      "peak_dbfs": -9.010110178422009,
+      "rms_dbfs": -30.69397913974307,
+      "leading_silence_seconds": 0.011768707482993197,
+      "trailing_silence_seconds": 0.3825396825396825,
+      "bytes": 44178,
+      "sha256": "d164ae857b76ca9d9dc2fc8a95e7816928abca02753a399a81cfa9f3ac017ccd"
+    },
+    "matched_rms_dbfs": -30.69397913974307,
+    "order": "old, 600ms silence, new",
+    "physical_listening": false
+  }
+]

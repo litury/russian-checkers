@@ -2,6 +2,7 @@ import { animateSiegeGates } from './siegeGateTransition';
 import { setSiegeSide, siegeSide } from './siegeSelection';
 import type Phaser from 'phaser';
 import {createMenuAudio} from './menuAudio';
+import {uiSfx} from './uiSfx';
 import {bindMatchHistory} from './matchHistoryUi';
 import {createOnlineHub} from './onlineHub';
 import {ensureGuest, loadPresence, beatPresence} from '@/online/cloud';
@@ -182,13 +183,13 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  const searchEnter = document.getElementById('opening-search-enter') as HTMLButtonElement | null;
  const searchGo = document.getElementById('opening-search-go') as HTMLButtonElement | null;
  const friendCode = document.getElementById('opening-friend-code') as HTMLInputElement | null;
- searchCancel?.addEventListener('click', () => handlers.onSearchCancel?.());
- searchFind?.addEventListener('click', () => handlers.onSearchFind?.());
- searchCreate?.addEventListener('click', () => handlers.onFriendCreate?.());
- searchEnter?.addEventListener('click', () => handlers.onFriendEnter?.());
+ searchCancel?.addEventListener('click', () => { handlers.onSearchCancel?.(); uiSfx('ui-close'); });
+ searchFind?.addEventListener('click', () => { handlers.onSearchFind?.(); uiSfx('ui-tap'); });
+ searchCreate?.addEventListener('click', () => { handlers.onFriendCreate?.(); uiSfx('ui-tap'); });
+ searchEnter?.addEventListener('click', () => { handlers.onFriendEnter?.(); uiSfx('ui-tap'); });
  searchGo?.addEventListener('click', () => handlers.onFriendJoin?.(friendCode?.value.trim() ?? ''));
- searchStay?.addEventListener('click', () => handlers.onSearchStay?.());
- searchBot?.addEventListener('click', () => handlers.onSearchBot?.());
+ searchStay?.addEventListener('click', () => { handlers.onSearchStay?.(); uiSfx('ui-tap'); });
+ searchBot?.addEventListener('click', () => { handlers.onSearchBot?.(); uiSfx('ui-tap'); });
  const setSearch = (phase: SearchPhase, seconds: number, join = '') => {
   const view = searchCopy(phase, seconds, join);
   if (!search || !searchCopyEl) return;

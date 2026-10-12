@@ -1,6 +1,7 @@
 import type Phaser from 'phaser';
 import type { Side } from '@/rules';
 import './boardVerdict.css';
+import { uiSfx } from './uiSfx';
 
 export type Verdict = {
 	winner: Side | 'draw';
@@ -44,6 +45,7 @@ export function createResultOverlay(
 		inert.clear();
 	}
 	function open(animate = false) {
+		if (!animate) uiSfx('ui-open');
 		panel.hidden = false;
 		root.classList.add('expanded');
 		status.hidden = true;
@@ -56,6 +58,7 @@ export function createResultOverlay(
 		panel.focus({ preventScroll: true });
 	}
 	function collapse() {
+		uiSfx('ui-close');
 		panel.hidden = true;
 		root.classList.remove('expanded');
 		panel.classList.remove('enter');
@@ -96,10 +99,12 @@ export function createResultOverlay(
 			case 'again':
 				hide();
 				handlers.onPlayAgain();
+				uiSfx('ui-tap');
 				break;
 			case 'menu':
 				hide();
 				handlers.onMenu();
+				uiSfx('ui-close');
 				break;
 		}
 	}

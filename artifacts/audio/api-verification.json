@@ -1,0 +1,69 @@
+{
+  "checked_utc": "2026-10-12",
+  "schema_url": "https://api.stability.ai/v2alpha/openapi",
+  "docs_url": "https://platform.stability.ai/docs/api-reference",
+  "pricing_url": "https://platform.stability.ai/pricing",
+  "pricing_bundle_url": "https://platform.stability.ai/assets/index-wcpOIAvj.js",
+  "pricing_excerpt": "id:\"stable-audio-3\",service:\"Stable Audio 3.0\",description:\"Generate up to six minutes high-quality audio with coherent structure from text prompts or audio samples\",price:\"8\",docsUrl:\"/docs/api-reference#tag/Stable-Audio/paths/~1v2beta~1audio~1stable-audio~1text-to-audio/post\"},{id:\"stable-audio-2\",service:\"Stable Audio 2.5\",description:\"Generate up to three minutes high-quality audio with cohere",
+  "route": "/v2beta/audio/stable-audio/text-to-audio",
+  "schema": {
+    "content": {
+      "multipart/form-data": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "prompt": {
+              "$ref": "#/components/schemas/AudioPrompt"
+            },
+            "model": {
+              "type": "string",
+              "enum": [
+                "stable-audio-3"
+              ],
+              "default": "stable-audio-3",
+              "description": "The model to use for generation.\n\n- `stable-audio-3` requires 8 credits per generation"
+            },
+            "duration": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 380,
+              "default": 190,
+              "description": "Controls the duration in seconds of the generated audio."
+            },
+            "seed": {
+              "$ref": "#/components/schemas/Seed"
+            },
+            "steps": {
+              "type": "integer",
+              "minimum": 4,
+              "maximum": 8,
+              "default": 8,
+              "description": "Controls the number of sampling steps."
+            },
+            "cfg_scale": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 25,
+              "default": 1,
+              "description": "How strictly the diffusion process adheres to the prompt text (higher values make your audio closer to your prompt). Defaults to 1 if not specified."
+            },
+            "output_format": {
+              "type": "string",
+              "enum": [
+                "mp3",
+                "wav"
+              ],
+              "default": "mp3",
+              "description": "Dictates the `content-type` of the generated audio."
+            }
+          },
+          "required": [
+            "prompt"
+          ]
+        }
+      }
+    }
+  },
+  "credit_evidence": "Stable Audio transforms existing audio samples into new high-quality compositions up to six minutes\nlong at 44.1kHz stereo using text instructions.\n\n### Try it out\nGrab your [API key](https://platform.stability.ai/account/keys) and head over to\n[![Open Google Colab](https://platform.stability.ai/svg/google-colab.svg)](https://colab.research.google.com/github/stability-ai/stability-sdk/blob/main/nbs/Stable_Audio_API.ipynb)\nor try Stable Audio for free at [stableaudio.com](https://stableaudio.com).\n\nThis endpoint is asynchronous \u2014 it returns a generation `id` immediately (HTTP 202).\nPoll `GET /v2beta/audio/results/{id}` to retrieve the result.\n\n### Credits\n\n**Stable Audio 3.0**\n\nFlat rate of 8 credits per successful generation.\n\nAs always, you will not be charged for failed generations.",
+  "cached_search_conflict": "Search extract said 26; directly fetched application bundle and live OpenAPI both say 8. Observed balance difference = 80 for 10 successful requests."
+}

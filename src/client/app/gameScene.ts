@@ -18,6 +18,7 @@ import { installDisplayDensity, logicalSize } from './displayDensity';
 import { preparationMs } from './panelReveal';
 import { orcOpeningTurnLine } from './orcTurn';
 import { defeatTauntCue, pieceSelectSfx } from './pieceSfx';
+import { uiSfx } from './uiSfx';
 import { recordBotMatch, probeApi, type CloudPly } from '@/online/cloud';
 import { openLive, type NetMove } from '@/online/live';
 import { classifyPly, hashPosition, positionFromSnapshot, takeNextPly, type MatchSnapshot } from '@/online/matchState';
@@ -211,6 +212,7 @@ export class GameScene extends Phaser.Scene {
 					return;
 				}
 				void this.requestOnline('join', digits);
+				uiSfx('ui-tap');
 			},
 			onSearchCancel: () => this.cancelSearch(),
 			onSearchStay: () => this.stayInSearch(),
@@ -1247,6 +1249,7 @@ export class GameScene extends Phaser.Scene {
 		// A started capture is irrevocable, including clicks on other own pieces.
 		if (this.humanChain) return;
 		if (moves.some((move) => sameSquare(move.from, square))) {
+			if (selected && sameSquare(selected, square)) return;
 			if (!selected || !sameSquare(selected, square)) haptics.play('tick');
 			this.selected = square;
 			this.refresh();
@@ -1377,7 +1380,10 @@ export class GameScene extends Phaser.Scene {
 			rail.hidden = !inMatch;
 			// Lifecycle visibility only: the in-card overlay reserves no field space.
 			const conceal = this.railConcealed();
-			if (!conceal && inMatch) this.actionsEntered = true;
+			if (!conceal && inMatch && !this.actionsEntered) {
+				this.actionsEntered = true;
+				uiSfx('panel-ready');
+			}
 			if (rail.style) rail.style.visibility = conceal ? 'hidden' : '';
 			rail.inert = conceal;
 			rail.setAttribute('aria-hidden', conceal ? 'true' : 'false');
@@ -1427,6 +1433,7 @@ export class GameScene extends Phaser.Scene {
 		this.clockStartedAt = this.time.now;
 		this.restoringBotUndo = true;
 		try { this.refresh(); } finally { this.restoringBotUndo = false; }
+		uiSfx('undo-applied');
 	}
 
 	private saveBotUndo(): void {
@@ -1599,6 +1606,7 @@ export class GameScene extends Phaser.Scene {
 		this.board?.reset({ keepPromotionFire: this.resultKind === 'rules' });
 		this.refresh();
 		const { winner: side } = result;
+		if (side === 'draw') uiSfx('draw-result');
 		if (side !== 'draw') {
 			const line = orcOutcomeLine(this.resultKind === 'flag' ? 'flag' : 'rules', side === this.humanSide);
 			if (line === 'time-up') this.title?.speakOrcTurn(line, this.humanSide);

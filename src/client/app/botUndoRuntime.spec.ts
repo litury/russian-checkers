@@ -10,6 +10,8 @@ import { warmMatchActionArt } from './matchActionArtWarmup';
 import Phaser from 'phaser';
 import { GameScene } from './gameScene';
 import { createInitialPosition } from '@/rules';
+import { bindUiSfx } from './uiSfx';
+import { bindPieceSfx, bindPieceVoice } from './pieceSfx';
 const sq = (s: string) => ({ col: s.charCodeAt(0) - 97, row: +s[1] - 1 });
 function setup() {
  const s = new GameScene() as any;
@@ -35,7 +37,29 @@ function setup() {
  s.sdk = { showFullscreenAdv: vi.fn() };
  return { s, tasks, button, resign, rail };
 }
-afterEach(() => { auto = false; vi.unstubAllGlobals(); });
+afterEach(() => { auto = false; bindUiSfx(()=>{}); bindPieceSfx(()=>{}); bindPieceVoice(()=>{}); vi.unstubAllGlobals(); });
+it('panel readiness emits once for the entire rail after timers, never on repaint',()=>{
+ const {s}=setup();const cue=vi.fn();bindUiSfx(cue);
+ s.hud.isActionsReady=()=>false;s.paintUndo();expect(cue).not.toHaveBeenCalled();
+ s.hud.isActionsReady=()=>true;s.paintUndo();s.paintUndo();s.paused=true;s.paintUndo();s.paused=false;s.paintUndo();
+ expect(cue.mock.calls).toEqual([['panel-ready']]);
+});
+it('undo cue follows a successful restore only; disabled and empty actions are silent',()=>{
+ const {s,button}=setup();const cue=vi.fn();bindUiSfx(cue);s.actionsEntered=true;s.bindUndoButton();s.paintUndo();
+ button.click();s.undoBot();expect(cue).not.toHaveBeenCalled();
+ human(s);s.playBot();cue.mockClear();s.undoBot();s.undoBot();expect(cue.mock.calls).toEqual([['undo-applied']]);
+});
+it('same square selection does not repeat material or character voice',()=>{
+ const {s}=setup();const effect=vi.fn(),voice=vi.fn();bindPieceSfx(effect);bindPieceVoice(voice);
+ s.onSquare(sq('c3'));s.onSquare(sq('c3'));s.onSquare(sq('c3'));
+ expect(effect).toHaveBeenCalledTimes(1);expect(voice).toHaveBeenCalledTimes(1);
+ s.onSquare(sq('e3'));expect(effect).toHaveBeenCalledTimes(2);
+});
+it('draw cue belongs to newly accepted result, never repeated presentation',()=>{
+ const {s}=setup();const cue=vi.fn();bindUiSfx(cue);s.ensureResultOverlay=vi.fn(async()=>s.overlay);
+ s.endMatch('draw');s.presentResult();s.endMatch('draw');
+ expect(cue.mock.calls.filter(([name])=>name==='draw-result')).toHaveLength(1);
+});
 it.each(['white','black'])('resignation shows loss relative to human %s',async(side)=>{
  const {s}=setup();s.humanSide=side;s.ensureResultOverlay=vi.fn(async()=>s.overlay);
  s.resignMatch();await Promise.resolve();

@@ -1,3 +1,4 @@
+import { uiSfx } from './uiSfx';
 /** Native modal makes the canvas and all other controls inert while deciding. */
 export function bindResignConfirmation(
 	trigger: HTMLButtonElement,
@@ -49,6 +50,7 @@ export function bindResignConfirmation(
 	const reveal = () => {
 		if (trigger.disabled || !available() || dialog.open) return;
 		dialog.showModal();
+		uiSfx('ui-open');
 		resume.focus({ preventScroll: true });
 	};
 	const refreshStates = () => { if (!art?.statesReady || art.statesReady()) trigger.removeAttribute('data-art-cold'); };
@@ -98,9 +100,11 @@ export function bindResignConfirmation(
 	};
 	for (const event of ['pointerenter', 'pointerdown', 'focus']) trigger.addEventListener(event, refreshStates);
 	trigger.addEventListener('click', open);
-	resume.addEventListener('click', dismiss);
+	const userDismiss = () => { if (dialog.open && !closing) uiSfx('ui-close'); dismiss(); };
+	const userCancel = (event: Event) => { if (dialog.open && !closing) uiSfx('ui-close'); cancel(event); };
+	resume.addEventListener('click', userDismiss);
 	accept.addEventListener('click', commit);
-	dialog.addEventListener('cancel', cancel);
+	dialog.addEventListener('cancel', userCancel);
 	dialog.addEventListener('close', restore);
 	dialog.addEventListener('keydown', keydown);
 	return {
@@ -114,9 +118,9 @@ export function bindResignConfirmation(
 			trigger.removeAttribute('data-rest-ready');
 			trigger.removeAttribute('data-art-cold');
 			trigger.removeEventListener('click', open);
-			resume.removeEventListener('click', dismiss);
+			resume.removeEventListener('click', userDismiss);
 			accept.removeEventListener('click', commit);
-			dialog.removeEventListener('cancel', cancel);
+			dialog.removeEventListener('cancel', userCancel);
 			dialog.removeEventListener('close', restore);
 			dialog.removeEventListener('keydown', keydown);
 		},
