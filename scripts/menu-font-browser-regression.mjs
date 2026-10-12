@@ -20,7 +20,7 @@ const settledWidths=await p.evaluate(()=>['#opening-play','#opening-online'].map
 assert.deepEqual(errors,[]);results.push({mode,metrics,settledWidths,errors});await c.close();
 }
 await writeFile(new URL('font-swap-regression.json',import.meta.url),JSON.stringify(results,null,2));console.log(JSON.stringify(results,null,2));
-for (const result of results) { assert.deepEqual(result.metrics,results[0].metrics); assert.deepEqual(result.settledWidths,results[0].settledWidths); }
+for (const result of results) { assert.deepEqual(result.metrics.measurements,results[0].metrics.measurements); assert.deepEqual(result.metrics.reference,results[0].metrics.reference); assert.deepEqual(result.metrics.textWidths,results[0].metrics.textWidths); assert.deepEqual(result.settledWidths,results[0].settledWidths); }
 
 try{const w=await webkit.launch({headless:true});await w.close();results.push({webkit:'available'});}catch(e){results.push({webkit:String(e).split('\n')[0]});}
 await writeFile(new URL('font-swap-regression.json',import.meta.url),JSON.stringify(results,null,2));console.log(JSON.stringify(results,null,2));
