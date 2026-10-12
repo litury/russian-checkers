@@ -58,7 +58,7 @@ function harness(reduced = false, blocked: () => boolean = () => false, textures
  const tick = (ms: number) => events.emit('update', 0, ms);
  const finish = () => { const t = tweens.shift(); expect(t).toBeDefined(); t.onComplete(); };
  const sprite = () => objects.find(o => o.name === 'selection-piece' && !o.destroyed);
- return { board, tick, finish, sprite, objects, tweens, events, input: scene.input, onSquare };
+ return { board, tick, finish, sprite, objects, tweens, events, input: scene.input, onSquare, textures: scene.textures };
 }
 const from = { row: 2, col: 0 }, land = { row: 3, col: 1 };
 function position(kind: 'man' | 'king' = 'man', side: 'white' | 'black' = 'white', square = from): IPosition {
@@ -269,6 +269,39 @@ it.each(['white', 'black'] as const)('promotes %s using logical kind, with the o
  expect(h.sprite().y).toBe(0);
  expect(h.objects.find(o => o.name === 'piece-lower-tier' && !o.destroyed).visible).toBe(false);
  expect(h.objects.find(o => o.name === 'king-seal' && !o.destroyed).visible).toBe(true);
+});
+it.each(['white', 'black'] as const)('never covers the first %s promotion with a man while the optional seal loads', side => {
+ const h = harness();
+ let sealReady = false;
+ h.textures.exists = (key: string) => key !== 'selection_king-seal' || sealReady;
+ const start = { row: side === 'white' ? 6 : 1, col: 0 };
+ const crown = { row: side === 'white' ? 7 : 0, col: 1 };
+ const kingKey = side === 'white' ? 'kingLight' : 'kingDark';
+ for (const completesBeforePromotion of [true, false]) {
+  sealReady = false;
+  h.board.reset();
+  h.board.sync(position('man', side, start), [start], start);
+  const seal = h.objects.find(o => o.name === 'king-seal' && !o.destroyed);
+  expect(seal.texture.key).toBe('__DEFAULT');
+  expect(seal.visible).toBe(false);
+  if (completesBeforePromotion) sealReady = true;
+  h.board.playMove({ from: start, path: [crown] }, () => {});
+  h.finish();
+  expect(h.sprite().texture.key).toBe(kingKey);
+  expect(h.sprite().visible).toBe(true);
+  expect(seal.visible).toBe(completesBeforePromotion);
+  expect(seal.texture.key).toBe(completesBeforePromotion ? 'selection_king-seal' : '__DEFAULT');
+  h.tick(1200);
+  expect(h.sprite().texture.key).toBe(kingKey);
+  expect(seal.visible).toBe(completesBeforePromotion);
+  sealReady = true;
+  h.tick(16);
+  expect(seal.texture.key).toBe('selection_king-seal');
+  expect(seal.visible).toBe(true);
+  expect(h.sprite().texture.key).toBe(kingKey);
+  h.board.sync(position('man', side, crown), [], null);
+  expect(seal.visible).toBe(false);
+ }
 });
 it.each(['reset', 'hide', 'shutdown'] as const)('%s invalidates a late move completion without touching a newly selected piece', action => {
  const h = harness();
