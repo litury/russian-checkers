@@ -79,9 +79,8 @@ it.each([[1920,1080],[2560,1440],[390,844],[844,390]])('cover and travel clear e
   for(const rect of bounds)expect(side==='left'?rect.right-distance:width-rect.left-distance).toBeLessThan(0);
  }
 });
-it('still opens decoded leaves when the unused frame failed loading',()=>{
- const {root,overlay,visual,advance}=setup(); const done=vi.fn();
- root.layers[2].classList.remove('is-decoded');
+it('opens leaves without any image readiness markers',()=>{
+ const {root,overlay,visual,advance}=setup(false,false); const done=vi.fn();
  overlay.depart(done);
  expect(root.hidden).toBe(false); expect(done).not.toHaveBeenCalled();
  visual(1000); advance(1000); expect(root.hidden).toBe(false);
@@ -106,7 +105,7 @@ it('cancels an in-flight departure on return without firing a stale completion',
  overlay.depart(done);advance(600);overlay.show();advance(3000);
  expect(done).not.toHaveBeenCalled();expect(root.hidden).toBe(false);expect(root.querySelector('.siege-right').animations[0].cancel).toHaveBeenCalled();
 });
-it.each([[true,true],[false,false]])('direct switch for reduced motion %s / decoded art %s', (reduced,decoded)=>{
+it.each([[true,true],[true,false]])('direct switch for reduced motion %s regardless of obsolete image markers %s', (reduced,decoded)=>{
  const {root,overlay}=setup(reduced,decoded); const done=vi.fn();overlay.depart(done);
  expect(root.hidden).toBe(true);expect(done).toHaveBeenCalledTimes(1);expect(root.classes.has('is-departing')).toBe(false);
 });
@@ -215,8 +214,8 @@ it('keeps chronicle labels and refuses a fake zero or sample online count', asyn
  await Promise.resolve();
  await Promise.resolve();
  expect(live.hidden).toBe(true);
- expect(live.textContent).not.toContain('12');
- expect(live.textContent).not.toContain('пример');
+ expect(get('opening-online-count-label').textContent).not.toContain('12');
+ expect(get('opening-online-count-label').textContent).not.toContain('пример');
 });
 it('reads «Онлайн: N» once: folded into the heading, never a second word', async ()=>{
  const {overlay,get}=setup();
@@ -230,7 +229,7 @@ it('reads «Онлайн: N» once: folded into the heading, never a second word
  // stay as an empty line either.
  const count=get('opening-online-count');
  expect(count.hidden).toBe(true);
- expect(count.textContent).toBe('');
+ expect(get('opening-online-count-label').textContent).toBe('');
  // Zero or unknown never leaves a placeholder behind.
  cloud.beat=async()=>0;
  const {overlay:second,get:getSecond}=setup();
@@ -240,7 +239,7 @@ it('reads «Онлайн: N» once: folded into the heading, never a second word
  expect(getSecond('opening-search-copy').textContent).toBe('Онлайн');
  const zero=getSecond('opening-online-count');
  expect(zero.hidden).toBe(true);
- expect(zero.textContent).toBe('');
+ expect(getSecond('opening-online-count-label').textContent).toBe('');
 });
 it('keeps the count as its own «Онлайн: N» row when the heading says something else', async ()=>{
  const {overlay,get}=setup();
@@ -252,7 +251,7 @@ it('keeps the count as its own «Онлайн: N» row when the heading says som
  expect(get('opening-search-copy').textContent).toBe('Ищем соперника · 3 с');
  const count=get('opening-online-count');
  expect(count.hidden).toBe(false);
- expect(count.textContent).toBe('Онлайн: 3');
+ expect(get('opening-online-count-label').textContent).toBe('Онлайн: 3');
 });
 it('falls back immediately if animation creation fails, cleaning partial effects',()=>{
  const {root,overlay}=setup();const done=vi.fn();

@@ -59,7 +59,7 @@ describe('Siege delayed/failed decoration', () => {
   changed(); expect(pending).toHaveLength(7);
   dispose();
  });
- it('starts heavy enhancement only after menu and playfield, never for fallback', async () => {
+ it('starts heavy enhancement after playfield without menu settlement', async () => {
   const { mountSiegeOpening } = await import('./siegeOpening');
   const root = Object.assign(new Root(), {dataset:{menuState:'loading'}});
   const marks: Record<string, number> = {};
@@ -67,22 +67,17 @@ describe('Siege delayed/failed decoration', () => {
   const dispose = mountSiegeOpening(root as unknown as HTMLElement);
  await flush();
   expect(pending).toHaveLength(0);
-  root.dataset.menuState='ready'; root.dispatchEvent(new Event('menu-settled'));
   expect(pending).toHaveLength(0);
   marks['playfield-ready']=100;
   document.dispatchEvent(new Event('damka:playfield-ready'));
   await flush();
   expect(pending).toHaveLength(7);
-  dispose();
-  pending.length=0;
-  root.dataset.menuState='fallback';
-  const disposeFallback = mountSiegeOpening(root as unknown as HTMLElement);
-  root.dispatchEvent(new Event('menu-settled'));
-  document.dispatchEvent(new Event('damka:playfield-ready'));
+  expect(pending.every(load => !load.src.includes('/frames/'))).toBe(true);
   setSiegeSide(root as unknown as HTMLElement, 'black'); await flush();
-  expect(pending).toHaveLength(0);
   expect(root.buttons[1].getAttribute('aria-pressed')).toBe('true');
-  disposeFallback();
+  expect(root.buttons[1].image.hidden).toBe(false);
+  expect(pending).toHaveLength(7);
+  dispose();
  });
  it('reveals only after all three layers decode, using latest side after rapid reversal', async () => {
   const { mountSiegeOpening } = await import('./siegeOpening');

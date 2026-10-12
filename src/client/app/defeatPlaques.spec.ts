@@ -14,7 +14,10 @@ describe('defeat title and button plaques', () => {
     expect(ceremony).toContain('Ещё партия');
     expect(ceremony).toContain('В меню');
     expect(ceremony).not.toContain('defeat-button-label');
-    expect(history).toContain('cassette-title-560.webp');
+    expect(history).toContain('siege-cartouche atlas-slice');
+    const atlas = JSON.parse(readFileSync(new URL('./ui/opening-atlas/atlas.json', import.meta.url), 'utf8'));
+    expect(atlas.provenance.title.source).toBe('src/client/app/ui/delivery/cassette-title-1120.webp');
+    expect(atlas.frames.title.slice(2)).toEqual([1120, 438]);
     expect(history).toContain('mh-title-plate');
   });
 

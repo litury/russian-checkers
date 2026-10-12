@@ -8,7 +8,6 @@ const layers = import.meta.glob('./ui/siege/{white,black}-{base,moving,front}.we
 const fireUrls = [
  new URL('./ui/siege/menu-selection-fire.webp', import.meta.url).href,
 ];
-const endpoints = import.meta.glob('../modules/board/selection-v2/frames/*/*-{00,55}.webp', { query: '?url', import: 'default' });
 
 
 export function mountSiegeOpening(root: HTMLElement, isPlayRequested: () => boolean = () => false) {
@@ -17,9 +16,7 @@ export function mountSiegeOpening(root: HTMLElement, isPlayRequested: () => bool
  const touch = { white: new MenuTouchMotion(), black: new MenuTouchMotion() };
  const touchMoving = () => touch.white.moving || touch.black.moving;
  const buttons = [...root.querySelectorAll<HTMLButtonElement>('.gate-piece-slot')];
- // Static HTML endpoints own the first paint. Enhancement waits for the menu
- // and the board's critical textures, and never replaces a terminal fallback.
- const canDecorate = () => !root.dataset?.menuState || root.dataset.menuState === 'ready';
+ // CSS atlas endpoints own first paint and selection while animation layers load.
  let decorationsStarted = false;
  const painters: Partial<Record<SiegeSide, (displacement: number) => void>> = {};
  let frame = 0, previous = 0, disposed = false;
@@ -29,7 +26,7 @@ export function mountSiegeOpening(root: HTMLElement, isPlayRequested: () => bool
   drawMenuFire(context, fire[0], elapsed, burst, media.matches);
  };
  const loadFire = () => {
-  if (!decorationsStarted || !canDecorate() || fire.length || fireLoading) return;
+  if (!decorationsStarted || fire.length || fireLoading) return;
   fireLoading = true;
   void Promise.all(fireUrls.map(decode)).then(images => {
    if (disposed) return;
@@ -65,20 +62,7 @@ export function mountSiegeOpening(root: HTMLElement, isPlayRequested: () => bool
   if (media.matches) burst = 0;
   state.select(next, media.matches);
   loadFire();
-  // Endpoint fallback remains correct even if a layer fails or loads after another choice.
-  for (const button of buttons) {
-   const side = button.dataset.side as SiegeSide;
-   const image = button.querySelector('img')!;
-   const selected = side === state.side;
-   const key = `../modules/board/selection-v2/frames/${side}/${side}-${selected ? '55' : '00'}.webp`;
-   if (canDecorate() && !painters[side]) void endpoints[key]().then(async url => {
-    if (disposed || (side === state.side) !== selected || painters[side]) return;
-    const loaded = await decode(url as string);
-    if (disposed || (side === state.side) !== selected || painters[side]) return;
-    image.src = loaded.src;
-    image.classList.add('is-decoded');
-   }).catch(() => {});
-  }
+  // aria-pressed selects the matching atlas endpoint synchronously in CSS.
   paint();
   wake();
  };
@@ -104,7 +88,7 @@ export function mountSiegeOpening(root: HTMLElement, isPlayRequested: () => bool
   button.addEventListener('keydown', keyboard);
  }
  const startDecorations = () => {
-  if (disposed || decorationsStarted || !canDecorate() || root.hidden || root.inert) return;
+  if (disposed || decorationsStarted || root.hidden || root.inert) return;
   decorationsStarted = true;
   for (const button of buttons) {
   const side = button.dataset.side as SiegeSide;
@@ -131,7 +115,7 @@ export function mountSiegeOpening(root: HTMLElement, isPlayRequested: () => bool
    };
    painters[side]!(state.displacement(side));
    canvas.hidden = false;
-   button.querySelector('img')!.hidden = true;
+   button.querySelector<HTMLElement>('.gate-piece')!.hidden = true;
    wake();
   }).catch(() => { if (!disposed) button.dataset.art = 'static'; });
   }
@@ -139,10 +123,9 @@ export function mountSiegeOpening(root: HTMLElement, isPlayRequested: () => bool
  };
  const tryDecorations = () => {
   if (isPlayRequested()) return;
-  if (root.dataset?.menuState && !window.__damkaPerf?.marks['playfield-ready']) return;
+  if (typeof window !== 'undefined' && !window.__damkaPerf?.marks['playfield-ready']) return;
   startDecorations();
  };
- root.addEventListener('menu-settled', tryDecorations);
  document.addEventListener('damka:playfield-ready', tryDecorations);
  tryDecorations();
  root.addEventListener('siege-side', update);
@@ -164,7 +147,6 @@ export function mountSiegeOpening(root: HTMLElement, isPlayRequested: () => bool
   cancelAnimationFrame(frame);
   observer.disconnect();
   root.removeEventListener('siege-side', update);
-  root.removeEventListener('menu-settled', tryDecorations);
   document.removeEventListener('damka:playfield-ready', tryDecorations);
   root.removeEventListener('menu-touch', contact);
   media.removeEventListener('change', update);

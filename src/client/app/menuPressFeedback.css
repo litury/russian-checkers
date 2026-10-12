@@ -1,11 +1,7 @@
 /* The canvas renderer depresses only the rigid moving disk. Rim/fire/hitbox stay fixed. */
 #opening .menu-press-visual { position:absolute; inset:0; pointer-events:none; }
 #opening .gate-piece-slot { touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
-/* Decode failure: a stationary contact shadow remains behind the fallback disk. */
-#opening .gate-piece-slot[data-art="static"] .menu-press-visual::before {
- content:''; position:absolute; width:calc(var(--piece) * .65); height:calc(var(--piece) * .55);
- left:50%; top:24%; translate:-50% 0; border-radius:50%; box-shadow:0 5px 5px 2px #000b;
-}
-#opening .gate-piece-slot[data-art="static"] img { transition:transform 180ms ease-out; }
-#opening .gate-piece-slot[data-art="static"] .is-menu-pressed img { transform:translateY(6px); transition:none; }
-@media(prefers-reduced-motion:reduce) { #opening .gate-piece-slot[data-art="static"] img { transition:none; } }
+
+#opening .gate-piece-slot[data-art="static"] .gate-piece { transition:transform 180ms ease-out; }
+#opening .gate-piece-slot[data-art="static"] .is-menu-pressed .gate-piece { transform:translateY(6px); transition:none; }
+@media(prefers-reduced-motion:reduce) { #opening .gate-piece-slot[data-art="static"] .gate-piece { transition:none; } }

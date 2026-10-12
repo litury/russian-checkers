@@ -12,19 +12,16 @@
 #opening.is-departing :is(.siege-left,.siege-right) { visibility:visible; will-change:transform; }
 #opening.is-departing .siege-gate { visibility:hidden; }
 #opening .siege-frame { display:none; }
-/* The HTML menu barrier reveals the complete minimal set, or a fixed fallback. */
-#opening:not(.is-gate-ready) :is(.gate-piece-slot,.gate-title-canopy) { visibility:hidden; }
 .gate-title-canopy { position:absolute; z-index:2; left:50%; top:24px; width:min(560px,100%); aspect-ratio:1456/570; translate:-50% 0; pointer-events:none; container-type:inline-size; }
 .gate-title-plate { position:relative; aspect-ratio:1456/570; padding-top:10.6%; box-sizing:border-box; }
-.siege-cartouche { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; opacity:0; }
-.siege-cartouche.is-decoded { opacity:1; }
+.siege-cartouche { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; opacity:1; }
 #opening h1 { position:relative; margin:0; height:auto; font-size:8cqw; line-height:1.05; letter-spacing:0; }
 #opening h1 span { font-size:10.6cqw; }
 #opening .opening-slogan { position:absolute; top:153px; left:50%; transform:translateX(-50%); margin:0; font-size:14px; background:none; white-space:nowrap; }
 #opening .gate-piece-slot { position:absolute; z-index:4; padding:0; width:164px; height:210px; border:0; background:none; color:#e9e0ce; pointer-events:auto; }
 #opening .gate-piece-ivory { left:calc(50% - 164px); top:284px; }
 #opening .gate-piece-black { left:50%; top:224px; }
-#opening .gate-piece-slot img, #opening .gate-piece-slot canvas { position:absolute; width:210px; height:210px; left:-23px; top:0; pointer-events:none; }
+#opening .gate-piece-slot .gate-piece, #opening .gate-piece-slot canvas { position:absolute; width:210px; height:210px; left:-23px; top:0; pointer-events:none; }
 .opening-color-stat { position:absolute; top:43%; left:50%; translate:-50% -50%; pointer-events:none; display:flex; flex-direction:column; align-items:center; gap:2px; font:700 clamp(16px,2.7dvh,26px)/1 'Golos Text',sans-serif; color:#fff0d2; text-shadow:0 1px 2px #000; }
 .opening-color-stat[hidden] { display:none; }
 .opening-color-stat small { font:500 10px/1 'Golos Text',sans-serif; }
@@ -37,7 +34,7 @@
 #opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options) {
  position:absolute; z-index:3; top:var(--play-y); left:calc(50% - 186px); width:184px; height:74px; min-height:44px;
  display:flex; align-items:center; justify-content:center; margin:0; padding:0 12px 0 24px;
- border:0; border-radius:0; box-shadow:none; background:transparent url('./ui/siege/button-steel-rest.webp') center/100% 100% no-repeat;
+ border:0; border-radius:0; box-shadow:none; background:transparent;
  color:#e9e0ce; font:600 16px/1.15 'Golos Text',sans-serif; text-shadow:0 1px 2px #000; transition:none; transform:none;
 }
 #opening :is(#opening-play,#opening-retry) { width:186px; font-size:18px; }
@@ -49,7 +46,7 @@
 #opening button[data-pointer-focus]:focus-visible { outline:none; }
 #opening .opening-actions button:hover { filter:brightness(1.06); }
 #opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options):active {
- filter:none; background-image:url('./ui/siege/button-steel-pressed.webp'); transform:translateY(2px);
+ filter:none; background-image:none; transform:translateY(2px);
 }
 #opening .opening-actions button:disabled { filter:saturate(.35); cursor:wait; }
 #opening-status { position:absolute; z-index:6; top:calc(var(--play-y) + 252px); left:50%; transform:translateX(-50%); width:min(370px,calc(100% - 24px)); margin:0; padding:8px; background:#161a1bf2; color:#f1d9ad; font-size:14px; }
@@ -59,7 +56,7 @@
 /* The card is capped to the free space above the chronicle halves. Four search plates must
    sit inside that cap: on a short desktop the heading gives up height so the lower bevel
    is not clipped and a scrollbar does not eat the measured button boxes. */
-#opening-search::before { content:''; position:absolute; inset:0; z-index:-2; border:0 solid transparent; border-image:url('./ui/siege/search-body.webp') 0 90 90 fill / 0 24px 24px / 0 stretch; pointer-events:none; }
+#opening-search::before { content:''; position:absolute; inset:0; z-index:-2; border:0 solid transparent; border-image:none; pointer-events:none; }
 #opening-search::after { content:none; }
 /* Heading: the title cassette plate, the live panel copy sits on it instead of on bare background. */
 #opening-search-head { position:relative; margin:-28px -26px 8px; }
@@ -69,7 +66,7 @@
 /* The count row lives inside the screen but must not resize the card or shift its buttons: the
    header reserves the row and the row itself is absolutely placed under the heading. The visible
    text is «Онлайн: N» — the word is dropped whenever the heading already carries it. */
-#opening-online-count { position:absolute; top:66%; left:31%; right:31%; height:22px; margin:0; display:grid; place-items:center; border:0 solid transparent; border-image:url('./ui/siege/search-count.webp') 12 20 fill / 4px 10px / 0 stretch; font:600 10px/1 'Golos Text',sans-serif; white-space:nowrap; color:#d3c4a5; text-shadow:0 1px 2px #000; }
+#opening-online-count { position:absolute; top:66%; left:31%; right:31%; height:22px; margin:0; display:grid; place-items:center; border:0 solid transparent; border-image:none; font:600 10px/1 'Golos Text',sans-serif; white-space:nowrap; color:#d3c4a5; text-shadow:0 1px 2px #000; }
 #opening-online-count[hidden] { display:none; }
 /* 1280×800, 600×800 and 1366×768 clip the fourth plate when the heading keeps its full cassette.
    Phone (under 454) and 1440×900 stay on the full heading. Button boxes are not resized. */
@@ -78,13 +75,13 @@
 }
 /* Five DPR2 plates. Hardware stays at 24x20 CSS px for every flex width; only middles stretch. */
 #opening-search-actions { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; align-items:stretch; }
-#opening-search-actions button { position:relative; flex:1 1 calc(33.333% - 7px); min-width:0; min-height:44px; height:var(--btn-h); display:flex; align-items:center; justify-content:center; margin:0; padding:0 18px; border:0 solid transparent; border-radius:0; box-shadow:none; background:none; border-image:var(--plate-state,var(--plate-rest)) 40 48 fill / 20px 24px / 0 stretch; --plate-rest:url('./ui/siege/search-button-rest.webp'); --plate-hover:url('./ui/siege/search-button-hover.webp'); --plate-pressed:url('./ui/siege/search-button-pressed.webp'); --plate-focus:url('./ui/siege/search-button-focus.webp'); --plate-disabled:url('./ui/siege/search-button-disabled.webp'); color:#e9e0ce; font:600 clamp(13px,3.9cqw,16px)/1.15 'Golos Text',sans-serif; text-shadow:0 1px 2px #000; transform:none; transition:none; -webkit-tap-highlight-color:transparent; }
+#opening-search-actions button { position:relative; flex:1 1 calc(33.333% - 7px); min-width:0; min-height:44px; height:var(--btn-h); display:flex; align-items:center; justify-content:center; margin:0; padding:0 18px; border:0 solid transparent; border-radius:0; box-shadow:none; background:none; border-image:none;      color:#e9e0ce; font:600 clamp(13px,3.9cqw,16px)/1.15 'Golos Text',sans-serif; text-shadow:0 1px 2px #000; transform:none; transition:none; -webkit-tap-highlight-color:transparent; }
 #opening-search-actions button:hover { filter:none; }
 #opening-search-actions button:active { filter:none; transform:translateY(2px); }
 #opening-search-actions button:focus-visible { outline:3px solid #bed9ec; outline-offset:0; }
 #opening-search-actions button:disabled { filter:none; cursor:wait; }
 /* Code field: an inset of the very same frame sprite, so no flat rectangle sits inside the panel. */
-#opening-friend-code { flex:1 1 100%; width:100%; min-width:0; min-height:44px; height:var(--btn-h); margin:0; padding:0 6px; border:14px solid transparent; border-radius:0; border-image:url('./ui/siege/panel-revision2/frame.webp') 180 / 14px / 0 stretch; background:#0d1215e6; box-shadow:inset 0 2px 6px #000a; color:#f0e6cd; text-align:center; font:600 20px/1 'Golos Text',sans-serif; letter-spacing:.2em; -webkit-tap-highlight-color:transparent; }
+#opening-friend-code { flex:1 1 100%; width:100%; min-width:0; min-height:44px; height:var(--btn-h); margin:0; padding:0 6px; border:14px solid transparent; border-radius:0; border-image:none; background:#0d1215e6; box-shadow:inset 0 2px 6px #000a; color:#f0e6cd; text-align:center; font:600 20px/1 'Golos Text',sans-serif; letter-spacing:.2em; -webkit-tap-highlight-color:transparent; }
 #opening-friend-code:focus-visible { outline:3px solid #bed9ec; outline-offset:0; }
 #opening-friend-code::placeholder { color:#8d8770; letter-spacing:.3em; }
 #opening.is-searching :is(#opening-play,#opening-online) { visibility:hidden; pointer-events:none; }
@@ -96,7 +93,7 @@
 #opening .gate-piece-slot { top:var(--piece-y); width:var(--column); height:var(--piece); }
 #opening .gate-piece-ivory { left:calc(50% - var(--column) - 6px); }
 #opening .gate-piece-black { left:calc(50% + 6px); right:auto; }
-#opening .gate-piece-slot img, #opening .gate-piece-slot canvas { width:var(--piece); height:var(--piece); left:50%; top:0; translate:-50% 0; }
+#opening .gate-piece-slot .gate-piece, #opening .gate-piece-slot canvas { width:var(--piece); height:var(--piece); left:50%; top:0; translate:-50% 0; }
 #opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options) { width:var(--column); height:60px; background-size:100% 100%; padding:0 8px; font-size:16px; }
 #opening :is(#opening-play,#opening-retry,#opening-history) { left:calc(50% - var(--column) - 6px); }
 #opening :is(#opening-online,#opening-options) { left:calc(50% + 6px); right:auto; }
@@ -146,35 +143,27 @@
 /* From 970px the menu box is 320x70. A plate drawn at that ratio, contained, not stretched. */
 @media (min-width:970px) {
  #opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options) {
-  background-image:url('./ui/siege/button-steel-desk-rest.webp'); --plate-rest:url('./ui/siege/button-steel-desk-rest.webp'); --plate-hover:url('./ui/siege/button-steel-desk-hover.webp'); --plate-pressed:url('./ui/siege/button-steel-desk-pressed.webp'); --plate-focus:url('./ui/siege/button-steel-desk-focus.webp'); --plate-disabled:url('./ui/siege/button-steel-desk-disabled.webp');
+  background-image:none;
   background-repeat:no-repeat; background-position:center; background-size:contain;
   background-origin:border-box; background-clip:border-box;
  }
  #opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options):active {
-  background-image:url('./ui/siege/button-steel-desk-pressed.webp');
+  background-image:none;
  }
 }
 /* Short landscape locks the box near the phone plate. Do not put the wide plate there. */
 @media (min-width:970px) and (max-height:500px) {
  #opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options) {
-  background-image:url('./ui/siege/button-steel-rest.webp'); background-size:contain;
+  background-image:none; background-size:contain;
  }
  #opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options):active {
-  background-image:url('./ui/siege/button-steel-pressed.webp');
+  background-image:none;
  }
 }
 
-/* Five generated states: aspect selectors assign assets, state selectors only choose a variable. */
+/* State artwork is selected by the generated atlas stylesheet. */
 #opening-search-actions button { background-image:none !important; filter:none !important; }
-#opening-search-actions button:hover:not(:disabled) { --plate-state:var(--plate-hover); }
-#opening-search-actions button:focus-visible:not(:disabled) { --plate-state:var(--plate-focus); }
-#opening-search-actions button:active:not(:disabled) { --plate-state:var(--plate-pressed); }
-#opening-search-actions button:disabled { --plate-state:var(--plate-disabled); }
 @media (min-width:970px) and (min-height:501px) {
-#opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options) { background-image:var(--plate-state,var(--plate-rest)) !important; filter:none !important; }
-#opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options):hover:not(:disabled) { --plate-state:var(--plate-hover); }
-#opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options):focus-visible:not(:disabled) { --plate-state:var(--plate-focus); }
-#opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options):active:not(:disabled) { --plate-state:var(--plate-pressed); }
-#opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options):disabled { --plate-state:var(--plate-disabled); }
+#opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options) { background-image:none; filter:none !important; }
  #opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options)::before, #opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options)::after { content:none; }
 }

@@ -5,10 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#161a1b" />
 <title>Русские шашки</title>
-<!-- One LCP image high. Extra font preloads steal the mobile pipe (web.dev Fetch Priority). -->
-<link rel="preload" href="/src/client/app/ui/delivery/gate-1536.avif" imagesrcset="/src/client/app/ui/delivery/gate-768.avif 768w, /src/client/app/ui/delivery/gate-1536.avif 1536w" imagesizes="max(100vw, 150vh)" as="image" type="image/avif" fetchpriority="high" />
-<link rel="preload" href="/src/client/app/ui/siege/button-steel-rest.webp" as="image" type="image/webp" fetchpriority="low" />
-<script>document.documentElement.dataset.titleFont = 'pending';</script>
+<!-- One static menu atlas, discovered before scripts; fonts swap independently. -->
+<link rel="preload" href="/src/client/app/ui/opening-atlas/atlas.webp" as="image" type="image/webp" fetchpriority="high" crossorigin="anonymous" />
 <style>
 @font-face{font-family:Literata;src:url('/src/client/fonts/Literata-600-cyrillic.woff2') format('woff2');font-weight:600;font-display:swap}
 @font-face{font-family:'Golos Text';src:url('/src/client/fonts/GolosText-400-cyrillic.woff2') format('woff2');font-weight:400;font-display:optional}
@@ -31,11 +29,10 @@
 .opening-utility svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 h1{font:600 42px/1.16 Georgia,serif;letter-spacing:-.035em;text-align:center;margin:36px -12px 0;height:116px}h1 span{display:block;font-size:57px}
 #opening-title{opacity:1}
-html[data-title-font=pending] #opening-title{opacity:0}
-html[data-title-font=ready] #opening-title{font-family:Literata,Georgia,serif}
+ #opening-title{font-family:Literata,Georgia,serif}
 .opening-slogan{position:relative;margin:15px -10px 0;text-align:center;font-size:14px;color:#ddd4c3;line-height:1.6;background:#191d1ec9}
-.opening-art{position:relative;height:314px;margin:0 -28px;pointer-events:none;opacity:0;transition:opacity .45s ease-out}.opening-art.is-prepared{opacity:1}
-.opening-art img{position:absolute;object-fit:contain;opacity:0;filter:drop-shadow(0 12px 10px #0009)}.opening-art img.is-decoded{opacity:1}.opening-iron{width:217px;height:217px;left:153px;top:31px}.opening-bone{width:229px;height:229px;left:9px;top:90px}
+.opening-art{position:relative;height:314px;margin:0 -28px;pointer-events:none;opacity:1}
+.opening-art img{position:absolute;object-fit:contain;opacity:1;filter:drop-shadow(0 12px 10px #0009)}.opening-iron{width:217px;height:217px;left:153px;top:31px}.opening-bone{width:229px;height:229px;left:9px;top:90px}
 .opening-actions{display:grid;gap:12px;margin-top:8px} .opening-button{min-height:52px;width:100%;border:1px solid #62635b;color:#e9e0ce;background:linear-gradient(#242828,#171a1b);box-shadow:inset 0 1px #484c49,inset 0 -2px #0e1112,0 3px #0006;padding:10px 16px;line-height:1.4}.opening-primary{min-height:56px;font-size:19px;font-weight:600;color:#151719;border-color:#c5b28e;background:linear-gradient(#bca881,#998563);box-shadow:inset 0 1px #d1bf9a,inset 0 -2px #6f6049,0 3px #0006}.opening-button:active:not(:disabled){transform:translateY(1px)}.opening-status{font-size:12px;line-height:1.5;text-align:center;color:#d0c9bb;min-height:50px;margin:12px 0 0;background:#191d1ec9}.opening-retry{margin-top:8px}
 dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dvh - 40px);overflow:auto;border:1px solid #8e8065;background:#1b2021;color:#e9e0ce;padding:24px;font:400 16px/1.55 'Golos Text',Arial,sans-serif;box-shadow:0 20px 80px #000a}dialog::backdrop{background:#050707d9}dialog h2{font:600 28px/1.2 Literata,Georgia,serif;margin:0 0 20px}dialog li{margin-bottom:12px}dialog ul{padding-left:22px}dialog label{display:flex;gap:12px;align-items:center;min-height:48px}dialog input[type=range]{width:100%;min-height:48px;accent-color:#c5b28e}dialog input[type=checkbox]{width:24px;height:24px;accent-color:#c5b28e}dialog .opening-button{margin-top:20px}
 
@@ -72,25 +69,6 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 @media(max-width:699px){.opening-status{display:flex;align-items:center;justify-content:center;font-size:14px;padding:4px 8px}}
 @media(max-width:389px){.opening-sheet{padding-left:20px;padding-right:20px}.opening-art{margin-left:-20px;margin-right:-20px}.opening-iron{left:calc(100% - 237px)}h1{font-size:38px}h1 span{font-size:52px}}
 @media(max-height:760px) and (max-width:699px){.opening-sheet{min-height:740px;padding-top:24px}h1{margin-top:24px}.opening-art{height:254px}.opening-iron{top:4px;width:190px;height:190px}.opening-bone{top:52px;width:209px;height:209px}.opening-actions{margin-top:0}}
-/* One paint commits the critical menu, including descendants with explicit visibility. */
-#opening[data-menu-state=loading] .opening-sheet > :not(.menu-loading):not(noscript),
-#opening[data-menu-state=loading] .opening-sheet > :not(.menu-loading):not(noscript) *{visibility:hidden!important}
-.menu-loading{position:absolute;inset:45% 12px auto;margin:0;text-align:center;color:#d0c9bb;font:16px/1.5 Arial,sans-serif}
-#opening:not([data-menu-state=loading]) .menu-loading{display:none}
-#opening noscript{position:absolute;inset:35% 20px auto;z-index:10;text-align:center}
-/* Fallback is a terminal visual choice, not an intermediate unstyled menu. */
-#opening[data-menu-state=fallback] .siege-housing,
-#opening[data-menu-state=fallback] .siege-cartouche,
-#opening[data-menu-state=fallback] .gate-piece-visual,
-#opening[data-menu-state=fallback] .chronicle-chain{visibility:hidden!important}
-#opening[data-menu-state=fallback] :is(.chronicle-half,.chronicle-half *){font-family:Arial,sans-serif!important}
-#opening[data-menu-state=fallback] h1{font-family:Georgia,serif!important;opacity:1}
-#opening[data-menu-state=fallback] :is(.chronicle-half::before,.chronicle-half::after){background:#1b2021!important;border-image:none!important;box-shadow:none!important}
-#opening[data-menu-state=fallback] .chronicle-half::after{border:1px solid #62635b!important}
-#opening[data-menu-state=fallback] .opening-actions button{background:#242828!important;border:1px solid #8e8065!important;font-family:Arial,sans-serif!important}
-#opening[data-menu-state=fallback] .gate-piece-slot::before{content:'';position:absolute;inset:12%;border-radius:50%;background:#dfd4bd;border:4px double #8e8065}
-#opening[data-menu-state=fallback] .gate-piece-black::before{background:#303537}
-#opening[data-menu-state=fallback] .gate-piece-slot[aria-pressed=true]::before{outline:3px solid #e1b570;outline-offset:4px}
 /* Pending/dash/numeric counters occupy exactly the same row; API never resizes it. */
 #opening .chronicle-half .chronicle-total strong{height:32px;line-height:32px;display:flex;align-items:center;justify-content:center}
 #opening .chronicle-half .chronicle-total strong::after{margin:0}
@@ -99,6 +77,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 <link rel="stylesheet" href="/src/client/app/menuFireReadability.css" />
 <link rel="stylesheet" href="/src/client/app/hangingChronicle.css" />
 <link rel="stylesheet" href="/src/client/app/matchActions.css" />
+<link rel="stylesheet" href="/src/client/app/ui/opening-atlas/atlas.css" />
 </head>
 <body>
 <div id="game"></div>
@@ -117,34 +96,26 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 <button type="button" id="resign-confirm" class="match-action" data-art="resign"><img src="/src/client/app/ui/match-actions/resign-icon.webp" alt="" /><span class="action-label">Сдаться</span></button>
 </div>
 </dialog>
-<main id="opening" aria-labelledby="opening-title" data-menu-state="loading">
+<main id="opening" aria-labelledby="opening-title">
  <div class="opening-sheet">
-  <p class="menu-loading" role="status">Загружаем меню…</p>
 
   <div class="gate-title-canopy"><div class="gate-title-clip"><div class="gate-title-plate">
-   <picture>
-    <source type="image/avif" srcset="/src/client/app/ui/delivery/cassette-title-560.avif 560w, /src/client/app/ui/delivery/cassette-title-1120.avif 1120w" sizes="(max-width:699px) 100vw, 510px" />
-    <img class="siege-cartouche" src="/src/client/app/ui/delivery/cassette-title-560.webp" srcset="/src/client/app/ui/delivery/cassette-title-560.webp 560w, /src/client/app/ui/delivery/cassette-title-1120.webp 1120w" sizes="(max-width:699px) 100vw, 510px" width="1456" height="570" alt="" decoding="async" fetchpriority="high" />
-   </picture>
-   <!-- Responsive source for both nine-sliced frames: hidden donor preserves corners. -->
-   <picture hidden>
-    <source type="image/avif" srcset="/src/client/app/ui/delivery/frame-334.avif 334w, /src/client/app/ui/delivery/frame-667.avif 667w" sizes="(max-width:699px) 171px, 253px" />
-    <img id="menu-frame-source" src="/src/client/app/ui/delivery/frame-334.webp" srcset="/src/client/app/ui/delivery/frame-334.webp 334w, /src/client/app/ui/delivery/frame-667.webp 667w" sizes="(max-width:699px) 171px, 253px" alt="" />
-   </picture>
+   <span class="siege-cartouche atlas-slice" aria-hidden="true"></span>
    <h1 id="opening-title">РУССКИЕ <span>ШАШКИ</span></h1>
   </div></div></div>
   <div class="opening-art" role="group" aria-label="Ваша сторона">
    <div class="siege-housing" aria-hidden="true">
-   <picture><source type="image/avif" srcset="/src/client/app/ui/delivery/gate-768.avif 768w, /src/client/app/ui/delivery/gate-1536.avif 1536w" sizes="max(100vw, 150vh)" /><img class="siege-gate" src="/src/client/app/ui/delivery/gate-1536.webp" srcset="/src/client/app/ui/delivery/gate-768.webp 768w, /src/client/app/ui/delivery/gate-1536.webp 1536w" sizes="max(100vw, 150vh)" width="1536" height="1024" alt="" fetchpriority="high" decoding="async" /></picture>
-   <picture><source type="image/avif" srcset="/src/client/app/ui/delivery/gate-768.avif 768w, /src/client/app/ui/delivery/gate-1536.avif 1536w" sizes="max(100vw, 150vh)" /><img class="siege-layer siege-left" src="/src/client/app/ui/delivery/gate-1536.webp" srcset="/src/client/app/ui/delivery/gate-768.webp 768w, /src/client/app/ui/delivery/gate-1536.webp 1536w" sizes="max(100vw, 150vh)" width="1536" height="1024" alt="" decoding="async" /></picture>
-   <picture><source type="image/avif" srcset="/src/client/app/ui/delivery/gate-768.avif 768w, /src/client/app/ui/delivery/gate-1536.avif 1536w" sizes="max(100vw, 150vh)" /><img class="siege-layer siege-right" src="/src/client/app/ui/delivery/gate-1536.webp" srcset="/src/client/app/ui/delivery/gate-768.webp 768w, /src/client/app/ui/delivery/gate-1536.webp 1536w" sizes="max(100vw, 150vh)" width="1536" height="1024" alt="" decoding="async" /></picture>
+   <span class="siege-gate atlas-slice"></span>
+   <span class="siege-layer siege-left atlas-slice"></span>
+   <span class="siege-layer siege-right atlas-slice"></span>
    </div>
    <section class="chronicle-half chronicle-left" data-chronicle-mount="left" aria-label="Летопись: победы белых в онлайне">
-    <span class="chronicle-chain" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="chronicle-chain second" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+    <span class="chronicle-backplate atlas-slice" aria-hidden="true"></span><span class="atlas-nine chronicle-frame" aria-hidden="true"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span>
+    <span class="chronicle-chain" aria-hidden="true"><span class="chain-links"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span><span class="chain-eyelet atlas-slice"></span></span><span class="chronicle-chain second" aria-hidden="true"><span class="chain-links"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span><span class="chain-eyelet atlas-slice"></span></span>
     <h2>ЛЕТОПИСЬ</h2><p id="opening-wins-white" class="chronicle-total">БЕЛЫЕ<strong id="opening-color-white" class="opening-win-count is-stat-pending" aria-busy="true"></strong></p>
    <button type="button" class="gate-piece-slot gate-piece-ivory is-chosen" data-side="white" aria-pressed="true" aria-label="Играть белыми" aria-describedby="opening-wins-white">
     <span class="gate-piece-visual" aria-hidden="true">
-     <img class="gate-piece" src="/src/client/modules/board/selection-v2/frames/white/white-55.webp" width="724" height="724" alt="" decoding="async" />
+     <span class="gate-piece atlas-slice"></span>
      <canvas width="852" height="980" aria-hidden="true" hidden></canvas>
     </span>
     <span class="opening-side-label" aria-hidden="true">БЕЛЫЕ</span>
@@ -152,11 +123,12 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
    </button>
    </section>
    <section class="chronicle-half chronicle-right" data-chronicle-mount="right" aria-label="Битвы: победы чёрных в онлайне">
-    <span class="chronicle-chain" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="chronicle-chain second" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+    <span class="chronicle-backplate atlas-slice" aria-hidden="true"></span><span class="atlas-nine chronicle-frame" aria-hidden="true"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span>
+    <span class="chronicle-chain" aria-hidden="true"><span class="chain-links"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span><span class="chain-eyelet atlas-slice"></span></span><span class="chronicle-chain second" aria-hidden="true"><span class="chain-links"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span><span class="chain-eyelet atlas-slice"></span></span>
     <h2>БИТВЫ</h2><p id="opening-wins-black" class="chronicle-total">ЧЁРНЫЕ<strong id="opening-color-black" class="opening-win-count is-stat-pending" aria-busy="true"></strong></p>
    <button type="button" class="gate-piece-slot gate-piece-black" data-side="black" aria-pressed="false" aria-label="Играть чёрными" aria-describedby="opening-wins-black">
     <span class="gate-piece-visual" aria-hidden="true">
-     <img class="gate-piece" src="/src/client/modules/board/selection-v2/frames/black/black-00.webp" width="724" height="724" alt="" decoding="async" />
+     <span class="gate-piece atlas-slice"></span>
      <canvas width="852" height="980" aria-hidden="true" hidden></canvas>
     </span>
     <span class="opening-side-label" aria-hidden="true">ЧЁРНЫЕ</span>
@@ -167,31 +139,31 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   <p id="opening-stats-unavailable" class="opening-sr-only" role="status" data-error="Статистика недоступна">Загружаем статистику…</p>
   <button id="opening-stats-retry" class="opening-utility" type="button" aria-label="Повторить загрузку статистики" hidden>Повторить</button>
   <nav class="opening-actions" aria-label="Главное меню">
-   <button id="opening-play" data-siege-mount="left" class="opening-button opening-primary" aria-label="С ботом" aria-busy="true" disabled><span class="opening-cta-label">С ботом</span></button>
-   <button id="opening-online" data-siege-mount="right" class="opening-button" type="button"><span class="opening-cta-label">В сети</span></button>
-   <div id="opening-search" data-siege-mount="right" hidden>
+   <button id="opening-play" data-siege-mount="left" class="opening-button opening-primary" aria-label="С ботом" aria-busy="true" disabled><span class="menu-button-art atlas-slice" aria-hidden="true"></span><span class="opening-cta-label">С ботом</span></button>
+   <button id="opening-online" data-siege-mount="right" class="opening-button" type="button"><span class="menu-button-art atlas-slice" aria-hidden="true"></span><span class="opening-cta-label">В сети</span></button>
+   <div id="opening-search" data-siege-mount="right" hidden><span class="atlas-nine search-body-art" aria-hidden="true"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span>
     <div id="opening-search-head">
      <div class="opening-search-title">
-      <img class="opening-search-plate" src="/src/client/app/ui/siege/search-header.webp" width="860" height="134" alt="" decoding="async" loading="lazy" />
+      <span class="opening-search-plate atlas-slice" aria-hidden="true"></span>
       <p id="opening-search-copy">Онлайн</p>
      </div>
-     <p id="opening-online-count" class="opening-online-count" hidden></p>
+     <p id="opening-online-count" class="opening-online-count" hidden><span class="atlas-nine search-count-art" aria-hidden="true"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span><span id="opening-online-count-label"></span></p>
     </div>
     <div id="opening-search-actions">
-     <button type="button" id="opening-search-cancel">Отмена</button>
-     <button type="button" id="opening-search-find" hidden>Найти</button>
-     <button type="button" id="opening-search-create" hidden>Создать</button>
-     <button type="button" id="opening-search-enter" hidden>Ввести код</button>
-     <button type="button" id="opening-search-go" hidden>Войти</button>
-     <input id="opening-friend-code" hidden maxlength="6" inputmode="numeric" autocomplete="one-time-code" />
-     <button type="button" id="opening-search-stay" hidden>Остаться</button>
-     <button type="button" id="opening-search-bot" hidden>Играть с ботом</button>
+     <button type="button" id="opening-search-cancel"><span class="atlas-nine search-button-art" aria-hidden="true"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span>Отмена</button>
+     <button type="button" id="opening-search-find" hidden><span class="atlas-nine search-button-art" aria-hidden="true"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span>Найти</button>
+     <button type="button" id="opening-search-create" hidden><span class="atlas-nine search-button-art" aria-hidden="true"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span>Создать</button>
+     <button type="button" id="opening-search-enter" hidden><span class="atlas-nine search-button-art" aria-hidden="true"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span>Ввести код</button>
+     <button type="button" id="opening-search-go" hidden><span class="atlas-nine search-button-art" aria-hidden="true"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span>Войти</button>
+     <span class="friend-code-frame"><span class="atlas-nine chronicle-frame" aria-hidden="true"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span><input id="opening-friend-code" hidden maxlength="6" inputmode="numeric" autocomplete="one-time-code" /></span>
+     <button type="button" id="opening-search-stay" hidden><span class="atlas-nine search-button-art" aria-hidden="true"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span>Остаться</button>
+     <button type="button" id="opening-search-bot" hidden><span class="atlas-nine search-button-art" aria-hidden="true"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span>Играть с ботом</button>
     </div>
    </div>
-   <button id="opening-retry" data-siege-mount="left" class="opening-button opening-primary" hidden>Повторить загрузку</button>
+   <button id="opening-retry" data-siege-mount="left" class="opening-button opening-primary" hidden><span class="menu-button-art atlas-slice" aria-hidden="true"></span>Повторить загрузку</button>
    <div class="opening-utilities">
-    <button id="opening-history" data-siege-mount="left" class="opening-utility" type="button">Партии</button>
-    <button id="opening-options" data-siege-mount="right" class="opening-utility" type="button" aria-haspopup="dialog" aria-controls="opening-options-dialog">Опции</button>
+    <button id="opening-history" data-siege-mount="left" class="opening-utility" type="button"><span class="menu-button-art atlas-slice" aria-hidden="true"></span>Партии</button>
+    <button id="opening-options" data-siege-mount="right" class="opening-utility" type="button" aria-haspopup="dialog" aria-controls="opening-options-dialog"><span class="menu-button-art atlas-slice" aria-hidden="true"></span>Опции</button>
    </div>
   </nav>
   <p id="opening-loading-status" class="opening-sr-only" role="status" aria-live="polite" aria-atomic="true">Загрузка игры</p>
@@ -288,7 +260,6 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 </dialog>
 <script type="module" src="/src/client/app/openingStats.ts"></script>
 <script type="module" src="/src/client/app/siegeOpeningBootstrap.ts"></script>
-<script type="module" src="/src/client/app/searchArtWarmup.ts"></script>
 <script type="module" src="/src/client/app/menuPressFeedback.ts"></script>
 <!-- Tap focus keeps no ring; the mark belongs to the one element a pointer
      focused, so keyboard and screen-reader focus still draw theirs. -->
@@ -297,7 +268,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 <script>
 (() => {
  const byId = id => document.getElementById(id);
- // Critical reveal is owned by opening-menu-readiness, independently of the engine.
+ // Static menu art is browser-owned and never gates startup.
  for (const name of ['help', 'settings']) byId('opening-' + name).onclick = () => {
   const dialog = byId('opening-' + name + '-dialog');
   dialog.querySelectorAll('template').forEach(template => template.replaceWith(template.content.cloneNode(true)));
@@ -550,96 +521,10 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
  window.checkersStartup.watchdog = setTimeout(() => window.checkersStartup.slow(), 12000);
 })();
 </script>
-<script id="opening-menu-readiness">
-(() => {
- const root = document.getElementById('opening');
- const title = root.querySelector('.siege-cartouche');
- // Upper bound on waiting for this screen's art, not a minimum animation delay.
- // 2.5s preserves the former image timeout while making a slow/error path usable.
- const MENU_DEADLINE_MS = 2500;
- let settled = false;
- const mark = name => { try { performance.mark('damka:' + name); } catch {} };
- requestAnimationFrame(() => mark('menu-first-frame'));
- const cleanups = [];
- const cleanup = () => { clearTimeout(deadline); cleanups.splice(0).forEach(fn => fn()); };
- const cancel = () => { settled = true; cleanup(); };
- const finish = (state, reason) => {
-  if (settled) return;
-  if (root.hidden || root.classList.contains('is-departing')) { cancel(); return; }
-  settled = true;
-  cleanup();
-  if (state === 'ready') {
-   // Keep this decoded responsive source on rotation; a new source would pop in late.
-   for (const image of [...root.querySelectorAll('picture img')]) {
-    const source = image.currentSrc || image.src;
-    image.src = source; image.removeAttribute('srcset');
-    image.parentElement.querySelectorAll('source').forEach(node => node.remove());
-   }
-   root.style.setProperty('--menu-gate', `url("${root.querySelector('.siege-gate').src}")`);
-   root.style.setProperty('--menu-frame', `url("${root.querySelector('#menu-frame-source').src}")`);
-   images.forEach(image => image.classList.add('is-decoded'));
-  }
-  document.documentElement.dataset.titleFont = state === 'ready' ? 'ready' : 'fallback';
-  root.classList.add('is-gate-ready');
-  root.querySelector('.opening-art').classList.add('is-prepared');
-  root.dataset.menuReason = reason;
-  root.dataset.menuState = state;
-  mark('menu-' + state);
-  root.dispatchEvent(new CustomEvent('menu-settled'));
- };
- const deadline = setTimeout(() => finish('fallback', 'deadline'), MENU_DEADLINE_MS);
- window.addEventListener('pagehide', cancel, {once:true});
- cleanups.push(() => window.removeEventListener('pagehide', cancel));
- // BFCache restoration gets a stable fallback, never the abandoned async reveal.
- window.addEventListener('pageshow', event => {
-  if (event.persisted && root.dataset.menuState === 'loading') {
-   settled = false; finish('fallback', 'restored');
-  }
- });
- const observer = new MutationObserver(() => {
-  if (root.hidden || root.classList.contains('is-departing')) cancel();
- });
- observer.observe(root, {attributes:true, attributeFilter:['hidden','class']});
- cleanups.push(() => observer.disconnect());
- const prepareImage = image => new Promise((resolve, reject) => {
-  let done = false;
-  const stop = () => { image.removeEventListener('load', decode); image.removeEventListener('error', failed); };
-  const failed = () => { if (!done) { done = true; stop(); reject(new Error('image')); } };
-  const decode = () => {
-   try { image.decode().then(() => {
-    if (done) return;
-    if (!image.naturalWidth) { failed(); return; }
-    done = true; stop(); resolve(image);
-   }, failed); } catch { failed(); }
-  };
-  cleanups.push(() => { done = true; stop(); });
-  image.loading = 'eager';
-  if (image.complete) decode();
-  else { image.addEventListener('load', decode); image.addEventListener('error', failed); }
- });
- const steel = new Image();
- steel.src = document.querySelector('link[rel=preload][href*="button-steel-rest"]').href;
- // Include the visible CSS frame/chain group; otherwise it would arrive piecemeal too.
- const panel = root.querySelector('.chronicle-half'), chain = root.querySelector('.chronicle-chain');
- const styles = [getComputedStyle(panel, '::after').borderImageSource,
-  getComputedStyle(chain).backgroundImage, getComputedStyle(chain, '::after').backgroundImage];
- const cssImages = [...new Set(styles.flatMap(value => [...value.matchAll(/url\(["']?([^"')]+)["']?\)/g)].map(match => match[1])))].map(src => {
-  const image = new Image(); image.src = src; return image;
- });
- // Static endpoints only, never the six animation layers / fire / API / Phaser.
- const images = [...root.querySelectorAll('.siege-housing img,.gate-piece,#menu-frame-source'), title, steel, ...cssImages];
- const fonts = document.fonts?.load
-  ? Promise.all(['600 42px Literata', '400 16px "Golos Text"', '600 16px "Golos Text"'].map(font =>
-    document.fonts.load(font, 'РУССКИЕ ШАШКИ').then(faces => { if (!faces.length) throw new Error('font'); })))
-  : Promise.reject(new Error('font-api'));
- Promise.all([...images.map(prepareImage), fonts]).then(() => finish('ready', 'decoded'), () => finish('fallback', 'asset-error'));
-})();
-</script>
 <script type="module" id="opening-engine-bootstrap">
-// Critical menu first; engine evaluation must not monopolize the first reveal's
-// main thread or delay its fallback timer. There is no additional timed pause.
+// Yield a paint opportunity; image and font loading never gate the engine.
 const bootGame = () => requestAnimationFrame(() => requestAnimationFrame(() => {
- // Let the complete menu paint before a warm cached engine evaluates.
+ // Let HTML/CSS paint before a warm cached engine evaluates.
  performance.mark('damka:menu-presented');
  window.checkersStartup.presented();
  const importEngine = () => import('/src/client/app/main.ts').then(() => {
@@ -652,9 +537,7 @@ const bootGame = () => requestAnimationFrame(() => requestAnimationFrame(() => {
   else importEngine();
  }, Math.max(0, 2000 - performance.now()));
 }));
-const menu = document.getElementById('opening');
-if (menu.dataset.menuState === 'loading') menu.addEventListener('menu-settled', bootGame, {once:true});
-else bootGame();
+bootGame();
 </script>
 <script id="opening-options-navigation">
 (() => {

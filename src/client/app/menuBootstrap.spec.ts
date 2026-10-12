@@ -15,11 +15,9 @@ function boot(state = 'loading') {
   {getElementById:()=>menu},{checkersStartup:startup},(fn:()=>void)=>frames.push(fn),{mark,now:()=>500},loadEngine,(fn:()=>void,ms:number)=>timers.push({fn,ms}));
  return {menu,startup,frames,mark,loadEngine,timers,runTimer:()=>timers.shift()?.fn(),step:()=>frames.shift()?.(),resolve:()=>resolve(),reject:()=>reject()};
 }
-it.each(['ready','fallback'])('presents a complete %s frame immediately, reserving the first 2s for menu only', async state => {
+it('starts independently of image/font loading, reserving the first 2s for menu', async () => {
  const b = boot();
- expect(b.frames).toHaveLength(0); expect(b.loadEngine).not.toHaveBeenCalled();
- b.menu.dataset.menuState=state;
- b.menu.dispatchEvent(new Event('menu-settled'));
+ expect(b.frames).toHaveLength(1); expect(b.loadEngine).not.toHaveBeenCalled();
  b.step(); // pre-paint callback must yield once, including a warm module cache
  expect(b.loadEngine).not.toHaveBeenCalled();
  expect(b.startup.presented).not.toHaveBeenCalled();
@@ -37,7 +35,7 @@ it.each(['ready','fallback'])('presents a complete %s frame immediately, reservi
  b.menu.dispatchEvent(new Event('menu-settled'));
  expect(b.frames).toHaveLength(0);
 });
-it('a module arriving after menu settlement still yields a paint and reports import failure honestly', async () => {
+it('a module still yields a paint and reports import failure honestly', async () => {
  const b=boot('ready'); b.step(); b.step(); b.runTimer(); b.reject();
  await Promise.resolve(); await Promise.resolve();
  expect(b.startup.engineReady).not.toHaveBeenCalled();

@@ -1,95 +1,35 @@
-import { afterEach, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { expect, it } from 'vitest';
 import html from '../../../index.html?raw';
+const atlas = readFileSync(new URL('./ui/opening-atlas/atlas.css', import.meta.url), 'utf8');
+import gates from './openingGates.css?raw';
+import chronicle from './hangingChronicle.css?raw';
+import renderer from './siegeOpening.ts?raw';
 
-// Execute the shipping classic script: it must work even if every module stalls.
-const script = html.match(/<script id="opening-menu-readiness">([\s\S]*?)<\/script>/)![1];
-const flush = async () => { for (let i = 0; i < 16; i++) await Promise.resolve(); };
-function boot() {
- vi.useFakeTimers();
- const pending: { resolve: () => void; reject: () => void }[] = [];
- class ImagePort extends EventTarget {
-  complete = true; naturalWidth = 724; src = 'art.webp'; currentSrc = 'responsive.webp'; loading = '';
-  classList = { add: vi.fn() }; removeAttribute = vi.fn();
-  parentElement = {querySelectorAll: () => [{remove:vi.fn()}]};
-  decode() { return new Promise<void>((resolve, reject) => pending.push({resolve, reject: () => reject(new Error('decode'))})); }
+it('preloads exactly one lossless atlas at high priority without JS visibility gates', () => {
+ const preloads = [...html.matchAll(/<link[^>]+rel="preload"[^>]+as="image"[^>]*>/g)];
+ expect(preloads).toHaveLength(1);
+ expect(preloads[0][0]).toContain('/opening-atlas/atlas.webp');
+ expect(preloads[0][0]).toContain('type="image/webp" fetchpriority="high"');
+ for (const token of ['opening-menu-readiness', 'menu-settled', 'data-menu-state', 'titleFont', 'document.fonts', 'MENU_DEADLINE_MS']) expect(html).not.toContain(token);
+ expect(html).toContain('font-display:swap');
+ const menu = html.match(/<main id="opening"[\s\S]*?<\/main>/)![0];
+ expect(menu).not.toMatch(/<img|<picture|loading="lazy"|srcset=/);
+ expect(menu.match(/class="gate-piece atlas-slice"/g)).toHaveLength(2);
+ expect(atlas).toContain("image-set(url('./atlas.webp') type('image/webp'), url('./atlas.avif') type('image/avif'))");
+ expect(preloads[0][0]).toContain('crossorigin="anonymous"');
+ expect(atlas).toContain('mask-mode:alpha');
+ expect(atlas).toContain('opacity:1');
+ expect(gates).not.toContain('is-gate-ready');
+ expect(gates).not.toContain('opacity:0');
+ expect(chronicle).not.toContain('linear-gradient(#141b20');
+});
+
+it('keeps all four CSS endpoints available synchronously while enhancement loads or fails', () => {
+ for (const side of ['white','black']) for (const pressed of ['true','false']) {
+  expect(atlas).toContain(`[data-side="${side}"][aria-pressed="${pressed}"] .gate-piece`);
  }
- const images = Array.from({length:5}, () => new ImagePort());
- const title = new ImagePort();
- const classes = new Set<string>();
- const root = Object.assign(new EventTarget(), {
-  hidden: false, dataset: {menuState:'loading', menuReason:''},
-  style: {setProperty:vi.fn()},
-  classList: {add: (s: string) => classes.add(s), contains: (s: string) => classes.has(s)},
-  querySelectorAll: (s:string) => s === 'picture img' ? [title, ...images] : images,
-  querySelector: (s: string) => s === '.siege-cartouche' ? title : s === '.siege-gate' || s === '#menu-frame-source' ? images[0] : {classList:{add:vi.fn()}}
- });
- const window = new EventTarget();
- const doc = {getElementById: () => root, querySelector: () => ({href:'steel.webp'}), documentElement:{dataset:{titleFont:'pending'}}, fonts:{load:vi.fn(() => Promise.resolve([{}]))}};
- let observe: () => void = () => {};
- const disconnect = vi.fn();
- const Observer = class {constructor(fn:()=>void){observe=fn;} observe(){} disconnect=disconnect;};
- const mark = vi.fn();
- new Function('document','window','Image','MutationObserver','getComputedStyle','requestAnimationFrame','performance',script)(
-  doc,window,ImagePort,Observer,() => ({borderImageSource:'url("frame.webp")',backgroundImage:'none'}),(fn:()=>void) => fn(),{mark});
- return {root,window,doc,title,images,pending,observe,disconnect,mark};
-}
-afterEach(() => vi.useRealTimers());
-it('reveals all critical images and title atomically, without a minimum delay or engine', async () => {
- const b = boot();
- b.pending.slice(1).forEach(p=>p.resolve()); await flush();
- expect(b.root.dataset.menuState).toBe('loading');
- expect(b.images.every(i=>i.classList.add.mock.calls.length===0)).toBe(true);
- b.pending[0].resolve(); await flush();
- expect(b.root.dataset.menuState).toBe('ready');
- expect(b.root.dataset.menuReason).toBe('decoded');
- expect(b.images.every(i=>i.classList.add.mock.calls[0][0]==='is-decoded')).toBe(true);
- expect(b.title.removeAttribute).toHaveBeenCalledWith('srcset');
- expect(b.title.src).toBe('responsive.webp');
- expect(b.doc.documentElement.dataset.titleFont).toBe('ready');
- expect(b.mark).toHaveBeenCalledWith('damka:menu-ready');
- expect(vi.getTimerCount()).toBe(0);
- expect(b.disconnect).toHaveBeenCalled();
-});
-it('failed critical decode commits fallback immediately; late images cannot upgrade it', async () => {
- const b = boot(); b.pending[1].reject(); await flush();
- expect(b.root.dataset.menuState).toBe('fallback');
- expect(b.root.dataset.menuReason).toBe('asset-error');
- b.pending.forEach(p=>p.resolve()); await flush();
- expect(b.root.dataset.menuState).toBe('fallback');
- expect(b.images.every(i=>i.classList.add.mock.calls.length===0)).toBe(true);
- expect(b.doc.documentElement.dataset.titleFont).toBe('fallback');
- expect(vi.getTimerCount()).toBe(0);
-});
-it('deadline is a maximum 2500ms, never a minimum wait; late art remains suppressed', async () => {
- const b = boot();
- vi.advanceTimersByTime(2499); expect(b.root.dataset.menuState).toBe('loading');
- vi.advanceTimersByTime(1); expect(b.root.dataset.menuState).toBe('fallback');
- expect(b.root.dataset.menuReason).toBe('deadline');
- b.pending.forEach(p=>p.resolve()); await flush();
- expect(b.mark).toHaveBeenCalledWith('damka:menu-fallback');
- expect(b.mark).not.toHaveBeenCalledWith('damka:menu-ready');
-});
-it.each(['hidden','departing','pagehide'])('cancels pending reveal and timer on %s', async mode => {
- const b = boot();
- if(mode==='hidden') b.root.hidden=true;
- if(mode==='departing') b.root.classList.add('is-departing');
- if(mode==='pagehide') b.window.dispatchEvent(new Event('pagehide')); else b.observe();
- b.pending.forEach(p=>p.resolve()); await flush(); vi.advanceTimersByTime(3000);
- expect(b.root.dataset.menuState).toBe('loading');
- expect(b.mark).not.toHaveBeenCalledWith('damka:menu-ready');
- expect(b.mark).not.toHaveBeenCalledWith('damka:menu-fallback');
- expect(vi.getTimerCount()).toBe(0);
- expect(b.disconnect).toHaveBeenCalled();
-});
-it('BFCache restoration uses a fixed fallback rather than a late abandoned reveal', async () => {
- const b = boot(); b.window.dispatchEvent(new Event('pagehide'));
- b.window.dispatchEvent(Object.assign(new Event('pageshow'),{persisted:true}));
- expect(b.root.dataset.menuReason).toBe('restored');
- b.pending.forEach(p=>p.resolve()); await flush();
- expect(b.root.dataset.menuState).toBe('fallback');
-});
-it('keeps the no-JS message and masks all loading descendants including selected badges', () => {
- expect(html).toContain('<noscript><p>Для игры нужен JavaScript.');
- expect(html).toContain(':not(.menu-loading):not(noscript) *{visibility:hidden!important}');
- expect(script).not.toMatch(/await.*(Phaser|fetch|audio|playfield)/);
+ expect(renderer).not.toMatch(/selection-v2\/frames|menu-settled|menuState|image\.src/);
+ expect(renderer).toContain("querySelector<HTMLElement>('.gate-piece')!.hidden = true");
+ expect(renderer).toContain("button.dataset.art = 'static'");
 });

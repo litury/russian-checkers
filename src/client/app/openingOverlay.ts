@@ -81,7 +81,8 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   if (liveCount) {
    const row = n !== null && !inHeading;
    liveCount.hidden = !row;
-   liveCount.textContent = row ? `Онлайн: ${n}` : '';
+   const label = document.getElementById('opening-online-count-label') || liveCount;
+   label.textContent = row ? `Онлайн: ${n}` : '';
   }
  };
  const ivory = root.querySelector('.gate-piece-ivory') as HTMLElement | null;
@@ -319,10 +320,8 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
    if (activeLabel) activeLabel.textContent = 'Начинаем…';
    activeButton?.setAttribute('aria-busy', 'false');
    root.scrollTop = frozenScroll;
-   // Decoration failure cannot block a ready game; normal decoded art always slides.
-   const leaves = [...root.querySelectorAll<HTMLImageElement>('.siege-left,.siege-right')];
-   const artReady = leaves.length === 2 && leaves.every(image => image.classList.contains('is-decoded'));
-   if (motion.matches || !artReady) { hide(true); done(); return; }
+   // Atlas art is always visible; its network/decode state never gates departure.
+   if (motion.matches) { hide(true); done(); return; }
    // The first arrival keeps the full approved choreography; later matches
    // compress the same pass. Input never waits on it, but the wait is shorter.
    gates.duration = departures++ === 0 ? gateDurationMs : repeatGateDurationMs;

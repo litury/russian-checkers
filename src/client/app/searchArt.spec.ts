@@ -2,7 +2,9 @@ import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import { expect, it } from 'vitest';
 import css from './openingGates.css?raw';
-import warmup from './searchArtWarmup.ts?raw';
+import html from '../../../index.html?raw';
+const atlas = readFileSync(new URL('./ui/opening-atlas/atlas.css', import.meta.url), 'utf8');
+import manifest from './ui/opening-atlas/atlas.json';
 
 const root = new URL('./ui/siege/', import.meta.url);
 const states = ['rest', 'hover', 'pressed', 'focus', 'disabled'];
@@ -37,27 +39,24 @@ it('uses exactly five lossless DPR2 nine-slice states, preserving native alpha a
 		expect(((bits >>> 14) & 0x3fff) + 1).toBe(140);
 		expect((bits >>> 28) & 1).toBe(1);
 		hashes.add(createHash('sha256').update(bytes).digest('hex'));
-		expect(css).toContain(name);
+		expect(Object.values(manifest.provenance).some(p => 'source' in p && p.source.endsWith(name))).toBe(true);
 	}
 	expect(hashes.size).toBe(5);
-	expect(css).toContain('40 48 fill / 20px 24px / 0 stretch');
+	expect(atlas).toContain('.search-button-art { --slice-x:24px; --slice-y:20px; }');
 	expect(css).not.toContain('button-steel-search-');
 });
 it('uses generated panel artwork and reserved single-line grooves rather than a painted gate background', () => {
 	const before = css.match(/#opening-search::before \{([^}]+)\}/)?.[1];
-	expect(before).toContain('search-body.webp');
+	expect(manifest.frames['search-body']).toHaveLength(4);
+ expect(atlas).toContain('.search-body-art > i:nth-child(9)');
 	expect(before).not.toMatch(/linear-gradient|gate\.webp|box-shadow/);
 	expect(css).toContain('aspect-ratio:860/134');
 	expect(css).toContain('inset:28% 12% 35%');
-	expect(css).toContain("url('./ui/siege/search-count.webp')");
+	expect(atlas).toContain('.search-count-art > i:nth-child(9)');
 	expect(css).toContain('white-space:nowrap');
 });
-it('warms only the five current states and three generated panel exports without blocking gameplay', () => {
-	expect(warmup).toContain('./ui/siege/search-button-*.webp');
-	for (const name of ['header', 'body', 'count'])
-		expect(warmup).toContain(`./ui/siege/search-${name}.webp`);
-	expect(warmup).not.toMatch(/\.png|button-steel-search-|disabled\s*=/);
-	expect(warmup).toMatch(
-		/catch\s*\{\s*\/\* Decoration failure is nonfatal\. \*\/\s*\}/,
-	);
+it('uses the preloaded atlas for search states without an individual-image warmup', () => {
+ expect(html).not.toContain('searchArtWarmup');
+ expect(css).not.toMatch(/url\([^)]*siege/);
+ expect(html).toContain('class="atlas-nine search-button-art"');
 });

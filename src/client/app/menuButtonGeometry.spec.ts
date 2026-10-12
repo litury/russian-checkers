@@ -4,6 +4,8 @@ import { inflateSync } from 'node:zlib';
 import { expect, it } from 'vitest';
 import css from './hangingChronicle.css?raw';
 import gates from './openingGates.css?raw';
+const atlas = readFileSync(new URL('./ui/opening-atlas/atlas.css', import.meta.url), 'utf8');
+import manifest from './ui/opening-atlas/atlas.json';
 import html from '../../../index.html?raw';
 
 /**
@@ -116,7 +118,7 @@ it('keeps the online button name without a number and puts the count inside the 
 	expect(button).not.toMatch(/opening-live|opening-online-count/);
 	const search = html.match(/<div id="opening-search"[\s\S]*?<div id="opening-search-actions">/)![0];
 	// Заголовок стоит на спрайт-пластине главного названия, счёт — отдельная строка под ней.
-	expect(search).toMatch(/<div class="opening-search-title">\s*<img class="opening-search-plate" src="\/src\/client\/app\/ui\/siege\/search-header\.webp"[^>]*\/>\s*<p id="opening-search-copy"[^>]*>[^<]*<\/p>\s*<\/div>\s*<p id="opening-online-count"[^>]*hidden><\/p>/);
+	expect(search).toMatch(/<div class="opening-search-title">\s*<span class="opening-search-plate atlas-slice"[^>]*><\/span>\s*<p id="opening-search-copy"[^>]*>[^<]*<\/p>\s*<\/div>\s*<p id="opening-online-count"[^>]*hidden>[\s\S]*?<\/p>/);
 });
 
 it('keeps the search card and its buttons at the main geometry while the count row appears', () => {
@@ -133,15 +135,15 @@ it('keeps the search card and its buttons at the main geometry while the count r
 	expect(gates).toMatch(/#opening-search-head \{ position:relative; margin:-28px -26px 8px; \}/);
 	expect(gates).toMatch(/#opening-online-count \{ position:absolute; top:66%; left:31%; right:31%;/);
 	expect(gates).toMatch(/#opening-online-count\[hidden\] \{ display:none; \}/);
-	expect(gates).toContain("border-image:url('./ui/siege/search-body.webp') 0 90 90 fill / 0 24px 24px / 0 stretch;");
+	expect(atlas).toContain('grid-template-rows:0 minmax(0,1fr) 24px');
 	expect(gates).toMatch(/#opening-search-actions button \{[^}]*height:var\(--btn-h\);/);
 	// Плашки поиска держат прежний flex и свою пластину под коробку. Телефонное меню остаётся на старой.
-	expect(gates).toContain("background:transparent url('./ui/siege/button-steel-rest.webp') center/100% 100% no-repeat;");
+	expect(manifest.frames['phone-rest'].slice(2)).toEqual([736,295]);
 	expect(gates).toMatch(/#opening-search-actions button \{[^}]*flex:1 1 calc\(33\.333% - 7px\)/);
-	expect(gates).toMatch(/#opening-search-actions button \{[^}]*border-image:var\(--plate-state,var\(--plate-rest\)\) 40 48 fill \/ 20px 24px \/ 0 stretch/);
+	expect(atlas).toContain('.search-button-art { --slice-x:24px; --slice-y:20px; }');
 	expect(gates).not.toMatch(/#opening-search-actions button \{[^}]*100% 100%/);
 	expect(gates).not.toMatch(/#opening-search-actions button \{[^}]*736 \/ 295/);
-	for (const state of ['rest','hover','pressed','focus','disabled']) expect(gates).toContain(`url('./ui/siege/search-button-${state}.webp')`);
+	for (const state of ['rest','hover','pressed','focus','disabled']) expect(manifest.frames[`search-${state}` as keyof typeof manifest.frames].slice(2)).toEqual([196,140]);
 	expect(gates).not.toContain('button-steel-search-');
 	expect(gates).toContain('background-size:contain');
 	// `contain` is measured from the background positioning area, and that must be the border
@@ -150,7 +152,7 @@ it('keeps the search card and its buttons at the main geometry while the count r
 	expect(gates).toMatch(/#opening-search-actions button \{[^}]*background:none;/);
 	expect(gates).toMatch(/background-size:contain;\s*background-origin:border-box; background-clip:border-box;/);
 	expect(gates).not.toMatch(/#opening-search-actions button \{[^}]*background-origin:padding-box/);
-	expect(gates).toContain("background-image:url('./ui/siege/button-steel-pressed.webp')");
+	expect(manifest.frames['phone-pressed'].slice(2)).toEqual([736,295]);
 	// Короткие экраны: карточка не закрывает соседние половины «Летописи»/«Битв» и не прячет их.
 	// Она ограничена по высоте свободным местом над их верхом и прокручивается внутри.
 	expect(gates).toMatch(/#opening-search \{[^}]*max-height:calc\(100% - var\(--play-y\) - var\(--piece\) - 182px\)/);
@@ -159,7 +161,7 @@ it('keeps the search card and its buttons at the main geometry while the count r
 	// as plain text of the card rather than as part of the menu button.
 	const panel = html.match(/<div id="opening-search"[\s\S]*?<button id="opening-retry"/)![0];
 	expect(panel).toMatch(
-		/<p id="opening-search-copy"[^>]*>[^<]*<\/p>\s*<\/div>\s*<p id="opening-online-count"[^>]*hidden><\/p>\s*<\/div>\s*<div id="opening-search-actions">/,
+		/<p id="opening-search-copy"[^>]*>[^<]*<\/p>\s*<\/div>\s*<p id="opening-online-count"[^>]*hidden>[\s\S]*?<\/p>\s*<\/div>\s*<div id="opening-search-actions">/,
 	);
 });
 
@@ -218,10 +220,8 @@ it('gives search and desktop plates the measured aspect and native alpha in all 
 		}
 	}
 	// The desktop menu rule (>=970px) fits its own 320x70 plate with contain, to the border box.
-	expect(gates).toMatch(
-		/#opening :is\(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options\) \{\s*background-image:url\('\.\/ui\/siege\/button-steel-desk-rest\.webp'\);[^}]*background-size:contain;\s*background-origin:border-box; background-clip:border-box;/,
-	);
-});
+	expect(atlas).toContain('width:min(100cqw,calc(100cqh * 1344 / 294))');
+	expect(atlas).toContain('height:min(100cqh,calc(100cqw * 294 / 1344))');});
 
 it('keeps the accepted steel raster geometry the frame fractions were read from', () => {
 	const png = readPng(fileURLToPath(new URL('./ui/siege/button-steel-rest.png', import.meta.url)));

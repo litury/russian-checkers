@@ -1,0 +1,1384 @@
+{
+  "size": [
+    4096,
+    2724
+  ],
+  "frames": {
+    "frame": [
+      2,
+      2,
+      667,
+      1097
+    ],
+    "gate": [
+      673,
+      2,
+      1536,
+      1024
+    ],
+    "black-00": [
+      2213,
+      2,
+      724,
+      724
+    ],
+    "black-55": [
+      2941,
+      2,
+      724,
+      724
+    ],
+    "white-00": [
+      2,
+      1103,
+      724,
+      724
+    ],
+    "white-55": [
+      730,
+      1103,
+      724,
+      724
+    ],
+    "search-body": [
+      1458,
+      1103,
+      860,
+      439
+    ],
+    "title": [
+      2322,
+      1103,
+      1120,
+      438
+    ],
+    "phone-pressed": [
+      2,
+      1831,
+      736,
+      295
+    ],
+    "phone-rest": [
+      742,
+      1831,
+      736,
+      295
+    ],
+    "desk-disabled": [
+      1482,
+      1831,
+      1344,
+      294
+    ],
+    "desk-focus": [
+      2,
+      2130,
+      1344,
+      294
+    ],
+    "desk-hover": [
+      1350,
+      2130,
+      1344,
+      294
+    ],
+    "desk-pressed": [
+      2698,
+      2130,
+      1344,
+      294
+    ],
+    "desk-rest": [
+      2,
+      2428,
+      1344,
+      294
+    ],
+    "search-disabled": [
+      1350,
+      2428,
+      196,
+      140
+    ],
+    "search-focus": [
+      1550,
+      2428,
+      196,
+      140
+    ],
+    "search-hover": [
+      1750,
+      2428,
+      196,
+      140
+    ],
+    "search-pressed": [
+      1950,
+      2428,
+      196,
+      140
+    ],
+    "search-rest": [
+      2150,
+      2428,
+      196,
+      140
+    ],
+    "search-header": [
+      2350,
+      2428,
+      860,
+      134
+    ],
+    "chain": [
+      3214,
+      2428,
+      160,
+      121
+    ],
+    "eyelet": [
+      3378,
+      2428,
+      90,
+      101
+    ],
+    "search-count": [
+      3472,
+      2428,
+      200,
+      42
+    ],
+    "frame-0": [
+      2,
+      2,
+      180,
+      180
+    ],
+    "frame-1": [
+      182,
+      2,
+      307,
+      180
+    ],
+    "frame-2": [
+      489,
+      2,
+      180,
+      180
+    ],
+    "frame-3": [
+      2,
+      182,
+      180,
+      737
+    ],
+    "frame-4": [
+      182,
+      182,
+      307,
+      737
+    ],
+    "frame-5": [
+      489,
+      182,
+      180,
+      737
+    ],
+    "frame-6": [
+      2,
+      919,
+      180,
+      180
+    ],
+    "frame-7": [
+      182,
+      919,
+      307,
+      180
+    ],
+    "frame-8": [
+      489,
+      919,
+      180,
+      180
+    ],
+    "search-rest-0": [
+      2150,
+      2428,
+      48,
+      40
+    ],
+    "search-rest-1": [
+      2198,
+      2428,
+      100,
+      40
+    ],
+    "search-rest-2": [
+      2298,
+      2428,
+      48,
+      40
+    ],
+    "search-rest-3": [
+      2150,
+      2468,
+      48,
+      60
+    ],
+    "search-rest-4": [
+      2198,
+      2468,
+      100,
+      60
+    ],
+    "search-rest-5": [
+      2298,
+      2468,
+      48,
+      60
+    ],
+    "search-rest-6": [
+      2150,
+      2528,
+      48,
+      40
+    ],
+    "search-rest-7": [
+      2198,
+      2528,
+      100,
+      40
+    ],
+    "search-rest-8": [
+      2298,
+      2528,
+      48,
+      40
+    ],
+    "search-hover-0": [
+      1750,
+      2428,
+      48,
+      40
+    ],
+    "search-hover-1": [
+      1798,
+      2428,
+      100,
+      40
+    ],
+    "search-hover-2": [
+      1898,
+      2428,
+      48,
+      40
+    ],
+    "search-hover-3": [
+      1750,
+      2468,
+      48,
+      60
+    ],
+    "search-hover-4": [
+      1798,
+      2468,
+      100,
+      60
+    ],
+    "search-hover-5": [
+      1898,
+      2468,
+      48,
+      60
+    ],
+    "search-hover-6": [
+      1750,
+      2528,
+      48,
+      40
+    ],
+    "search-hover-7": [
+      1798,
+      2528,
+      100,
+      40
+    ],
+    "search-hover-8": [
+      1898,
+      2528,
+      48,
+      40
+    ],
+    "search-focus-0": [
+      1550,
+      2428,
+      48,
+      40
+    ],
+    "search-focus-1": [
+      1598,
+      2428,
+      100,
+      40
+    ],
+    "search-focus-2": [
+      1698,
+      2428,
+      48,
+      40
+    ],
+    "search-focus-3": [
+      1550,
+      2468,
+      48,
+      60
+    ],
+    "search-focus-4": [
+      1598,
+      2468,
+      100,
+      60
+    ],
+    "search-focus-5": [
+      1698,
+      2468,
+      48,
+      60
+    ],
+    "search-focus-6": [
+      1550,
+      2528,
+      48,
+      40
+    ],
+    "search-focus-7": [
+      1598,
+      2528,
+      100,
+      40
+    ],
+    "search-focus-8": [
+      1698,
+      2528,
+      48,
+      40
+    ],
+    "search-pressed-0": [
+      1950,
+      2428,
+      48,
+      40
+    ],
+    "search-pressed-1": [
+      1998,
+      2428,
+      100,
+      40
+    ],
+    "search-pressed-2": [
+      2098,
+      2428,
+      48,
+      40
+    ],
+    "search-pressed-3": [
+      1950,
+      2468,
+      48,
+      60
+    ],
+    "search-pressed-4": [
+      1998,
+      2468,
+      100,
+      60
+    ],
+    "search-pressed-5": [
+      2098,
+      2468,
+      48,
+      60
+    ],
+    "search-pressed-6": [
+      1950,
+      2528,
+      48,
+      40
+    ],
+    "search-pressed-7": [
+      1998,
+      2528,
+      100,
+      40
+    ],
+    "search-pressed-8": [
+      2098,
+      2528,
+      48,
+      40
+    ],
+    "search-disabled-0": [
+      1350,
+      2428,
+      48,
+      40
+    ],
+    "search-disabled-1": [
+      1398,
+      2428,
+      100,
+      40
+    ],
+    "search-disabled-2": [
+      1498,
+      2428,
+      48,
+      40
+    ],
+    "search-disabled-3": [
+      1350,
+      2468,
+      48,
+      60
+    ],
+    "search-disabled-4": [
+      1398,
+      2468,
+      100,
+      60
+    ],
+    "search-disabled-5": [
+      1498,
+      2468,
+      48,
+      60
+    ],
+    "search-disabled-6": [
+      1350,
+      2528,
+      48,
+      40
+    ],
+    "search-disabled-7": [
+      1398,
+      2528,
+      100,
+      40
+    ],
+    "search-disabled-8": [
+      1498,
+      2528,
+      48,
+      40
+    ],
+    "search-body-0": [
+      1458,
+      1103,
+      90,
+      0
+    ],
+    "search-body-1": [
+      1548,
+      1103,
+      680,
+      0
+    ],
+    "search-body-2": [
+      2228,
+      1103,
+      90,
+      0
+    ],
+    "search-body-3": [
+      1458,
+      1103,
+      90,
+      349
+    ],
+    "search-body-4": [
+      1548,
+      1103,
+      680,
+      349
+    ],
+    "search-body-5": [
+      2228,
+      1103,
+      90,
+      349
+    ],
+    "search-body-6": [
+      1458,
+      1452,
+      90,
+      90
+    ],
+    "search-body-7": [
+      1548,
+      1452,
+      680,
+      90
+    ],
+    "search-body-8": [
+      2228,
+      1452,
+      90,
+      90
+    ],
+    "search-count-0": [
+      3472,
+      2428,
+      20,
+      12
+    ],
+    "search-count-1": [
+      3492,
+      2428,
+      160,
+      12
+    ],
+    "search-count-2": [
+      3652,
+      2428,
+      20,
+      12
+    ],
+    "search-count-3": [
+      3472,
+      2440,
+      20,
+      18
+    ],
+    "search-count-4": [
+      3492,
+      2440,
+      160,
+      18
+    ],
+    "search-count-5": [
+      3652,
+      2440,
+      20,
+      18
+    ],
+    "search-count-6": [
+      3472,
+      2458,
+      20,
+      12
+    ],
+    "search-count-7": [
+      3492,
+      2458,
+      160,
+      12
+    ],
+    "search-count-8": [
+      3652,
+      2458,
+      20,
+      12
+    ],
+    "backplate-left": [
+      918,
+      272,
+      400,
+      460
+    ],
+    "backplate-right": [
+      1563,
+      272,
+      400,
+      460
+    ]
+  },
+  "provenance": {
+    "frame": {
+      "source": "src/client/app/ui/delivery/frame-667.webp",
+      "sha256": "6671167821b9e6b6211bc3bb3b9c85526154b030acc5318fc2657a2c14b13d4a",
+      "rgbaSha256": "d2822ed7e62e2f269e0f9f0922b8ee37016f5f02e7cdc71d1a1ca049dac4f980"
+    },
+    "gate": {
+      "source": "src/client/app/ui/delivery/gate-1536.webp",
+      "sha256": "120b47e3b56dc6f80ebe071afd0c9c08ef5262796bb63bd067d69f88b136f0e9",
+      "rgbaSha256": "0a9d221ad5d3493da76f7b94917b38759c11ecac0e99aeb8d44a7e90d30f335a"
+    },
+    "black-00": {
+      "source": "src/client/modules/board/selection-v2/frames/black/black-00.webp",
+      "sha256": "8d2714baed43945f62f152b960a9208fa4ae971b5022d3cd85c8d9f95dc78978",
+      "rgbaSha256": "2064412a6a7aa9e247d4d3910eb21033ce6ca85dec0279db7cd2ff0e87479dc3"
+    },
+    "black-55": {
+      "source": "src/client/modules/board/selection-v2/frames/black/black-55.webp",
+      "sha256": "3e1d6a4c34c1cc101f197d6e6571f5029017ad220cf5162b446cf16420022789",
+      "rgbaSha256": "5c744a46966d66eba62e00de690b67d8d5075ecf0c33f05f25c466749e327722"
+    },
+    "white-00": {
+      "source": "src/client/modules/board/selection-v2/frames/white/white-00.webp",
+      "sha256": "ce5bc84fbd2d76a17e9f3eb6cf0932febf1fc90e8f0f3896997759b7b9178822",
+      "rgbaSha256": "f30277aab83a475354f76ce8bb713ae4d2328a2459a6886719da72ec7059b0e4"
+    },
+    "white-55": {
+      "source": "src/client/modules/board/selection-v2/frames/white/white-55.webp",
+      "sha256": "85d9c161f0197fa78abc0dc2e95cf8b4c0ee244c74388287c693ee3e9e97fc90",
+      "rgbaSha256": "937970f3c87093b2fa8d8d01650adc22188e57ffa3ce189f57ffad533107e31f"
+    },
+    "search-body": {
+      "source": "src/client/app/ui/siege/search-body.webp",
+      "sha256": "b1bd15929c72691e013b9f83f3ff99b4501eaa3ce752135f668a047b8b674daf",
+      "rgbaSha256": "29c8ab81662da9898a24e98fdacb2004fa925d55561011a70711e5248eb2db32"
+    },
+    "title": {
+      "source": "src/client/app/ui/delivery/cassette-title-1120.webp",
+      "sha256": "f1be960ffcad2f3d596aac52745eba1c8ae9c86f30e1d376e84dc41c8c26fdd4",
+      "rgbaSha256": "48c5995b5d9b2d60cae09a0c09ec2591b7c46d196af0952af7b320f71b4bc2f9"
+    },
+    "phone-pressed": {
+      "source": "src/client/app/ui/siege/button-steel-pressed.webp",
+      "sha256": "03f17dda8267fc6d125f54f23d1183354377ff575be5b4331827bf15b2bb2732",
+      "rgbaSha256": "9a8ea914a984f5665a748a48ec304d4ff7e323a5db9f7e2abcc72d8c5ee8b45f"
+    },
+    "phone-rest": {
+      "source": "src/client/app/ui/siege/button-steel-rest.webp",
+      "sha256": "19ec52201d8167ea7f77a3329bb834553cf706bc309a8f00e32e9adb0fa05a01",
+      "rgbaSha256": "682c8380ea931f7ab879f5f7dc82aa90960b642a49563c6999c9d6dd3239c21b"
+    },
+    "desk-disabled": {
+      "source": "src/client/app/ui/siege/button-steel-desk-disabled.webp",
+      "sha256": "423afd01fcfa6dd263495bc2909d430d3cebdd1a0f16a212821938fdb7fc1456",
+      "rgbaSha256": "b669cc16e3e237f56dbb35808af81271509a3f4895bd81cfdf3e4d80a919c46a"
+    },
+    "desk-focus": {
+      "source": "src/client/app/ui/siege/button-steel-desk-focus.webp",
+      "sha256": "a22106509aae573ca226e4f97b48a26f8089d35cb02f3c22473db65a74f61ccf",
+      "rgbaSha256": "7be4f48e769a8a2f0934fc65d387f8a207ea22891d9d8f21b8f7af8739c1ef6d"
+    },
+    "desk-hover": {
+      "source": "src/client/app/ui/siege/button-steel-desk-hover.webp",
+      "sha256": "e6d516d364b5d484673e7a5a76a27f80e92a42e424241bfd2cb47c1cf6c2bd09",
+      "rgbaSha256": "bb4f297448b5d1806ba1f4888968bed6fb5f5b867baadb9f358e98141130de5e"
+    },
+    "desk-pressed": {
+      "source": "src/client/app/ui/siege/button-steel-desk-pressed.webp",
+      "sha256": "2fc700f959fde931c1bb8793accb4558ce8e1a3fb99fffb2f0ddf0ea670a7497",
+      "rgbaSha256": "b491401dfe2d190ff355180a140522f45b84aa085c14493add0086838d12a07e"
+    },
+    "desk-rest": {
+      "source": "src/client/app/ui/siege/button-steel-desk-rest.webp",
+      "sha256": "f150772b773ca216b0767a8f82a3ad63c16ee8af4033e98d6202e63c0f98e716",
+      "rgbaSha256": "42118242f5635434004773d6226d88f24170a5eba346f21e984e0ff66d7852f3"
+    },
+    "search-disabled": {
+      "source": "src/client/app/ui/siege/search-button-disabled.webp",
+      "sha256": "60bf681c957a31d881c077d0825f1e969fae1087d6a65cf3a20e8995be14f372",
+      "rgbaSha256": "734ce4b0a045b2156974f0507050d046b0382e1d93dfea45af69cc6eb8534eaf"
+    },
+    "search-focus": {
+      "source": "src/client/app/ui/siege/search-button-focus.webp",
+      "sha256": "22206a2d283d3172440df715f817a802639066e7638d053969a7cb2376c84dfe",
+      "rgbaSha256": "ace5587b5c6ad1c264d949420140e3f2de2ff9d3bbe95525411524e43fe68ed7"
+    },
+    "search-hover": {
+      "source": "src/client/app/ui/siege/search-button-hover.webp",
+      "sha256": "8972f86c730eb7d54b2217050e7a64cac12cc0f4b3c6ef49b26a9087ffe0ea4f",
+      "rgbaSha256": "40b653c51ab94d923daf3870f1a955bf48942a4ef83ee339cf7f72682847e134"
+    },
+    "search-pressed": {
+      "source": "src/client/app/ui/siege/search-button-pressed.webp",
+      "sha256": "923d0f3cc89d9bfee9cfa5816902ac1410907743db55c6fba84e1127b49a0d62",
+      "rgbaSha256": "82e25b6c554fc627f0731d60755ee5cd214c731177d83252e4d60fecbac67ebb"
+    },
+    "search-rest": {
+      "source": "src/client/app/ui/siege/search-button-rest.webp",
+      "sha256": "27d00e4dfa64d6d94496bb8a2c3d2b7cc3fa703003e5e92502ed4d1475266a18",
+      "rgbaSha256": "2c394adadfa132dbb0f5b8294da0243ab4b62f047f1f10d22a1c8726535850fd"
+    },
+    "search-header": {
+      "source": "src/client/app/ui/siege/search-header.webp",
+      "sha256": "3c51ff8bafdb303b39badd5926e77fdc3585a788ea68d0b691b7eda5741b9f8f",
+      "rgbaSha256": "a5ac220b9cab712036e5b41e7475106e8812af0fc57e6e7293ecc825ed83d407"
+    },
+    "chain": {
+      "source": "src/client/app/ui/delivery/chain-tile-160.webp",
+      "sha256": "b97bf091acbef045e3517ef0ca09782d1185421c824ac073ee8eb87877f385b9",
+      "rgbaSha256": "461f46de389712c68eb40f19b36d305ca5153ddc88e5054c4d41ec9663e32b9a"
+    },
+    "eyelet": {
+      "source": "src/client/app/ui/delivery/eyelet-90.webp",
+      "sha256": "994f5cf3f6f84f908a2b91e185b90a3b11d764f3b30bc89e1c4f43d1f0335b24",
+      "rgbaSha256": "53329448319cdc5517d9df44ab9b0651fdc0fe09808abf46b26c231c92f8fba8"
+    },
+    "search-count": {
+      "source": "src/client/app/ui/siege/search-count.webp",
+      "sha256": "64e28b685015577c9f8ac916ddbc993c17f26f5b68e256c9c8769970070149f2",
+      "rgbaSha256": "9759ddeb7ac51e18a7a732e274a63335956f4abd5ec7e79e7e491dbb463f8c4d"
+    },
+    "frame-0": {
+      "parent": "frame",
+      "crop": [
+        0,
+        0,
+        180,
+        180
+      ]
+    },
+    "frame-1": {
+      "parent": "frame",
+      "crop": [
+        180,
+        0,
+        487,
+        180
+      ]
+    },
+    "frame-2": {
+      "parent": "frame",
+      "crop": [
+        487,
+        0,
+        667,
+        180
+      ]
+    },
+    "frame-3": {
+      "parent": "frame",
+      "crop": [
+        0,
+        180,
+        180,
+        917
+      ]
+    },
+    "frame-4": {
+      "parent": "frame",
+      "crop": [
+        180,
+        180,
+        487,
+        917
+      ]
+    },
+    "frame-5": {
+      "parent": "frame",
+      "crop": [
+        487,
+        180,
+        667,
+        917
+      ]
+    },
+    "frame-6": {
+      "parent": "frame",
+      "crop": [
+        0,
+        917,
+        180,
+        1097
+      ]
+    },
+    "frame-7": {
+      "parent": "frame",
+      "crop": [
+        180,
+        917,
+        487,
+        1097
+      ]
+    },
+    "frame-8": {
+      "parent": "frame",
+      "crop": [
+        487,
+        917,
+        667,
+        1097
+      ]
+    },
+    "search-rest-0": {
+      "parent": "search-rest",
+      "crop": [
+        0,
+        0,
+        48,
+        40
+      ]
+    },
+    "search-rest-1": {
+      "parent": "search-rest",
+      "crop": [
+        48,
+        0,
+        148,
+        40
+      ]
+    },
+    "search-rest-2": {
+      "parent": "search-rest",
+      "crop": [
+        148,
+        0,
+        196,
+        40
+      ]
+    },
+    "search-rest-3": {
+      "parent": "search-rest",
+      "crop": [
+        0,
+        40,
+        48,
+        100
+      ]
+    },
+    "search-rest-4": {
+      "parent": "search-rest",
+      "crop": [
+        48,
+        40,
+        148,
+        100
+      ]
+    },
+    "search-rest-5": {
+      "parent": "search-rest",
+      "crop": [
+        148,
+        40,
+        196,
+        100
+      ]
+    },
+    "search-rest-6": {
+      "parent": "search-rest",
+      "crop": [
+        0,
+        100,
+        48,
+        140
+      ]
+    },
+    "search-rest-7": {
+      "parent": "search-rest",
+      "crop": [
+        48,
+        100,
+        148,
+        140
+      ]
+    },
+    "search-rest-8": {
+      "parent": "search-rest",
+      "crop": [
+        148,
+        100,
+        196,
+        140
+      ]
+    },
+    "search-hover-0": {
+      "parent": "search-hover",
+      "crop": [
+        0,
+        0,
+        48,
+        40
+      ]
+    },
+    "search-hover-1": {
+      "parent": "search-hover",
+      "crop": [
+        48,
+        0,
+        148,
+        40
+      ]
+    },
+    "search-hover-2": {
+      "parent": "search-hover",
+      "crop": [
+        148,
+        0,
+        196,
+        40
+      ]
+    },
+    "search-hover-3": {
+      "parent": "search-hover",
+      "crop": [
+        0,
+        40,
+        48,
+        100
+      ]
+    },
+    "search-hover-4": {
+      "parent": "search-hover",
+      "crop": [
+        48,
+        40,
+        148,
+        100
+      ]
+    },
+    "search-hover-5": {
+      "parent": "search-hover",
+      "crop": [
+        148,
+        40,
+        196,
+        100
+      ]
+    },
+    "search-hover-6": {
+      "parent": "search-hover",
+      "crop": [
+        0,
+        100,
+        48,
+        140
+      ]
+    },
+    "search-hover-7": {
+      "parent": "search-hover",
+      "crop": [
+        48,
+        100,
+        148,
+        140
+      ]
+    },
+    "search-hover-8": {
+      "parent": "search-hover",
+      "crop": [
+        148,
+        100,
+        196,
+        140
+      ]
+    },
+    "search-focus-0": {
+      "parent": "search-focus",
+      "crop": [
+        0,
+        0,
+        48,
+        40
+      ]
+    },
+    "search-focus-1": {
+      "parent": "search-focus",
+      "crop": [
+        48,
+        0,
+        148,
+        40
+      ]
+    },
+    "search-focus-2": {
+      "parent": "search-focus",
+      "crop": [
+        148,
+        0,
+        196,
+        40
+      ]
+    },
+    "search-focus-3": {
+      "parent": "search-focus",
+      "crop": [
+        0,
+        40,
+        48,
+        100
+      ]
+    },
+    "search-focus-4": {
+      "parent": "search-focus",
+      "crop": [
+        48,
+        40,
+        148,
+        100
+      ]
+    },
+    "search-focus-5": {
+      "parent": "search-focus",
+      "crop": [
+        148,
+        40,
+        196,
+        100
+      ]
+    },
+    "search-focus-6": {
+      "parent": "search-focus",
+      "crop": [
+        0,
+        100,
+        48,
+        140
+      ]
+    },
+    "search-focus-7": {
+      "parent": "search-focus",
+      "crop": [
+        48,
+        100,
+        148,
+        140
+      ]
+    },
+    "search-focus-8": {
+      "parent": "search-focus",
+      "crop": [
+        148,
+        100,
+        196,
+        140
+      ]
+    },
+    "search-pressed-0": {
+      "parent": "search-pressed",
+      "crop": [
+        0,
+        0,
+        48,
+        40
+      ]
+    },
+    "search-pressed-1": {
+      "parent": "search-pressed",
+      "crop": [
+        48,
+        0,
+        148,
+        40
+      ]
+    },
+    "search-pressed-2": {
+      "parent": "search-pressed",
+      "crop": [
+        148,
+        0,
+        196,
+        40
+      ]
+    },
+    "search-pressed-3": {
+      "parent": "search-pressed",
+      "crop": [
+        0,
+        40,
+        48,
+        100
+      ]
+    },
+    "search-pressed-4": {
+      "parent": "search-pressed",
+      "crop": [
+        48,
+        40,
+        148,
+        100
+      ]
+    },
+    "search-pressed-5": {
+      "parent": "search-pressed",
+      "crop": [
+        148,
+        40,
+        196,
+        100
+      ]
+    },
+    "search-pressed-6": {
+      "parent": "search-pressed",
+      "crop": [
+        0,
+        100,
+        48,
+        140
+      ]
+    },
+    "search-pressed-7": {
+      "parent": "search-pressed",
+      "crop": [
+        48,
+        100,
+        148,
+        140
+      ]
+    },
+    "search-pressed-8": {
+      "parent": "search-pressed",
+      "crop": [
+        148,
+        100,
+        196,
+        140
+      ]
+    },
+    "search-disabled-0": {
+      "parent": "search-disabled",
+      "crop": [
+        0,
+        0,
+        48,
+        40
+      ]
+    },
+    "search-disabled-1": {
+      "parent": "search-disabled",
+      "crop": [
+        48,
+        0,
+        148,
+        40
+      ]
+    },
+    "search-disabled-2": {
+      "parent": "search-disabled",
+      "crop": [
+        148,
+        0,
+        196,
+        40
+      ]
+    },
+    "search-disabled-3": {
+      "parent": "search-disabled",
+      "crop": [
+        0,
+        40,
+        48,
+        100
+      ]
+    },
+    "search-disabled-4": {
+      "parent": "search-disabled",
+      "crop": [
+        48,
+        40,
+        148,
+        100
+      ]
+    },
+    "search-disabled-5": {
+      "parent": "search-disabled",
+      "crop": [
+        148,
+        40,
+        196,
+        100
+      ]
+    },
+    "search-disabled-6": {
+      "parent": "search-disabled",
+      "crop": [
+        0,
+        100,
+        48,
+        140
+      ]
+    },
+    "search-disabled-7": {
+      "parent": "search-disabled",
+      "crop": [
+        48,
+        100,
+        148,
+        140
+      ]
+    },
+    "search-disabled-8": {
+      "parent": "search-disabled",
+      "crop": [
+        148,
+        100,
+        196,
+        140
+      ]
+    },
+    "search-body-0": {
+      "parent": "search-body",
+      "crop": [
+        0,
+        0,
+        90,
+        0
+      ]
+    },
+    "search-body-1": {
+      "parent": "search-body",
+      "crop": [
+        90,
+        0,
+        770,
+        0
+      ]
+    },
+    "search-body-2": {
+      "parent": "search-body",
+      "crop": [
+        770,
+        0,
+        860,
+        0
+      ]
+    },
+    "search-body-3": {
+      "parent": "search-body",
+      "crop": [
+        0,
+        0,
+        90,
+        349
+      ]
+    },
+    "search-body-4": {
+      "parent": "search-body",
+      "crop": [
+        90,
+        0,
+        770,
+        349
+      ]
+    },
+    "search-body-5": {
+      "parent": "search-body",
+      "crop": [
+        770,
+        0,
+        860,
+        349
+      ]
+    },
+    "search-body-6": {
+      "parent": "search-body",
+      "crop": [
+        0,
+        349,
+        90,
+        439
+      ]
+    },
+    "search-body-7": {
+      "parent": "search-body",
+      "crop": [
+        90,
+        349,
+        770,
+        439
+      ]
+    },
+    "search-body-8": {
+      "parent": "search-body",
+      "crop": [
+        770,
+        349,
+        860,
+        439
+      ]
+    },
+    "search-count-0": {
+      "parent": "search-count",
+      "crop": [
+        0,
+        0,
+        20,
+        12
+      ]
+    },
+    "search-count-1": {
+      "parent": "search-count",
+      "crop": [
+        20,
+        0,
+        180,
+        12
+      ]
+    },
+    "search-count-2": {
+      "parent": "search-count",
+      "crop": [
+        180,
+        0,
+        200,
+        12
+      ]
+    },
+    "search-count-3": {
+      "parent": "search-count",
+      "crop": [
+        0,
+        12,
+        20,
+        30
+      ]
+    },
+    "search-count-4": {
+      "parent": "search-count",
+      "crop": [
+        20,
+        12,
+        180,
+        30
+      ]
+    },
+    "search-count-5": {
+      "parent": "search-count",
+      "crop": [
+        180,
+        12,
+        200,
+        30
+      ]
+    },
+    "search-count-6": {
+      "parent": "search-count",
+      "crop": [
+        0,
+        30,
+        20,
+        42
+      ]
+    },
+    "search-count-7": {
+      "parent": "search-count",
+      "crop": [
+        20,
+        30,
+        180,
+        42
+      ]
+    },
+    "search-count-8": {
+      "parent": "search-count",
+      "crop": [
+        180,
+        30,
+        200,
+        42
+      ]
+    },
+    "backplate-left": {
+      "parent": "gate",
+      "crop": [
+        245,
+        270,
+        645,
+        730
+      ]
+    },
+    "backplate-right": {
+      "parent": "gate",
+      "crop": [
+        890,
+        270,
+        1290,
+        730
+      ]
+    }
+  }
+}

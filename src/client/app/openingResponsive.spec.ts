@@ -10,9 +10,8 @@ it('covers the entire responsive surface with proportionally scaled original too
  expect(css).not.toContain('width:1440px; height:960px');
  expect(css).toContain('.siege-left { clip-path:polygon(');
  expect(css).toContain('.siege-right { clip-path:polygon(');
- for(const side of ['left','right']) expect(html).toContain(`class="siege-layer siege-${side}" src="/src/client/app/ui/delivery/gate-1536.webp"`);
- expect(html).toContain('type="image/avif"');
- expect(html).toContain('gate-768.webp 768w');
+ for(const side of ['left','right']) expect(html).toContain(`class="siege-layer siege-${side} atlas-slice"`);
+ expect(html).toContain('/opening-atlas/atlas.webp');
 });
 it('attaches every primary/utility and selection control without changing logical focus order',()=>{
  for(const [id,side] of Object.entries({'opening-play':'left','opening-retry':'left','opening-history':'left','opening-online':'right','opening-options':'right','opening-search':'right','opening-status':'left'})) {
@@ -24,8 +23,7 @@ it('attaches every primary/utility and selection control without changing logica
  expect(html).toContain('data-side="black"');
  expect(html).not.toContain('data-siege-mount="left" data-side="white"');
  expect(html).not.toContain('data-siege-mount="right" data-side="black"');
- expect(html).toContain('/selection-v2/frames/white/white-55.webp');
- expect(html).toContain('/selection-v2/frames/black/black-00.webp');
+ expect(html.match(/class="gate-piece atlas-slice"/g)).toHaveLength(2);
  expect(html.indexOf('id="opening-play"')).toBeLessThan(html.indexOf('id="opening-online"'));
  expect(html).toContain('aria-label="Ваша сторона"');
  expect(css).toContain('min-height:44px');

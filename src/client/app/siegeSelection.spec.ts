@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
 import { SiegeSelection } from './siegeSelection';
 import runtime from './siegeOpening.ts?raw';
@@ -37,7 +38,14 @@ describe('Siege selection progress', () => {
   expect(runtime).toContain('painters[side]!(state.displacement(side))');
  });
  it('loads only layers and fallback endpoints while preserving static failure art', () => {
-  expect(runtime).toContain('frames/*/*-{00,55}.webp');
+  expect(runtime).not.toContain('frames/*/*-{00,55}.webp');
+  const atlas = JSON.parse(readFileSync(new URL('./ui/opening-atlas/atlas.json', import.meta.url), 'utf8'));
+  const css = readFileSync(new URL('./ui/opening-atlas/atlas.css', import.meta.url), 'utf8');
+  for (const side of ['white', 'black']) for (const endpoint of ['00', '55']) {
+   expect(atlas.frames[`${side}-${endpoint}`].slice(2)).toEqual([724, 724]);
+   expect(atlas.provenance[`${side}-${endpoint}`].source).toContain(`${side}-${endpoint}.webp`);
+   expect(css).toContain(`[data-side="${side}"][aria-pressed="${endpoint === '55'}"] .gate-piece`);
+  }
   expect(runtime).toContain("button.dataset.art = 'static'");
  });
 });
