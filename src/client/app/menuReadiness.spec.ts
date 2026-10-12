@@ -24,7 +24,10 @@ it('preloads exactly one owner-approved menu delivery atlas at high priority wit
  expect(preloads[0][0]).toContain('/opening-atlas/atlas.webp');
  expect(preloads[0][0]).toContain('type="image/webp" fetchpriority="high"');
  for (const token of ['opening-menu-readiness', 'menu-settled', 'data-menu-state', 'titleFont', 'document.fonts', 'MENU_DEADLINE_MS']) expect(html).not.toContain(token);
- expect(html).toContain('font-display:swap');
+ const openingFaces = html.match(/@font-face\{[^}]+\}/g)!;
+ expect(openingFaces).toHaveLength(3);
+ for (const face of openingFaces) expect(face).toContain('font-display:swap');
+ expect(html).not.toContain('font-display:optional');
  const menu = html.match(/<main id="opening"[\s\S]*?<\/main>/)![0];
  expect(menu).not.toMatch(/<img|<picture|loading="lazy"|srcset=/);
  expect(menu.match(/class="gate-piece atlas-slice"/g)).toHaveLength(2);
