@@ -1,6 +1,8 @@
 import {afterEach, beforeEach, expect, it, vi} from 'vitest';
 import {createMenuAudio} from './menuAudio';
 import type {IYandexSdk} from './IYandexSdk';
+import {menuMusicCompensation,matchMusicCompensation} from './musicDelivery';
+import {menuOrganLevel,matchMusicLevel} from './audioMix';
 // Each test is a fresh page; transport de-duplication has its own runtime tests.
 vi.mock('./assetLoader', () => ({loadBytes: async (url:string) => {
  const response=await fetch(url,{priority:'low'});
@@ -25,9 +27,9 @@ class FakeContext {
  resume=vi.fn(()=>activation.promise.then(()=>{this.state='running';}));
  close=vi.fn(async()=>{this.state='closed';});
  decodeAudioData=vi.fn(async(data:unknown)=>data);
- createBuffer(){return {name:'menu_music_source',copyToChannel(){}};}
- createGain(){return {gain:{value:0,cancelScheduledValues(){},setValueAtTime(){},linearRampToValueAtTime(){},setTargetAtTime(){}},connect(){return this;},disconnect(){}};}
- createBufferSource(){return {buffer:null as unknown,loop:false,onended:null,connect:(node:unknown)=>node,disconnect(){},stop(){stops.push((this.buffer as {name:string}).name);},start(){starts.push((this.buffer as {name:string}).name);}};}
+ createBuffer=vi.fn(()=>({name:'menu_music_source',copyToChannel(){}}));
+ createGain=vi.fn(()=>({gain:{value:0,cancelScheduledValues(){},setValueAtTime(){},linearRampToValueAtTime(){},setTargetAtTime(value:number){this.value=value;}},connect(){return this;},disconnect(){}}));
+ createBufferSource=vi.fn(()=>({buffer:null as unknown,loop:false,onended:null,connect:(node:unknown)=>node,disconnect(){},stop(){stops.push((this.buffer as {name:string}).name);},start(){starts.push((this.buffer as {name:string}).name);}}));
 }
 function fire(type:string,id='opening-play',trusted=true){
  handlers.get(type)?.({isTrusted:trusted,target:{closest:(selector:string)=>selector.split(',').includes(`#${id}`)}} as unknown as Event);
@@ -98,6 +100,17 @@ it('does not fetch deferred audio after disposal',()=>{
  fire('pointerdown','elsewhere');
  audio.dispose();const size=requests.size;
  audio.warmAudio();expect(requests.size).toBe(size);
+});
+
+it.each(['pendingPlay','playCommitted'])('does not warm an inactive menu theme while %s survives late show/readiness',async(flag)=>{
+ settings.music=1;
+ (window as unknown as {checkersStartup:Record<string,boolean>}).checkersStartup={[flag]:true};
+ fire('pointerdown','opening-play');activation.resolve();await flush();
+ audio.show();audio.warmAudio();await flush();
+ expect([...requests.keys()].some(url=>url.includes('/menu_music_source.'))).toBe(false);
+ (window as unknown as {checkersStartup:Record<string,boolean>}).checkersStartup={[flag]:false};
+ audio.show();await flush();
+ expect([...requests.keys()].some(url=>url.includes('/menu_music_source.'))).toBe(true);
 });
 
 it('remembers readiness when AudioContext creation initially fails',()=>{
@@ -309,4 +322,50 @@ it('drops failed Play fetch without blocking or playing other assets',async()=>{
  fire('click');activation.resolve();
  [...requests].find(([url])=>url.includes('/play-b.'))![1].reject(Error('offline'));
  await flush();expect(starts).toEqual([]);
+});
+
+it('preserves baked decoded music buffers and loops both without runtime trimming',async()=>{
+ settings.music=1;await load('menu_music_source');activation.resolve();await flush();
+ audio.beginMatch();await load('match-b-90s');
+ expect(starts).toEqual(['menu_music_source','match-b-90s']);
+ expect(context.createBuffer).not.toHaveBeenCalled();
+ const sources=context.createBufferSource.mock.results.map(r=>r.value);
+ expect(sources.map(s=>s.loop)).toEqual([true,true]);
+ expect(sources.map(s=>(s.buffer as {name:string}).name)).toEqual(starts);
+});
+it('independently level-matches menu and match and updates volume without restarting',async()=>{
+ settings.music=1;await load('menu_music_source');activation.resolve();await flush();
+ const menuGain=context.createGain.mock.results[0].value.gain;
+ expect(menuGain.value).toBeCloseTo(menuOrganLevel*menuMusicCompensation);
+ settings.music=.5;fire('checkers-settings-change');
+ expect(menuGain.value).toBeCloseTo(.5*menuOrganLevel*menuMusicCompensation);
+ audio.beginMatch();await load('match-b-90s');
+ const matchGain=context.createGain.mock.results[1].value.gain;
+ expect(matchGain.value).toBeCloseTo(.5*matchMusicLevel*matchMusicCompensation);
+ expect(matchGain.value).toBeLessThan(menuGain.value);
+ settings.master=.4;fire('checkers-settings-change');
+ expect(matchGain.value).toBeCloseTo(.4*.5*matchMusicLevel*matchMusicCompensation);
+ expect(starts).toEqual(['menu_music_source','match-b-90s']);
+});
+it('does not resume music until BOTH hidden and platform pauses clear',async()=>{
+ settings.music=1;activation.resolve();fire('pointerdown','opening-play');await flush();
+ audio.beginMatch();await load('match-b-90s');expect(starts).toEqual(['match-b-90s']);
+ hidden=true;fire('visibilitychange');pause();
+ hidden=false;fire('visibilitychange');expect(starts).toEqual(['match-b-90s']);
+ resume();expect(starts).toEqual(['match-b-90s','match-b-90s']);
+ expect(stops).toEqual(['match-b-90s']);
+});
+it('keeps match music through result and stops it when returning to menu',async()=>{
+ settings.music=1;activation.resolve();fire('pointerdown','opening-play');await flush();
+ audio.beginMatch();await load('match-b-90s');
+ audio.resultCeremonySound(false);expect(stops).toEqual([]);
+ audio.show();await load('menu_music_source');
+ expect(stops).toEqual(['match-b-90s']);
+ expect(starts).toEqual(['match-b-90s','menu_music_source']);
+});
+it('drops failed music decode without preventing match or short cues',async()=>{
+ settings.music=1;activation.resolve();fire('pointerdown','opening-play');await flush();
+ audio.beginMatch();context.decodeAudioData.mockRejectedValueOnce(Error('decode failed'));
+ await load('match-b-90s');await load('turn-handoff');audio.turnHandoff();
+ expect(starts).toEqual(['turn-handoff']);
 });

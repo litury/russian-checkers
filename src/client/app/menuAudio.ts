@@ -4,7 +4,8 @@ import {MenuAudioPolicy,menuMusicShouldPlay,menuMusicStopsInstantly,menuMusicFad
 import {matchMusicDuck,matchMusicLevel,menuOrganLevel,sfxBus,voiceBus} from './audioMix';
 import {menuClickLevel,menuBackSound} from './menuClickLevel';
 import {bindMenuPressSound} from './menuPressSound';
-import {previewLoop,mechanismEnvelope} from './menuAudioPreview';
+import {mechanismEnvelope} from './menuAudioPreview';
+import {menuMusicCompensation,matchMusicCompensation} from './musicDelivery';
 import {startPanelWindows,startTimerLock,startTimerSlide} from './startAudio';
 import {orcArenaLine} from './orcTurn';
 import {announcerCue} from './announcer';
@@ -23,13 +24,12 @@ export function createMenuAudio(sdk:IYandexSdk) {
  let epoch=0, clickSerial=0;
  const loading=new Map<string,Promise<void>>();
  const mechanisms=new Map<string,{source:AudioBufferSourceNode,gain:GainNode}|null>();
- // Producer can replace this technical preview with an approved loop later.
- const loop={enabled:true,start:0,end:0}; // Temporary crossfaded preview, NOT approved master.
+
  const settings=()=>window.checkersSettings.get();
  const stopEffects=()=>{cancelPieceAh();if(voice){try{voice.stop()}catch{}voice=undefined;voiceGain=undefined;voiceBark=false;}for(const s of effects){try{s.stop()}catch{}}effects.clear();};
  const stopMusic=()=>{fadeGen++;fading=false;if(music){music.onended=null;try{music.stop()}catch{}music=undefined;}musicGain=undefined;};
  const stopMatch=()=>{if(match){match.onended=null;try{match.stop()}catch{}match=undefined;}matchGain=undefined;};
- const matchLevel=()=>settings().master*settings().music*matchMusicLevel;
+ const matchLevel=()=>settings().master*settings().music*matchMusicLevel*matchMusicCompensation;
  const startMatch=()=>{
   if(match||!ctx||ctx.state!=='running')return;
   const buffer=buffers.get('match-b-90s');if(!buffer)return;
@@ -59,15 +59,14 @@ export function createMenuAudio(sdk:IYandexSdk) {
   }
   if(!policy.audible||!settings().effects||!settings().master){epoch++;stopEffects();}
   if(menuMusicShouldPlay(policy,unlocked,settings().music)){
-   const level=settings().master*settings().music*menuOrganLevel;
+   const level=settings().master*settings().music*menuOrganLevel*menuMusicCompensation;
    if(musicGain&&music&&ctx){
     fadeGen++;fading=false;musicGain.gain.cancelScheduledValues(ctx.currentTime);
     musicGain.gain.setTargetAtTime(level,ctx.currentTime,.08);
    }else if(!music&&!musicEnded&&ctx?.state==='running'){
     const buffer=buffers.get('menu_music_source');
     if(buffer){
-     music=ctx.createBufferSource();music.buffer=buffer;music.loop=loop.enabled;
-     if(loop.enabled){music.loopStart=loop.start;music.loopEnd=loop.end;}
+     music=ctx.createBufferSource();music.buffer=buffer;music.loop=true;
      musicGain=ctx.createGain();musicGain.gain.value=level;
      music.connect(musicGain).connect(ctx.destination);
      music.onended=()=>{music=undefined;musicEnded=true;};music.start();
@@ -87,15 +86,14 @@ export function createMenuAudio(sdk:IYandexSdk) {
  const audioName=(path:string)=>path.split('/').pop()!.replace(/\.[^.]+$/,'');
  const requestBuffer=(name:string)=>{
   if(disposed||!ctx||ctx.state==='closed'||loading.has(name))return;
+  // Readiness can arrive after first Play reset departing. Its committed intent
+  // still owns the screen: don't fetch an inactive menu bed from warmDeferred.
+  if(name==='menu_music_source'&&(policy.departing||window.checkersStartup?.pendingPlay||window.checkersStartup?.playCommitted))return;
   if(!playfieldReady&&deferredAudio.has(name))return;
   const url=Object.entries(urls).find(([path])=>audioName(path)===name)?.[1];
   if(!url)return;
   const ready=loadBytes(url).then(b=>ctx!.decodeAudioData(b.slice(0))).then(b=>{
-   if(name==='menu_music_source'||name==='match-b-90s'){
-    const fade=Math.floor(b.sampleRate),out=ctx!.createBuffer(b.numberOfChannels,b.length-fade,b.sampleRate);
-    for(let c=0;c<b.numberOfChannels;c++)out.copyToChannel(previewLoop(b.getChannelData(c),fade) as Float32Array<ArrayBuffer>,c);
-    b=out;
-   }
+   // Accepted-source loops have a baked beat-aligned seam; preserve decoded PCM.
    buffers.set(name,b);sync();
   }).catch(()=>{});
   loading.set(name,ready);
@@ -103,7 +101,7 @@ export function createMenuAudio(sdk:IYandexSdk) {
  const warmDeferred=()=>{
   if(disposed||!playfieldReady||!prepared||!ctx||ctx.state==='closed')return;
   for(const name of ['result-ascension','result-disposal'])requestBuffer(name);
-  // 1.4MB theme belongs to an active menu, not to a departure already in progress.
+  // Theme belongs to an active menu, not to a departure already in progress.
   if(settings().music&&!policy.departing)requestBuffer('menu_music_source');
  };
  const prepare=()=>{
@@ -111,7 +109,7 @@ export function createMenuAudio(sdk:IYandexSdk) {
   if(!ctx)try {ctx=new AudioContext();}catch{return;}
   prepared=true;
   // Short cues warm only after activation. Music belongs to the active screen;
-  // never download the 1.4MB menu theme while leaving for a game.
+  // never download the menu theme while leaving for a game.
   for(const path of Object.keys(urls)){
    const name=audioName(path);
    if(name!=='menu_music_source'&&name!=='match-b-90s')requestBuffer(name);

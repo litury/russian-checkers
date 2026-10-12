@@ -1,0 +1,126 @@
+{
+	"reference_sha": "c6ebeb2264f9e5eb506aca8e90090e5e7527c5f6",
+	"source_provenance": {
+		"provider": "Stability AI",
+		"model_family": "Stable Audio 3.0 (official API default; no unsupported Large selector)",
+		"endpoint": "https://api.stability.ai/v2beta/audio/stable-audio/text-to-audio",
+		"sources": [
+			"https://platform.stability.ai/pricing",
+			"https://platform.stability.ai/docs/release-notes",
+			"https://raw.githubusercontent.com/Stability-AI/stability-sdk/main/nbs/Stable_Audio_API.ipynb"
+		],
+		"listed_credits_per_generation": 8,
+		"approved_max_paid_posts": 2,
+		"listening": "Owner accepted both source review MP3s; agent has no audio perception.",
+		"loop_status": "Listening drafts, end-to-start musical seam not auditioned; not seamless-loop masters.",
+		"tracks": {
+			"menu": {
+				"parameters": {
+					"prompt": "Original instrumental electronic game menu composition, calm cool spacious and quietly confident, 76 BPM. One cohesive arrangement throughout 55 seconds. Soft rounded synth pulse, airy clean digital pads with gentle consonant extended chords, sparse delicate metallic FM plucks evoking brushed steel, restrained warm mid-bass notes with space between them. Subtle evolving motif, comfortable steady dynamics, light and reassuring rather than ominous. Minimal percussion, soft attacks, uncluttered spacious mix. No piano, no organ, no anthem, no quoted melody, no vocals or choir, no horror drones, no rumbling sub bass, no military march, no heavy impacts, no risers, no dramatic build or climax. Designed as a quiet background for a steel industrial board-game menu.",
+					"duration": 55,
+					"seed": 42100,
+					"steps": 8,
+					"output_format": "wav"
+				},
+				"generation_id": "1e665b2e10e166c39abd47ead6fc546968e2afc31248393219fa96b74a52ba41",
+				"post_status": 202,
+				"result_status": 200,
+				"content_type": "audio/wav",
+				"bytes": 9720060
+			},
+			"match": {
+				"parameters": {
+					"prompt": "Original instrumental electronic strategy board-game background composition, focused composed and quietly confident, 94 BPM. One cohesive arrangement throughout 55 seconds. Restrained soft drum-machine groove, low-volume rounded kick, muted rim taps, delicate short filtered hi hats, gentle syncopated synth pulse, sparse cool consonant pads and tiny brushed-metal FM accents. Short clean bass notes with breathing room, no sustained low rumble. Slightly more rhythmic than a calm menu, stable energy for concentration, roomy mix leaving space for game move and capture clicks, no piercing transients. No piano, no organ, no anthem, no quoted melody, no vocals or choir, no horror drones, no military march, no heavy impacts, no risers, no drop, no dramatic build or continuous climax.",
+					"duration": 55,
+					"seed": 42101,
+					"steps": 8,
+					"output_format": "wav"
+				},
+				"generation_id": "e45e36d86470ea94e434dd686d06a3937654881d9151e52bb657bc351c6fe503",
+				"post_status": 202,
+				"result_status": 200,
+				"content_type": "audio/wav",
+				"bytes": 9720060
+			}
+		},
+		"processing": "Review MP3: source WAV -> volume=0.8 -> libmp3lame 192k, no splicing, no references. This adds headroom but cannot undo possible source saturation.",
+		"technical_limitations": "Source WAV full-scale samples: menu 156, match 1438; possible pre-existing clipping must be judged by listening. MP3 decoded full-scale samples: zero both. No audition performed. Seam not approved.",
+		"sha256": {
+			"match-source.wav": "8e9c11d81208787faa586f22d8df1469d20d22ad28770a3596dd228f70694d15",
+			"menu-source.wav": "a40df814c64f81da52ec9f31f00a3a460b690f7ab419b2c52a36dfb0ef3419db",
+			"menu-review.mp3": "cba406da750f9ebdbf5e9eaecbd6e7a62f856bf6021950a491777fb4114073db",
+			"match-review.mp3": "5fa504580a42b97c6666e906b7470e47c6af8afb7ebcbac47e6cb1d9e387c741"
+		}
+	},
+	"limitations": "No audio perception in this environment. Spectral matching does not certify musical phrasing or removal of audible distortion. Owner accepted source character; QA must audition seams and A/B.",
+	"tracks": {
+		"menu": {
+			"source_sha256": "a40df814c64f81da52ec9f31f00a3a460b690f7ab419b2c52a36dfb0ef3419db",
+			"start_sec": 16.931972789115665,
+			"end_sec": 45.3530254206947,
+			"crossfade_sec": 3.157894736842114,
+			"bpm_estimate": 75.99954044117648,
+			"seam_bpm": 75.99999999999976,
+			"beats": 32,
+			"chroma_similarity": 0.9695534497208534,
+			"onset_similarity": 0.9493347995337783,
+			"score": 1.709877283078709,
+			"processing": "Full/near-full-scale runs: local cubic interpolation; continuous interior section; 4-beat smoothstep tail/head crossfade; cyclic rotation to stable boundary; independent static gain; MP3 192k.",
+			"repaired_samples": 359,
+			"static_gain": 0.8090908915543363,
+			"cyclic_rotation_frames": 26176,
+			"reference_lufs": -13.07,
+			"delivery_loudness": {
+				"input_i": "-15.96",
+				"input_tp": "-0.89",
+				"input_lra": "3.60",
+				"input_thresh": "-26.12"
+			},
+			"runtime_level_compensation": 1.3947616576399937,
+			"sample_peak_dbfs": -0.9089700956823392,
+			"decoded_duration_sec": 25.26315192743764,
+			"decoded_frames": 1114105,
+			"seam_step": 0.004419870674610138,
+			"sha256": "f4a784d307541375a3686b9de4fc57085ce1eed214dee41f6180f2d994510d73",
+			"bytes": 608174,
+			"effective_full_volume_gain": 0.6276427459379972,
+			"effective_full_volume_lufs": -20.00574972449313,
+			"effective_default_master_lufs": -27.96454989793388
+		},
+		"match": {
+			"source_sha256": "8e9c11d81208787faa586f22d8df1469d20d22ad28770a3596dd228f70694d15",
+			"start_sec": 23.247800453514767,
+			"end_sec": 46.22652385777015,
+			"crossfade_sec": 2.5531914893617094,
+			"bpm_estimate": 95.703125,
+			"seam_bpm": 93.99999999999974,
+			"beats": 32,
+			"chroma_similarity": 0.9667101131139052,
+			"onset_similarity": 0.9517764176584791,
+			"score": 1.6942302012195216,
+			"processing": "Full/near-full-scale runs: local cubic interpolation; continuous interior section; 4-beat smoothstep tail/head crossfade; cyclic rotation to stable boundary; independent static gain; MP3 192k.",
+			"repaired_samples": 2933,
+			"static_gain": 0.8090908915543363,
+			"cyclic_rotation_frames": 4288,
+			"reference_lufs": -13.76,
+			"delivery_loudness": {
+				"input_i": "-16.66",
+				"input_tp": "-1.25",
+				"input_lra": "3.80",
+				"input_thresh": "-26.79"
+			},
+			"runtime_level_compensation": 1.3963683610559376,
+			"sample_peak_dbfs": -1.2608910386857182,
+			"decoded_duration_sec": 20.425532879818594,
+			"decoded_frames": 900766,
+			"seam_step": 0.005435943603515625,
+			"sha256": "41c1eab8159f9754a6fd347ab7b8ef47cce5f69772661fde08e3e7c40bbb460f",
+			"bytes": 491564,
+			"effective_full_volume_gain": 0.22341893776895003,
+			"effective_full_volume_lufs": -29.677600346881505,
+			"effective_default_master_lufs": -37.636400520322255
+		}
+	},
+	"acceptance": "Owner accepted source menu/match character in task t_569d0465; prepared loops pending independent qa2 review.",
+	"masters_location": "/home/hermes/.hermes/kanban/boards/russian-checkers/attachments/t_e9e2e3a7/"
+}
