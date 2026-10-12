@@ -53,11 +53,11 @@
 #resign-confirmation .match-action:hover{filter:brightness(1.12)}
 #resign-confirmation .match-action:active{filter:brightness(.85)}
 
-/* Material moves independently of the native modal's fixed hit targets. */
+/* One composited sheet carries material, text and native hit targets together. */
 #resign-confirmation::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;border-radius:inherit;background:transparent url('./ui/match-actions/dialog.webp') left top 46.6666666667%/96.09375% 96.9512195122% no-repeat}
-#resign-confirmation[open]::before{animation:resign-material-enter 280ms ease-out both}
+#resign-confirmation[open]{animation:resign-material-enter 280ms ease-out both}
 #resign-confirmation[open]::backdrop{animation:resign-backdrop-enter 280ms ease-out both}
-#resign-confirmation[data-closing]::before{animation:resign-material-exit 280ms ease-out both}
+#resign-confirmation[data-closing]{animation:resign-material-exit 280ms ease-out both}
 #resign-confirmation[data-closing]::backdrop{animation:resign-backdrop-exit 280ms ease-out both}
 @keyframes resign-material-enter{from{opacity:.2;transform:translateY(100%)}to{opacity:1;transform:none}}
 @keyframes resign-material-exit{from{opacity:var(--resign-exit-opacity,1);transform:var(--resign-exit-transform,none)}to{opacity:.2;transform:translateY(100%)}}
@@ -68,7 +68,7 @@
  #resign-confirmation::before{background-color:#17191c}
 }
 @media(prefers-reduced-motion:reduce){
- #resign-confirmation[open]::before,#resign-confirmation[open]::backdrop{animation:none}
+ #resign-confirmation[open],#resign-confirmation[open]::backdrop{animation:none}
 }
 
 /* The above-board tablet card has no room for an explanation above it. */
