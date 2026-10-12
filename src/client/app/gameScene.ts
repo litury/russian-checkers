@@ -145,8 +145,9 @@ export class GameScene extends Phaser.Scene {
 		// Title is HTML-first: do not queue heavy packs here — unlock must not wait on them.
 		window.checkersStartup?.status('Подключаем игру…');
 		this.load.on('loaderror', (file: { key?: string }) => {
-			// Optional fire owns its diagnostics; a missing flame never blocks the game.
-			if (file.key?.startsWith('king-fire_')) return;
+			// Optional seal/fire may be absent; keep the loader completion and later
+			// decoration warmup alive. The renderer hides an unavailable seal.
+			if (file.key === 'selection_king-seal' || file.key?.startsWith('king-fire_')) return;
 			this.startupFailed = true;
 			clearTimeout(window.checkersStartup?.watchdog);
 			window.checkersStartup?.fail('Не удалось загрузить игровые ресурсы. Проверьте соединение и повторите загрузку.');
