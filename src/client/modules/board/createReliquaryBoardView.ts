@@ -365,7 +365,11 @@ export function createBoardView(
 			.setData('side', view.side)
 			.setData('progress', view.motion.progress);
 		view.outline.setTexture(texture);
-		view.seal.setVisible(king && hasTexture('selection_king-seal'));
+		const sealReady = hasTexture('selection_king-seal');
+		// The optional seal loads after pieces are created. Bind its own texture
+		// before revealing it; a piece-body fallback would cover the king.
+		if (sealReady) view.seal.setTexture('selection_king-seal');
+		view.seal.setVisible(king && sealReady);
 		for (const image of [view.sprite, view.outline])
 			image
 				.setOrigin(0.5, 0.5)
@@ -751,7 +755,7 @@ export function createBoardView(
 						.setVisible(false);
 					const sealKey = hasTexture('selection_king-seal')
 						? 'selection_king-seal'
-						: texture;
+						: '__DEFAULT';
 					const seal = scene.add
 						.image(0, 0, sealKey)
 						.setName('king-seal')
