@@ -138,7 +138,9 @@ it('keeps the search card and its buttons at the main geometry while the count r
 	expect(atlas).toContain('grid-template-rows:0 minmax(0,1fr) 24px');
 	expect(gates).toMatch(/#opening-search-actions button \{[^}]*height:var\(--btn-h\);/);
 	// Плашки поиска держат прежний flex и свою пластину под коробку. Телефонное меню остаётся на старой.
-	expect(manifest.frames['phone-rest'].slice(2)).toEqual([736,295]);
+	expect(manifest.provenance['phone-rest'].sourceSize).toEqual([736,295]);
+	expect(manifest.frames['phone-rest'].slice(2)).toEqual([384,154]);
+	expect(Math.abs(384 / 154 - 736 / 295)).toBeLessThan(0.005);
 	expect(gates).toMatch(/#opening-search-actions button \{[^}]*flex:1 1 calc\(33\.333% - 7px\)/);
 	expect(atlas).toContain('.search-button-art { --slice-x:24px; --slice-y:20px; }');
 	expect(gates).not.toMatch(/#opening-search-actions button \{[^}]*100% 100%/);
@@ -152,7 +154,8 @@ it('keeps the search card and its buttons at the main geometry while the count r
 	expect(gates).toMatch(/#opening-search-actions button \{[^}]*background:none;/);
 	expect(gates).toMatch(/background-size:contain;\s*background-origin:border-box; background-clip:border-box;/);
 	expect(gates).not.toMatch(/#opening-search-actions button \{[^}]*background-origin:padding-box/);
-	expect(manifest.frames['phone-pressed'].slice(2)).toEqual([736,295]);
+	expect(manifest.provenance['phone-pressed'].sourceSize).toEqual([736,295]);
+	expect(manifest.frames['phone-pressed'].slice(2)).toEqual([384,154]);
 	// Короткие экраны: карточка не закрывает соседние половины «Летописи»/«Битв» и не прячет их.
 	// Она ограничена по высоте свободным местом над их верхом и прокручивается внутри.
 	expect(gates).toMatch(/#opening-search \{[^}]*max-height:calc\(100% - var\(--play-y\) - var\(--piece\) - 182px\)/);

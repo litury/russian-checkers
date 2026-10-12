@@ -5,8 +5,20 @@ const atlas = readFileSync(new URL('./ui/opening-atlas/atlas.css', import.meta.u
 import gates from './openingGates.css?raw';
 import chronicle from './hangingChronicle.css?raw';
 import renderer from './siegeOpening.ts?raw';
+import manifest from './ui/opening-atlas/atlas.json';
 
-it('preloads exactly one lossless atlas at high priority without JS visibility gates', () => {
+it('keeps menu delivery compact and explicitly scoped, with offline metric-identical font sources', () => {
+ const webp = readFileSync(new URL('./ui/opening-atlas/atlas.webp', import.meta.url));
+ expect(webp.length).toBeLessThan(1_000_000);
+ expect(webp.toString('ascii', 0, 4)).toBe('RIFF');
+ expect(manifest.size[0]).toBeLessThanOrEqual(2048);
+ expect(manifest.delivery).toEqual({format:'webp',quality:88,alpha:'lossless',scope:'menu-only',ownerApprovedLossy:true});
+ expect(html.match(/data:font\/woff2;base64,/g)).toHaveLength(3);
+ expect(html).toMatch(/font-family:Literata;src:url\('data:font\/woff2;base64,/);
+ expect(html).toMatch(/font-family:'Golos Text';src:url\('data:font\/woff2;base64,/);
+});
+
+it('preloads exactly one owner-approved menu delivery atlas at high priority without JS visibility gates', () => {
  const preloads = [...html.matchAll(/<link[^>]+rel="preload"[^>]+as="image"[^>]*>/g)];
  expect(preloads).toHaveLength(1);
  expect(preloads[0][0]).toContain('/opening-atlas/atlas.webp');

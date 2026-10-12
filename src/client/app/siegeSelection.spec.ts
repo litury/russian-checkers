@@ -42,7 +42,10 @@ describe('Siege selection progress', () => {
   const atlas = JSON.parse(readFileSync(new URL('./ui/opening-atlas/atlas.json', import.meta.url), 'utf8'));
   const css = readFileSync(new URL('./ui/opening-atlas/atlas.css', import.meta.url), 'utf8');
   for (const side of ['white', 'black']) for (const endpoint of ['00', '55']) {
-   expect(atlas.frames[`${side}-${endpoint}`].slice(2)).toEqual([724, 724]);
+   // Owner-approved menu delivery resize; gameplay source/pivot stays 724².
+   expect(atlas.frames[`${side}-${endpoint}`].slice(2)).toEqual([256, 256]);
+   expect(atlas.provenance[`${side}-${endpoint}`].sourceSize).toEqual([724, 724]);
+   expect(atlas.provenance[`${side}-${endpoint}`].deliverySize).toEqual([256, 256]);
    expect(atlas.provenance[`${side}-${endpoint}`].source).toContain(`${side}-${endpoint}.webp`);
    expect(css).toContain(`[data-side="${side}"][aria-pressed="${endpoint === '55'}"] .gate-piece`);
   }

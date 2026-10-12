@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Package existing menu art only. No resizing, compositing, color or alpha edits.
+"""Package existing menu delivery art. Masters remain untouched.
 
-Requires Pillow with WebP. --check verifies every decoded RGBA byte, including
-RGB under zero alpha, source hashes, manifest and reproducible generated CSS.
+Owner-approved menu-only resizing and WebP quality 88, lossless alpha.
+--check validates provenance, deterministic CSS, alpha and RGB error bounds.
 """
 import argparse
 import hashlib
@@ -14,8 +14,13 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'src/client/app/ui/opening-atlas'
 SIEGE = 'src/client/app/ui/siege/'
 items = {}
+original_sizes = {}
 def source(name, path):
     image = Image.open(ROOT / path).convert('RGBA')
+    original_sizes[name] = image.size
+    max_width = 1280 if name == 'gate' else 840 if name == 'title' else 256 if name.startswith(('white-', 'black-')) else 672 if name.startswith('desk-') else 512 if name == 'frame' else 384
+    if image.width > max_width:
+        image = image.resize((max_width, round(image.height * max_width / image.width)), Image.Resampling.LANCZOS)
     items[name] = (image, path)
 
 for name, path in {
@@ -35,14 +40,14 @@ for side in ('white', 'black'):
 
 # Deterministic shelf packing; a 2px exact edge extrusion prevents filtering from
 # sampling adjacent art. Source rectangles themselves remain entirely unmodified.
-width = 4096
+width = 2048
 frames, provenance = {}, {}
 x = y = row = 0
 for name, (im, path) in sorted(items.items(), key=lambda item: (-item[1][0].height, item[0])):
     w,h = im.size
     if x + w + 4 > width: x = 0; y += row; row = 0
     frames[name] = [x+2,y+2,w,h]
-    provenance[name] = {'source':path, 'sha256':hashlib.sha256((ROOT/path).read_bytes()).hexdigest(), 'rgbaSha256':hashlib.sha256(im.tobytes()).hexdigest()}
+    provenance[name] = {'source':path, 'sha256':hashlib.sha256((ROOT/path).read_bytes()).hexdigest(), 'sourceSize':list(original_sizes[name]), 'deliverySize':[w,h], 'rgbaSha256':hashlib.sha256(im.tobytes()).hexdigest()}
     x += w + 4; row = max(row, h+4)
 height = y + row
 atlas = Image.new('RGBA', (width,height))
@@ -59,12 +64,14 @@ for name, (im, _) in items.items():
             atlas.paste(im.crop((sx,sy,sx+1,sy+1)).resize((2,2),Image.Resampling.NEAREST),(x+dx,y+dy))
 
 def sub(name, parent, box):
-    x,y,_,_ = frames[parent]; l,t,r,b = box
+    x,y,w,h = frames[parent]
+    ow,oh = original_sizes[parent]
+    l,t,r,b = [round(v*s) for v,s in zip(box,(w/ow,h/oh,w/ow,h/oh))]
     frames[name] = [x+l,y+t,r-l,b-t]
     provenance[name] = {'parent':parent,'crop':[l,t,r,b]}
 
 def nine(name, left, top, right, bottom):
-    _,_,w,h = frames[name]
+    w,h = original_sizes[name]
     xs=[0,left,w-right,w];ys=[0,top,h-bottom,h]
     for row in range(3):
         for col in range(3): sub(f'{name}-{row*3+col}',name,(xs[col],ys[row],xs[col+1],ys[row+1]))
@@ -74,7 +81,7 @@ nine('search-body',90,0,90,90)
 nine('search-count',20,12,20,12)
 sub('backplate-left','gate',(245,270,645,730))
 sub('backplate-right','gate',(890,270,1290,730))
-manifest={'size':[width,height],'frames':frames,'provenance':provenance}
+manifest={'size':[width,height],'frames':frames,'provenance':provenance,'delivery':{'format':'webp','quality':88,'alpha':'lossless','scope':'menu-only','ownerApprovedLossy':True}}
 
 # Percent positions solve (container - scaled atlas) * position = -scaled origin.
 # Each slice scales independently with its grid cell; corners have fixed CSS size.
@@ -138,17 +145,25 @@ if args.check:
     assert (OUT/'atlas.css').read_text()==css, 'Generated CSS stale'
 else:
     OUT.mkdir(exist_ok=True)
-    if not args.css_only: atlas.save(OUT/'atlas.webp',lossless=True,exact=True,method=6)
+    if not args.css_only:
+        atlas.save(OUT/'atlas.webp',quality=88,alpha_quality=100,method=6)
+        atlas.save(OUT/'atlas.avif',quality=100,subsampling='4:4:4',speed=6)
     (OUT/'atlas.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n')
     (OUT/'atlas.css').write_text(css)
 decoded=Image.open(OUT/'atlas.webp').convert('RGBA')
 assert decoded.size==atlas.size
-assert decoded.tobytes()==atlas.tobytes(), 'Atlas RGBA mismatch (including transparent RGB)'
+assert decoded.getchannel('A').tobytes()==atlas.getchannel('A').tobytes(), 'WebP alpha mismatch'
+assert (OUT/'atlas.webp').stat().st_size < 1000000, 'Menu delivery budget exceeded'
 for name,(im,_) in items.items():
     x,y,w,h=frames[name]
-    assert decoded.crop((x,y,x+w,y+h)).tobytes()==im.tobytes(), name
+    crop=decoded.crop((x,y,x+w,y+h))
+    visible=[sum(abs(a-b) for a,b in zip(p[:3],q[:3]))/3 for p,q in zip(im.getdata(),crop.getdata()) if p[3]>128]
+    mae=sum(visible)/len(visible) if visible else 0
+    assert mae < 10, (name,mae)
+    print(f'{name}: visible RGB MAE {mae:.3f}; {w}x{h}')
 if (OUT/'atlas.avif').exists():
     avif = Image.open(OUT/'atlas.avif').convert('RGBA')
-    assert avif.size == atlas.size and avif.tobytes() == atlas.tobytes(), 'AVIF candidate RGBA mismatch'
-    print(f'AVIF candidate exact RGBA verified: {(OUT/"atlas.avif").stat().st_size} bytes (WebP preferred).')
-print(f'Exact RGBA verified: {len(items)} sources, {len(frames)} frames, {width}x{height}, {(OUT/"atlas.webp").stat().st_size} bytes; generated CSS matches manifest.')
+    assert avif.size == atlas.size, 'AVIF size mismatch'
+    assert avif.getchannel('A').tobytes() == atlas.getchannel('A').tobytes(), 'AVIF alpha mismatch'
+    print(f'AVIF alpha verified: {(OUT/"atlas.avif").stat().st_size} bytes (WebP preferred).')
+print(f'Delivery verified: {len(items)} sources, {len(frames)} frames, {width}x{height}, {(OUT/"atlas.webp").stat().st_size} bytes; generated CSS matches manifest.')
