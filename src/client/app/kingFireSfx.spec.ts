@@ -43,11 +43,11 @@ it('recovers late fire sheets without replaying an obsolete promotion one-shot',
  };
  const flames = new KingFire(scene as never);
  flames.ignite({}, { x: 0, y: 0 }, 44, false);
- expect(heard).toEqual([]);
- ready = true; flames.update(16);
- expect(heard).toEqual([]);
- flames.ignite({}, { x: 44, y: 44 }, 44, false);
  expect(heard).toEqual([kingFireIgniteCue]);
+ ready = true; flames.update(16);
+ expect(heard).toEqual([kingFireIgniteCue]);
+ flames.ignite({}, { x: 44, y: 44 }, 44, false);
+ expect(heard).toEqual([kingFireIgniteCue, kingFireIgniteCue]);
  bindKingFireSfx(() => {});
 });
 

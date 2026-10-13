@@ -1,0 +1,886 @@
+{
+  "sfx-baseline-matrix": [
+    {
+      "side": "white",
+      "type": "capture",
+      "motion": "no-preference",
+      "temperature": "cold",
+      "fireReady": true,
+      "cues": [
+        {
+          "at": 1528.1000001430511,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        },
+        {
+          "at": 2287.5,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "white",
+      "type": "promotion",
+      "motion": "no-preference",
+      "temperature": "cold",
+      "fireReady": false,
+      "cues": [],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "white",
+      "type": "capture",
+      "motion": "no-preference",
+      "temperature": "warm",
+      "fireReady": true,
+      "cues": [
+        {
+          "at": 1353.5,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        },
+        {
+          "at": 1829.6999998092651,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "white",
+      "type": "promotion",
+      "motion": "no-preference",
+      "temperature": "warm",
+      "fireReady": true,
+      "cues": [
+        {
+          "at": 2147.399999856949,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.054759608166686034,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "black",
+      "type": "capture",
+      "motion": "no-preference",
+      "temperature": "cold",
+      "fireReady": true,
+      "cues": [
+        {
+          "at": 918.4000000953674,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        },
+        {
+          "at": 1869.5,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "black",
+      "type": "promotion",
+      "motion": "no-preference",
+      "temperature": "cold",
+      "fireReady": false,
+      "cues": [],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "black",
+      "type": "capture",
+      "motion": "no-preference",
+      "temperature": "warm",
+      "fireReady": true,
+      "cues": [
+        {
+          "at": 2312.0999999046326,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        },
+        {
+          "at": 3565.2999999523163,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "black",
+      "type": "promotion",
+      "motion": "no-preference",
+      "temperature": "warm",
+      "fireReady": true,
+      "cues": [
+        {
+          "at": 1683,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.054759608166686034,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "white",
+      "type": "capture",
+      "motion": "reduce",
+      "temperature": "cold",
+      "fireReady": false,
+      "cues": [
+        {
+          "at": 1086.0999999046326,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        },
+        {
+          "at": 1844.0999999046326,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "white",
+      "type": "promotion",
+      "motion": "reduce",
+      "temperature": "cold",
+      "fireReady": false,
+      "cues": [
+        {
+          "at": 1272.5999999046326,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.054759608166686034,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "white",
+      "type": "capture",
+      "motion": "reduce",
+      "temperature": "warm",
+      "fireReady": true,
+      "cues": [
+        {
+          "at": 1063.7000000476837,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        },
+        {
+          "at": 2084.5999999046326,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "white",
+      "type": "promotion",
+      "motion": "reduce",
+      "temperature": "warm",
+      "fireReady": false,
+      "cues": [
+        {
+          "at": 4164.299999952316,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.054759608166686034,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "black",
+      "type": "capture",
+      "motion": "reduce",
+      "temperature": "cold",
+      "fireReady": true,
+      "cues": [
+        {
+          "at": 4414.600000143051,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        },
+        {
+          "at": 7725.200000047684,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "black",
+      "type": "promotion",
+      "motion": "reduce",
+      "temperature": "cold",
+      "fireReady": false,
+      "cues": [
+        {
+          "at": 2236.800000190735,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.054759608166686034,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "black",
+      "type": "capture",
+      "motion": "reduce",
+      "temperature": "warm",
+      "fireReady": true,
+      "cues": [
+        {
+          "at": 2618.100000143051,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        },
+        {
+          "at": 4364.100000143051,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "black",
+      "type": "promotion",
+      "motion": "reduce",
+      "temperature": "warm",
+      "fireReady": false,
+      "cues": [
+        {
+          "at": 3003.800000190735,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.054759608166686034,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    }
+  ],
+  "sfx-after": [
+    {
+      "side": "white",
+      "type": "capture",
+      "motion": "no-preference",
+      "temperature": "cold",
+      "fireReady": true,
+      "cues": [
+        {
+          "at": 2005.7999999523163,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        },
+        {
+          "at": 3272.0999999046326,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "white",
+      "type": "promotion",
+      "motion": "no-preference",
+      "temperature": "cold",
+      "fireReady": false,
+      "cues": [
+        {
+          "at": 2134.7000000476837,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.054759608166686034,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "white",
+      "type": "capture",
+      "motion": "no-preference",
+      "temperature": "warm",
+      "fireReady": true,
+      "cues": [
+        {
+          "at": 1836.2999999523163,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        },
+        {
+          "at": 2842.7999999523163,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "white",
+      "type": "promotion",
+      "motion": "no-preference",
+      "temperature": "warm",
+      "fireReady": true,
+      "cues": [
+        {
+          "at": 1632.8999998569489,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.054759608166686034,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "black",
+      "type": "capture",
+      "motion": "no-preference",
+      "temperature": "cold",
+      "fireReady": true,
+      "cues": [
+        {
+          "at": 1883.5999999046326,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        },
+        {
+          "at": 2825,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "black",
+      "type": "promotion",
+      "motion": "no-preference",
+      "temperature": "cold",
+      "fireReady": false,
+      "cues": [
+        {
+          "at": 1329.3999998569489,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.054759608166686034,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "black",
+      "type": "capture",
+      "motion": "no-preference",
+      "temperature": "warm",
+      "fireReady": true,
+      "cues": [
+        {
+          "at": 1536.7999999523163,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        },
+        {
+          "at": 2456.7999999523163,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "black",
+      "type": "promotion",
+      "motion": "no-preference",
+      "temperature": "warm",
+      "fireReady": true,
+      "cues": [
+        {
+          "at": 864.7999999523163,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.054759608166686034,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "white",
+      "type": "capture",
+      "motion": "reduce",
+      "temperature": "cold",
+      "fireReady": false,
+      "cues": [
+        {
+          "at": 1464.4000000953674,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        },
+        {
+          "at": 2278.100000143051,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "white",
+      "type": "promotion",
+      "motion": "reduce",
+      "temperature": "cold",
+      "fireReady": false,
+      "cues": [
+        {
+          "at": 1402.1000001430511,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.054759608166686034,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "white",
+      "type": "capture",
+      "motion": "reduce",
+      "temperature": "warm",
+      "fireReady": true,
+      "cues": [
+        {
+          "at": 1258.7000000476837,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        },
+        {
+          "at": 2235.5,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "white",
+      "type": "promotion",
+      "motion": "reduce",
+      "temperature": "warm",
+      "fireReady": false,
+      "cues": [
+        {
+          "at": 1543,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.054759608166686034,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "black",
+      "type": "capture",
+      "motion": "reduce",
+      "temperature": "cold",
+      "fireReady": true,
+      "cues": [
+        {
+          "at": 1442.3000001907349,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        },
+        {
+          "at": 2438.300000190735,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "black",
+      "type": "promotion",
+      "motion": "reduce",
+      "temperature": "cold",
+      "fireReady": false,
+      "cues": [
+        {
+          "at": 1435.5999999046326,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.054759608166686034,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "black",
+      "type": "capture",
+      "motion": "reduce",
+      "temperature": "warm",
+      "fireReady": true,
+      "cues": [
+        {
+          "at": 1441.5999999046326,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        },
+        {
+          "at": 2525.5999999046326,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.06056102121706452,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "black",
+      "type": "promotion",
+      "motion": "reduce",
+      "temperature": "warm",
+      "fireReady": false,
+      "cues": [
+        {
+          "at": 1329.5999999046326,
+          "gain": 0.25999999046325684,
+          "state": "running",
+          "peak": 0.09214416146278381,
+          "rms": 0.054759608166686034,
+          "stopped": null
+        }
+      ],
+      "nativePointer": true,
+      "errors": []
+    }
+  ],
+  "sfx-cold-miss": [
+    {
+      "side": "white",
+      "type": "capture",
+      "motion": "no-preference",
+      "temperature": "cold",
+      "fireReady": true,
+      "cues": [],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "white",
+      "type": "promotion",
+      "motion": "no-preference",
+      "temperature": "cold",
+      "fireReady": false,
+      "cues": [],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "white",
+      "type": "capture",
+      "motion": "no-preference",
+      "temperature": "warm",
+      "fireReady": true,
+      "cues": [],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "white",
+      "type": "promotion",
+      "motion": "no-preference",
+      "temperature": "warm",
+      "fireReady": true,
+      "cues": [],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "black",
+      "type": "capture",
+      "motion": "no-preference",
+      "temperature": "cold",
+      "fireReady": true,
+      "cues": [],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "black",
+      "type": "promotion",
+      "motion": "no-preference",
+      "temperature": "cold",
+      "fireReady": false,
+      "cues": [],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "black",
+      "type": "capture",
+      "motion": "no-preference",
+      "temperature": "warm",
+      "fireReady": true,
+      "cues": [],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "black",
+      "type": "promotion",
+      "motion": "no-preference",
+      "temperature": "warm",
+      "fireReady": true,
+      "cues": [],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "white",
+      "type": "capture",
+      "motion": "reduce",
+      "temperature": "cold",
+      "fireReady": true,
+      "cues": [],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "white",
+      "type": "promotion",
+      "motion": "reduce",
+      "temperature": "cold",
+      "fireReady": false,
+      "cues": [],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "white",
+      "type": "capture",
+      "motion": "reduce",
+      "temperature": "warm",
+      "fireReady": true,
+      "cues": [],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "white",
+      "type": "promotion",
+      "motion": "reduce",
+      "temperature": "warm",
+      "fireReady": true,
+      "cues": [],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "black",
+      "type": "capture",
+      "motion": "reduce",
+      "temperature": "cold",
+      "fireReady": true,
+      "cues": [],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "black",
+      "type": "promotion",
+      "motion": "reduce",
+      "temperature": "cold",
+      "fireReady": false,
+      "cues": [],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "black",
+      "type": "capture",
+      "motion": "reduce",
+      "temperature": "warm",
+      "fireReady": true,
+      "cues": [],
+      "nativePointer": true,
+      "errors": []
+    },
+    {
+      "side": "black",
+      "type": "promotion",
+      "motion": "reduce",
+      "temperature": "warm",
+      "fireReady": true,
+      "cues": [],
+      "nativePointer": true,
+      "errors": []
+    }
+  ]
+}

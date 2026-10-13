@@ -86,13 +86,16 @@ export class KingFire {
   for (const s of rest.sprites) s.setPosition(p.x, p.y).setScale(fireScale(cell)).setVisible(!igniting);
  }
  ignite(owner: object, p: FirePoint, cell: number, reduced: boolean, audible = true) {
-  if (reduced) { if (audible) kingFireIgniteSfx(true); return; }
+  // Promotion is a functional event, independent of optional fire-sheet readiness.
+  // Deferred visual recovery calls this with audible=false: never replay the cue.
+  if (audible) kingFireIgniteSfx(reduced);
+  if (reduced) return;
   if (!this.has('ignite-back') || !this.has('ignite-front')) {
    this.pendingIgnition.set(owner, { point: { ...p }, cell });
    return;
   }
   this.pendingIgnition.delete(owner);
-  if (audible) kingFireIgniteSfx(false);
+
   this.bursts.push({ owner, point: { x: p.x, y: p.y }, age: 0,
    sprites: [this.sprite('ignite-back', p, cell, 3.9, 'ignite'), this.sprite('ignite-front', p, cell, 4.1, 'ignite')],
   });

@@ -5,7 +5,8 @@ import {menuMusicCompensation,matchMusicCompensation} from './musicDelivery';
 import {menuOrganLevel,matchMusicLevel} from './audioMix';
 import {matchMusicDuck} from './audioMix';
 import {uiSfx} from './uiSfx';
-import {pieceStepSfx} from './pieceSfx';
+import {pieceStepSfx,pieceCaptureSfx,cancelPieceAh} from './pieceSfx';
+import {kingFireIgniteSfx} from './kingFireSfx';
 // Each test is a fresh page; transport de-duplication has its own runtime tests.
 vi.mock('./assetLoader', () => ({loadBytes: async (url:string) => {
  const response=await fetch(url,{priority:'low'});
@@ -421,4 +422,40 @@ it.each(['ui-open','ui-close','ui-tap','panel-ready','undo-applied','draw-result
  activation.resolve();fire('pointerdown');await flush();uiSfx(cue);await load(cue);expect(starts).toEqual([]);
  settings.muted=true;uiSfx(cue);settings.muted=false;pause();uiSfx(cue);resume();expect(starts).toEqual([]);
  uiSfx(cue);expect(starts).toEqual([cue]);
+});
+
+it('requests capture and promotion first at high priority, once per activation',async()=>{
+ fire('pointerdown','elsewhere');await flush();
+ const calls=vi.mocked(fetch).mock.calls;
+ expect(calls[0][0]).toContain('/crush-b.wav');
+ expect(calls[1][0]).toContain('/ignite-a.wav');
+ expect(calls[0][1]).toEqual({priority:'high'});
+ expect(calls[1][1]).toEqual({priority:'high'});
+ fire('pointerdown','elsewhere');await flush();
+ for(const cue of ['crush-b','ignite-a'])expect(vi.mocked(fetch).mock.calls.filter(([url])=>String(url).includes(`/${cue}.`))).toHaveLength(1);
+});
+
+it.each([false,true])('drops cold functional cues, then plays the next ready event once (reduced=%s)',async(reduced)=>{
+ activation.resolve();fire('pointerdown','elsewhere');await flush();audio.beginMatch();
+ pieceCaptureSfx('black');cancelPieceAh();kingFireIgniteSfx(reduced);
+ expect(starts).toEqual([]);
+ await load('crush-b');await load('ignite-a');
+ expect(starts).toEqual([]);
+ pieceCaptureSfx('white');cancelPieceAh();kingFireIgniteSfx(reduced);
+ expect(starts).toEqual(['crush-b','ignite-a']);
+});
+
+it.each(['mute','hidden','pause','effects','master'])('functional capture/promotion respect %s without deferred replay',async(reason)=>{
+ await load('crush-b');await load('ignite-a');activation.resolve();await flush();audio.beginMatch();
+ if(reason==='mute')settings.muted=true;
+ if(reason==='hidden')hidden=true;
+ if(reason==='pause')pause();
+ if(reason==='effects')settings.effects=0;
+ if(reason==='master')settings.master=0;
+ pieceCaptureSfx('black');cancelPieceAh();kingFireIgniteSfx(true);
+ expect(starts).toEqual([]);
+ settings.muted=false;settings.master=1;settings.effects=1;hidden=false;resume();
+ expect(starts).toEqual([]);
+ pieceCaptureSfx('white');cancelPieceAh();kingFireIgniteSfx(false);
+ expect(starts).toEqual(['crush-b','ignite-a']);
 });

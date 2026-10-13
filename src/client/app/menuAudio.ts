@@ -98,7 +98,12 @@ export function createMenuAudio(sdk:IYandexSdk) {
   if(!playfieldReady&&deferredAudio.has(name))return;
   const url=Object.entries(urls).find(([path])=>audioName(path)===name)?.[1];
   if(!url)return;
-  const ready=loadBytes(url).then(b=>ctx!.decodeAudioData(b.slice(0))).then(b=>{
+  // Only these two functional one-shots get high transport priority. They have
+  // no other consumer; loading still deduplicates requests and decoded buffers.
+  const bytes=name==='crush-b'||name==='ignite-a'
+   ? fetch(url,{priority:'high'}).then(response=>{if(!response.ok)throw Error('Audio unavailable');return response.arrayBuffer();})
+   : loadBytes(url);
+  const ready=bytes.then(b=>ctx!.decodeAudioData(b.slice(0))).then(b=>{
    // Accepted-source loops have a baked beat-aligned seam; preserve decoded PCM.
    buffers.set(name,b);sync();
   }).catch(()=>{});
@@ -116,9 +121,13 @@ export function createMenuAudio(sdk:IYandexSdk) {
   prepared=true;
   // Short cues warm only after activation. Music belongs to the active screen;
   // never download the menu theme while leaving for a game.
+  // Rare, functional one-shots must not sit behind dozens of voice decodes.
+  // Warm them on activation, without waiting in the move or replaying a cold miss.
+  const critical=['crush-b','ignite-a'];
+  for(const name of critical)requestBuffer(name);
   for(const path of Object.keys(urls)){
    const name=audioName(path);
-   if(name!=='menu_music_source'&&name!=='match-b-90s')requestBuffer(name);
+   if(name!=='menu_music_source'&&name!=='match-b-90s'&&!critical.includes(name))requestBuffer(name);
   }
   if(settings().music&&!policy.departing)requestBuffer('menu_music_source');
  };
