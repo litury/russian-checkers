@@ -20,7 +20,8 @@
         }
       ],
       "runtime_file": "src/client/app/audio/menu/availability-wave.wav",
-      "runtime_sha256": "279c03a2f5af4e1e57c764a507eb5da40e4c7435b7bdc7fa4fb7df0d5c8d54f2"
+      "runtime_sha256": "279c03a2f5af4e1e57c764a507eb5da40e4c7435b7bdc7fa4fb7df0d5c8d54f2",
+      "production_chain": "gameScene.ts:1020-1028 afterTitle -> title.hintWave -> openingOverlay.ts:338 -> menuAudio.ts:259"
     },
     {
       "cue": "b-click",
@@ -35,7 +36,8 @@
           "line": 4,
           "code": "export const pieceMoveBlackCue = 'b-click';"
         }
-      ]
+      ],
+      "production_chain": "board accepted black man takeoff -> pieceSfx -> menuAudio"
     },
     {
       "cue": "crush-b",
@@ -50,7 +52,8 @@
           "line": 5,
           "code": "export const pieceCaptureCue = 'crush-b';"
         }
-      ]
+      ],
+      "production_chain": "board accepted capture impact -> pieceSfx -> menuAudio"
     },
     {
       "cue": "draw-result",
@@ -75,7 +78,8 @@
           "line": 1609,
           "code": "if (side === 'draw') uiSfx('draw-result');"
         }
-      ]
+      ],
+      "production_chain": "gameScene.ts:1598-1626 presentResult -> uiSfx(draw-result) -> bindUiSfx in menuAudio; boardVerdict overlay"
     },
     {
       "cue": "gate_motion",
@@ -92,7 +96,8 @@
         }
       ],
       "runtime_file": "src/client/app/audio/menu/gate_motion.wav",
-      "runtime_sha256": "6fddd866e2fbb3eb6b0aee6c5f90ce20b73dacb1ec2924acba3daa48accdac40"
+      "runtime_sha256": "6fddd866e2fbb3eb6b0aee6c5f90ce20b73dacb1ec2924acba3daa48accdac40",
+      "production_chain": "openingOverlay.ts:159 elapsed gate callback -> audio.gate -> menuAudio gate doors window"
     },
     {
       "cue": "gate_stop",
@@ -109,7 +114,8 @@
         }
       ],
       "runtime_file": "src/client/app/audio/menu/gate_stop.wav",
-      "runtime_sha256": "0fe04865ec97f2853d489d3c6afa0a4ea65b1933ade0c2c020569e169f54ab04"
+      "runtime_sha256": "0fe04865ec97f2853d489d3c6afa0a4ea65b1933ade0c2c020569e169f54ab04",
+      "production_chain": "openingOverlay.ts:331 gates completion -> hide(true) -> audio.hide completed -> menuAudio.ts:253"
     },
     {
       "cue": "gate_unlock",
@@ -126,7 +132,8 @@
         }
       ],
       "runtime_file": "src/client/app/audio/menu/gate_unlock.wav",
-      "runtime_sha256": "786caab21d0be452d4991a6e86c5c261aa3ea93709264949c1184225980b7334"
+      "runtime_sha256": "786caab21d0be452d4991a6e86c5c261aa3ea93709264949c1184225980b7334",
+      "production_chain": "openingOverlay.ts:159 elapsed gate callback -> audio.gate -> menuAudio gate unlock window"
     },
     {
       "cue": "ignite-a",
@@ -141,7 +148,8 @@
           "line": 1,
           "code": "export const kingFireIgniteCue = 'ignite-a';"
         }
-      ]
+      ],
+      "production_chain": "board promotion -> KingFire promotion phase -> kingFireIgniteSfx -> menuAudio"
     },
     {
       "cue": "menu-contact",
@@ -168,7 +176,8 @@
         }
       ],
       "runtime_file": "src/client/app/audio/menu/menu-contact.wav",
-      "runtime_sha256": "cdd1554c2709b29dcaa31ea2d57f2930600f05020a29cf53392d3971ade3d897"
+      "runtime_sha256": "cdd1554c2709b29dcaa31ea2d57f2930600f05020a29cf53392d3971ade3d897",
+      "production_chain": "menuPressFeedback.ts:28 trusted pointer contact -> menuPressSound.ts:5 -> bindMenuPressSound in menuAudio.ts:217 -> menuContact"
     },
     {
       "cue": "move-w",
@@ -183,7 +192,8 @@
           "line": 3,
           "code": "export const pieceMoveWhiteCue = 'move-w';"
         }
-      ]
+      ],
+      "production_chain": "board accepted white man takeoff -> pieceSfx -> menuAudio"
     },
     {
       "cue": "panel-ready",
@@ -203,7 +213,8 @@
           "line": 1385,
           "code": "uiSfx('panel-ready');"
         }
-      ]
+      ],
+      "production_chain": "gameScene.ts:1385 board panel change -> uiSfx -> menuAudio binding"
     },
     {
       "cue": "panel-slide",
@@ -225,7 +236,8 @@
         }
       ],
       "runtime_file": "src/client/app/audio/menu/panel-slide.wav",
-      "runtime_sha256": "cc58f7598659b2f37018ce10e3b91c12ab8b8f393b5380820b2e3025bda136d3"
+      "runtime_sha256": "cc58f7598659b2f37018ce10e3b91c12ab8b8f393b5380820b2e3025bda136d3",
+      "production_chain": "gameScene.ts:487 HUD reveal callback -> title.revealAudio -> openingOverlay.ts:344 -> audio.reveal -> startAudio.ts:5-6"
     },
     {
       "cue": "play-b",
@@ -242,61 +254,8 @@
         }
       ],
       "runtime_file": "src/client/app/audio/menu/play-b.wav",
-      "runtime_sha256": "432872487ec75aa5af639c6950c23e12d9f215981411501f7ab27ace0e788f95"
-    },
-    {
-      "cue": "result-ascension",
-      "status": "integrated-owner-authorized",
-      "old": "src/client/app/audio/menu/result-ascension.wav",
-      "old_sha256": "38c420d47f8293a3e2ea0c72b486f3a504afd660ef5e4c1076c02e61f4598a73",
-      "new": "artifacts/remaining-sfx/result-ascension-new.wav",
-      "new_sha256": "d407edbd10f1a44b5067abbf67dc198ef6a0704422a84158149d9580999a1bea",
-      "call_sites": [
-        {
-          "file": "src/client/app/menuAudio.ts",
-          "line": 91,
-          "code": "const deferredAudio=new Set(['menu_music_source','result-ascension','result-disposal']);"
-        },
-        {
-          "file": "src/client/app/menuAudio.ts",
-          "line": 109,
-          "code": "for(const name of ['result-ascension','result-disposal'])requestBuffer(name);"
-        },
-        {
-          "file": "src/client/app/menuAudio.ts",
-          "line": 250,
-          "code": "resultCeremonySound(win:boolean){stopResultCeremonySound();resultSource=sound(win?'result-ascension':'result-disposal',.7)?.source;},"
-        }
-      ],
-      "runtime_file": "src/client/app/audio/menu/result-ascension.wav",
-      "runtime_sha256": "d407edbd10f1a44b5067abbf67dc198ef6a0704422a84158149d9580999a1bea"
-    },
-    {
-      "cue": "result-disposal",
-      "status": "integrated-owner-authorized",
-      "old": "src/client/app/audio/menu/result-disposal.wav",
-      "old_sha256": "2b281aa96bbabc24e4a4328ccdd13ca4c7fd2c9e7d406f2bc7a7cc9f67c85d7e",
-      "new": "artifacts/remaining-sfx/result-disposal-new.wav",
-      "new_sha256": "39a1eeaf73d31fdd5415feb26de9e4f24a80e65834dcf9c4bfc5ea7048f64c3a",
-      "call_sites": [
-        {
-          "file": "src/client/app/menuAudio.ts",
-          "line": 91,
-          "code": "const deferredAudio=new Set(['menu_music_source','result-ascension','result-disposal']);"
-        },
-        {
-          "file": "src/client/app/menuAudio.ts",
-          "line": 109,
-          "code": "for(const name of ['result-ascension','result-disposal'])requestBuffer(name);"
-        },
-        {
-          "file": "src/client/app/menuAudio.ts",
-          "line": 250,
-          "code": "resultCeremonySound(win:boolean){stopResultCeremonySound();resultSource=sound(win?'result-ascension':'result-disposal',.7)?.source;},"
-        }
-      ],
-      "runtime_file": "src/client/app/audio/menu/result-disposal.wav",
-      "runtime_sha256": "39a1eeaf73d31fdd5415feb26de9e4f24a80e65834dcf9c4bfc5ea7048f64c3a"
+      "runtime_sha256": "432872487ec75aa5af639c6950c23e12d9f215981411501f7ab27ace0e788f95",
+      "production_chain": "menuAudio.ts:197 production document trusted click selects Play cue"
     },
     {
       "cue": "select-b",
@@ -311,7 +270,8 @@
           "line": 9,
           "code": "export const pieceSelectCue = 'select-b';"
         }
-      ]
+      ],
+      "production_chain": "gameScene input -> board piece selection -> pieceSfx semantic binding -> menuAudio"
     },
     {
       "cue": "timer-lock",
@@ -328,7 +288,8 @@
         }
       ],
       "runtime_file": "src/client/app/audio/menu/timer-lock.wav",
-      "runtime_sha256": "21cc2d3ee2437aced53bb9cd378986061ddbbcac3aeeed13392a31a93a1b3d90"
+      "runtime_sha256": "21cc2d3ee2437aced53bb9cd378986061ddbbcac3aeeed13392a31a93a1b3d90",
+      "production_chain": "gameScene.ts:487 HUD reveal callback -> openingOverlay.ts:344 -> audio.reveal timer-lock seating window"
     },
     {
       "cue": "timer-slide",
@@ -345,7 +306,8 @@
         }
       ],
       "runtime_file": "src/client/app/audio/menu/timer-slide.wav",
-      "runtime_sha256": "a6396147202dc5776b58318fdaedb66b9c062f3671df48ea74bb8cd96213e685"
+      "runtime_sha256": "a6396147202dc5776b58318fdaedb66b9c062f3671df48ea74bb8cd96213e685",
+      "production_chain": "gameScene.ts:487 HUD reveal callback -> openingOverlay.ts:344 -> audio.reveal timer-slide window"
     },
     {
       "cue": "trail-b",
@@ -362,7 +324,8 @@
         }
       ],
       "runtime_file": "src/client/app/audio/menu/trail-b.wav",
-      "runtime_sha256": "f0e204fdf27747ce64de117d37ef4176ffbdbe17850f9ace8227c5a95fa2eb2e"
+      "runtime_sha256": "f0e204fdf27747ce64de117d37ef4176ffbdbe17850f9ace8227c5a95fa2eb2e",
+      "production_chain": "createReliquaryBoardView.ts:1080 move takeoff -> kingFire.takeoff -> kingFire.ts:105 -> kingFireTrailSfx -> menuAudio binding"
     },
     {
       "cue": "turn-handoff",
@@ -379,7 +342,8 @@
         }
       ],
       "runtime_file": "src/client/app/audio/menu/turn-handoff.wav",
-      "runtime_sha256": "32781b3304b857ae610bacab0348a18ca849e2ddaf27e78d34ae205f00b42a30"
+      "runtime_sha256": "32781b3304b857ae610bacab0348a18ca849e2ddaf27e78d34ae205f00b42a30",
+      "production_chain": "gameScene.ts:1499/1562 committed local/remote move -> title.turnHandoff -> openingOverlay.ts:337 -> menuAudio.ts:258"
     },
     {
       "cue": "ui-close",
@@ -444,7 +408,8 @@
           "line": 134,
           "code": "uiSfx('ui-close');"
         }
-      ]
+      ],
+      "production_chain": "onlineHub / matchHistoryUi / resignConfirmation / boardVerdict collapse/menu -> uiSfx; menuAudio optionsClosed"
     },
     {
       "cue": "ui-open",
@@ -484,7 +449,8 @@
           "line": 261,
           "code": "uiSfx('ui-open');"
         }
-      ]
+      ],
+      "production_chain": "onlineHub / matchHistoryUi / resignConfirmation / boardVerdict reopening -> uiSfx; menuAudio options click"
     },
     {
       "cue": "ui-tap",
@@ -564,7 +530,8 @@
           "line": 282,
           "code": "const navigate = (target: number) => { if (replay && target !== ply && target >= 0 && target <= replay.plies.length) { uiSfx('ui-tap'); paintPosition(target); } };"
         }
-      ]
+      ],
+      "production_chain": "gameScene.ts:215 and boardVerdict.ts:102 action -> uiSfx; onlineHub/matchHistoryUi semantic actions"
     },
     {
       "cue": "ui_click",
@@ -586,7 +553,8 @@
         }
       ],
       "runtime_file": "src/client/app/audio/menu/ui_click.wav",
-      "runtime_sha256": "31f86870be582dcd642c43335e5c2be162cb95327695a6fed10a83296e78f0e5"
+      "runtime_sha256": "31f86870be582dcd642c43335e5c2be162cb95327695a6fed10a83296e78f0e5",
+      "production_chain": "menuAudio.ts:197 production document trusted click / menuBackSound -> ui_click"
     },
     {
       "cue": "undo-applied",
@@ -606,7 +574,8 @@
           "line": 1436,
           "code": "uiSfx('undo-applied');"
         }
-      ]
+      ],
+      "production_chain": "gameScene.ts:1436 accepted undo -> uiSfx -> menuAudio binding"
     }
   ],
   "preserved_voice_music": [
@@ -911,5 +880,73 @@
     "No physical listening or creative PASS; owner explicitly authorized integration",
     "timer-slide is a natural one-shot at first visible lift, not stretched or repeated; timer-lock remains at seating",
     "Independent QA and publication pending"
-  ]
+  ],
+  "inactive_prepared": [
+    {
+      "cue": "result-ascension",
+      "status": "inactive-prepared-paid-unused",
+      "old": "src/client/app/audio/menu/result-ascension.wav",
+      "old_sha256": "38c420d47f8293a3e2ea0c72b486f3a504afd660ef5e4c1076c02e61f4598a73",
+      "new": "artifacts/remaining-sfx/result-ascension-new.wav",
+      "new_sha256": "d407edbd10f1a44b5067abbf67dc198ef6a0704422a84158149d9580999a1bea",
+      "call_sites": [
+        {
+          "file": "src/client/app/menuAudio.ts",
+          "line": 91,
+          "code": "const deferredAudio=new Set(['menu_music_source','result-ascension','result-disposal']);"
+        },
+        {
+          "file": "src/client/app/menuAudio.ts",
+          "line": 109,
+          "code": "for(const name of ['result-ascension','result-disposal'])requestBuffer(name);"
+        },
+        {
+          "file": "src/client/app/menuAudio.ts",
+          "line": 250,
+          "code": "resultCeremonySound(win:boolean){stopResultCeremonySound();resultSource=sound(win?'result-ascension':'result-disposal',.7)?.source;},"
+        }
+      ],
+      "runtime_file": "src/client/app/audio/menu/result-ascension.wav",
+      "runtime_sha256": "d407edbd10f1a44b5067abbf67dc198ef6a0704422a84158149d9580999a1bea",
+      "reason": "GameScene imports boardVerdict; ensureResultOverlay supplies only onPlayAgain/onMenu. openingOverlay resultCeremonySound proxy is not reached by production result path. Direct audio owner fixtures do not prove runtime reachability."
+    },
+    {
+      "cue": "result-disposal",
+      "status": "inactive-prepared-paid-unused",
+      "old": "src/client/app/audio/menu/result-disposal.wav",
+      "old_sha256": "2b281aa96bbabc24e4a4328ccdd13ca4c7fd2c9e7d406f2bc7a7cc9f67c85d7e",
+      "new": "artifacts/remaining-sfx/result-disposal-new.wav",
+      "new_sha256": "39a1eeaf73d31fdd5415feb26de9e4f24a80e65834dcf9c4bfc5ea7048f64c3a",
+      "call_sites": [
+        {
+          "file": "src/client/app/menuAudio.ts",
+          "line": 91,
+          "code": "const deferredAudio=new Set(['menu_music_source','result-ascension','result-disposal']);"
+        },
+        {
+          "file": "src/client/app/menuAudio.ts",
+          "line": 109,
+          "code": "for(const name of ['result-ascension','result-disposal'])requestBuffer(name);"
+        },
+        {
+          "file": "src/client/app/menuAudio.ts",
+          "line": 250,
+          "code": "resultCeremonySound(win:boolean){stopResultCeremonySound();resultSource=sound(win?'result-ascension':'result-disposal',.7)?.source;},"
+        }
+      ],
+      "runtime_file": "src/client/app/audio/menu/result-disposal.wav",
+      "runtime_sha256": "39a1eeaf73d31fdd5415feb26de9e4f24a80e65834dcf9c4bfc5ea7048f64c3a",
+      "reason": "GameScene imports boardVerdict; ensureResultOverlay supplies only onPlayAgain/onMenu. openingOverlay resultCeremonySound proxy is not reached by production result path. Direct audio owner fixtures do not prove runtime reachability."
+    }
+  ],
+  "counts": {
+    "active_nonvoice": 23,
+    "active_replacements": 12,
+    "accepted_preserved": 11,
+    "paid_outputs": 12,
+    "paid_outputs_active": 10,
+    "paid_outputs_unused": 2,
+    "reuse_active": 2,
+    "voice_music_preserved": 42
+  }
 }

@@ -7,6 +7,7 @@ import { createInitialPosition } from '@/rules';
 import { recordBotMatch } from '@/online/cloud';
 import { verdictReason } from './verdictReason';
 import { hashPosition } from '@/online/matchState';
+import { bindUiSfx } from './uiSfx';
 
 function setup() {
  const s = new GameScene() as any;
@@ -17,7 +18,22 @@ function setup() {
  s.title={resultSting:vi.fn(),speakOrcTurn:vi.fn(),turnHandoff:vi.fn()};
  s.live={requestState:vi.fn()};return s;
 }
-afterEach(()=>vi.clearAllMocks());
+afterEach(()=>{vi.clearAllMocks();bindUiSfx(()=>{});});
+it.each(['white','black','draw'])('production result path emits only outcome voice or draw cue for %s',async winner=>{
+ const s=setup();const heard=vi.fn();bindUiSfx(heard);
+ s.title.resultCeremonySound=vi.fn();
+ s.endMatch(winner,'rules');s.presentResult();await Promise.resolve();
+ expect(s.overlay.show).toHaveBeenCalledOnce();
+ expect(s.title.resultCeremonySound).not.toHaveBeenCalled();
+ if(winner==='draw'){
+  expect(heard).toHaveBeenCalledExactlyOnceWith('draw-result');
+  expect(s.title.resultSting).not.toHaveBeenCalled();
+ }else{
+  expect(heard).not.toHaveBeenCalled();
+  expect(s.title.resultSting).toHaveBeenCalledOnce();
+  expect(s.title.resultSting.mock.calls[0][0]).toBe(winner==='white');
+ }
+});
 it('online flag freezes input until the authoritative winner and reason arrive', async () => {
  const s=setup();s.online=true;s.onlineBegun=true;s.live.flag=vi.fn();
  s.onFlag();
