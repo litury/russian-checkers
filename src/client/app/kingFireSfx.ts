@@ -8,7 +8,9 @@ export function bindKingFireSfx(next: typeof play): void {
 }
 
 export function kingFireIgniteSfx(reduced = false): void {
- if (!reduced) play(kingFireIgniteCue, 1);
+ // Reduced motion still acknowledges the accepted promotion.
+ void reduced;
+ play(kingFireIgniteCue, 1);
 }
 
 export function kingFireTrailSfx(king: boolean, reduced = false): void {

@@ -85,14 +85,14 @@ export class KingFire {
   const igniting = this.bursts.some(b => b.owner === id && b.point.x === p.x && b.point.y === p.y);
   for (const s of rest.sprites) s.setPosition(p.x, p.y).setScale(fireScale(cell)).setVisible(!igniting);
  }
- ignite(owner: object, p: FirePoint, cell: number, reduced: boolean) {
-  if (reduced) return;
+ ignite(owner: object, p: FirePoint, cell: number, reduced: boolean, audible = true) {
+  if (reduced) { if (audible) kingFireIgniteSfx(true); return; }
   if (!this.has('ignite-back') || !this.has('ignite-front')) {
    this.pendingIgnition.set(owner, { point: { ...p }, cell });
    return;
   }
   this.pendingIgnition.delete(owner);
-  kingFireIgniteSfx(false);
+  if (audible) kingFireIgniteSfx(false);
   this.bursts.push({ owner, point: { x: p.x, y: p.y }, age: 0,
    sprites: [this.sprite('ignite-back', p, cell, 3.9, 'ignite'), this.sprite('ignite-front', p, cell, 4.1, 'ignite')],
   });
@@ -146,7 +146,7 @@ export class KingFire {
   for (const [id, ignition] of [...this.pendingIgnition]) {
    if (reduced) { this.pendingIgnition.delete(id); continue; }
    const rest = this.pending.get(id) ?? this.idle.get(id);
-   this.ignite(id, rest?.point ?? ignition.point, rest?.cell ?? ignition.cell, false);
+   this.ignite(id, rest?.point ?? ignition.point, rest?.cell ?? ignition.cell, false, false);
   }
   if (reduced !== this.motionReduced) {
    this.motionReduced = reduced;

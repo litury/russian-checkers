@@ -1,0 +1,117 @@
+[
+  {
+    "asset": "select-b.wav",
+    "sha256": "acfaf30f0de450f6e64c62971df376eb48d3dfbd2d3ef6fd632c81ef3a37121c",
+    "onset_ms": {
+      "-50": 0.18140589569160998,
+      "-40": 0.45351473922902497,
+      "-30": 0.9070294784580499
+    },
+    "duration_ms": 160.0,
+    "source_candidate": "select-candidate",
+    "provider": "Stability",
+    "generation_utc": "2026-10-12T17:01:13.648545+00:00",
+    "params": {
+      "prompt": "Isolated sound effect: one delicate dry small steel checker piece contact. Immediate single event, dry close recording, short decay, silence afterward. No music, no melody, no voice, no vocals, no buildup, no ambience, no repeated sequence.",
+      "duration": 1,
+      "output_format": "wav",
+      "model": "stable-audio-3",
+      "steps": 8,
+      "seed": 741006
+    },
+    "approval_task": "t_a929ee5e",
+    "trim_frames": 0
+  },
+  {
+    "asset": "move-w.wav",
+    "sha256": "acc2e89e0562770c3f4f8e2dd82768dd3f60aefcb9187d65120125f458b3f91f",
+    "onset_ms": {
+      "-50": 0.6349206349206349,
+      "-40": 1.4058956916099772,
+      "-30": 2.131519274376417
+    },
+    "duration_ms": 220.0,
+    "source_candidate": "move-candidate",
+    "provider": "Stability",
+    "generation_utc": "2026-10-12T17:01:22.747727+00:00",
+    "params": {
+      "prompt": "Isolated sound effect: one dry solid checker piece landing on a steel tabletop. Immediate single event, dry close recording, short decay, silence afterward. No music, no melody, no voice, no vocals, no buildup, no ambience, no repeated sequence.",
+      "duration": 1,
+      "output_format": "wav",
+      "model": "stable-audio-3",
+      "steps": 8,
+      "seed": 741007
+    },
+    "approval_task": "t_a929ee5e",
+    "trim_frames": 0
+  },
+  {
+    "asset": "b-click.wav",
+    "sha256": "acc2e89e0562770c3f4f8e2dd82768dd3f60aefcb9187d65120125f458b3f91f",
+    "onset_ms": {
+      "-50": 0.6349206349206349,
+      "-40": 1.4058956916099772,
+      "-30": 2.131519274376417
+    },
+    "duration_ms": 220.0,
+    "source_candidate": "move-candidate",
+    "provider": "Stability",
+    "generation_utc": "2026-10-12T17:01:22.747727+00:00",
+    "params": {
+      "prompt": "Isolated sound effect: one dry solid checker piece landing on a steel tabletop. Immediate single event, dry close recording, short decay, silence afterward. No music, no melody, no voice, no vocals, no buildup, no ambience, no repeated sequence.",
+      "duration": 1,
+      "output_format": "wav",
+      "model": "stable-audio-3",
+      "steps": 8,
+      "seed": 741007
+    },
+    "approval_task": "t_a929ee5e",
+    "trim_frames": 0
+  },
+  {
+    "asset": "crush-b.wav",
+    "sha256": "bb519a01c4db04199bc38c73996aa2b49258a6f0fb06d028a219046f7a3ff748",
+    "onset_ms": {
+      "-50": 1.99546485260771,
+      "-40": 8.072562358276645,
+      "-30": 11.587301587301587
+    },
+    "duration_ms": 295.4875283446712,
+    "source_candidate": "capture-candidate",
+    "provider": "Stability",
+    "generation_utc": "2026-10-12T17:01:33.012503+00:00",
+    "params": {
+      "prompt": "Isolated sound effect: one short solid steel impact with a compact brittle crunch. Immediate single event, dry close recording, short decay, silence afterward. No music, no melody, no voice, no vocals, no buildup, no ambience, no repeated sequence.",
+      "duration": 1,
+      "output_format": "wav",
+      "model": "stable-audio-3",
+      "steps": 8,
+      "seed": 741008
+    },
+    "approval_task": "t_a929ee5e",
+    "trim_frames": 2404
+  },
+  {
+    "asset": "ignite-a.wav",
+    "sha256": "cdb96af4c62008c2f0fbc039ecd3e9605a7b99078d4b5a1c8abd7634bdabdc08",
+    "onset_ms": {
+      "-50": 1.99546485260771,
+      "-40": 6.303854875283447,
+      "-30": 19.45578231292517
+    },
+    "duration_ms": 490.2267573696145,
+    "source_candidate": "promotion-candidate",
+    "provider": "Stability",
+    "generation_utc": "2026-10-12T17:01:43.633333+00:00",
+    "params": {
+      "prompt": "Isolated sound effect: one short electromechanical ignition snap with a brief dry fizz. Immediate single event, dry close recording, short decay, silence afterward. No music, no melody, no voice, no vocals, no buildup, no ambience, no repeated sequence.",
+      "duration": 1,
+      "output_format": "wav",
+      "model": "stable-audio-3",
+      "steps": 8,
+      "seed": 741009
+    },
+    "approval_task": "t_a929ee5e",
+    "trim_frames": 431
+  }
+]

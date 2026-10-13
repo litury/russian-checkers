@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { logicalSize } from '@/client/app/displayDensity';
 import { OpeningMoveHint } from '@/client/app/openingMoveHint';
-import { pieceStepSfx } from '@/client/app/pieceSfx';
+import { pieceStepSfx, pieceCaptureSfx } from '@/client/app/pieceSfx';
 import { POINTER_FOCUS_ATTR } from '@/client/app/pointerFocusRing';
 import { pieceSprites } from '@/client/config/layout';
 import { reliquaryLayout } from '@/client/config/reliquaryLayout';
@@ -1086,9 +1086,8 @@ export function createBoardView(
 			);
 			pieceStepSfx(
 				view.kind === 'king',
-				Boolean(victim),
+				false,
 				view.side,
-				victim ? pieces.get(key(victim))?.side : undefined,
 			);
 			onTakeoff?.(Boolean(victim));
 			const finish = (): void => {
@@ -1103,6 +1102,7 @@ export function createBoardView(
 						remove(taken);
 						pieces.delete(key(victim));
 					}
+					if (taken) pieceCaptureSfx(taken.side);
 				}
 				kingFire.move(cellBox(land));
 				kingFire.land();

@@ -53,17 +53,22 @@ export function pieceStepSfx(
 ): void {
  stopSelectBark();
  if (capture) {
-  cancelPieceAh();
   if (!king) play(pieceMoveCue(side), pieceMoveLevel);
-  play(pieceCaptureCue, pieceCaptureLevel);
-  const yell = victim ? pieceAhCue(victim) : pieceAhOrcCue;
-  ahTimer = setTimeout(() => {
-   ahTimer = undefined;
-   play(yell, 1);
-  }, pieceAhDelayMs);
+  pieceCaptureSfx(victim);
   return;
  }
  if (!king) play(pieceMoveCue(side), pieceMoveLevel);
+}
+
+/** Called by the board's actual victim split, not by takeoff or a guessed delay. */
+export function pieceCaptureSfx(victim?: 'white' | 'black'): void {
+ cancelPieceAh();
+ play(pieceCaptureCue, pieceCaptureLevel);
+ const yell = victim ? pieceAhCue(victim) : pieceAhOrcCue;
+ ahTimer = setTimeout(() => {
+  ahTimer = undefined;
+  play(yell, 1);
+ }, pieceAhDelayMs);
 }
 
 export function pickCue(cues: readonly string[]): string {
