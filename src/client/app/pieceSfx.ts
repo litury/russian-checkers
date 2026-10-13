@@ -53,11 +53,20 @@ export function pieceStepSfx(
 ): void {
  stopSelectBark();
  if (capture) {
-  if (!king) play(pieceMoveCue(side), pieceMoveLevel);
   pieceCaptureSfx(victim);
   return;
  }
  if (!king) play(pieceMoveCue(side), pieceMoveLevel);
+}
+
+/** Capture has its own contact cue. Never layer the ordinary step over it. */
+export function pieceTakeoffSfx(
+ king: boolean,
+ capture: boolean,
+ side: 'white' | 'black' = 'white',
+): void {
+ stopSelectBark();
+ if (!king && !capture) play(pieceMoveCue(side), pieceMoveLevel);
 }
 
 /** Called by the board's actual victim split, not by takeoff or a guessed delay. */

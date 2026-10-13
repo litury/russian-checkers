@@ -11,6 +11,7 @@ import {
  pieceSelectCue,
  pieceSelectSfx,
  pieceStepSfx,
+ pieceTakeoffSfx,
  elfSelectBarks,
  orcSelectBarks,
  elfTaunts,
@@ -46,13 +47,13 @@ it('uses orc ah on a black victim and elf ah on a white victim after crush-b', (
  const heard: string[] = [];
  bindPieceSfx(name => heard.push(name));
  pieceStepSfx(false, true, 'white', 'black');
- expect(heard).toEqual([pieceMoveWhiteCue, pieceCaptureCue]);
+ expect(heard).toEqual([pieceCaptureCue]);
  vi.advanceTimersByTime(pieceAhDelayMs);
- expect(heard).toEqual([pieceMoveWhiteCue, pieceCaptureCue, pieceAhOrcCue]);
+ expect(heard).toEqual([pieceCaptureCue, pieceAhOrcCue]);
  heard.length = 0;
  pieceStepSfx(false, true, 'black', 'white');
  vi.advanceTimersByTime(pieceAhDelayMs);
- expect(heard).toEqual([pieceMoveBlackCue, pieceCaptureCue, pieceAhElfCue]);
+ expect(heard).toEqual([pieceCaptureCue, pieceAhElfCue]);
  heard.length = 0;
  pieceStepSfx(true, true, 'white', 'black');
  vi.advanceTimersByTime(pieceAhDelayMs);
@@ -62,7 +63,7 @@ it('uses orc ah on a black victim and elf ah on a white victim after crush-b', (
 });
 
 it('is wired on takeoff, not per frame', () => {
- expect(board).toContain('pieceStepSfx');
+ expect(board).toContain('pieceTakeoffSfx');
  expect(board).toContain('view.side');
 });
 it('plays select-b on extend, not availability', () => {
@@ -90,7 +91,7 @@ it('adds random lab/gob short select barks at 0.4 and cuts bark on takeoff', () 
  expect(orcSelectBarks).toEqual(['gob-ibo', 'gob-est', 'gob-rubi', 'gob-boi']);
  pieceStepSfx(false, false, 'white');
  expect(cuts).toBe(1);
- expect(board).toContain('pieceStepSfx');
+ expect(board).toContain('pieceTakeoffSfx');
  expect(pieceCaptureCue).toBe('crush-b');
 });
 it('picks opponent taunt on human defeat', () => {

@@ -40,7 +40,7 @@ vi.mock('@/client/app/displayDensity', () => ({
 
 import type { IPosition, ISquare } from '@/rules';
 import { createBoardView } from './createReliquaryBoardView';
-import { bindPieceSfx, pieceCaptureCue, pieceMoveWhiteCue, cancelPieceAh } from '@/client/app/pieceSfx';
+import { bindPieceSfx, pieceCaptureCue, cancelPieceAh } from '@/client/app/pieceSfx';
 
 function canvas(draws: unknown[][] = []) {
 	const pixels = new Uint8ClampedArray(160 * 160 * 4);
@@ -228,9 +228,9 @@ it('cuts only the victim of the hop that just landed, then the next one', () => 
 	);
 	expect(pieceAt(h, first)).toHaveLength(1);
 	expect(pieceAt(h, second)).toHaveLength(1);
- expect(heard).toEqual([pieceMoveWhiteCue]);
+ expect(heard).toEqual([]); // capture takeoff must not play an ordinary move
 	h.finishHop();
- expect(heard).toEqual([pieceMoveWhiteCue, pieceCaptureCue, pieceMoveWhiteCue]);
+ expect(heard).toEqual([pieceCaptureCue]);
 	expect(pieceAt(h, first)).toHaveLength(0);
 	expect(pieceAt(h, second)).toHaveLength(1);
 	const bodyDraws = h.draws.filter((args) =>
@@ -264,7 +264,7 @@ it('cuts only the victim of the hop that just landed, then the next one', () => 
 		h.objects.some((obj) => obj.name === 'capture-cut' && !obj.destroyed),
 	).toBe(true);
 	h.finishHop();
- expect(heard).toEqual([pieceMoveWhiteCue, pieceCaptureCue, pieceMoveWhiteCue, pieceCaptureCue]);
+ expect(heard).toEqual([pieceCaptureCue, pieceCaptureCue]);
  cancelPieceAh(); bindPieceSfx(() => {});
 	expect(pieceAt(h, second)).toHaveLength(0);
 	expect(h.objects.filter((obj) => obj.name === 'capture-half')).toHaveLength(

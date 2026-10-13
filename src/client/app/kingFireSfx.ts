@@ -1,3 +1,5 @@
+import { kingPromotionLevel } from './audioMix';
+
 export const kingFireIgniteCue = 'ignite-a';
 export const kingFireTrailCue = 'trail-b';
 
@@ -10,7 +12,7 @@ export function bindKingFireSfx(next: typeof play): void {
 export function kingFireIgniteSfx(reduced = false): void {
  // Reduced motion still acknowledges the accepted promotion.
  void reduced;
- play(kingFireIgniteCue, 1);
+ play(kingFireIgniteCue, kingPromotionLevel);
 }
 
 export function kingFireTrailSfx(king: boolean, reduced = false): void {

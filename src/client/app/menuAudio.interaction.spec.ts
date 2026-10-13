@@ -435,6 +435,16 @@ it('requests capture and promotion first at high priority, once per activation',
  for(const cue of ['crush-b','ignite-a'])expect(vi.mocked(fetch).mock.calls.filter(([url])=>String(url).includes(`/${cue}.`))).toHaveLength(1);
 });
 
+it.each([['crush-b',1.4],['ignite-a',1.6],['ui-open',.6],['panel-ready',.6],['undo-applied',.6]] as const)('applies measured %s gain through master and effects, once',async(cue,level)=>{
+ await load(cue); activation.resolve(); await flush(); audio.beginMatch();
+ settings.master=.4; settings.effects=.5;
+ if(cue==='crush-b'){pieceCaptureSfx('black');cancelPieceAh();}
+ else if(cue==='ignite-a')kingFireIgniteSfx(true);
+ else uiSfx(cue);
+ expect(starts).toEqual([cue]);
+ expect(context.createGain.mock.results.at(-1)!.value.gain.value).toBeCloseTo(.4*.5*.65*level);
+});
+
 it.each([false,true])('drops cold functional cues, then plays the next ready event once (reduced=%s)',async(reduced)=>{
  activation.resolve();fire('pointerdown','elsewhere');await flush();audio.beginMatch();
  pieceCaptureSfx('black');cancelPieceAh();kingFireIgniteSfx(reduced);

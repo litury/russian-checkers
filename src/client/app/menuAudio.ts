@@ -1,7 +1,7 @@
 import type {IYandexSdk} from './IYandexSdk';
 import {loadBytes} from './assetLoader';
 import {MenuAudioPolicy,menuMusicShouldPlay,menuMusicStopsInstantly,menuMusicFadeSec,matchMusicShouldPlay} from './menuAudioPolicy';
-import {matchMusicDuck,matchMusicLevel,menuOrganLevel,sfxBus,voiceBus} from './audioMix';
+import {matchMusicDuck,matchMusicLevel,menuOrganLevel,sfxBus,voiceBus,uiOpenLevel,panelReadyLevel,undoAppliedLevel} from './audioMix';
 import {menuClickLevel,menuBackSound} from './menuClickLevel';
 import {bindMenuPressSound} from './menuPressSound';
 import {mechanismEnvelope} from './menuAudioPreview';
@@ -204,7 +204,7 @@ export function createMenuAudio(sdk:IYandexSdk) {
   sync();if(!policy.audible||!policy.menu||!settings().effects||!settings().master)return;
   if(play)policy.departing=true; // Also cover trusted click-only activation.
   const name=play?'play-b':options?'ui-open':'ui_click',run=epoch,at=performance.now();
-  const emit=()=>sound(name,play?1:options?.3:menuClickLevel);
+  const emit=()=>sound(name,play?1:options?uiOpenLevel:menuClickLevel);
   if(ctx?.state==='running'&&buffers.has(name)){unlocked=true;emit();return;}
   prepare();
   // Only this cue and this trusted activation; music never gates game startup.
@@ -250,7 +250,7 @@ export function createMenuAudio(sdk:IYandexSdk) {
  bindKingFireSfx(sound);
  bindPieceSfx(sound);
  bindPieceVoice(say,cutBark);
- bindUiSfx(cue=>sound(cue,cue==='draw-result'?.5:.3));
+ bindUiSfx(cue=>sound(cue,cue==='draw-result'?.5:cue==='ui-open'?uiOpenLevel:cue==='panel-ready'?panelReadyLevel:cue==='undo-applied'?undoAppliedLevel:.3));
  let resultSource:AudioBufferSourceNode|undefined;
  const stopResultCeremonySound=()=>{try{resultSource?.stop();}catch{}resultSource=undefined;};
  return {

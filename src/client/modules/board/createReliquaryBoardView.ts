@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { logicalSize } from '@/client/app/displayDensity';
 import { OpeningMoveHint } from '@/client/app/openingMoveHint';
-import { pieceStepSfx, pieceCaptureSfx } from '@/client/app/pieceSfx';
+import { pieceTakeoffSfx, pieceCaptureSfx } from '@/client/app/pieceSfx';
 import { POINTER_FOCUS_ATTR } from '@/client/app/pointerFocusRing';
 import { pieceSprites } from '@/client/config/layout';
 import { reliquaryLayout } from '@/client/config/reliquaryLayout';
@@ -1084,9 +1084,9 @@ export function createBoardView(
 				field.cell,
 				reduced(),
 			);
-			pieceStepSfx(
+			pieceTakeoffSfx(
 				view.kind === 'king',
-				false,
+				Boolean(victim),
 				view.side,
 			);
 			onTakeoff?.(Boolean(victim));
