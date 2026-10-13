@@ -1,0 +1,968 @@
+[
+  {
+    "reducedMotion": "no-preference",
+    "errors": [],
+    "audio": [
+      {
+        "kind": "decode",
+        "duration": 0.6802494331065759,
+        "at": 6737.700000047684
+      },
+      {
+        "kind": "decode",
+        "duration": 0.92,
+        "at": 6738.400000095367
+      },
+      {
+        "kind": "decode",
+        "duration": 0.21895691609977325,
+        "at": 6738.5
+      },
+      {
+        "kind": "decode",
+        "duration": 0.84,
+        "at": 6738.600000143051
+      },
+      {
+        "kind": "decode",
+        "duration": 0.22,
+        "at": 6739
+      },
+      {
+        "kind": "decode",
+        "duration": 0.2954875283446712,
+        "at": 6739.200000047684
+      },
+      {
+        "kind": "decode",
+        "duration": 1.04,
+        "at": 6741.800000190735
+      },
+      {
+        "kind": "decode",
+        "duration": 0.88,
+        "at": 6742.100000143051
+      },
+      {
+        "kind": "decode",
+        "duration": 0.65,
+        "at": 6742.5
+      },
+      {
+        "kind": "decode",
+        "duration": 0.96,
+        "at": 6746
+      },
+      {
+        "kind": "decode",
+        "duration": 0.8010430839002267,
+        "at": 6747.200000047684
+      },
+      {
+        "kind": "decode",
+        "duration": 1,
+        "at": 6749.600000143051
+      },
+      {
+        "kind": "decode",
+        "duration": 1.8,
+        "at": 6750
+      },
+      {
+        "kind": "decode",
+        "duration": 0.64,
+        "at": 6750.100000143051
+      },
+      {
+        "kind": "decode",
+        "duration": 1.2,
+        "at": 6751.100000143051
+      },
+      {
+        "kind": "decode",
+        "duration": 0.92,
+        "at": 6753.300000190735
+      },
+      {
+        "kind": "decode",
+        "duration": 1.44,
+        "at": 6753.800000190735
+      },
+      {
+        "kind": "decode",
+        "duration": 1.48,
+        "at": 6754.5
+      },
+      {
+        "kind": "decode",
+        "duration": 2.04,
+        "at": 6755.300000190735
+      },
+      {
+        "kind": "decode",
+        "duration": 1.32,
+        "at": 6756.800000190735
+      },
+      {
+        "kind": "decode",
+        "duration": 1.08,
+        "at": 6757.100000143051
+      },
+      {
+        "kind": "decode",
+        "duration": 0.92,
+        "at": 6757.400000095367
+      },
+      {
+        "kind": "decode",
+        "duration": 1.4,
+        "at": 6757.600000143051
+      },
+      {
+        "kind": "decode",
+        "duration": 0.7398639455782313,
+        "at": 6757.800000190735
+      },
+      {
+        "kind": "decode",
+        "duration": 0.8882539682539683,
+        "at": 6758
+      },
+      {
+        "kind": "decode",
+        "duration": 0.4720634920634921,
+        "at": 6758.100000143051
+      },
+      {
+        "kind": "decode",
+        "duration": 1.16,
+        "at": 6758.300000190735
+      },
+      {
+        "kind": "decode",
+        "duration": 0.92,
+        "at": 6761.600000143051
+      },
+      {
+        "kind": "decode",
+        "duration": 1.24,
+        "at": 6761.900000095367
+      },
+      {
+        "kind": "decode",
+        "duration": 1.16,
+        "at": 6899.700000047684
+      },
+      {
+        "kind": "decode",
+        "duration": 0.4902267573696145,
+        "at": 6899.900000095367
+      },
+      {
+        "kind": "decode",
+        "duration": 0.6802494331065759,
+        "at": 6900
+      },
+      {
+        "kind": "decode",
+        "duration": 1.56,
+        "at": 6910.900000095367
+      },
+      {
+        "kind": "decode",
+        "duration": 1.88,
+        "at": 6911.200000047684
+      },
+      {
+        "kind": "decode",
+        "duration": 2.04,
+        "at": 6912.100000143051
+      },
+      {
+        "kind": "decode",
+        "duration": 0.12140589569160998,
+        "at": 6912.200000047684
+      },
+      {
+        "kind": "decode",
+        "duration": 1.8,
+        "at": 6912.400000095367
+      },
+      {
+        "kind": "decode",
+        "duration": 0.49020408163265305,
+        "at": 6913.600000143051
+      },
+      {
+        "kind": "decode",
+        "duration": 0.22,
+        "at": 6913.800000190735
+      },
+      {
+        "kind": "decode",
+        "duration": 2,
+        "at": 6916.300000190735
+      },
+      {
+        "kind": "decode",
+        "duration": 1.0000226757369615,
+        "at": 6917
+      },
+      {
+        "kind": "decode",
+        "duration": 0.88,
+        "at": 6917.300000190735
+      },
+      {
+        "kind": "decode",
+        "duration": 1.04,
+        "at": 6920.800000190735
+      },
+      {
+        "kind": "decode",
+        "duration": 1.44,
+        "at": 6921.200000047684
+      },
+      {
+        "kind": "decode",
+        "duration": 2.28,
+        "at": 6921.800000190735
+      },
+      {
+        "kind": "decode",
+        "duration": 0.18,
+        "at": 6922
+      },
+      {
+        "kind": "decode",
+        "duration": 1.32,
+        "at": 6922.200000047684
+      },
+      {
+        "kind": "decode",
+        "duration": 0.22,
+        "at": 6922.200000047684
+      },
+      {
+        "kind": "decode",
+        "duration": 0.8353741496598639,
+        "at": 6922.400000095367
+      },
+      {
+        "kind": "decode",
+        "duration": 0.9255328798185941,
+        "at": 6923.600000143051
+      },
+      {
+        "kind": "decode",
+        "duration": 0.16,
+        "at": 6923.700000047684
+      },
+      {
+        "kind": "decode",
+        "duration": 2.68,
+        "at": 6924
+      },
+      {
+        "kind": "decode",
+        "duration": 0.88,
+        "at": 6924.200000047684
+      },
+      {
+        "kind": "decode",
+        "duration": 1.2,
+        "at": 6924.400000095367
+      },
+      {
+        "kind": "decode",
+        "duration": 1.0903854875283447,
+        "at": 6924.700000047684
+      },
+      {
+        "kind": "decode",
+        "duration": 0.39510204081632655,
+        "at": 6924.800000190735
+      },
+      {
+        "kind": "decode",
+        "duration": 1.32,
+        "at": 6925
+      },
+      {
+        "kind": "decode",
+        "duration": 0.7980045351473923,
+        "at": 6925.200000047684
+      },
+      {
+        "kind": "decode",
+        "duration": 0.10412698412698412,
+        "at": 6925.300000190735
+      },
+      {
+        "kind": "decode",
+        "duration": 1.48,
+        "at": 6927.700000047684
+      },
+      {
+        "kind": "decode",
+        "duration": 0.2,
+        "at": 6927.900000095367
+      },
+      {
+        "kind": "decode",
+        "duration": 0.22,
+        "at": 6927.900000095367
+      },
+      {
+        "kind": "decode",
+        "duration": 0.12,
+        "at": 6928.200000047684
+      },
+      {
+        "kind": "decode",
+        "duration": 0.30412698412698413,
+        "at": 6928.300000190735
+      },
+      {
+        "kind": "decode",
+        "duration": 0.12,
+        "at": 6928.300000190735
+      },
+      {
+        "kind": "decode",
+        "duration": 0.20741496598639456,
+        "at": 6928.400000095367
+      },
+      {
+        "kind": "decode",
+        "duration": 0.32,
+        "at": 6928.5
+      },
+      {
+        "kind": "decode",
+        "duration": 0.4723356009070295,
+        "at": 6928.700000047684
+      },
+      {
+        "kind": "decode",
+        "duration": 1.56,
+        "at": 6929
+      },
+      {
+        "kind": "decode",
+        "duration": 1.28,
+        "at": 6929.100000143051
+      },
+      {
+        "kind": "decode",
+        "duration": 1,
+        "at": 6929.300000190735
+      },
+      {
+        "kind": "decode",
+        "duration": 2,
+        "at": 6931.900000095367
+      },
+      {
+        "kind": "decode",
+        "duration": 25.26315192743764,
+        "at": 7075.100000143051
+      },
+      {
+        "kind": "start",
+        "duration": 25.26315192743764,
+        "loop": true,
+        "at": 7075.800000190735
+      },
+      {
+        "kind": "start",
+        "duration": 0.2,
+        "loop": false,
+        "at": 7604.300000190735
+      },
+      {
+        "kind": "start",
+        "duration": 0.22,
+        "loop": false,
+        "at": 8809.300000190735
+      },
+      {
+        "kind": "start",
+        "duration": 0.4720634920634921,
+        "loop": false,
+        "at": 9206.700000047684
+      },
+      {
+        "kind": "start",
+        "duration": 0.8353741496598639,
+        "loop": false,
+        "at": 9206.900000095367
+      },
+      {
+        "kind": "stop",
+        "duration": 0.8353741496598639,
+        "at": 9789.700000047684
+      },
+      {
+        "kind": "start",
+        "duration": 0.8353741496598639,
+        "loop": false,
+        "at": 9789.800000190735
+      },
+      {
+        "kind": "start",
+        "duration": 0.8882539682539683,
+        "loop": false,
+        "at": 10022.900000095367
+      },
+      {
+        "kind": "stop",
+        "duration": 25.26315192743764,
+        "at": 10233.200000047684
+      },
+      {
+        "kind": "stop",
+        "duration": 0.8353741496598639,
+        "at": 10234
+      },
+      {
+        "kind": "stop",
+        "duration": 0.8882539682539683,
+        "at": 10894
+      },
+      {
+        "kind": "stop",
+        "duration": 0.8882539682539683,
+        "at": 10895.900000095367
+      },
+      {
+        "kind": "start",
+        "duration": 0.7398639455782313,
+        "loop": false,
+        "at": 10896.100000143051
+      },
+      {
+        "kind": "start",
+        "duration": 0.21895691609977325,
+        "loop": false,
+        "at": 10900.800000190735
+      },
+      {
+        "kind": "start",
+        "duration": 1.08,
+        "loop": false,
+        "at": 10901.800000190735
+      },
+      {
+        "kind": "start",
+        "duration": 0.7980045351473923,
+        "loop": false,
+        "at": 11530.5
+      },
+      {
+        "kind": "decode",
+        "duration": 20.425532879818594,
+        "at": 12111.300000190735
+      },
+      {
+        "kind": "start",
+        "duration": 20.425532879818594,
+        "loop": true,
+        "at": 12116.800000190735
+      },
+      {
+        "kind": "stop",
+        "duration": 0.7980045351473923,
+        "at": 12140.700000047684
+      },
+      {
+        "kind": "start",
+        "duration": 0.18,
+        "loop": false,
+        "at": 13656.800000190735
+      },
+      {
+        "kind": "start",
+        "duration": 0.16,
+        "loop": false,
+        "at": 16115.5
+      },
+      {
+        "kind": "start",
+        "duration": 1.8,
+        "loop": false,
+        "at": 16115.700000047684
+      },
+      {
+        "kind": "stop",
+        "duration": 1.8,
+        "at": 16380.400000095367
+      },
+      {
+        "kind": "start",
+        "duration": 0.22,
+        "loop": false,
+        "at": 16380.900000095367
+      },
+      {
+        "kind": "start",
+        "duration": 0.10412698412698412,
+        "loop": false,
+        "at": 16587.5
+      }
+    ],
+    "text": "Отменить\nСдаться"
+  },
+  {
+    "reducedMotion": "reduce",
+    "errors": [],
+    "audio": [
+      {
+        "kind": "decode",
+        "duration": 0.84,
+        "at": 8542.399999856949
+      },
+      {
+        "kind": "decode",
+        "duration": 0.92,
+        "at": 8812.399999856949
+      },
+      {
+        "kind": "decode",
+        "duration": 0.6802494331065759,
+        "at": 8815.099999904633
+      },
+      {
+        "kind": "decode",
+        "duration": 0.22,
+        "at": 8815.199999809265
+      },
+      {
+        "kind": "decode",
+        "duration": 0.21895691609977325,
+        "at": 8815.299999952316
+      },
+      {
+        "kind": "decode",
+        "duration": 1.04,
+        "at": 8824
+      },
+      {
+        "kind": "decode",
+        "duration": 0.8010430839002267,
+        "at": 8837.099999904633
+      },
+      {
+        "kind": "decode",
+        "duration": 0.2954875283446712,
+        "at": 9067.5
+      },
+      {
+        "kind": "decode",
+        "duration": 0.65,
+        "at": 9075.699999809265
+      },
+      {
+        "kind": "decode",
+        "duration": 0.88,
+        "at": 9076
+      },
+      {
+        "kind": "decode",
+        "duration": 1,
+        "at": 9076.399999856949
+      },
+      {
+        "kind": "decode",
+        "duration": 0.96,
+        "at": 9076.799999952316
+      },
+      {
+        "kind": "decode",
+        "duration": 1.8,
+        "at": 9077.199999809265
+      },
+      {
+        "kind": "decode",
+        "duration": 0.64,
+        "at": 9077.399999856949
+      },
+      {
+        "kind": "decode",
+        "duration": 0.92,
+        "at": 9088.799999952316
+      },
+      {
+        "kind": "decode",
+        "duration": 1.44,
+        "at": 9089.299999952316
+      },
+      {
+        "kind": "decode",
+        "duration": 1.2,
+        "at": 9090
+      },
+      {
+        "kind": "decode",
+        "duration": 1.4,
+        "at": 9090.399999856949
+      },
+      {
+        "kind": "decode",
+        "duration": 2.04,
+        "at": 9100.799999952316
+      },
+      {
+        "kind": "decode",
+        "duration": 1.32,
+        "at": 9101.399999856949
+      },
+      {
+        "kind": "decode",
+        "duration": 1.48,
+        "at": 9106.5
+      },
+      {
+        "kind": "decode",
+        "duration": 0.92,
+        "at": 9425
+      },
+      {
+        "kind": "decode",
+        "duration": 1.08,
+        "at": 9425.399999856949
+      },
+      {
+        "kind": "decode",
+        "duration": 0.4720634920634921,
+        "at": 9425.5
+      },
+      {
+        "kind": "decode",
+        "duration": 0.8882539682539683,
+        "at": 9433.399999856949
+      },
+      {
+        "kind": "decode",
+        "duration": 0.7398639455782313,
+        "at": 9433.699999809265
+      },
+      {
+        "kind": "decode",
+        "duration": 0.92,
+        "at": 9434.099999904633
+      },
+      {
+        "kind": "decode",
+        "duration": 1.24,
+        "at": 9434.299999952316
+      },
+      {
+        "kind": "decode",
+        "duration": 1.16,
+        "at": 9438.399999856949
+      },
+      {
+        "kind": "decode",
+        "duration": 1.16,
+        "at": 9440.199999809265
+      },
+      {
+        "kind": "decode",
+        "duration": 0.6802494331065759,
+        "at": 9440.199999809265
+      },
+      {
+        "kind": "decode",
+        "duration": 0.4902267573696145,
+        "at": 9440.399999856949
+      },
+      {
+        "kind": "decode",
+        "duration": 1.88,
+        "at": 9444
+      },
+      {
+        "kind": "decode",
+        "duration": 1.56,
+        "at": 9444.299999952316
+      },
+      {
+        "kind": "decode",
+        "duration": 1.8,
+        "at": 9444.899999856949
+      },
+      {
+        "kind": "decode",
+        "duration": 0.12140589569160998,
+        "at": 9444.899999856949
+      },
+      {
+        "kind": "decode",
+        "duration": 2.04,
+        "at": 9445.399999856949
+      },
+      {
+        "kind": "decode",
+        "duration": 0.49020408163265305,
+        "at": 9447.799999952316
+      },
+      {
+        "kind": "decode",
+        "duration": 0.22,
+        "at": 9448.099999904633
+      },
+      {
+        "kind": "decode",
+        "duration": 1.0000226757369615,
+        "at": 9448.699999809265
+      },
+      {
+        "kind": "decode",
+        "duration": 0.88,
+        "at": 9449
+      },
+      {
+        "kind": "decode",
+        "duration": 2,
+        "at": 9453.099999904633
+      },
+      {
+        "kind": "decode",
+        "duration": 1.04,
+        "at": 9453.399999856949
+      },
+      {
+        "kind": "decode",
+        "duration": 1.44,
+        "at": 9460.599999904633
+      },
+      {
+        "kind": "decode",
+        "duration": 1.32,
+        "at": 9463.399999856949
+      },
+      {
+        "kind": "decode",
+        "duration": 0.18,
+        "at": 9463.799999952316
+      },
+      {
+        "kind": "decode",
+        "duration": 2.28,
+        "at": 9464.399999856949
+      },
+      {
+        "kind": "decode",
+        "duration": 0.22,
+        "at": 9464.599999904633
+      },
+      {
+        "kind": "decode",
+        "duration": 0.16,
+        "at": 9470.899999856949
+      },
+      {
+        "kind": "decode",
+        "duration": 0.88,
+        "at": 9471.099999904633
+      },
+      {
+        "kind": "decode",
+        "duration": 0.8353741496598639,
+        "at": 9471.299999952316
+      },
+      {
+        "kind": "decode",
+        "duration": 2.68,
+        "at": 9471.899999856949
+      },
+      {
+        "kind": "decode",
+        "duration": 1.32,
+        "at": 9472.199999809265
+      },
+      {
+        "kind": "decode",
+        "duration": 1.48,
+        "at": 9477.699999809265
+      },
+      {
+        "kind": "decode",
+        "duration": 1.2,
+        "at": 9478.199999809265
+      },
+      {
+        "kind": "decode",
+        "duration": 0.30412698412698413,
+        "at": 9478.5
+      },
+      {
+        "kind": "decode",
+        "duration": 0.10412698412698412,
+        "at": 9478.699999809265
+      },
+      {
+        "kind": "decode",
+        "duration": 0.39510204081632655,
+        "at": 9478.699999809265
+      },
+      {
+        "kind": "decode",
+        "duration": 0.2,
+        "at": 9478.799999952316
+      },
+      {
+        "kind": "decode",
+        "duration": 0.7980045351473923,
+        "at": 9479
+      },
+      {
+        "kind": "decode",
+        "duration": 0.12,
+        "at": 9479.099999904633
+      },
+      {
+        "kind": "decode",
+        "duration": 0.22,
+        "at": 9479.099999904633
+      },
+      {
+        "kind": "decode",
+        "duration": 0.12,
+        "at": 9483.699999809265
+      },
+      {
+        "kind": "decode",
+        "duration": 0.20741496598639456,
+        "at": 9484.099999904633
+      },
+      {
+        "kind": "decode",
+        "duration": 1.56,
+        "at": 9484.5
+      },
+      {
+        "kind": "decode",
+        "duration": 0.32,
+        "at": 9484.599999904633
+      },
+      {
+        "kind": "decode",
+        "duration": 1,
+        "at": 9484.899999856949
+      },
+      {
+        "kind": "decode",
+        "duration": 0.4723356009070295,
+        "at": 9485.099999904633
+      },
+      {
+        "kind": "decode",
+        "duration": 0.9255328798185941,
+        "at": 9485.299999952316
+      },
+      {
+        "kind": "decode",
+        "duration": 1.28,
+        "at": 9489.799999952316
+      },
+      {
+        "kind": "decode",
+        "duration": 1.0903854875283447,
+        "at": 9490.199999809265
+      },
+      {
+        "kind": "decode",
+        "duration": 2,
+        "at": 9493.199999809265
+      },
+      {
+        "kind": "decode",
+        "duration": 25.26315192743764,
+        "at": 9753.5
+      },
+      {
+        "kind": "start",
+        "duration": 25.26315192743764,
+        "loop": true,
+        "at": 9754.5
+      },
+      {
+        "kind": "start",
+        "duration": 0.22,
+        "loop": false,
+        "at": 10992.199999809265
+      },
+      {
+        "kind": "stop",
+        "duration": 0.22,
+        "at": 11013.399999856949
+      },
+      {
+        "kind": "start",
+        "duration": 0.21895691609977325,
+        "loop": false,
+        "at": 11018.199999809265
+      },
+      {
+        "kind": "start",
+        "duration": 1.08,
+        "loop": false,
+        "at": 11018.799999952316
+      },
+      {
+        "kind": "start",
+        "duration": 0.18,
+        "loop": false,
+        "at": 11188.699999809265
+      },
+      {
+        "kind": "stop",
+        "duration": 25.26315192743764,
+        "at": 12723.799999952316
+      },
+      {
+        "kind": "decode",
+        "duration": 20.425532879818594,
+        "at": 13206
+      },
+      {
+        "kind": "start",
+        "duration": 20.425532879818594,
+        "loop": true,
+        "at": 13206.399999856949
+      },
+      {
+        "kind": "start",
+        "duration": 0.16,
+        "loop": false,
+        "at": 19233.599999904633
+      },
+      {
+        "kind": "start",
+        "duration": 1.56,
+        "loop": false,
+        "at": 19233.699999809265
+      },
+      {
+        "kind": "stop",
+        "duration": 1.56,
+        "at": 19477.299999952316
+      },
+      {
+        "kind": "start",
+        "duration": 0.22,
+        "loop": false,
+        "at": 19477.5
+      },
+      {
+        "kind": "start",
+        "duration": 0.10412698412698412,
+        "loop": false,
+        "at": 19479.199999809265
+      }
+    ],
+    "text": "Отменить\nСдаться"
+  }
+]
