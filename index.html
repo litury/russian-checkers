@@ -177,18 +177,30 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
  <div class="mh-panel">
   <header class="mh-header">
    <div class="mh-title-plate"><p class="mh-eyebrow">Игрок</p><h2 id="match-history-title" tabindex="-1">Профиль</h2></div>
-   <button type="button" id="match-history-back" class="mh-button">В меню</button>
+   <button type="button" id="match-history-back" class="mh-button" aria-label="Закрыть профиль">×</button>
   </header>
   <div id="match-history-scroll" class="mh-scroll">
-   <section id="match-history-profile" class="mh-profile" aria-label="Профиль игрока"><h3>Профиль этого браузера</h3><p class="mh-muted">Вход без регистрации. История хранится на сервере и доступна по профилю, сохранённому в этом браузере. После очистки данных браузера доступ может потеряться.</p></section>
-   <button id="profile-rules" class="mh-button" type="button" aria-haspopup="dialog" aria-controls="opening-help-dialog">Правила игры</button>
+   <section id="match-history-profile" class="mh-profile" aria-label="Обзор игрока">
+    <h3>Ваш игрок</h3><p id="profile-identity" class="mh-muted">Загрузка игрока…</p><p id="profile-binding-summary" class="mh-muted">Статус привязки почты неизвестен.</p>
+    <h3>Личная статистика</h3><p id="profile-stats" role="status">Загрузка…</p>
+    <button id="profile-stats-retry" class="mh-button" type="button" hidden>Повторить загрузку</button>
+    <nav class="profile-links" aria-label="Разделы профиля"><button id="profile-history" class="mh-button" type="button">История партий</button><button id="profile-account" class="mh-button" type="button">Аккаунт</button></nav>
+    <button id="profile-rules" class="mh-button" type="button" aria-haspopup="dialog" aria-controls="opening-help-dialog">Правила игры</button>
+   </section>
+   <section id="profile-account-pane" class="mh-profile" hidden aria-label="Аккаунт">
+    <p class="mh-muted">Здесь можно привязать почту к текущему игроку. Проверка прежней привязки пока недоступна. Вход по почте и перенос истории на другое устройство не предусмотрены.</p>
+    <p id="profile-account-status" role="status">Статус привязки неизвестен.</p>
+    <form id="profile-email-form"><label>Почта <input id="profile-email" type="email" autocomplete="email" required /></label><button type="submit" class="mh-button">Получить код</button></form>
+    <form id="profile-code-form"><label>Код <input id="profile-email-code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required /></label><button type="submit" class="mh-button">Привязать</button></form>
+   </section>
+   <div id="profile-history-pane" hidden>
    <h3 id="match-history-section-title" class="mh-history-title">История партий</h3>
    <section id="match-history-archive" aria-label="Список партий">
     <div class="mh-toolbar"><p id="match-history-summary">Последние записанные партии</p>
      <label id="match-history-filter-label" hidden>Соперник <select id="match-history-filter"><option value="all">Все</option><option value="online">Онлайн</option><option value="bot">Компьютер</option></select></label>
     </div>
     <div id="match-history-list"></div>
-    <p class="mh-profile-note mh-muted">Записи связаны с профилем в этом браузере. На другом устройстве история может отличаться.</p>
+    <p class="mh-profile-note mh-muted">Записи хранятся на сервере. Доступ определяется ключом игрока, сохранённым в браузере; после очистки данных доступ может потеряться.</p>
     <p id="match-history-limit" class="mh-muted" hidden>Показаны последние 50 партий. Более ранние записи пока недоступны в этом списке.</p>
    </section>
    <section id="match-history-state" class="mh-state" role="status" aria-live="polite" hidden>
@@ -218,6 +230,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
      </aside>
     </div>
    </section>
+   </div>
   </div>
  </div>
 </dialog>
@@ -248,14 +261,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 <label class="settings-check"><input type="radio" name="settings-bot" id="settings-bot-normal" value="normal" checked />Норма</label>
 <label class="settings-check"><input type="radio" name="settings-bot" id="settings-bot-hard" value="hard" />Сложный</label>
 </section>
-<section class="settings-section" aria-labelledby="settings-profile"><h3 id="settings-profile">Профиль</h3>
-<p id="settings-profile-copy">Гость. Партии с ботом пишутся, если сервер доступен.</p>
-<p id="settings-profile-stats">Счёт: нет данных</p>
-<label>Почта <input id="settings-email" type="email" autocomplete="email" /></label>
-<button type="button" id="settings-email-send" class="opening-button">Код</button>
-<label>Код <input id="settings-email-code" inputmode="numeric" maxlength="6" /></label>
-<button type="button" id="settings-email-ok" class="opening-button">Привязать</button>
-</section>
+
 
 </dialog>
 <script type="module" src="/src/client/app/openingStats.ts"></script>
@@ -277,15 +283,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
  }};
  byId('opening-retry').onclick = () => location.reload();
  // This state is usable before any module, including when storage is denied.
- const attrApi = document.documentElement.getAttribute('data-api') || '';
- const bakedApi = attrApi.indexOf('%') === 0 ? '' : attrApi.replace(/\/$/, '');
- const checkersApi = () => {
-  const baked = String(window.CHECKERS_API || bakedApi).replace(/\/$/, '');
-  if (baked) return baked;
-  const host = location.hostname;
-  if (host === 'localhost' || host === '127.0.0.1' || host === '[::1]') return location.protocol + '//' + host + ':8787';
-  return location.protocol + '//' + location.host;
- };
+
  const keys = {master:'checkers.sfxMaster', muted:'checkers.sfxMuted', effects:'checkers.effectsVolume', music:'checkers.musicVolume', autoMove:'checkers.autoMove', botSkill:'checkers.botSkill'};
  const read = key => { try { return localStorage.getItem(keys[key]); } catch { return null; } };
  const numeric = (raw, fallback) => raw === null || raw === '' || !Number.isFinite(Number(raw)) ? fallback : Math.max(0, Math.min(1, Number(raw)));
@@ -313,12 +311,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   open: () => {
    sync();
    const dialog = byId('opening-settings-dialog');
-   const statsEl = byId('settings-profile-stats');
-   const id = (() => { try { return localStorage.getItem('checkers.playerId'); } catch { return null; } })();
-   if (statsEl && id) fetch(checkersApi() + '/players/' + id + '/stats').then(r => r.ok ? r.json() : null).then(s => {
-    if (!s || !statsEl) return;
-    statsEl.textContent = 'Партий: ' + s.games + '. Побед белыми: ' + s.white_wins + ', чёрными: ' + s.black_wins + '.';
-   }).catch(() => {});
+
    if (!dialog.open) dialog.showModal();
   }
  };
@@ -326,23 +319,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
  for (const skill of ['easy','normal','hard']) byId('settings-bot-' + skill).onchange = event => { if (event.target.checked) window.checkersSettings.set({botSkill:skill}); };
  byId('settings-muted').onchange = event => window.checkersSettings.set({muted:event.target.checked});
 
- byId('settings-email-send').onclick = () => {
-  const token = (() => { try { return localStorage.getItem('checkers.playerToken'); } catch { return null; } })();
-  const email = byId('settings-email').value;
-  if (!token || !email) return;
-  fetch(checkersApi() + '/auth/email/start', {method:'POST', headers:{'content-type':'application/json', authorization:'Bearer '+token}, body: JSON.stringify({email})}).then(r => r.json()).then(s => {
-   byId('settings-profile-copy').textContent = s.ok ? 'Код в логе сервера (локально).' : (s.error || 'не отправлено');
-  }).catch(() => {});
- };
- byId('settings-email-ok').onclick = () => {
-  const token = (() => { try { return localStorage.getItem('checkers.playerToken'); } catch { return null; } })();
-  const email = byId('settings-email').value;
-  const code = byId('settings-email-code').value;
-  if (!token) return;
-  fetch(checkersApi() + '/auth/email/confirm', {method:'POST', headers:{'content-type':'application/json', authorization:'Bearer '+token}, body: JSON.stringify({email, code})}).then(r => r.json()).then(s => {
-   byId('settings-profile-copy').textContent = s.ok ? 'Почта привязана к этому профилю.' : (s.error === 'link_conflict' ? 'Эта почта уже у другого игрока.' : 'Код не подошёл');
-  }).catch(() => {});
- };
+
  for (const key of ['music','effects']) byId('settings-'+key).oninput = event => window.checkersSettings.set({[key]:Number(event.target.value)});
  byId('opening-options').onclick = () => window.checkersSettings.open();
  const settingsDialog = byId('opening-settings-dialog');

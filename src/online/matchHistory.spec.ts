@@ -16,7 +16,7 @@ it('lists own matches outside settings, board only with plies', () => {
  expect(src).toContain("path.startsWith('/matches/')");
  expect(src).toContain('not_found');
  expect(html).toContain('aria-label="Профиль"');
- expect(html).toContain('Профиль этого браузера');
+ expect(html).toContain('id="profile-identity"');
  expect(html).toContain('История партий');
  expect(html).toContain('id="opening-history"');
  expect(ui).toContain('Пока нет партий');
@@ -24,6 +24,8 @@ it('lists own matches outside settings, board only with plies', () => {
  const settingsDialog = html.match(/<dialog\b[^>]*id="opening-settings-dialog"[^>]*>[\s\S]*?<\/dialog>/)?.[0];
  expect(settingsDialog).toBeDefined();
  expect(settingsDialog).not.toContain('id="opening-history"');
+ expect(settingsDialog).not.toContain('email');
+ expect(settingsDialog).not.toContain('profile-stats');
  expect(overlay).toContain('bindMatchHistory');
  expect(ui).not.toContain('pickBotMove');
  expect(ui).not.toContain('Пример разбора');
@@ -35,14 +37,20 @@ it('lists own matches outside settings, board only with plies', () => {
  expect(settings).not.toContain('match-history');
 });
 
-it('keeps profile rules on the existing dialog and restores profile after replay', () => {
+it('keeps rules on the root and separates account, history and replay', () => {
  const profile = html.match(/<dialog\b[^>]*id="match-history"[^>]*>[\s\S]*?<\/dialog>/)?.[0];
  expect(profile).toContain('id="profile-rules"');
  expect(profile).toContain('aria-controls="opening-help-dialog"');
  expect(html.match(/id="opening-help-dialog"/g)).toHaveLength(1);
  expect(html).toContain('window.checkersRules = { open:');
  expect(ui).toContain('checkersRules?.open()');
- expect(ui.match(/heading.textContent = 'Профиль'/g)).toHaveLength(2);
- expect(ui).toContain('rules.hidden = true');
- expect(ui.match(/rules.hidden = false/g)).toHaveLength(2);
+ expect(ui).toContain("showPane('root')");
+ expect(ui).toContain("showPane('list')");
+ expect(ui).toContain("showPane('record')");
+ expect(ui).toContain("showPane('account')");
+ expect(ui).toContain("el('match-history-profile').hidden = next !== 'root'");
+ expect(profile).toContain('id="profile-history"');
+ expect(profile).toContain('id="profile-account"');
+ expect(profile).toContain('id="profile-account-pane"');
+ expect(profile).not.toContain('Профиль этого браузера');
 });

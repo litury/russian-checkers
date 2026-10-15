@@ -138,8 +138,8 @@ export async function beatPresence(on = true, signal?: AbortSignal): Promise<num
  }
 }
 
-export async function loadStats(): Promise<{ games: number; white_wins: number; black_wins: number } | null> {
- const guest = await ensureGuest();
+export async function loadStats(identity?: { id: string; token: string }): Promise<{ games: number; white_wins: number; black_wins: number } | null> {
+ const guest = identity ?? await ensureGuest();
  if (!guest) return null;
  const res = await request(`/players/${guest.id}/stats`);
  if (!res?.ok) return null;

@@ -31,6 +31,16 @@
 #match-history .mh-button:active:not(:disabled) { border-image-source:url('./ui/siege/button-steel-pressed.webp'); }
 #match-history button:disabled { opacity:.45; cursor:default; }
 #match-history .mh-profile { margin-bottom:20px; }
+#match-history:has(#match-history-profile:not([hidden])),#match-history:has(#profile-account-pane:not([hidden])) { width:min(640px,calc(100% - 24px)); height:min(680px,calc(100dvh - 24px)); }
+#match-history .profile-links { display:grid; gap:12px; margin:24px 0 16px; }
+#match-history .mh-profile h3:not(:first-child) { margin-top:24px; }
+#match-history #profile-rules { border:0; text-decoration:underline; min-width:0; text-align:left; padding:8px 0; font-size:14px; }
+#match-history #match-history-back { min-width:48px; }
+#match-history #profile-account-pane form { display:grid; gap:12px; margin-top:20px; }
+#match-history #profile-account-pane label { display:grid; gap:6px; }
+#match-history #profile-account-pane input { min-width:0; width:100%; min-height:44px; padding:8px; font:inherit; }
+#match-history #profile-identity { overflow-wrap:anywhere; }
+#match-history:has(#match-history-profile:not([hidden])) { height:min(570px,calc(100dvh - 24px)); }
 #match-history .mh-profile p { margin-top:6px; max-width:72ch; font-size:14px; }
 #match-history .mh-history-title { margin-bottom:12px; }
 #match-history #profile-rules { margin-bottom:20px; align-self:flex-start; }

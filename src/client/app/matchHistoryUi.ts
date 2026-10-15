@@ -1,4 +1,5 @@
 import './matchHistory.css';
+import { bindProfileOverview } from './profileOverview';
 import { loadMatch, loadMatches } from '@/online/cloud';
 import { canOpenBoard, type MatchRow } from '@/online/matchHistory';
 import { buildHistoryReplay, halfMoveCount, incompleteReplayCopy, outcomeLabel } from '@/online/historyReplay';
@@ -33,6 +34,17 @@ export function bindMatchHistory() {
  const el = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
  const title = el('opening');
  const heading = el('match-history-title');
+ const overview = bindProfileOverview();
+ let pane: 'root' | 'account' | 'list' | 'record' = 'root';
+ const showPane = (next: typeof pane) => {
+  pane = next;
+  el('match-history-profile').hidden = next !== 'root';
+  el('profile-account-pane').hidden = next !== 'account';
+  el('profile-history-pane').hidden = next !== 'list' && next !== 'record';
+  heading.textContent = { root: 'Профиль', account: 'Аккаунт', list: 'История партий', record: 'Просмотр партии' }[next];
+  back.textContent = next === 'root' ? '×' : 'Назад';
+  back.setAttribute('aria-label', next === 'root' ? 'Закрыть профиль' : next === 'record' ? 'К списку партий' : 'В профиль');
+ };
  const rules = el<HTMLButtonElement>('profile-rules');
  rules.addEventListener('click', () => {
   uiSfx('ui-open');
@@ -121,11 +133,8 @@ export function bindMatchHistory() {
   generation++;
   selected = null;
   replay = null;
-  heading.textContent = 'Профиль';
-  rules.hidden = false;
-  el('match-history-profile').hidden = false;
+  showPane('list');
   el('match-history-section-title').hidden = false;
-  back.textContent = 'В меню';
   boardWrap.hidden = true;
   archive.hidden = archiveState !== 'list';
   state.hidden = archiveState === 'list';
@@ -221,11 +230,8 @@ export function bindMatchHistory() {
   selected = row;
   replay = null;
   const ticket = ++generation;
-  heading.textContent = 'Просмотр партии';
-  rules.hidden = true;
-  el('match-history-profile').hidden = true;
+  showPane('record');
   el('match-history-section-title').hidden = true;
-  back.textContent = 'К списку';
   archive.hidden = true;
   boardWrap.hidden = true;
   scroll.scrollTop = 0;
@@ -274,14 +280,22 @@ export function bindMatchHistory() {
   returnFocus = null;
   savedScroll = 0;
   filter.value = 'all';
-  heading.textContent = 'Профиль';
-  rules.hidden = false;
-  el('match-history-profile').hidden = false;
-  el('match-history-section-title').hidden = false;
-  back.textContent = 'В меню';
+  showPane('root');
   focusHeading();
+  history.pushState({ mh: navigationKey, pane: 'root' }, '');
+  void overview.refresh();
+ });
+ el('profile-history').addEventListener('click', () => {
+  showPane('list');
+  el('match-history-section-title').hidden = false;
   history.pushState({ mh: navigationKey, pane: 'list' }, '');
+  focusHeading();
   void fetchList();
+ });
+ el('profile-account').addEventListener('click', () => {
+  showPane('account');
+  history.pushState({ mh: navigationKey, pane: 'account' }, '');
+  focusHeading();
  });
  const goBack = () => { generation++; history.back(); };
  back.addEventListener('click', goBack);
@@ -289,6 +303,19 @@ export function bindMatchHistory() {
  window.addEventListener('popstate', event => {
   if (!root?.open) return;
   if (event.state?.mh === navigationKey && event.state.pane === 'list') restoreList();
+  else if (event.state?.mh === navigationKey && event.state.pane === 'account') {
+   generation++;
+   selected = null;
+   showPane('account');
+   focusHeading();
+  }
+  else if (event.state?.mh === navigationKey && event.state.pane === 'root') {
+   generation++;
+   selected = null;
+   const previous = pane;
+   showPane('root');
+   el(previous === 'account' ? 'profile-account' : 'profile-history').focus({ preventScroll: true });
+  }
   else close();
  });
  retry.addEventListener('click', () => { uiSfx('ui-tap'); focusHeading(); retryAction(); });
@@ -300,7 +327,7 @@ export function bindMatchHistory() {
  end.addEventListener('click', () => navigate(replay?.plies.length ?? 0));
  root.addEventListener('keydown', event => {
   if (event.key === 'Tab') {
-   const controls = [...root.querySelectorAll<HTMLElement>('button:not(:disabled),select:not(:disabled),[tabindex="0"]')]
+   const controls = [...root.querySelectorAll<HTMLElement>('button:not(:disabled),input:not(:disabled),select:not(:disabled),[tabindex="0"]')]
     .filter(node => node.getClientRects().length > 0);
    const current = document.activeElement;
    const firstControl = controls[0], lastControl = controls.at(-1);
