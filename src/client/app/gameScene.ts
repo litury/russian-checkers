@@ -1178,7 +1178,10 @@ export class GameScene extends Phaser.Scene {
 			!this.canSelect() && (this.phase === 'bot' || this.countingIn || this.paused || (this.online && !this.onlineBegun) || (this.online && !this.onlineHumanTurn())),
 		);
 		const drop = dropNoticeLine(this.dropUntil || undefined, Date.now(), this.dropServerNow, this.dropReceivedAt);
-		this.hud.setTurn(drop || matchStatus(
+		const outcome = this.acceptedResult;
+		this.hud.setTurn(outcome
+			? outcome.winner === 'draw' ? 'Ничья' : outcome.winner === outcome.humanSide ? 'Победа' : 'Поражение'
+			: drop || matchStatus(
 			this.countingIn || (this.online && !this.onlineBegun),
 			this.phase === 'over'
 				? 'over'

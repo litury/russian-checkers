@@ -1,8 +1,10 @@
 import type Phaser from 'phaser';
 import type { Side } from '@/rules';
 import './boardVerdict.css';
-import { uiSfx } from './uiSfx';
+import { readSafeInsets } from '@/client/config/matchLayout';
 import { prepareResignArt, resignArtReady } from './matchActionArtWarmup';
+import { uiSfx } from './uiSfx';
+import { verdictControlsGeometry } from './verdictControlsGeometry';
 
 export type Verdict = {
 	winner: Side | 'draw';
@@ -28,6 +30,9 @@ export function createResultOverlay(
 	document.body.append(root);
 	const panel = root.querySelector<HTMLElement>('.verdict-panel')!;
 	const status = root.querySelector<HTMLElement>('.verdict-status')!;
+	const boardButton = panel.querySelector<HTMLButtonElement>('[data-verdict="board"]')!;
+	boardButton.textContent = 'К доске';
+	boardButton.setAttribute('aria-label', 'Посмотреть доску');
 	const heading = root.querySelector<HTMLElement>('#verdict-heading')!;
 	const reason = root.querySelector<HTMLElement>('#verdict-reason')!;
 	const again = root.querySelector<HTMLButtonElement>(
@@ -84,7 +89,7 @@ export function createResultOverlay(
 		panel.classList.remove('enter');
 		status.hidden = false;
 		release();
-		reopen.focus({ preventScroll: true });
+		reopen.focus({ preventScroll: root.dataset.controlsLayout !== 'dock' });
 	}
 	function hide(_force = false) {
 		covered();
@@ -177,7 +182,18 @@ export function createResultOverlay(
 		root.remove();
 	});
 	return {
-		layout(_width: number, _height: number) {},
+		layout(width: number, height: number) {
+			const geometry = verdictControlsGeometry(width, height, readSafeInsets());
+			root.dataset.controlsLayout = geometry.dock ? 'dock' : 'pocket';
+			// DOM targets stay 44 CSS px; never scale their text with the canvas.
+			status.style.left = `${geometry.left}px`;
+			status.style.top = `${geometry.top}px`;
+			status.style.gridTemplateColumns = `${geometry.primaryWidth}px 64px`;
+			if (shown && !status.hidden) {
+				if (geometry.dock) window.scrollTo(0, document.documentElement.scrollHeight);
+				else window.scrollTo(0, 0);
+			}
+		},
 		hide,
 		show(verdict: Verdict) {
 			if (disposed || shown) return;
@@ -200,7 +216,8 @@ export function createResultOverlay(
 				state === 'win' ? 'ПОБЕДА' : state === 'loss' ? 'ПОРАЖЕНИЕ' : 'НИЧЬЯ';
 			reason.textContent = verdict.reason;
 			again.textContent = verdict.online ? 'Найти соперника' : 'Ещё партия';
-			reopen.textContent = `${heading.textContent} · Действия`;
+			reopen.textContent = 'Итог партии';
+			reopen.setAttribute('aria-label', `Итог партии: ${heading.textContent.toLowerCase()}`);
 			root.hidden = false;
 			open(true);
 			performance.mark('damka:result-actions-ready');

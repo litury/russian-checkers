@@ -206,18 +206,51 @@
 .verdict-status {
 	pointer-events: auto;
 	position: absolute;
-	bottom: max(18px, env(safe-area-inset-bottom));
-	display: flex;
+	display: grid;
+	grid-template-columns: 120px 64px;
 	gap: 8px;
-	max-width: calc(100% - 24px);
 }
 .verdict-panel:focus {
 	outline: none;
 }
-.verdict-status button {
-	font-size: 15px;
-	padding: 12px 35px;
+/* No 44px bay exists on short screens. The readonly board remains native
+   size; a bottom row follows the canvas in scrollable document space. */
+html:has(.board-verdict[data-controls-layout="dock"]:not(.expanded):not([hidden])) {
+	overflow-y: auto;
 }
+body:has(.board-verdict[data-controls-layout="dock"]:not(.expanded):not([hidden])) {
+	overflow: visible;
+}
+body:has(.board-verdict[data-controls-layout="dock"]:not(.expanded):not([hidden])) #game,
+body:has(.board-verdict[data-controls-layout="dock"]:not(.expanded):not([hidden])) #game canvas {
+	touch-action: pan-y;
+	pointer-events: none;
+}
+.board-verdict[data-controls-layout="dock"]:not(.expanded) {
+	position: absolute;
+	height: calc(100% + 64px + env(safe-area-inset-bottom));
+}
+.verdict-status button {
+	font: 600 12px/16px "Golos Text", sans-serif;
+	height: 44px;
+	padding: 0 12px;
+	white-space: nowrap;
+	border-image: none;
+	background: url('./ui/match-actions/dialog-neutral.webp') center / contain no-repeat;
+}
+.verdict-status [data-verdict="menu"] {
+	font: 600 12px/16px "Golos Text", sans-serif;
+	padding: 0 8px;
+	background: none;
+	color: #c6b896;
+}
+.verdict-status button:hover { color: #fff8eb; }
+.verdict-status button:hover:not(:focus-visible),
+.board-verdict[data-outcome="loss"] .verdict-actions button:hover:not(:focus-visible) {
+	outline: 1px solid #c6b896;
+	outline-offset: 1px;
+}
+.verdict-status button:disabled { opacity: 0.5; }
 @keyframes verdict-enter {
 	from {
 		opacity: 0.2;
@@ -274,18 +307,21 @@
 }
 .board-verdict[data-outcome="loss"] .verdict-actions button {
 	border-image: none; padding: 0 18px; min-height: 48px; height: 48px;
-	font-size: 12px; line-height: 16px; font-weight: 600;
+	font: 600 12px/16px "Golos Text", sans-serif; white-space: nowrap;
 	background: url('./ui/match-actions/dialog-neutral.webp') center / contain no-repeat;
 }
 .board-verdict[data-outcome="loss"] .verdict-actions [data-verdict="again"] {
 	background-image: url('./ui/match-actions/dialog-copper.webp');
 }
-.board-verdict[data-outcome="loss"] .verdict-actions [data-verdict="menu"] { grid-column: 2; grid-row: 1; }
+.board-verdict[data-outcome="loss"] .verdict-actions [data-verdict="menu"] { grid-column: 2; grid-row: 1; background: none; color: #c6b896; }
 .board-verdict[data-outcome="loss"] .verdict-actions [data-verdict="board"] {
 	grid-column: 1 / -1; grid-row: 2; height: 44px; min-height: 44px;
-	background: none; text-decoration: underline; text-underline-offset: 3px;
+	width: 144px; justify-self: center;
+	background: url('./ui/match-actions/dialog-neutral.webp') center / contain no-repeat;
+	text-decoration: none;
 }
-.board-verdict[data-outcome="loss"] .verdict-actions button:hover { text-decoration: underline; text-underline-offset: 3px; }
+.board-verdict[data-outcome="loss"] .verdict-actions button:hover { color: #fff8eb; text-decoration: none; }
+.board-verdict[data-outcome="loss"] .verdict-actions button:disabled { opacity: 0.5; }
 .board-verdict[data-outcome="loss"] .verdict-panel.enter { animation: loss-sheet-enter 280ms ease-out both; }
 @keyframes loss-sheet-enter { from { transform: translateY(100%); } to { transform: none; } }
 @media (max-width: 500px) {
