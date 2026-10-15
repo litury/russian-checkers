@@ -29,7 +29,14 @@ export async function probeApi(): Promise<boolean> {
  return !!res?.ok;
 }
 
+let guestRequest: Promise<{id: string; token: string} | null> | undefined;
 export async function ensureGuest(): Promise<{ id: string; token: string } | null> {
+ if (guestRequest) return guestRequest;
+ guestRequest = createGuest();
+ try { return await guestRequest; }
+ finally { guestRequest = undefined; }
+}
+async function createGuest(): Promise<{ id: string; token: string } | null> {
  try {
   const token = localStorage.getItem(tokenKey);
   const id = localStorage.getItem(idKey);
@@ -87,12 +94,12 @@ export async function loadColorStats(): Promise<{ white: number; black: number; 
  }
 }
 
-export async function loadPresence(): Promise<number | null> {
- const res = await request('/stats/presence');
+export async function loadPresence(signal?: AbortSignal): Promise<number | null> {
+ const res = await request('/stats/presence', {signal});
  if (!res?.ok) return null;
  try {
-  const live = Number((await res.json() as {live?: unknown}).live);
-  return Number.isFinite(live) ? live : null;
+  const live = (await res.json() as {live?: unknown}).live;
+  return typeof live === 'number' && Number.isSafeInteger(live) && live >= 0 ? live : null;
  } catch {
   return null;
  }
@@ -112,10 +119,11 @@ function presenceTab(): string {
  }
 }
 
-export async function beatPresence(on = true): Promise<number | null> {
+export async function beatPresence(on = true, signal?: AbortSignal): Promise<number | null> {
  const guest = await ensureGuest();
- if (!guest) return null;
+ if (!guest || signal?.aborted) return null;
  const res = await request('/stats/presence', {
+  signal,
   method: 'POST',
   keepalive: true,
   headers: { authorization: `Bearer ${guest.token}` },
@@ -123,8 +131,8 @@ export async function beatPresence(on = true): Promise<number | null> {
  });
  if (!res?.ok) return null;
  try {
-  const live = Number((await res.json() as {live?: unknown}).live);
-  return Number.isFinite(live) ? live : null;
+  const live = (await res.json() as {live?: unknown}).live;
+  return typeof live === 'number' && Number.isSafeInteger(live) && live >= 0 ? live : null;
  } catch {
   return null;
  }

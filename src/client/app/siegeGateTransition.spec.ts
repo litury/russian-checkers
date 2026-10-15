@@ -6,6 +6,7 @@ const audio = vi.hoisted(()=>({gate:vi.fn(),hide:vi.fn()}));
 const cloud = vi.hoisted(()=>({beat: async(): Promise<number|null> => null}));
 vi.mock('./menuAudio', () => ({ createMenuAudio: () => new Proxy(audio, {get: (target,key) => target[key as keyof typeof target] ?? vi.fn()}) }));
 vi.mock('./matchHistoryUi', () => ({bindMatchHistory: vi.fn()}));
+vi.mock('./onlineHubArt', () => ({prepareOnlineHubArt: async () => true, warmOnlineHubArt: () => vi.fn()}));
 vi.mock('@/online/cloud', () => ({ensureGuest:async()=>null,loadColorStats:async()=>null,loadPresence:async()=>null,beatPresence:()=>cloud.beat()}));
 vi.mock('./siegeSelection', () => ({siegeSide:()=> 'white',setSiegeSide:vi.fn()}));
 import { createOpeningOverlay } from './openingOverlay';
@@ -35,7 +36,7 @@ function setup(reduced=false, decoded=true) {
  const media=Object.assign(new EventTarget(),{matches:reduced});
  vi.stubGlobal('matchMedia',()=>media);
  const resizeListeners: Array<() => void> = [];
- vi.stubGlobal('window',{checkersStartup:{unlock:vi.fn(),ready:vi.fn(),waitPlay:vi.fn(),status:vi.fn()},setInterval:vi.fn(),clearInterval:vi.fn(),addEventListener:(type:string,fn:()=>void)=>{if(type==='resize')resizeListeners.push(fn);},removeEventListener:(type:string,fn:()=>void)=>{if(type!=='resize')return;const i=resizeListeners.indexOf(fn);if(i>=0)resizeListeners.splice(i,1);}});
+ vi.stubGlobal('window',{checkersStartup:{unlock:vi.fn(),ready:vi.fn(),waitPlay:vi.fn(),status:vi.fn()},setTimeout:vi.fn(),clearTimeout:vi.fn(),setInterval:vi.fn(),clearInterval:vi.fn(),addEventListener:(type:string,fn:()=>void)=>{if(type==='resize')resizeListeners.push(fn);},removeEventListener:(type:string,fn:()=>void)=>{if(type!=='resize')return;const i=resizeListeners.indexOf(fn);if(i>=0)resizeListeners.splice(i,1);}});
  let tick=()=>{};
  const events=new Map<string,()=>void>();
  const paused={value:false};
@@ -218,8 +219,8 @@ it('keeps chronicle labels and refuses a fake zero or sample online count', asyn
  expect(get('opening-online-count-label').textContent).not.toContain('пример');
 });
 it('reads «Онлайн: N» once: folded into the heading, never a second word', async ()=>{
- const {overlay,get}=setup();
  cloud.beat=async()=>3;
+ const {overlay,get}=setup();
  overlay.show();
  await Promise.resolve();
  await Promise.resolve();
@@ -230,20 +231,20 @@ it('reads «Онлайн: N» once: folded into the heading, never a second word
  const count=get('opening-online-count');
  expect(count.hidden).toBe(true);
  expect(get('opening-online-count-label').textContent).toBe('');
- // Zero or unknown never leaves a placeholder behind.
+ // A confirmed zero is real data, not a loading/error placeholder.
  cloud.beat=async()=>0;
  const {overlay:second,get:getSecond}=setup();
  second.show();
  await Promise.resolve();
  await Promise.resolve();
- expect(getSecond('opening-search-copy').textContent).toBe('Онлайн');
+ expect(getSecond('opening-search-copy').textContent).toBe('Онлайн: 0');
  const zero=getSecond('opening-online-count');
  expect(zero.hidden).toBe(true);
  expect(getSecond('opening-online-count-label').textContent).toBe('');
 });
 it('keeps the count as its own «Онлайн: N» row when the heading says something else', async ()=>{
- const {overlay,get}=setup();
  cloud.beat=async()=>3;
+ const {overlay,get}=setup();
  overlay.show();
  await Promise.resolve();
  await Promise.resolve();

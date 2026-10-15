@@ -5,9 +5,10 @@ import {createMenuAudio} from './menuAudio';
 import {uiSfx} from './uiSfx';
 import {bindMatchHistory} from './matchHistoryUi';
 import {createOnlineHub} from './onlineHub';
-import {ensureGuest, loadPresence, beatPresence} from '@/online/cloud';
+import {loadPresence, beatPresence} from '@/online/cloud';
 
-import {presenceLit, HEARTBEAT_MS, PRESENCE_CACHE_MS} from '@/online/presence';
+import {HEARTBEAT_MS} from '@/online/presence';
+import {warmOnlineHubArt} from './onlineHubArt';
 import {notePlayIntent, playIntentEvent} from './playIntent';
 import {OpeningGates, gateDurationMs, repeatGateDurationMs} from './openingGates';
 import {searchCopy, type SearchPhase} from './matchmakingSearch';
@@ -61,6 +62,11 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  const searchBot = document.getElementById('opening-search-bot') as HTMLButtonElement | null;
  const liveCount = document.getElementById('opening-online-count');
  let liveTotal: number | null = null;
+ const menuCount = document.createElement('span');
+ menuCount.id = 'opening-menu-online-count';
+ menuCount.setAttribute('role', 'status');
+ menuCount.textContent = 'Онлайн: …';
+ online?.append(menuCount);
  let heading = 'Онлайн';
  const hub = createOnlineHub({
   find: () => handlers.onSearchFind?.(),
@@ -71,12 +77,13 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  /**
   * The visible count is «Онлайн: N», never the retired «сейчас в сети» wording. When the heading
   * itself already says «Онлайн» the number is folded into that line instead of repeating the word in
-  * a second row; an unknown or zero count leaves no row and no placeholder behind.
+  * a second row; an unknown count leaves no search row. A confirmed zero stays real data.
   */
  const renderLive = () => {
-  if (!searchCopyEl) return;
   const n = liveTotal;
   hub.setCount(n);
+  menuCount.textContent = n === null ? 'Онлайн: —' : `Онлайн: ${n}`;
+  if (!searchCopyEl) return;
   const inHeading = heading === 'Онлайн' && n !== null;
   searchCopyEl.textContent = inHeading ? `${heading}: ${n}` : heading;
   if (liveCount) {
@@ -146,10 +153,10 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  };
  const visibilityChange = () => {
   syncPause();
-  if (document.hidden) { void beatPresence(false); stopBeat(); }
+  if (document.hidden) { stopBeat(); leavePresence(); }
   else startBeat();
  };
- const pageHide = () => { void beatPresence(false); stopBeat(); };
+ const pageHide = () => { stopBeat(); leavePresence(); };
  const update = () => {
   syncPause();
   if(!gates.active || document.hidden || scenePaused || handlers.isPaused?.()) return;
@@ -224,42 +231,63 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  // Keep pending/committed until invoke/auto-start so show()/unlock cannot idle the button.
  if(window.checkersStartup.pendingPlay || window.checkersStartup.playCommitted) window.checkersStartup.waitPlay();
  else { window.checkersStartup.unlock(); window.checkersStartup.ready(); }
- void ensureGuest();
- let presenceTimer: number | undefined;
  let beatTimer: number | undefined;
+ let presenceEpoch = 0;
+ let presenceActive = false;
+ let presenceAbort: AbortController | undefined;
+ // A leave is a mutation, not an abortable read. A returning lifecycle must
+ // wait for it; otherwise the old off can erase the newer on at the server.
+ let pendingLeave: Promise<unknown> | undefined;
+ const leavePresence = () => {
+  pendingLeave = (pendingLeave ?? Promise.resolve()).then(() => beatPresence(false)).catch(() => undefined);
+ };
  const showLive = (live: number | null) => {
-  const n = live ?? 0;
-  liveTotal = presenceLit(n) ? n : null;
+  liveTotal = live;
   renderLive();
  };
- const paintPresence = () => {
-  void loadPresence().then(showLive).catch(() => showLive(0));
- };
  const stopBeat = () => {
-  if (beatTimer !== undefined) window.clearInterval(beatTimer);
+  presenceAbort?.abort();
+  presenceAbort = undefined;
+  presenceActive = false;
+  presenceEpoch++;
+  if (beatTimer !== undefined) window.clearTimeout(beatTimer);
   beatTimer = undefined;
-  if (presenceTimer !== undefined) window.clearInterval(presenceTimer);
-  presenceTimer = undefined;
  };
  const startBeat = () => {
-  stopBeat();
-  if (document.hidden) return;
-  void beatPresence(true).then(showLive);
-  beatTimer = window.setInterval(() => { void beatPresence(true).then(showLive); }, HEARTBEAT_MS);
-  presenceTimer = window.setInterval(paintPresence, PRESENCE_CACHE_MS);
+  if (document.hidden || presenceActive) return;
+  presenceActive = true;
+  presenceAbort = new AbortController();
+  const lifecycleSignal = presenceAbort.signal;
+  const epoch = presenceEpoch;
+  const poll = async () => {
+   if (pendingLeave) await pendingLeave;
+   if (epoch !== presenceEpoch || lifecycleSignal.aborted || document.hidden) return;
+   const signal = AbortSignal.any([lifecycleSignal, AbortSignal.timeout(12_000)]);
+   let live: number | null = null;
+   try { live = await beatPresence(true, signal); if (live === null && !signal.aborted) live = await loadPresence(signal); } catch { /* unavailable, not zero */ }
+   if (epoch !== presenceEpoch || document.hidden) return;
+   showLive(live);
+   beatTimer = window.setTimeout(() => { void poll(); }, HEARTBEAT_MS);
+  };
+  void poll();
  };
  const startPresence = startBeat;
+ const cancelHubWarmup = warmOnlineHubArt();
+ startPresence();
  bindMatchHistory();
  document.addEventListener('visibilitychange',visibilityChange);
- document.addEventListener('pagehide', pageHide);
+ window.addEventListener('pagehide', pageHide);
+ window.addEventListener('pageshow', startBeat);
  scene.events.on('update',update);
  scene.events.on('pause',pauseScene);
  scene.events.on('resume',resumeScene);
  motion.addEventListener?.('change',motionChange);
  scene.events.once('shutdown',()=>{
   hub.dispose();
+  cancelHubWarmup();
+  menuCount.remove();
  stopBeat();
-  void beatPresence(false);
+  leavePresence();
   gates.cancel();audio.dispose();play.onclick=null;
   if (online) online.onclick=null;
   ivory?.removeEventListener('click', pickWhite);
@@ -271,7 +299,8 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   scene.events.off('resume',resumeScene);
   motion.removeEventListener?.('change',motionChange);
   document.removeEventListener('visibilitychange',visibilityChange);
-  document.removeEventListener('pagehide', pageHide);
+  window.removeEventListener('pagehide', pageHide);
+  window.removeEventListener('pageshow', startBeat);
   window.removeEventListener?.('resize', holdScroll);
   root.inert=false;releaseScroll();root.classList.remove('is-departing');cancelVisual();
  });
