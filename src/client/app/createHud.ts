@@ -103,6 +103,10 @@ export function createHud(
 		},
 		setFacing(side: Side) {
 			facing = side;
+			scene.game.canvas.setAttribute(
+				'aria-description',
+				`Ваша сторона: ${side === 'white' ? 'белые' : 'чёрные'}. Ваши шашки внизу доски.`,
+			);
 		},
 		setClock(whiteSec: number, blackSec: number, turn: Side | null = 'white') {
 			const own = facing === 'black' ? blackSec : whiteSec;
