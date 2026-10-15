@@ -153,10 +153,10 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  };
  const visibilityChange = () => {
   syncPause();
-  if (document.hidden) { void beatPresence(false); stopBeat(); }
+  if (document.hidden) { stopBeat(); leavePresence(); }
   else startBeat();
  };
- const pageHide = () => { void beatPresence(false); stopBeat(); };
+ const pageHide = () => { stopBeat(); leavePresence(); };
  const update = () => {
   syncPause();
   if(!gates.active || document.hidden || scenePaused || handlers.isPaused?.()) return;
@@ -235,6 +235,12 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  let presenceEpoch = 0;
  let presenceActive = false;
  let presenceAbort: AbortController | undefined;
+ // A leave is a mutation, not an abortable read. A returning lifecycle must
+ // wait for it; otherwise the old off can erase the newer on at the server.
+ let pendingLeave: Promise<unknown> | undefined;
+ const leavePresence = () => {
+  pendingLeave = (pendingLeave ?? Promise.resolve()).then(() => beatPresence(false)).catch(() => undefined);
+ };
  const showLive = (live: number | null) => {
   liveTotal = live;
   renderLive();
@@ -254,6 +260,8 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   const lifecycleSignal = presenceAbort.signal;
   const epoch = presenceEpoch;
   const poll = async () => {
+   if (pendingLeave) await pendingLeave;
+   if (epoch !== presenceEpoch || lifecycleSignal.aborted || document.hidden) return;
    const signal = AbortSignal.any([lifecycleSignal, AbortSignal.timeout(12_000)]);
    let live: number | null = null;
    try { live = await beatPresence(true, signal); if (live === null && !signal.aborted) live = await loadPresence(signal); } catch { /* unavailable, not zero */ }
@@ -279,7 +287,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   cancelHubWarmup();
   menuCount.remove();
  stopBeat();
-  void beatPresence(false);
+  leavePresence();
   gates.cancel();audio.dispose();play.onclick=null;
   if (online) online.onclick=null;
   ivory?.removeEventListener('click', pickWhite);

@@ -65,3 +65,17 @@ hotspot: src/client/app/openingOverlay.ts — согласован только 
 Не проверялись физический телефон, новый матч/reconnect gameplay и полный suite всей игры (сеть authority не менялась). Count следует действующему API с табовой семантикой. Запрос начинается после engine-created menu, а не до существующей двухсекундной отсрочки engine; bootstrap не расширялся в рамках узкой правки.
 
 Время: карточка запущена 2026-10-15 13:37:32 UTC; diagnosis/implementation выполнялись вперемежку, точный раздельный таймер не велся. Первый целевой прогон 13:41, регресс+browser rework до ~14:03 UTC. Независимый QA/ожидание/интеграция/деплой автором не выполнялись; их время нельзя включать в реализацию.
+
+## Доработка после QA — 2026-10-15 14:14–14:19 UTC
+
+QA обнаружил delivery-order race: leave от скрытия мог примениться после on от возврата. Leave теперь последовательно объединяются в pendingLeave; новый lifecycle ждёт их завершения, затем повторно проверяет epoch/abort/visibility перед on. Устаревший ожидающий poll не отправляет запрос и не создаёт таймер. Общий путь используется для visibilitychange, pagehide/pageshow и shutdown. Начальный запрос не добавляет лишний microtask при отсутствии leave. Backend/API/schema не менялись.
+
+Самопроверка доработки:
+
+- 97/97 tests, 19 файлов (предыдущая команда + presenceOrdering.spec.ts), tsc и Vite production build — exit 0. Behavioral unit исполняет транспилированный реальный участок overlay с задержанным off и двумя возвратами, проверяет порядок true/false/true и отсутствие лишнего poll.
+- node scripts/presence-order.browser.cjs: настоящий Chrome/API/Postgres, задержанный off для visibility, pagehide/pageshow и mixed visibility+pageshow. До освобождения off новых on: 0; после: ровно 1; live остаётся 1, pageerrors []. Результат artifacts/online-runtime/presence-order.json.
+- Неизменённый QA repro node scripts/qa-presence-race.cjs: {"badge":"Онлайн: 1","api":{"live":1}} вместо прежнего live:0.
+- node scripts/online-presence.browser.cjs: два изолированных контекста 390/1280, 1→2→1→2, по три открытия, hidden pause, ошибка/восстановление — выполнено; a beats=8/ws=1, b beats=7/ws=1, errors []. Первый запуск после QA repro обнаружил остаточную presence до TTL и завершился assertion; повтор после 20 s TTL прошёл, ожидания теста не изменялись.
+- Свежий menu-390.png просмотрен: «Онлайн: 1» читается, перекрытий с кнопками нет. git diff --check — exit 0.
+
+Граница: ordering подтверждён для завершившегося задержанного HTTP leave. Сервер не имеет revision/idempotency-протокола; применение запроса уже после клиентского network timeout не моделировалось, как и перезапуск API. Общая граница существующего транспорта не выдаётся за exactly-once delivery. Доработка не опубликована, повторная независимая приёмка требуется.
