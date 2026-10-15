@@ -8,10 +8,11 @@ it('keeps four named leaf actions and no visible side labels or slogan', () => {
  expect(html).not.toContain('class="opening-slogan"');
  expect(html).toContain("play.textContent = 'С ботом'");
  expect(html).not.toContain('play.innerHTML = activity');
- for (const id of ['help','settings']) {
-  expect(html.match(new RegExp(`id="opening-${id}"`, 'g'))).toHaveLength(1);
-  expect(html).toMatch(new RegExp(`<dialog id="opening-options-dialog"[\\s\\S]*?id="opening-${id}"[\\s\\S]*?</dialog>`));
- }
+ expect(html).not.toContain('id="opening-options-dialog"');
+ expect(html).not.toContain('id="opening-sound"');
+ expect(html).toContain("byId('opening-options').onclick = () => window.checkersSettings.open()");
+ expect(html).toContain('aria-controls="opening-settings-dialog"');
+ expect(html).toContain('id="settings-close" aria-label="Закрыть настройки"');
 });
 
 it('static art is immediately present without a decode barrier', () => {
@@ -21,7 +22,7 @@ it('static art is immediately present without a decode barrier', () => {
  expect(html).toContain('class="gate-piece atlas-slice"');
 });
 
-it('options reuses existing handlers and returns focus after child close/Escape and menu close', () => {
+it('settings returns focus after close/Escape without reopening an intermediate panel', () => {
  class Node extends EventTarget {
   open = false; hidden = false; inert = false;
   onclick: ((event?: Event) => void) | null = null;
@@ -29,26 +30,16 @@ it('options reuses existing handlers and returns focus after child close/Escape 
   showModal() { this.open = true; }
   close() { this.open = false; this.dispatchEvent(new Event('close')); }
  }
- const ids = ['opening','opening-options','opening-options-dialog','opening-help','opening-settings','opening-help-dialog','opening-settings-dialog'];
+ const ids = ['opening','opening-options','opening-settings-dialog'];
  const nodes = Object.fromEntries(ids.map(id => [id,new Node()]));
- const help = vi.fn(() => nodes['opening-help-dialog'].showModal());
- const settings = vi.fn(() => nodes['opening-settings-dialog'].showModal());
- nodes['opening-help'].onclick = help; nodes['opening-settings'].onclick = settings;
+
  const script = html.match(/<script id="opening-options-navigation">([\s\S]*?)<\/script>/)![1];
  new Function('document',script)({getElementById:(id:string) => nodes[id]});
- const options = nodes['opening-options-dialog'];
- nodes['opening-options'].onclick!(); expect(options.open).toBe(true);
- for (const name of ['help','settings']) {
-  nodes['opening-'+name].onclick!();
-  expect(options.open).toBe(false);
-  const child = nodes['opening-'+name+'-dialog']; expect(child.open).toBe(true);
-  // Native Escape and method=dialog both dispatch close.
-  child.close(); expect(options.open).toBe(true);
-  expect(nodes['opening-'+name].focus).toHaveBeenCalledWith({preventScroll:true});
- }
- expect(help).toHaveBeenCalledTimes(1); expect(settings).toHaveBeenCalledTimes(1);
- options.close(); expect(nodes['opening-options'].focus).toHaveBeenCalledWith({preventScroll:true});
- nodes['opening-options'].onclick!(); nodes['opening-help'].onclick!();
- nodes.opening.inert = true; nodes['opening-help-dialog'].close();
- expect(options.open).toBe(false);
+ const dialog = nodes['opening-settings-dialog'];
+ dialog.showModal(); dialog.close();
+ expect(nodes['opening-options'].focus).toHaveBeenCalledWith({preventScroll:true});
+ expect(dialog.open).toBe(false);
+ nodes['opening-options'].focus.mockClear();
+ nodes.opening.inert = true; dialog.showModal(); dialog.close();
+ expect(nodes['opening-options'].focus).not.toHaveBeenCalled();
 });

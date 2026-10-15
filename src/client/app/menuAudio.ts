@@ -175,7 +175,7 @@ export function createMenuAudio(sdk:IYandexSdk) {
   // Toggle intent is known on click, not pointerdown/keydown: no disable blip.
   // Mute toggle intent is click-only; pointerdown while already audible would blip.
   // Unmute must resume in this trusted gesture so later source.start is not deferred.
-  if(target.closest('#opening-sound')){
+  if(target.closest('#settings-muted')){
    if(!settings().muted)return;
    prepare();if(!ctx)return;
    void ctx.resume().then(()=>{unlocked=ctx!.state==='running';sync();}).catch(()=>{});
@@ -189,7 +189,7 @@ export function createMenuAudio(sdk:IYandexSdk) {
   if(!event.isTrusted)return;
   // Every newer click supersedes pending feedback, even outside these controls.
   const serial=++clickSerial,target=event.target as HTMLElement;
-  if(target.closest('#opening-sound')){
+  if(target.closest('#settings-muted')){
    // HTML owns persisted mute; resume in this trusted enabling activation,
    // before its target handler changes settings. Never auto-unmute.
    if(settings().muted){
@@ -230,13 +230,7 @@ export function createMenuAudio(sdk:IYandexSdk) {
  window.addEventListener('checkers-settings-change',sync);
  sdk.onPause(()=>{policy.platform=true;sync();});sdk.onResume(()=>{policy.platform=false;sync();});
  for(const id of ['opening-help-dialog','opening-settings-dialog'])document.getElementById(id)!.addEventListener('close',()=>sound(menuBackSound,menuClickLevel));
- const optionsDialog=document.getElementById('opening-options-dialog');
- const optionsClosed=()=>{
-  // Options hands off to Settings/Help; their existing click owns that event.
-  if(['opening-help-dialog','opening-settings-dialog'].some(id=>(document.getElementById(id) as HTMLDialogElement|null)?.open))return;
-  sound('ui-close',.3);
- };
- optionsDialog?.addEventListener('close',optionsClosed);
+
  // No network before a native gesture. The engine itself is
  // imported only after the menu's first frame and the two-second critical window.
  try {ctx=new AudioContext();}catch{}
@@ -298,6 +292,6 @@ export function createMenuAudio(sdk:IYandexSdk) {
     }
    }
   },
-  dispose(){disposed=true;optionsDialog?.removeEventListener?.('close',optionsClosed);bindUiSfx(()=>{});bindMenuPressSound(()=>{});bindKingFireSfx(()=>{});bindPieceSfx(()=>{});bindPieceVoice(()=>{});policy.menu=false;stopEffects();stopMusic();stopMatch();document.removeEventListener('pointerdown',gesture,true);document.removeEventListener('keydown',gesture,true);document.removeEventListener('click',click,true);document.removeEventListener('visibilitychange',sync);window.removeEventListener('checkers-settings-change',sync);void ctx?.close();},
+  dispose(){disposed=true;bindUiSfx(()=>{});bindMenuPressSound(()=>{});bindKingFireSfx(()=>{});bindPieceSfx(()=>{});bindPieceVoice(()=>{});policy.menu=false;stopEffects();stopMusic();stopMatch();document.removeEventListener('pointerdown',gesture,true);document.removeEventListener('keydown',gesture,true);document.removeEventListener('click',click,true);document.removeEventListener('visibilitychange',sync);window.removeEventListener('checkers-settings-change',sync);void ctx?.close();},
  };
 }

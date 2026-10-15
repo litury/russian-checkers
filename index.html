@@ -37,7 +37,9 @@ h1{font:600 42px/1.16 Georgia,serif;letter-spacing:-.035em;text-align:center;mar
 dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dvh - 40px);overflow:auto;border:1px solid #8e8065;background:#1b2021;color:#e9e0ce;padding:24px;font:400 16px/1.55 'Golos Text',Arial,sans-serif;box-shadow:0 20px 80px #000a}dialog::backdrop{background:#050707d9}dialog h2{font:600 28px/1.2 Literata,Georgia,serif;margin:0 0 20px}dialog li{margin-bottom:12px}dialog ul{padding-left:22px}dialog label{display:flex;gap:12px;align-items:center;min-height:48px}dialog input[type=range]{width:100%;min-height:48px;accent-color:#c5b28e}dialog input[type=checkbox]{width:24px;height:24px;accent-color:#c5b28e}dialog .opening-button{margin-top:20px}
 
 #opening-settings-dialog{width:420px;padding:22px 24px}
-#opening-settings-dialog h2{margin-bottom:18px}
+#opening-settings-dialog h2{margin-bottom:18px;padding-right:44px}
+#settings-close{position:absolute;right:8px;top:8px;min-width:44px;min-height:44px;border:1px solid #8e8065;background:#1b2021;color:inherit;font:28px/1 Arial;cursor:pointer}
+#settings-close:focus-visible{outline:3px solid #e0cba5;outline-offset:2px}
 .settings-section + .settings-section{border-top:1px solid #8e806540;margin-top:12px;padding-top:14px}
 .settings-section h3{margin:0 0 8px;color:#e0cba5;font-size:17px;font-weight:600}
 .settings-check{cursor:pointer}.settings-check input{flex-shrink:0;margin:0}
@@ -163,7 +165,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
    <button id="opening-retry" data-siege-mount="left" class="opening-button opening-primary" hidden><span class="menu-button-art atlas-slice" aria-hidden="true"></span>Повторить загрузку</button>
    <div class="opening-utilities">
     <button id="opening-history" data-siege-mount="left" class="opening-utility" type="button" aria-label="Профиль" aria-haspopup="dialog" aria-controls="match-history"><span class="menu-button-art atlas-slice" aria-hidden="true"></span>Профиль</button>
-    <button id="opening-options" data-siege-mount="right" class="opening-utility" type="button" aria-haspopup="dialog" aria-controls="opening-options-dialog"><span class="menu-button-art atlas-slice" aria-hidden="true"></span>Опции</button>
+    <button id="opening-options" data-siege-mount="right" class="opening-utility" type="button" aria-haspopup="dialog" aria-controls="opening-settings-dialog"><span class="menu-button-art atlas-slice" aria-hidden="true"></span>Опции</button>
    </div>
   </nav>
   <p id="opening-loading-status" class="opening-sr-only" role="status" aria-live="polite" aria-atomic="true">Загрузка игры</p>
@@ -219,13 +221,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   </div>
  </div>
 </dialog>
-<dialog id="opening-options-dialog" aria-labelledby="opening-options-title">
-<h2 id="opening-options-title">Опции</h2>
-<button id="opening-sound" class="opening-button" type="button" aria-pressed="true" aria-label="Выключить звук" title="Выключить звук"><span id="opening-sound-icon" aria-hidden="true">🔊</span> Звук</button>
-<button id="opening-help" class="opening-button" type="button" aria-haspopup="dialog" aria-controls="opening-help-dialog">Правила игры</button>
-<button id="opening-settings" class="opening-button" type="button" aria-haspopup="dialog" aria-controls="opening-settings-dialog">Настройки</button>
-<form method="dialog"><button class="opening-button">Закрыть</button></form>
-</dialog>
+
 <dialog id="opening-help-dialog" aria-labelledby="opening-help-title">
 <h2 id="opening-help-title" tabindex="-1" autofocus>Как играть</h2>
 <section class="rules-row" aria-labelledby="rules-goal"><figure data-rules-figure="goal" style="aspect-ratio:3/3"><template><img src="/src/client/app/ui/rules/goal.webp" width="528" height="528" alt="Чёрная шашка заперта у края двумя белыми: ходов нет, белые победили." decoding="async" /></template></figure><div><h3 id="rules-goal">Цель игры</h3><p>Заберите все шашки соперника или лишите его ходов. Первыми ходят белые, затем по очереди.</p></div></section>
@@ -236,6 +232,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 <form method="dialog" class="rules-footer"><button class="opening-button">Понятно</button></form>
 </dialog>
 <dialog id="opening-settings-dialog" aria-labelledby="opening-settings-title">
+<form method="dialog"><button id="settings-close" aria-label="Закрыть настройки" type="submit"><span aria-hidden="true">×</span></button></form>
 <h2 id="opening-settings-title" tabindex="-1" autofocus>Настройки</h2>
 <section class="settings-section"><h3>Звук меню</h3>
 <label>Музыка <input id="settings-music" type="range" min="0" max="1" step="0.05" /></label>
@@ -259,7 +256,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 <label>Код <input id="settings-email-code" inputmode="numeric" maxlength="6" /></label>
 <button type="button" id="settings-email-ok" class="opening-button">Привязать</button>
 </section>
-<form method="dialog"><button class="opening-button opening-primary">Готово</button></form>
+
 </dialog>
 <script type="module" src="/src/client/app/openingStats.ts"></script>
 <script type="module" src="/src/client/app/siegeOpeningBootstrap.ts"></script>
@@ -274,15 +271,10 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
  // Static menu art is browser-owned and never gates startup.
  window.checkersRules = { open: () => {
   const dialog = byId('opening-help-dialog');
+
   dialog.querySelectorAll('template').forEach(template => template.replaceWith(template.content.cloneNode(true)));
   if (!dialog.open) dialog.showModal();
- } };
- for (const name of ['help', 'settings']) byId('opening-' + name).onclick = () => {
-  if (name === 'help') { window.checkersRules.open(); return; }
-  const dialog = byId('opening-' + name + '-dialog');
-  dialog.querySelectorAll('template').forEach(template => template.replaceWith(template.content.cloneNode(true)));
-  dialog.showModal();
- };
+ }};
  byId('opening-retry').onclick = () => location.reload();
  // This state is usable before any module, including when storage is denied.
  const attrApi = document.documentElement.getAttribute('data-api') || '';
@@ -304,11 +296,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   byId('settings-auto').checked = state.autoMove;
   byId('settings-music').value = state.music; byId('settings-effects').value = state.effects;
   byId('settings-muted').checked = state.muted;
-  const sound = byId('opening-sound');
-  sound.setAttribute('aria-pressed', String(!state.muted));
-  sound.title = state.muted ? 'Включить звук' : 'Выключить звук';
-  sound.setAttribute('aria-label', sound.title);
-  byId('opening-sound-icon').textContent = state.muted ? '🔇' : '🔊';
+
   for (const skill of ['easy','normal','hard']) byId('settings-bot-' + skill).checked = state.botSkill === skill;
  };
  window.checkersSettings = {
@@ -337,7 +325,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
  byId('settings-auto').onchange = event => window.checkersSettings.set({autoMove:event.target.checked});
  for (const skill of ['easy','normal','hard']) byId('settings-bot-' + skill).onchange = event => { if (event.target.checked) window.checkersSettings.set({botSkill:skill}); };
  byId('settings-muted').onchange = event => window.checkersSettings.set({muted:event.target.checked});
- byId('opening-sound').onclick = () => window.checkersSettings.set({muted:!state.muted});
+
  byId('settings-email-send').onclick = () => {
   const token = (() => { try { return localStorage.getItem('checkers.playerToken'); } catch { return null; } })();
   const email = byId('settings-email').value;
@@ -356,7 +344,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   }).catch(() => {});
  };
  for (const key of ['music','effects']) byId('settings-'+key).oninput = event => window.checkersSettings.set({[key]:Number(event.target.value)});
- byId('opening-settings').onclick = () => window.checkersSettings.open();
+ byId('opening-options').onclick = () => window.checkersSettings.open();
  const settingsDialog = byId('opening-settings-dialog');
  settingsDialog.addEventListener('keydown', event => {
   if (event.key !== 'Tab') return;
@@ -551,28 +539,10 @@ bootGame();
 <script id="opening-options-navigation">
 (() => {
  const byId = id => document.getElementById(id);
- const root = byId('opening'), options = byId('opening-options-dialog'), trigger = byId('opening-options');
- let child = null;
- trigger.onclick = () => { if (!options.open) options.showModal(); };
- options.addEventListener('close', () => {
-  if (!child && !options.open && !root.hidden && !root.inert) trigger.focus({preventScroll:true});
+ const root = byId('opening'), dialog = byId('opening-settings-dialog'), trigger = byId('opening-options');
+ dialog.addEventListener('close', () => {
+  if (!root.hidden && !root.inert) trigger.focus({preventScroll:true});
  });
- for (const name of ['help', 'settings']) {
-  const button = byId('opening-' + name), dialog = byId('opening-' + name + '-dialog');
-  const open = button.onclick;
-  button.onclick = event => {
-   child = dialog;
-   options.close();
-   open.call(button, event);
-  };
-  dialog.addEventListener('close', () => {
-   if (child !== dialog) return;
-   child = null;
-   if (root.hidden || root.inert) return;
-   options.showModal();
-   button.focus({preventScroll:true});
-  });
- }
 })();
 </script>
 </body>

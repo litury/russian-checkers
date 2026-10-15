@@ -123,7 +123,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   if (motion.matches && gates.active) { audio.gate(gateDurationMs,true); gates.advance(gateDurationMs); }
  };
  const closeDialogs = () => {
-  for (const id of ['opening-options-dialog','opening-help-dialog','opening-settings-dialog']) {
+  for (const id of ['opening-help-dialog','opening-settings-dialog']) {
    const dialog=document.getElementById(id) as HTMLDialogElement;
    if(dialog.open) dialog.close();
   }

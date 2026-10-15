@@ -176,18 +176,18 @@ it('replaces an active ceremony without concurrent duplicates',async()=>{
 
 it('resumes within trusted sound enabling click, but never clears mute itself',async()=>{
  settings.muted=true;
- fire('click','opening-sound');
+ fire('click','settings-muted');
  expect(context.resume).toHaveBeenCalledTimes(1);
  expect(settings.muted).toBe(true);
 });
 it('does not unlock on sound-disable pointerdown or synthetic enable',()=>{
- fire('pointerdown','opening-sound');
- fire('click','opening-sound',false);
+ fire('pointerdown','settings-muted');
+ fire('click','settings-muted',false);
  expect(context.resume).not.toHaveBeenCalled();
 });
 it('resumes on muted sound pointerdown so unmute can start sources',async()=>{
  settings.muted=true;settings.music=1;await load('menu_music_source');
- fire('pointerdown','opening-sound');
+ fire('pointerdown','settings-muted');
  expect(context.resume).toHaveBeenCalledTimes(1);
  settings.muted=false;fire('checkers-settings-change');
  activation.resolve();await flush();
@@ -195,7 +195,7 @@ it('resumes on muted sound pointerdown so unmute can start sources',async()=>{
 });
 it('starts menu music after trusted unmute click once the context is running',async()=>{
  settings.muted=true;settings.music=1;await load('menu_music_source');
- fire('click','opening-sound');
+ fire('click','settings-muted');
  settings.muted=false;fire('checkers-settings-change');
  expect(starts).toEqual([]);
  activation.resolve();await flush();
