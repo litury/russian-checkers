@@ -32,8 +32,20 @@ const assert = require('node:assert/strict');
  await page.locator('#profile-rules').click();await page.locator('#opening-help-dialog').waitFor({state:'visible'});
  await page.keyboard.press('Escape');assert(await page.locator('#match-history').isVisible());
  assert.equal(await page.evaluate(()=>document.activeElement.id),'profile-rules');
+ await page.locator('#profile-rules').click();
+ await page.locator('#opening-help-dialog').getByRole('button',{name:'Понятно',exact:true}).click();
+ assert(await page.locator('#match-history').isVisible());
+ assert.equal(await page.evaluate(()=>document.activeElement.id),'profile-rules');
  await page.locator('#match-history-back').click();await page.locator('#match-history').waitFor({state:'hidden'});
  assert.equal(await page.evaluate(()=>document.activeElement.id),'opening-history');
+ await page.locator('#opening-options').click();
+ await page.locator('#opening-settings-dialog').waitFor({state:'visible'});
+ assert.equal(await page.locator('#opening-options-dialog,#opening-help,#opening-settings').count(),0);
+ await page.keyboard.press('Escape');
+ assert.equal(await page.evaluate(()=>document.activeElement.id),'opening-options');
+ await page.locator('#opening-options').click();
+ await page.locator('#settings-close').click();
+ assert.equal(await page.evaluate(()=>document.activeElement.id),'opening-options');
  mode='loading';await entry.click();await page.getByText('Загрузка…',{exact:true}).waitFor();await page.getByText('Пока нет партий',{exact:true}).waitFor();
  await page.locator('#match-history-back').click();await page.locator('#match-history').waitFor({state:'hidden'});
  mode='error';await entry.click();await page.getByText('Не удалось загрузить партии',{exact:true}).waitFor();
@@ -47,7 +59,7 @@ const assert = require('node:assert/strict');
  for(let i=0;i<3;i++){await entry.click();await page.getByRole('button',{name:/Смотреть:/}).waitFor();await page.keyboard.press('Escape');await page.locator('#match-history').waitFor({state:'hidden'});}
  // One fetch per opening (empty, loading, error, three repeats) plus one explicit retry.
  assert.equal(requests,7);assert.deepEqual(errors,[]);
- results.push({viewport,requests,errors,checks:['entry','empty','loading','error/retry','rules/Escape/focus','replay/next/back','repeat open','menu focus'],api:'controlled fixtures; not live DB'});
+ results.push({viewport,requests,errors,checks:['entry','empty','loading','error/retry','rules/Escape/Понятно/focus','options/settings/Escape/close/focus','replay/next/back','repeat open','menu focus'],api:'controlled fixtures; not live DB'});
  await context.close();
  }
  fs.writeFileSync('profile-evidence/results.json',JSON.stringify(results,null,2));console.log(JSON.stringify(results));
