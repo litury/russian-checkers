@@ -6,7 +6,7 @@ import { notePlayIntent, playIntentEvent } from './playIntent';
 function boot(presented = true) {
  const nodes = new Map<string, any>();
  const byId = (id: string) => {
-  if (!nodes.has(id)) nodes.set(id, { hidden: false, disabled: true, textContent: '', classList:{contains:()=>false}, setAttribute: vi.fn(), removeAttribute: vi.fn() });
+  if (!nodes.has(id)) nodes.set(id, { dataset:{menuPage:'modes'}, hidden: false, disabled: true, textContent: '', classList:{contains:()=>false}, setAttribute: vi.fn(), removeAttribute: vi.fn() });
   return nodes.get(id);
  };
  const window: any = { checkersFlavor: { setState: vi.fn() } };
@@ -59,7 +59,7 @@ it('a wait-state tap is retained exactly once across engine readiness', () => {
 it('pressed machine CTA waits on itself and leaves the other button alone', () => {
  vi.useFakeTimers(); const { startup, byId } = boot();
  const online = byId('opening-online');
- online.textContent = 'В сети';
+ online.textContent = 'Онлайн';
  online.disabled = false;
  byId('opening-play').onclick();
  expect(startup.playCommitted).toBe(true);
@@ -69,7 +69,7 @@ it('pressed machine CTA waits on itself and leaves the other button alone', () =
  expect(byId('opening-play').setAttribute).toHaveBeenCalledWith('aria-busy', 'true');
  expect(byId('opening-status').hidden).toBe(true);
  expect(online.disabled).toBe(false);
- expect(online.textContent).toBe('В сети');
+ expect(online.textContent).toBe('Онлайн');
 });
 it('pressed human CTA waits on itself and does not arm the machine button', () => {
  vi.useFakeTimers(); const { startup, byId } = boot();

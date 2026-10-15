@@ -53,8 +53,8 @@ export function createBunkerPanel(scene: Phaser.Scene, own: boolean) {
 		122,
 	);
 	const label = text(own ? '' : 'СОПЕРНИК', 39, 26, 11, '#bcb39e');
-	// Own heading shares one line, leaving the action pocket above the untouched status.
-	const name = text(own ? 'Ты · ВАША СТОРОНА' : 'Бот', own ? 20 : 39, own ? 16 : 46, own ? 11 : 21, '#eee4cf');
+	// Keep the player name, without a redundant side-identification suffix.
+	const name = text(own ? 'Ты' : 'Бот', own ? 20 : 39, own ? 16 : 46, own ? 11 : 21, '#eee4cf');
 	// Separate digit cells preserve approved tabular advances in live Golos text.
 	const digits = [0, 1, 2, 3, 4].map((i) =>
 		text('0', 254 + [0, 17, 34, 42, 59][i], 39, 27, '#eee4cf'),
@@ -186,7 +186,7 @@ export function createBunkerPanel(scene: Phaser.Scene, own: boolean) {
 			paint();
 		},
 		setName(value: string) {
-			name.setText(own ? `${value} · ВАША СТОРОНА` : value);
+			name.setText(value);
 			while (name.width > 187 && Array.from(name.text).length > 2)
 				name.setText(Array.from(name.text).slice(0, -2).join('') + '…');
 			paint();

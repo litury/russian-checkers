@@ -142,8 +142,8 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   <p id="opening-stats-unavailable" class="opening-sr-only" role="status" data-error="Статистика недоступна">Загружаем статистику…</p>
   <button id="opening-stats-retry" class="opening-utility" type="button" aria-label="Повторить загрузку статистики" hidden>Повторить</button>
   <nav class="opening-actions" aria-label="Главное меню">
-   <button id="opening-play" data-siege-mount="left" class="opening-button opening-primary" aria-label="С ботом" aria-busy="true" disabled><span class="menu-button-art atlas-slice" aria-hidden="true"></span><span class="opening-cta-label">С ботом</span></button>
-   <button id="opening-online" data-siege-mount="right" class="opening-button" type="button"><span class="menu-button-art atlas-slice" aria-hidden="true"></span><span class="opening-cta-label">В сети</span></button>
+   <button id="opening-play" data-siege-mount="left" class="opening-button opening-primary" aria-label="Играть" aria-busy="true" disabled><span class="menu-button-art atlas-slice" aria-hidden="true"></span><span class="opening-cta-label">Играть</span></button>
+   <button id="opening-online" data-siege-mount="right" class="opening-button" type="button"><span class="menu-button-art atlas-slice" aria-hidden="true"></span><span class="opening-cta-label">Онлайн</span></button>
    <div id="opening-search" data-siege-mount="right" hidden><span class="atlas-nine search-body-art" aria-hidden="true"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span>
     <div id="opening-search-head">
      <div class="opening-search-title">
@@ -166,7 +166,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
    <button id="opening-retry" data-siege-mount="left" class="opening-button opening-primary" hidden><span class="menu-button-art atlas-slice" aria-hidden="true"></span>Повторить загрузку</button>
    <div class="opening-utilities">
     <button id="opening-history" data-siege-mount="left" class="opening-utility" type="button" aria-label="Профиль" aria-haspopup="dialog" aria-controls="match-history"><span class="menu-button-art atlas-slice" aria-hidden="true"></span>Профиль</button>
-    <button id="opening-options" data-siege-mount="right" class="opening-utility" type="button" aria-haspopup="dialog" aria-controls="opening-settings-dialog"><span class="menu-button-art atlas-slice" aria-hidden="true"></span>Опции</button>
+    <button id="opening-options" data-siege-mount="right" class="opening-utility" type="button" aria-haspopup="dialog" aria-controls="opening-settings-dialog"><span class="menu-button-art atlas-slice" aria-hidden="true"></span><span class="opening-utility-label">Настройки</span></button>
    </div>
   </nav>
   <p id="opening-loading-status" class="opening-sr-only" role="status" aria-live="polite" aria-atomic="true">Загрузка игры</p>
@@ -337,6 +337,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
  const play = byId('opening-play');
  const online = byId('opening-online');
  const setCta = (button, name, busy) => {
+  if (button === play && !busy && byId('opening').dataset.menuPage !== 'modes') name = 'Играть';
   const label = button.querySelector && button.querySelector('.opening-cta-label');
   const text = busy ? 'Загрузка…' : name;
   if (label) label.textContent = text;
@@ -406,7 +407,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   },
   waitPlay() {
    const armed = window.checkersStartup.source === 'online' ? online : play;
-   const name = armed === online ? 'В сети' : 'С ботом';
+   const name = armed === online ? 'Онлайн' : 'С ботом';
    if (armed.hidden) return;
    window.checkersStartup.playCommitted = true;
    setCta(armed, name, true);
@@ -419,7 +420,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
    if (online.hidden) return;
    window.checkersStartup.source = 'online';
    window.checkersStartup.pendingOnline = true;
-   setCta(online, 'В сети', true);
+   setCta(online, 'Онлайн', true);
    window.checkersStartup.status('Загружаем доску и шашки…');
    byId('opening-status').hidden = true;
    byId('opening-error').hidden = true;
@@ -430,7 +431,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
   },
   idleOnline() {
    if (window.checkersStartup.pendingOnline || (window.checkersStartup.playCommitted && window.checkersStartup.source === 'online')) return;
-   setCta(online, 'В сети', false);
+   setCta(online, 'Онлайн', false);
   },
   ready() {
    // Engine module is present. Hide the load banner; do not announce a finished match.
@@ -496,6 +497,49 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
  window.checkersStartup.progress('Загружаем игру…');
  // Slow transfer is not an import failure: keep a queued start, and do not cover Play.
  window.checkersStartup.watchdog = setTimeout(() => window.checkersStartup.slow(), 12000);
+})();
+</script>
+<style id="opening-mode-navigation-style">
+/* Reuse the assembled opening atlas and its original plate dimensions. */
+#opening:not([data-menu-page="modes"]) #opening-online,
+#opening[data-menu-page="modes"] #opening-history { display:none !important; }
+#opening:not([data-menu-page="modes"]) #opening-play { left:calc(50% - var(--btn-w)/2); }
+#opening #opening-online { flex-direction:row; justify-content:center; align-items:center; padding:0 5px; gap:0; }
+#opening #opening-menu-online-count { position:static; display:inline; width:auto; font:inherit; line-height:1.15; white-space:pre; color:inherit; margin:0; padding:0; background:none; border:0; }
+#opening #opening-menu-online-count[hidden] { display:none; }
+</style>
+<script id="opening-mode-navigation">
+(() => {
+ const root = document.getElementById('opening');
+ const play = document.getElementById('opening-play');
+ const options = document.getElementById('opening-options');
+ const actions = root.querySelector('.opening-actions');
+ const show = modes => {
+  root.dataset.menuPage = modes ? 'modes' : 'main';
+  actions.setAttribute('aria-label', modes ? 'Выбор режима' : 'Главное меню');
+  play.querySelector('.opening-cta-label').textContent = modes ? 'С ботом' : 'Играть';
+  play.removeAttribute('aria-label');
+  options.querySelector('.opening-utility-label').textContent = modes ? 'Назад' : 'Настройки';
+  if (modes) { options.removeAttribute('aria-haspopup'); options.removeAttribute('aria-controls'); }
+  else { options.setAttribute('aria-haspopup','dialog'); options.setAttribute('aria-controls','opening-settings-dialog'); }
+  play.focus({preventScroll:true});
+ };
+ play.addEventListener('click', event => {
+  if (event.detail > 1) { event.preventDefault(); event.stopImmediatePropagation(); return; }
+  if (root.dataset.menuPage === 'modes' || play.disabled || root.inert) return;
+  event.preventDefault(); event.stopImmediatePropagation(); show(true);
+ }, true);
+ options.addEventListener('click', event => {
+  if (root.dataset.menuPage !== 'modes') return;
+  event.preventDefault(); event.stopImmediatePropagation();
+  if (root.inert || window.checkersStartup.playCommitted || window.checkersStartup.pendingOnline) return;
+  show(false);
+ }, true);
+ root.addEventListener('keydown', event => {
+  if (event.key !== 'Escape' || root.dataset.menuPage !== 'modes' || root.inert || root.classList.contains('is-searching') || window.checkersStartup.playCommitted || window.checkersStartup.pendingOnline) return;
+  event.preventDefault(); show(false);
+ });
+ root.addEventListener('opening-main-menu', () => show(false));
 })();
 </script>
 <script type="module" id="opening-engine-bootstrap">

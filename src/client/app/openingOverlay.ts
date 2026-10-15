@@ -65,7 +65,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  const menuCount = document.createElement('span');
  menuCount.id = 'opening-menu-online-count';
  menuCount.setAttribute('role', 'status');
- menuCount.textContent = 'Онлайн: …';
+ menuCount.hidden = true;
  online?.append(menuCount);
  let heading = 'Онлайн';
  const hub = createOnlineHub({
@@ -82,7 +82,8 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  const renderLive = () => {
   const n = liveTotal;
   hub.setCount(n);
-  menuCount.textContent = n === null ? 'Онлайн: —' : `Онлайн: ${n}`;
+  menuCount.hidden = n === null;
+  menuCount.textContent = n === null ? '' : ` · ${n}`;
   if (!searchCopyEl) return;
   const inHeading = heading === 'Онлайн' && n !== null;
   searchCopyEl.textContent = inHeading ? `${heading}: ${n}` : heading;
@@ -325,6 +326,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   },
   show:()=>{
    audio.show();
+   if (!firstShow && !window.checkersStartup.pendingPlay && !window.checkersStartup.playCommitted && !window.checkersStartup.pendingOnline) root.dispatchEvent(new Event('opening-main-menu'));
    gates.cancel();cancelVisual();root.inert=false;releaseScroll();root.classList.remove('is-departing');
    window.checkersFlavor?.setState('loading');
    // Treat playCommitted like pending — never clear committed / unlock to calm «Играть».

@@ -111,10 +111,10 @@ it('gives the online button one label only: no live dot, no second badge line', 
 	expect(css).not.toContain('opening-live-dot');
 });
 
-it('keeps the online button name without a number and puts the count inside the search screen', () => {
+it('keeps an honest unknown online label and the search count presentation', () => {
 	const button = html.match(/<button id="opening-online"[\s\S]*?<\/button>/)![0];
 	expect(button).toContain('opening-cta-label');
-	expect(button).toContain('В сети');
+	expect(button).toContain('Онлайн');
 	expect(button).not.toMatch(/opening-live|opening-online-count/);
 	const search = html.match(/<div id="opening-search"[\s\S]*?<div id="opening-search-actions">/)![0];
 	// Заголовок стоит на спрайт-пластине главного названия, счёт — отдельная строка под ней.
