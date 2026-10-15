@@ -4,7 +4,7 @@ afterEach(()=>{vi.useRealTimers();vi.unstubAllGlobals();});
 function setup(reduced=false){
  vi.useFakeTimers();vi.stubGlobal('matchMedia',()=>({matches:reduced}));
  vi.stubGlobal('getComputedStyle',()=>({transform:'matrix(1, 0, 0, 1, 0, 176.258)',opacity:'.42',backgroundColor:'rgba(0, 0, 0, 0.18)'}));
- const doc={activeElement:null as unknown,getElementById:(id:string)=>nodes[id],createElement:()=>({setAttribute(){},remove(){},textContent:''})};
+ const doc=Object.assign(new EventTarget(),{activeElement:null as unknown,getElementById:(id:string)=>nodes[id],createElement:()=>({setAttribute(){},remove(){},textContent:''}),querySelector:()=>null});
  const button=()=>Object.assign(new EventTarget(),{disabled:false,hidden:false,setAttribute(){},removeAttribute(){},focus(){doc.activeElement=this;}});
  const trigger=button(),resume=button(),accept=button();
  const attributes=new Map();const dialog=Object.assign(button(),{style:{setProperty:vi.fn()},open:false,setAttribute:(k:string,v:string)=>attributes.set(k,v),removeAttribute:(k:string)=>attributes.delete(k),showModal(){dialog.open=true;},close(){dialog.open=false;dialog.dispatchEvent(new Event('close'));}});

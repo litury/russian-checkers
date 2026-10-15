@@ -2,6 +2,7 @@ import type Phaser from 'phaser';
 import type { Side } from '@/rules';
 import './boardVerdict.css';
 import { uiSfx } from './uiSfx';
+import { prepareResignArt, resignArtReady } from './matchActionArtWarmup';
 
 export type Verdict = {
 	winner: Side | 'draw';
@@ -18,8 +19,9 @@ export function createResultOverlay(
 		onMenu: () => void;
 	},
 ) {
-	const root = document.createElement('div');
+	const root = document.createElement('dialog');
 	root.className = 'board-verdict';
+	root.tabIndex = -1;
 	root.hidden = true;
 	root.innerHTML =
 		'<section class="verdict-panel" role="dialog" aria-modal="true" aria-labelledby="verdict-heading" aria-describedby="verdict-reason" tabindex="-1"><div class="verdict-title"><div class="verdict-upper"><p class="verdict-eyebrow">ПАРТИЯ ЗАВЕРШЕНА</p><h1 id="verdict-heading"></h1></div><p id="verdict-reason"></p></div><div class="verdict-actions"><button type="button" data-verdict="again">Ещё партия</button><button type="button" data-verdict="board">Посмотреть доску</button><button type="button" data-verdict="menu">В меню</button></div></section><div class="verdict-status" hidden><button type="button" data-verdict="open"></button><button type="button" data-verdict="menu">В меню</button></div>';
@@ -39,6 +41,13 @@ export function createResultOverlay(
 	let shown = false;
 	let disposed = false;
 	let frame = 0;
+	let entering = false;
+	function covered() {
+		entering = false;
+		panel.inert = false;
+		document.dispatchEvent(new Event('damka:loss-covered'));
+		if (shown && !panel.hidden) panel.focus({ preventScroll: true });
+	}
 
 	function release() {
 		for (const [element, value] of inert) element.inert = value;
@@ -50,14 +59,25 @@ export function createResultOverlay(
 		root.classList.add('expanded');
 		status.hidden = true;
 		panel.classList.toggle('enter', animate);
+		if (root.dataset.outcome === 'loss') {
+			entering = animate && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+			panel.inert = entering;
+			if (!root.open) root.showModal();
+			if (!entering) covered();
+		} else {
+			// Authority may report a different outcome while resignation is pending.
+			covered();
+		}
 		for (const child of Array.from(document.body.children)) {
 			if (!(child instanceof HTMLElement) || child === root) continue;
 			inert.set(child, child.inert);
 			child.inert = true;
 		}
-		panel.focus({ preventScroll: true });
+		if (!entering) panel.focus({ preventScroll: true });
 	}
 	function collapse() {
+		if (entering) return;
+		if (root.open) root.close();
 		uiSfx('ui-close');
 		panel.hidden = true;
 		root.classList.remove('expanded');
@@ -67,6 +87,8 @@ export function createResultOverlay(
 		reopen.focus({ preventScroll: true });
 	}
 	function hide(_force = false) {
+		covered();
+		if (root.open) root.close();
 		shown = false;
 		cancelAnimationFrame(frame);
 		root.hidden = true;
@@ -88,7 +110,7 @@ export function createResultOverlay(
 			collapse();
 			return;
 		}
-		if (!shown || !button) return;
+		if (!shown || !button || entering) return;
 		switch (button.dataset.verdict) {
 			case 'board':
 				collapse();
@@ -110,6 +132,7 @@ export function createResultOverlay(
 	}
 	function keydown(event: KeyboardEvent) {
 		if (!shown) return;
+		if (entering) { event.preventDefault(); event.stopPropagation(); return; }
 		if (event.key === 'Escape') {
 			event.preventDefault();
 			event.stopPropagation();
@@ -135,6 +158,16 @@ export function createResultOverlay(
 		}
 	}
 	root.addEventListener('click', click);
+	root.addEventListener('cancel', event => { event.preventDefault(); if (!entering) collapse(); });
+	panel.addEventListener('animationend', event => {
+		if (entering && event.target === panel) covered();
+	});
+	panel.addEventListener('animationcancel', event => {
+		if (entering && event.target === panel) {
+			panel.classList.remove('enter');
+			covered();
+		}
+	});
 	document.addEventListener('keydown', keydown, true);
 	scene.events.once('shutdown', () => {
 		disposed = true;
@@ -157,6 +190,12 @@ export function createResultOverlay(
 						? 'win'
 						: 'loss';
 			root.dataset.outcome = state;
+			if (state === 'loss') {
+				root.dataset.artReady = String(resignArtReady());
+				if (!resignArtReady()) void prepareResignArt().then(ready => {
+					if (!disposed) root.dataset.artReady = String(ready);
+				});
+			}
 			heading.textContent =
 				state === 'win' ? 'ПОБЕДА' : state === 'loss' ? 'ПОРАЖЕНИЕ' : 'НИЧЬЯ';
 			reason.textContent = verdict.reason;

@@ -24,14 +24,19 @@ export function bindResignConfirmation(
 	let waiting = false;
 	const reset = () => { waiting = false; trigger.removeAttribute('data-art-wait'); trigger.removeAttribute('aria-busy'); };
 	let closing = false;
+	let committed = false;
 	let closeTimer: ReturnType<typeof setTimeout> | undefined;
 	const finishClose = () => {
+		committed = false;
+		resume.disabled = accept.disabled = false;
+		dialog.removeAttribute('data-handoff');
 		clearTimeout(closeTimer);
 		closing = false;
 		dialog.removeAttribute('data-closing');
 		if (dialog.open) dialog.close();
 	};
 	const dismiss = () => {
+		if (committed && !destroyed) return;
 		generation++; reset(); status.textContent = '';
 		if (!dialog.open || closing) return;
 		if (destroyed || typeof matchMedia !== 'function' || matchMedia('(prefers-reduced-motion: reduce)').matches) { finishClose(); return; }
@@ -85,14 +90,21 @@ export function bindResignConfirmation(
 		});
 	};
 	const commit = () => {
-		if (!dialog.open || closing) return;
-		finishClose();
-		if (available()) confirm();
+		if (!dialog.open || closing || committed) return;
+		if (!available()) { finishClose(); return; }
+		committed = true;
+		resume.disabled = accept.disabled = true;
+		dialog.setAttribute('data-handoff', 'true');
+		confirm();
 	};
+	const covered = () => { if (committed) finishClose(); };
+	document.addEventListener('damka:loss-covered', covered);
 	const restore = () => {
+		if (document.querySelector('.board-verdict.expanded:not([hidden])')) return;
 		if (!trigger.disabled && !trigger.hidden) trigger.focus({ preventScroll: true });
 	};
 	const keydown = (event: KeyboardEvent) => {
+		if (committed) { event.preventDefault(); return; }
 		if (event.key !== 'Tab') return;
 		// An explicit two-control cycle also avoids the browser chrome tab stop.
 		event.preventDefault();
@@ -110,6 +122,7 @@ export function bindResignConfirmation(
 	return {
 		dismiss,
 		destroy() {
+			document.removeEventListener('damka:loss-covered', covered);
 			destroyed = true;
 			for (const event of ['pointerenter', 'pointerdown', 'focus']) trigger.removeEventListener(event, refreshStates);
 			dismiss();

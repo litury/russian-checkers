@@ -3,7 +3,7 @@ import { bindResignConfirmation } from './resignConfirmation';
 import { bindUiSfx } from './uiSfx';
 function setup(art?: Parameters<typeof bindResignConfirmation>[3]) {
  const status={id:'',textContent:'',setAttribute(){},remove:vi.fn()};
- const doc={activeElement:null as unknown,getElementById:(id:string)=>nodes[id],createElement:()=>status};
+ const doc=Object.assign(new EventTarget(),{activeElement:null as unknown,getElementById:(id:string)=>nodes[id],createElement:()=>status,querySelector:()=>null});
  const button=()=>Object.assign(new EventTarget(),{disabled:false,hidden:false,attributes:new Map<string,string>(),setAttribute(name:string,value:string){this.attributes.set(name,value);},removeAttribute(name:string){this.attributes.delete(name);},focus(){doc.activeElement=this;}});
  const trigger=button(),resume=button(),accept=button();
  const dialog=Object.assign(button(),{open:false,showModal(){this.open=true;},close(){this.open=false;this.dispatchEvent(new Event('close'));}});
@@ -45,6 +45,9 @@ it('opens once on Continue and dismisses without committing, restoring trigger f
 });
 it('confirms once and rejects stale/unavailable confirmation',()=>{
  const t=setup();click(t.trigger);click(t.accept);click(t.accept);expect(t.confirm).toHaveBeenCalledOnce();
+ expect(t.dialog.open).toBe(true);expect(t.accept.disabled).toBe(true);expect(t.resume.disabled).toBe(true);
+ t.binding.dismiss();expect(t.dialog.open).toBe(true);
+ t.doc.dispatchEvent(new Event('damka:loss-covered'));expect(t.dialog.open).toBe(false);
  click(t.trigger);t.unavailable();click(t.accept);expect(t.confirm).toHaveBeenCalledOnce();expect(t.dialog.open).toBe(false);
 });
 it('disabled, unavailable and destroyed triggers cannot open the dialog',()=>{
@@ -81,4 +84,14 @@ it('dismiss invalidates a pending outcome and removes status on destroy',async()
 it('Tab and Shift+Tab cycle inside the two choices',()=>{
  const t=setup();click(t.trigger);
  for(const shift of [false,false,true]){const before=t.doc.activeElement;const key=Object.assign(new Event('keydown',{cancelable:true}),{key:'Tab',shiftKey:shift});t.dialog.dispatchEvent(key);expect(key.defaultPrevented).toBe(true);expect(t.doc.activeElement).toBe(before===t.resume?t.accept:t.resume);}
+});
+it('pending handoff rejects cancel and keyboard, and destroy releases the old modal',()=>{
+ const t=setup();click(t.trigger);click(t.accept);
+ const cancel=new Event('cancel',{cancelable:true});t.dialog.dispatchEvent(cancel);
+ expect(cancel.defaultPrevented).toBe(true);expect(t.dialog.open).toBe(true);
+ const key=Object.assign(new Event('keydown',{cancelable:true}),{key:'Tab'});t.dialog.dispatchEvent(key);
+ expect(key.defaultPrevented).toBe(true);expect(t.confirm).toHaveBeenCalledOnce();
+ t.binding.destroy();expect(t.dialog.open).toBe(false);
+ click(t.trigger);expect(t.dialog.open).toBe(false);
+ t.doc.dispatchEvent(new Event('damka:loss-covered'));expect(t.confirm).toHaveBeenCalledOnce();
 });

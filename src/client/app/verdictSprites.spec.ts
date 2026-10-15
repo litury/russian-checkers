@@ -66,7 +66,14 @@ it('uses bounded native nine-slice corners, unified materials and accessible con
 	expect(css).toContain('max-height: 60dvh');
 	expect(css).toContain('transform: translateY(100%)');
 	expect(css).toMatch(/\.verdict-panel\.enter::after\s*\{\s*animation: verdict-enter 280ms/);
-	expect(css).not.toMatch(/\.verdict-panel\.enter\s*\{[^}]*animation:/);
+	// Win/draw retain their material-only entrance. Loss intentionally moves
+	// material AND controls together under the compact-sheet contract.
+	const legacy = css.split('/* Loss uses the existing surrender material;')[0];
+	expect(legacy).not.toMatch(/\.verdict-panel\.enter\s*\{[^}]*animation:/);
+	expect(css).toMatch(/\[data-outcome="loss"\] \.verdict-panel\.enter\s*\{ animation: loss-sheet-enter 280ms/);
+	expect(css).toContain('height: auto; background: transparent; font-size: 24px');
+	expect(css).toContain('dialog-neutral.webp');
+	expect(css).toContain('dialog-copper.webp');
 	expect(css).toContain('font-size: 15px');
 	expect(css).toContain(':focus-visible');
 	expect(css).toContain('prefers-reduced-motion');
