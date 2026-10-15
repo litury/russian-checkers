@@ -10,25 +10,26 @@ function boot(storage=new Map<string,string>()) {
  new Function('byId','window','localStorage','CustomEvent',source)(byId,window,{getItem:(k:string)=>storage.get(k)??null,setItem:(k:string,v:string)=>storage.set(k,v)},class {});
  return {window,byId,storage};
 }
-it('toggles persisted mute and restores its accessible state after reload',()=>{
- const first=boot(),button=first.byId('opening-sound');
- expect(button['aria-pressed']).toBe('true');
- expect(button.title).toBe('Выключить звук');
- button.onclick();
+it('toggles persisted settings mute and restores its checkbox after reload',()=>{
+ const first=boot(),button=first.byId('settings-muted');
+ expect(button.checked).toBe(false);
+ button.onchange({target:{checked:true}});
  expect(first.window.checkersSettings.get().muted).toBe(true);
  expect(first.storage.get('checkers.sfxMuted')).toBe('1');
- const second=boot(first.storage),restored=second.byId('opening-sound');
- expect(restored['aria-pressed']).toBe('false');
- expect(restored.title).toBe('Включить звук');
- restored.onclick();
+ const second=boot(first.storage),restored=second.byId('settings-muted');
+ expect(restored.checked).toBe(true);
+ restored.onchange({target:{checked:false}});
  expect(second.window.checkersSettings.get().muted).toBe(false);
  expect(second.storage.get('checkers.sfxMuted')).toBe('0');
 });
-it('keeps independent slider levels when toggling and follows settings mute',()=>{
- const {window,byId}=boot();
- window.checkersSettings.set({music:.2,effects:.7,muted:true});
- byId('opening-sound').onclick();
- expect(window.checkersSettings.get()).toMatchObject({music:.2,effects:.7,muted:false});
- window.checkersSettings.set({muted:true});
- expect(byId('opening-sound')['aria-pressed']).toBe('false');
+it('preserves every existing persisted preference and independent levels',()=>{
+ const first=boot();
+ first.window.checkersSettings.set({master:.6,music:.2,effects:.7,muted:true,autoMove:false,botSkill:'hard'});
+ first.byId('settings-muted').onchange({target:{checked:false}});
+ const second=boot(first.storage);
+ expect(second.window.checkersSettings.get()).toEqual({master:.6,music:.2,effects:.7,muted:false,autoMove:false,botSkill:'hard'});
+ expect(second.byId('settings-music').value).toBe(.2);
+ expect(second.byId('settings-effects').value).toBe(.7);
+ expect(second.byId('settings-auto').checked).toBe(false);
+ expect(second.byId('settings-bot-hard').checked).toBe(true);
 });

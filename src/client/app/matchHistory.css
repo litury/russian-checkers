@@ -30,6 +30,10 @@
 #match-history .mh-button:hover:not(:disabled) { filter:brightness(1.2); }
 #match-history .mh-button:active:not(:disabled) { border-image-source:url('./ui/siege/button-steel-pressed.webp'); }
 #match-history button:disabled { opacity:.45; cursor:default; }
+#match-history .mh-profile { margin-bottom:20px; }
+#match-history .mh-profile p { margin-top:6px; max-width:72ch; font-size:14px; }
+#match-history .mh-history-title { margin-bottom:12px; }
+#match-history #profile-rules { margin-bottom:20px; align-self:flex-start; }
 #match-history .mh-toolbar { display:flex; justify-content:space-between; gap:20px; align-items:center; margin-bottom:16px; color:var(--mh-muted); font-size:14px; }
 #match-history .mh-toolbar label { display:flex; align-items:center; gap:12px; min-width:0; flex-wrap:wrap; }
 #match-history select { min-width:0; max-width:100%; min-height:48px; padding:8px 32px 8px 12px; border:1px solid #797c70; background:#242b2b; border-radius:2px; }
