@@ -25,8 +25,13 @@ export function bindResignConfirmation(
 	const reset = () => { waiting = false; trigger.removeAttribute('data-art-wait'); trigger.removeAttribute('aria-busy'); };
 	let closing = false;
 	let committed = false;
+	let outcomeTimer: ReturnType<typeof setTimeout> | undefined;
+	const copy = document.getElementById('resign-copy');
+	const originalCopy = copy?.textContent ?? '';
 	let closeTimer: ReturnType<typeof setTimeout> | undefined;
 	const finishClose = () => {
+		clearTimeout(outcomeTimer);
+		if (copy) copy.textContent = originalCopy;
 		committed = false;
 		resume.disabled = accept.disabled = false;
 		dialog.removeAttribute('data-handoff');
@@ -56,6 +61,17 @@ export function bindResignConfirmation(
 		if (trigger.disabled || !available() || dialog.open) return;
 		dialog.showModal();
 		uiSfx('ui-open');
+		resume.focus({ preventScroll: true });
+	};
+	const recover = () => {
+		clearTimeout(outcomeTimer);
+		if (!committed || destroyed) return;
+		// A result already entering owns the handoff until its covered event.
+		if (document.querySelector('.board-verdict.expanded:not([hidden])')) return;
+		committed = false;
+		resume.disabled = accept.disabled = false;
+		dialog.removeAttribute('data-handoff');
+		if (copy) copy.textContent = 'Результат не подтверждён. Повторите сдачу или продолжите ждать в партии.';
 		resume.focus({ preventScroll: true });
 	};
 	const refreshStates = () => { if (!art?.statesReady || art.statesReady()) trigger.removeAttribute('data-art-cold'); };
@@ -95,9 +111,11 @@ export function bindResignConfirmation(
 		committed = true;
 		resume.disabled = accept.disabled = true;
 		dialog.setAttribute('data-handoff', 'true');
-		confirm();
+		// Sending is not acknowledgement. A dropped request must never trap the UI.
+		outcomeTimer = setTimeout(recover, 5000);
+		try { confirm(); } catch { recover(); }
 	};
-	const covered = () => { if (committed) finishClose(); };
+	const covered = () => { if (dialog.open) finishClose(); };
 	document.addEventListener('damka:loss-covered', covered);
 	const restore = () => {
 		if (document.querySelector('.board-verdict.expanded:not([hidden])')) return;

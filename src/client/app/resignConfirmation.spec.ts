@@ -85,6 +85,29 @@ it('Tab and Shift+Tab cycle inside the two choices',()=>{
  const t=setup();click(t.trigger);
  for(const shift of [false,false,true]){const before=t.doc.activeElement;const key=Object.assign(new Event('keydown',{cancelable:true}),{key:'Tab',shiftKey:shift});t.dialog.dispatchEvent(key);expect(key.defaultPrevented).toBe(true);expect(t.doc.activeElement).toBe(before===t.resume?t.accept:t.resume);}
 });
+it('recovers a dropped send without inventing an outcome and permits retry',async()=>{
+ vi.useFakeTimers();const t=setup();click(t.trigger);click(t.accept);
+ await vi.advanceTimersByTimeAsync(4999);expect(t.accept.disabled).toBe(true);
+ await vi.advanceTimersByTimeAsync(1);expect(t.dialog.open).toBe(true);
+ expect(t.resume.disabled).toBe(false);expect(t.accept.disabled).toBe(false);
+ expect(t.dialog.attributes.has('data-handoff')).toBe(false);
+ click(t.accept);expect(t.confirm).toHaveBeenCalledTimes(2);
+ t.doc.dispatchEvent(new Event('damka:loss-covered'));expect(t.dialog.open).toBe(false);
+ await vi.advanceTimersByTimeAsync(5000);expect(t.dialog.open).toBe(false);
+});
+it('allows escape after timeout and still closes under a delayed authoritative result',async()=>{
+ vi.useFakeTimers();const t=setup();click(t.trigger);click(t.accept);
+ await vi.advanceTimersByTimeAsync(5000);
+ t.doc.dispatchEvent(new Event('damka:loss-covered'));expect(t.dialog.open).toBe(false);
+ click(t.trigger);click(t.accept);await vi.advanceTimersByTimeAsync(5000);
+ t.dialog.dispatchEvent(new Event('cancel',{cancelable:true}));expect(t.dialog.open).toBe(false);
+ expect(t.confirm).toHaveBeenCalledTimes(2);
+});
+it('recovers synchronous send errors immediately',()=>{
+ const t=setup();t.confirm.mockImplementation(()=>{throw new Error('closed socket');});
+ click(t.trigger);click(t.accept);expect(t.dialog.open).toBe(true);expect(t.resume.disabled).toBe(false);
+ click(t.resume);expect(t.dialog.open).toBe(false);
+});
 it('pending handoff rejects cancel and keyboard, and destroy releases the old modal',()=>{
  const t=setup();click(t.trigger);click(t.accept);
  const cancel=new Event('cancel',{cancelable:true});t.dialog.dispatchEvent(cancel);
