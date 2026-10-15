@@ -1,4 +1,5 @@
 import './onlineHub.css';
+import { prepareOnlineHubArt } from './onlineHubArt';
 import { uiSfx } from './uiSfx';
 
 /** The approved hub is a modal like «Партии». Matchmaking itself stays in the existing search UI. */
@@ -25,9 +26,24 @@ export function createOnlineHub(actions: {
  let wanted = false;
  let leaving = false;
  let disposed = false;
+ let preparing = false;
+ let prepared = false;
  const focusReturn = () => document.getElementById('opening-online')?.focus({preventScroll: true});
  const open = () => {
   if (disposed || dialog.open || leaving || !wanted) return;
+  if (!prepared) {
+   if (preparing) return;
+   preparing = true;
+   void prepareOnlineHubArt().then(ok => {
+    preparing = false;
+    if (disposed || !wanted) return;
+    prepared = true;
+    dialog.setAttribute('data-art', ok ? 'ready' : 'unavailable');
+    open();
+    prepared = ok;
+   });
+   return;
+  }
   history.pushState({...history.state, onlineHub: navigationKey}, '');
   dialog.showModal();
   uiSfx('ui-open');
