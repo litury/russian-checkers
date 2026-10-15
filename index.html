@@ -251,11 +251,11 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 <section class="settings-section"><h3>Звук меню</h3>
 <label class="settings-volume"><span>Музыка</span><input id="settings-music" type="range" min="0" max="1" step="0.05" /><output id="settings-music-value" for="settings-music">100%</output></label>
 <label class="settings-volume"><span>Эффекты</span><input id="settings-effects" type="range" min="0" max="1" step="0.05" /><output id="settings-effects-value" for="settings-effects">100%</output></label>
-<label class="settings-check"><input id="settings-muted" type="checkbox" />Без звука</label>
+<label class="settings-check"><input id="settings-muted" type="checkbox" role="switch" />Без звука</label>
 </section>
 <section class="settings-section" aria-labelledby="settings-game"><h3 id="settings-game">Игра</h3>
-<label class="settings-check"><input id="settings-vibration" type="checkbox" />Вибрация</label>
-<label class="settings-check"><input id="settings-auto" type="checkbox" checked aria-describedby="settings-auto-description" />Автоход</label>
+<label class="settings-check"><input id="settings-vibration" type="checkbox" role="switch" />Вибрация</label>
+<label class="settings-check"><input id="settings-auto" type="checkbox" role="switch" checked aria-describedby="settings-auto-description" />Автоход</label>
 <p id="settings-auto-description">Выполнять ход автоматически, если доступен только один вариант.</p>
 <fieldset class="settings-bot"><legend id="settings-bot-label">Сложность бота</legend>
 <label class="settings-check"><input type="radio" name="settings-bot" id="settings-bot-easy" value="easy" />Лёгкий</label>
