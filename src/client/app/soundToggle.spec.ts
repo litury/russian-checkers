@@ -30,6 +30,8 @@ it('preserves every existing persisted preference and independent levels',()=>{
  expect(second.window.checkersSettings.get()).toEqual({master:.6,music:.2,effects:.7,muted:false,autoMove:false,botSkill:'hard'});
  expect(second.byId('settings-music').value).toBe(.2);
  expect(second.byId('settings-effects').value).toBe(.7);
+ expect(second.byId('settings-music-value').textContent).toBe('20%');
+ expect(second.byId('settings-effects-value').textContent).toBe('70%');
  expect(second.byId('settings-auto').checked).toBe(false);
  expect(second.byId('settings-bot-hard').checked).toBe(true);
 });

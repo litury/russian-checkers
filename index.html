@@ -79,6 +79,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 <link rel="stylesheet" href="/src/client/app/menuFireReadability.css" />
 <link rel="stylesheet" href="/src/client/app/hangingChronicle.css" />
 <link rel="stylesheet" href="/src/client/app/matchActions.css" />
+<link rel="stylesheet" href="/src/client/app/compactSettings.css" />
 <link rel="stylesheet" href="/src/client/app/ui/opening-atlas/atlas.css" />
 </head>
 <body>
@@ -248,18 +249,19 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 <form method="dialog"><button id="settings-close" aria-label="Закрыть настройки" type="submit"><span aria-hidden="true">×</span></button></form>
 <h2 id="opening-settings-title" tabindex="-1" autofocus>Настройки</h2>
 <section class="settings-section"><h3>Звук меню</h3>
-<label>Музыка <input id="settings-music" type="range" min="0" max="1" step="0.05" /></label>
-<label>Эффекты <input id="settings-effects" type="range" min="0" max="1" step="0.05" /></label>
+<label class="settings-volume"><span>Музыка</span><input id="settings-music" type="range" min="0" max="1" step="0.05" /><output id="settings-music-value" for="settings-music">100%</output></label>
+<label class="settings-volume"><span>Эффекты</span><input id="settings-effects" type="range" min="0" max="1" step="0.05" /><output id="settings-effects-value" for="settings-effects">100%</output></label>
 <label class="settings-check"><input id="settings-muted" type="checkbox" />Без звука</label>
 </section>
 <section class="settings-section" aria-labelledby="settings-game"><h3 id="settings-game">Игра</h3>
 <label class="settings-check"><input id="settings-vibration" type="checkbox" />Вибрация</label>
 <label class="settings-check"><input id="settings-auto" type="checkbox" checked aria-describedby="settings-auto-description" />Автоход</label>
 <p id="settings-auto-description">Выполнять ход автоматически, если доступен только один вариант.</p>
-<p id="settings-bot-label">Бот</p>
+<fieldset class="settings-bot"><legend id="settings-bot-label">Сложность бота</legend>
 <label class="settings-check"><input type="radio" name="settings-bot" id="settings-bot-easy" value="easy" />Лёгкий</label>
 <label class="settings-check"><input type="radio" name="settings-bot" id="settings-bot-normal" value="normal" checked />Норма</label>
 <label class="settings-check"><input type="radio" name="settings-bot" id="settings-bot-hard" value="hard" />Сложный</label>
+</fieldset>
 </section>
 
 
@@ -293,6 +295,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
  const sync = () => {
   byId('settings-auto').checked = state.autoMove;
   byId('settings-music').value = state.music; byId('settings-effects').value = state.effects;
+  for (const key of ['music','effects']) byId('settings-'+key+'-value').textContent = Math.round(state[key]*100)+'%';
   byId('settings-muted').checked = state.muted;
 
   for (const skill of ['easy','normal','hard']) byId('settings-bot-' + skill).checked = state.botSkill === skill;

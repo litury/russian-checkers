@@ -1,0 +1,31 @@
+/* Existing neutral plate supplies the material; text and inputs remain HTML.
+   No new atlas: one reused 79 KB sprite, no duplicate exports or UI masters. */
+#opening-settings-dialog {
+ width: 420px;
+ max-width: calc(100vw - 24px);
+ padding: 18px 20px;
+ border: 16px solid #59513e;
+ border-image: url('./ui/match-actions/dialog-neutral.webp') 44 / 16px stretch;
+ background: #1b2021;
+ scroll-padding: 16px;
+}
+#opening-settings-dialog h2 { margin: 0 0 12px; padding-right: 36px; font-size: 26px; }
+#opening-settings-dialog #settings-close { top: 0; right: 0; border: 0; background: transparent; }
+#opening-settings-dialog .settings-section + .settings-section { margin-top: 8px; padding-top: 10px; }
+#opening-settings-dialog .settings-section h3 { margin-bottom: 4px; }
+#opening-settings-dialog label { min-height: 48px; }
+#opening-settings-dialog .settings-volume { display: grid; grid-template-columns: 76px minmax(0,1fr) 42px; gap: 8px; }
+#opening-settings-dialog .settings-volume input { min-width: 0; margin: 0; }
+#opening-settings-dialog output { font-size: 14px; text-align: right; font-variant-numeric: tabular-nums; }
+#opening-settings-dialog .settings-check { gap: 10px; }
+#opening-settings-dialog input[type=checkbox] { width: 32px; height: 24px; }
+#opening-settings-dialog #settings-auto-description { margin: 0 0 10px; }
+#opening-settings-dialog .settings-bot { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); margin: 0; padding: 0; border: 0; min-width: 0; gap: 4px; }
+#opening-settings-dialog .settings-bot legend { padding: 0; margin-bottom: 6px; color: #e0cba5; font-size: 16px; }
+#opening-settings-dialog .settings-bot label { display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 6px 2px; border: 1px solid #777364; background: #15191a; line-height: 1.3; }
+#opening-settings-dialog .settings-bot label:has(:checked) { border-color: #dfc89b; color: #f5e7cb; }
+#opening-settings-dialog .settings-bot input { accent-color: #c5b28e; width: 18px; height: 18px; }
+@media (max-width: 359px) {
+ #opening-settings-dialog { padding: 14px 10px; border-width: 12px; }
+ #opening-settings-dialog .settings-volume { grid-template-columns: 70px minmax(0,1fr) 38px; gap: 5px; }
+}
