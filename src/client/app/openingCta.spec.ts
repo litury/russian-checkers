@@ -14,9 +14,9 @@ it('two equal CTAs: С ботом and В сети; friend lives in online hub', 
  expect(html).toContain('Найти');
  expect(html).toContain('Создать');
  expect(html).toContain('Ввести код');
- expect(html).toContain('id="opening-settings"');
+ expect(html).toContain('id="opening-options"');
  expect(html).toContain('id="opening-history"');
- expect(html).toContain('id="opening-help"');
+ expect(html).toContain('id="opening-help-dialog"');
  expect(overlay).toContain('opening-search-find');
  expect(scene).toContain("beginSearchUi('online-hub')");
  expect(searchCopy('online-hub', 0).showFind).toBe(true);
