@@ -19,9 +19,9 @@ export function bindProfileOverview() {
   retry.hidden = true;
   stats.textContent = 'Загрузка…';
   try {
-   guest = await ensureGuest();
+   guest ??= await ensureGuest();
    identity.textContent = guest ? `Игрок · ${guest.id}` : 'Не удалось получить игрока.';
-   const data = guest ? await loadStats() : null;
+   const data = guest ? await loadStats(guest) : null;
    if (!data || ![data.games, data.white_wins, data.black_wins].every(n => Number.isSafeInteger(n) && n >= 0)) throw new Error('stats');
    stats.textContent = `Партий: ${data.games}. Побед белыми: ${data.white_wins}, чёрными: ${data.black_wins}.`;
   } catch {

@@ -303,6 +303,12 @@ export function bindMatchHistory() {
  window.addEventListener('popstate', event => {
   if (!root?.open) return;
   if (event.state?.mh === navigationKey && event.state.pane === 'list') restoreList();
+  else if (event.state?.mh === navigationKey && event.state.pane === 'account') {
+   generation++;
+   selected = null;
+   showPane('account');
+   focusHeading();
+  }
   else if (event.state?.mh === navigationKey && event.state.pane === 'root') {
    generation++;
    selected = null;
