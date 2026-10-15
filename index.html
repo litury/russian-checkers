@@ -162,7 +162,7 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
    </div>
    <button id="opening-retry" data-siege-mount="left" class="opening-button opening-primary" hidden><span class="menu-button-art atlas-slice" aria-hidden="true"></span>Повторить загрузку</button>
    <div class="opening-utilities">
-    <button id="opening-history" data-siege-mount="left" class="opening-utility" type="button"><span class="menu-button-art atlas-slice" aria-hidden="true"></span>Партии</button>
+    <button id="opening-history" data-siege-mount="left" class="opening-utility" type="button" aria-label="Профиль" aria-haspopup="dialog" aria-controls="match-history"><span class="menu-button-art atlas-slice" aria-hidden="true"></span>Профиль</button>
     <button id="opening-options" data-siege-mount="right" class="opening-utility" type="button" aria-haspopup="dialog" aria-controls="opening-options-dialog"><span class="menu-button-art atlas-slice" aria-hidden="true"></span>Опции</button>
    </div>
   </nav>
@@ -174,10 +174,13 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 <dialog id="match-history" aria-labelledby="match-history-title">
  <div class="mh-panel">
   <header class="mh-header">
-   <div class="mh-title-plate"><p class="mh-eyebrow">Архив игры</p><h2 id="match-history-title" tabindex="-1">Мои партии</h2></div>
+   <div class="mh-title-plate"><p class="mh-eyebrow">Игрок</p><h2 id="match-history-title" tabindex="-1">Профиль</h2></div>
    <button type="button" id="match-history-back" class="mh-button">В меню</button>
   </header>
   <div id="match-history-scroll" class="mh-scroll">
+   <section id="match-history-profile" class="mh-profile" aria-label="Профиль игрока"><h3>Профиль этого браузера</h3><p class="mh-muted">Вход без регистрации. История хранится на сервере и доступна по профилю, сохранённому в этом браузере. После очистки данных браузера доступ может потеряться.</p></section>
+   <button id="profile-rules" class="mh-button" type="button" aria-haspopup="dialog" aria-controls="opening-help-dialog">Правила игры</button>
+   <h3 id="match-history-section-title" class="mh-history-title">История партий</h3>
    <section id="match-history-archive" aria-label="Список партий">
     <div class="mh-toolbar"><p id="match-history-summary">Последние записанные партии</p>
      <label id="match-history-filter-label" hidden>Соперник <select id="match-history-filter"><option value="all">Все</option><option value="online">Онлайн</option><option value="bot">Компьютер</option></select></label>
@@ -269,7 +272,13 @@ dialog{max-width:min(440px,calc(100vw - 32px));width:440px;max-height:calc(100dv
 (() => {
  const byId = id => document.getElementById(id);
  // Static menu art is browser-owned and never gates startup.
+ window.checkersRules = { open: () => {
+  const dialog = byId('opening-help-dialog');
+  dialog.querySelectorAll('template').forEach(template => template.replaceWith(template.content.cloneNode(true)));
+  if (!dialog.open) dialog.showModal();
+ } };
  for (const name of ['help', 'settings']) byId('opening-' + name).onclick = () => {
+  if (name === 'help') { window.checkersRules.open(); return; }
   const dialog = byId('opening-' + name + '-dialog');
   dialog.querySelectorAll('template').forEach(template => template.replaceWith(template.content.cloneNode(true)));
   dialog.showModal();

@@ -33,6 +33,11 @@ export function bindMatchHistory() {
  const el = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
  const title = el('opening');
  const heading = el('match-history-title');
+ const rules = el<HTMLButtonElement>('profile-rules');
+ rules.addEventListener('click', () => {
+  uiSfx('ui-open');
+  (window as Window & { checkersRules?: { open: () => void } }).checkersRules?.open();
+ });
  const back = el<HTMLButtonElement>('match-history-back');
  const scroll = el('match-history-scroll');
  const archive = el('match-history-archive');
@@ -116,7 +121,10 @@ export function bindMatchHistory() {
   generation++;
   selected = null;
   replay = null;
-  heading.textContent = 'Мои партии';
+  heading.textContent = 'Профиль';
+  rules.hidden = false;
+  el('match-history-profile').hidden = false;
+  el('match-history-section-title').hidden = false;
   back.textContent = 'В меню';
   boardWrap.hidden = true;
   archive.hidden = archiveState !== 'list';
@@ -214,6 +222,9 @@ export function bindMatchHistory() {
   replay = null;
   const ticket = ++generation;
   heading.textContent = 'Просмотр партии';
+  rules.hidden = true;
+  el('match-history-profile').hidden = true;
+  el('match-history-section-title').hidden = true;
   back.textContent = 'К списку';
   archive.hidden = true;
   boardWrap.hidden = true;
@@ -263,7 +274,10 @@ export function bindMatchHistory() {
   returnFocus = null;
   savedScroll = 0;
   filter.value = 'all';
-  heading.textContent = 'Мои партии';
+  heading.textContent = 'Профиль';
+  rules.hidden = false;
+  el('match-history-profile').hidden = false;
+  el('match-history-section-title').hidden = false;
   back.textContent = 'В меню';
   focusHeading();
   history.pushState({ mh: navigationKey, pane: 'list' }, '');

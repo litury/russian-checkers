@@ -15,7 +15,9 @@ it('lists own matches outside settings, board only with plies', () => {
  expect(src).toContain("path === '/matches'");
  expect(src).toContain("path.startsWith('/matches/')");
  expect(src).toContain('not_found');
- expect(html).toContain('Партии');
+ expect(html).toContain('aria-label="Профиль"');
+ expect(html).toContain('Профиль этого браузера');
+ expect(html).toContain('История партий');
  expect(html).toContain('id="opening-history"');
  expect(ui).toContain('Пока нет партий');
  // Scope to the dialog element: aria-controls on the sibling Settings button is not its contents.
@@ -31,4 +33,16 @@ it('lists own matches outside settings, board only with plies', () => {
  expect(ui).toContain("result === null");
  expect(ui).toContain('title.inert');
  expect(settings).not.toContain('match-history');
+});
+
+it('keeps profile rules on the existing dialog and restores profile after replay', () => {
+ const profile = html.match(/<dialog\b[^>]*id="match-history"[^>]*>[\s\S]*?<\/dialog>/)?.[0];
+ expect(profile).toContain('id="profile-rules"');
+ expect(profile).toContain('aria-controls="opening-help-dialog"');
+ expect(html.match(/id="opening-help-dialog"/g)).toHaveLength(1);
+ expect(html).toContain('window.checkersRules = { open:');
+ expect(ui).toContain('checkersRules?.open()');
+ expect(ui.match(/heading.textContent = 'Профиль'/g)).toHaveLength(2);
+ expect(ui).toContain('rules.hidden = true');
+ expect(ui.match(/rules.hidden = false/g)).toHaveLength(2);
 });

@@ -2,7 +2,7 @@ import { expect, it, vi } from 'vitest';
 import html from '../../../index.html?raw';
 
 it('keeps four named leaf actions and no visible side labels or slogan', () => {
- for (const [id, name] of [['play','С ботом'],['online','В сети'],['history','Партии'],['options','Опции']])
+ for (const [id, name] of [['play','С ботом'],['online','В сети'],['history','Профиль'],['options','Опции']])
   expect(html).toMatch(new RegExp(`id="opening-${id}"[^>]*>[\\s\\S]*?${name}`));
  expect(html).not.toContain('class="siege-side-label"');
  expect(html).not.toContain('class="opening-slogan"');
