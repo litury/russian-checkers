@@ -7,8 +7,9 @@ import { guestTag } from '../../online/guestTag';
 import { canOpenBoard } from '../../online/matchHistory';
 import ui from './matchHistoryUi.ts?raw';
 
-it('two equal CTAs: С ботом and В сети; friend lives in online hub', () => {
- expect(html).toContain('В сети');
+it('mode selection keeps bot and online entry points; friend lives in online hub', () => {
+ expect(html).toContain('Онлайн');
+ expect(html).toContain('id="opening-mode-navigation"');
  expect(html).not.toContain('id="opening-friend"');
  expect(html).toContain('id="opening-search-find"');
  expect(html).toContain('Найти');

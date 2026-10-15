@@ -16,8 +16,8 @@ describe('HTML-first opening', () => {
   expect(main).not.toContain('/sdk.js');
  });
  it('uses an accessible indeterminate loading indicator, without a duplicate kicker', () => {
-  expect(html).toMatch(/id="opening-play"[^>]*aria-label="С ботом"[^>]*aria-busy="true"[^>]*disabled>/);
-  expect(html).toMatch(/disabled><span class="menu-button-art atlas-slice"[^>]*><\/span><span class="opening-cta-label">С ботом<\/span><\/button>/);
+  expect(html).toMatch(/id="opening-play"[^>]*aria-label="Играть"[^>]*aria-busy="true"[^>]*disabled>/);
+  expect(html).toMatch(/disabled><span class="menu-button-art atlas-slice"[^>]*><\/span><span class="opening-cta-label">Играть<\/span><\/button>/);
   expect(html).toContain('@keyframes opening-segment');
   expect(html).not.toContain('disabled>Загрузка…');
   expect(html).not.toContain('opening-kicker');
@@ -33,7 +33,7 @@ describe('HTML-first opening', () => {
   expect(html).toContain('data-api="%VITE_API_URL%"');
   expect(html).not.toContain('.replace(/%VITE_API_URL%');
   expect(html).toContain('id="opening-online"');
-  expect(html).toContain('В сети');
+  expect(html).toContain('Онлайн');
  });
  it('retains queued intent without coupling menu readiness to match decoration packs', () => {
   expect(html).toContain('unlock()');
