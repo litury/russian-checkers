@@ -89,7 +89,7 @@ export function createResultOverlay(
 		panel.classList.remove('enter');
 		status.hidden = false;
 		release();
-		reopen.focus({ preventScroll: true });
+		reopen.focus({ preventScroll: root.dataset.controlsLayout !== 'dock' });
 	}
 	function hide(_force = false) {
 		covered();
@@ -184,10 +184,15 @@ export function createResultOverlay(
 	return {
 		layout(width: number, height: number) {
 			const geometry = verdictControlsGeometry(width, height, readSafeInsets());
+			root.dataset.controlsLayout = geometry.dock ? 'dock' : 'pocket';
 			// DOM targets stay 44 CSS px; never scale their text with the canvas.
 			status.style.left = `${geometry.left}px`;
 			status.style.top = `${geometry.top}px`;
 			status.style.gridTemplateColumns = `${geometry.primaryWidth}px 64px`;
+			if (shown && !status.hidden) {
+				if (geometry.dock) window.scrollTo(0, document.documentElement.scrollHeight);
+				else window.scrollTo(0, 0);
+			}
 		},
 		hide,
 		show(verdict: Verdict) {

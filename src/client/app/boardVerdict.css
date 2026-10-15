@@ -213,6 +213,23 @@
 .verdict-panel:focus {
 	outline: none;
 }
+/* No 44px bay exists on short screens. The readonly board remains native
+   size; a bottom row follows the canvas in scrollable document space. */
+html:has(.board-verdict[data-controls-layout="dock"]:not(.expanded):not([hidden])) {
+	overflow-y: auto;
+}
+body:has(.board-verdict[data-controls-layout="dock"]:not(.expanded):not([hidden])) {
+	overflow: visible;
+}
+body:has(.board-verdict[data-controls-layout="dock"]:not(.expanded):not([hidden])) #game,
+body:has(.board-verdict[data-controls-layout="dock"]:not(.expanded):not([hidden])) #game canvas {
+	touch-action: pan-y;
+	pointer-events: none;
+}
+.board-verdict[data-controls-layout="dock"]:not(.expanded) {
+	position: absolute;
+	height: calc(100% + 64px + env(safe-area-inset-bottom));
+}
 .verdict-status button {
 	font: 600 12px/16px "Golos Text", sans-serif;
 	height: 44px;
