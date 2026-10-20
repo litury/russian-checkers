@@ -10,9 +10,8 @@
 		"check": "biome check .",
 		"atlas:pack": "python3 scripts/pack_atlas.py"
 	},
-	"dependencies": {
-		"@rolldown/binding-linux-x64-gnu": "1.2.6",
-		"phaser": "^4.2.1"
+"dependencies": {
+"phaser": "^4.2.1"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.0",
