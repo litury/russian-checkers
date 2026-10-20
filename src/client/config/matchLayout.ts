@@ -112,7 +112,6 @@ function mobileEdgeField(contentW: number, contentH: number) {
 	return Math.max(8, Math.min(byWidth, byHeight));
 }
 
-/** Keep existing field scale whenever side bays fit; otherwise maximize field after readable bays. */
 export function matchLayout(
 	width: number,
 	height: number,
@@ -130,75 +129,6 @@ export function matchLayout(
 			Math.min(1, (w - 16) / panelNativeW),
 		);
 	}
-	// Short landscape keeps the pre-compact top-bottom budget.
-	if (height <= 500) {
-		const base = baselineTopBottom(w, h);
-		return placeTopBottom(safe, w, h, base.fieldSize, base.panelScale);
-	}
-	const original = computeFieldLayout(w, h);
-	const native = Math.max(
-		8,
-		Math.min(
-			w - 38,
-			Math.floor((w * 352) / 380),
-			Math.floor((h * 352) / 418),
-			original.fieldSize - (original.portrait ? 0 : 66),
-		),
-	);
-	let fieldSize = native,
-		panelScale = Math.min(1, (w - 16) / panelNativeW),
-		mode: 'sides' | 'top-bottom' | 'above' = 'top-bottom';
-	const sideScale = Math.min(
-		1,
-		((w - (380 * native) / 352) / 2 - gap - 8) / panelNativeW,
-	);
-	if (w > h && sideScale >= 0.85) {
-		mode = 'sides';
-		panelScale = sideScale;
-	} else if (w >= 760) {
-		mode = 'above';
-		panelScale = Math.min(1, (w - 36) / 748);
-		fieldSize = Math.min(
-			native,
-			Math.floor(((h - 32 - panelNativeH * panelScale - gap) * 352) / 418),
-		);
-	} else {
-		const base = baselineTopBottom(w, h);
-		fieldSize = base.fieldSize;
-		panelScale = base.panelScale;
-	}
-	fieldSize = Math.max(8, fieldSize);
-	const scale = fieldSize / 352,
-		bh = 418 * scale,
-		bw = 380 * scale,
-		pw = panelNativeW * panelScale,
-		ph = panelNativeH * panelScale;
-	let boardY: number,
-		foe: { x: number; y: number },
-		you: { x: number; y: number };
-	const cx = safe.left + w / 2;
-	if (mode === 'sides') {
-		boardY = safe.top + (h - bh) / 2;
-		foe = { x: cx - bw / 2 - gap - pw, y: safe.top + (h - ph) / 2 };
-		you = { x: cx + bw / 2 + gap, y: foe.y };
-	} else if (mode === 'above') {
-		const y = safe.top + (h - bh - gap - ph) / 2;
-		boardY = y + ph + gap;
-		foe = { x: cx - pw - 10, y };
-		you = { x: cx + 10, y };
-	} else {
-		return placeTopBottom(safe, w, h, fieldSize, panelScale);
-	}
-	return {
-		portrait: h > w,
-		fieldSize,
-		scale,
-		cell: fieldSize / 8,
-		originX: cx - fieldSize / 2,
-		originY: boardY + 33 * scale,
-		foe,
-		you,
-		panelScale,
-		mode,
-	};
+	const base = baselineTopBottom(w, h);
+	return placeTopBottom(safe, w, h, base.fieldSize, base.panelScale);
 }

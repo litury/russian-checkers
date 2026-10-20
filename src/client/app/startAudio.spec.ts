@@ -24,7 +24,8 @@ it('binds panel-slide to existing HTML top/bottom motion, not gate_motion previe
 });
 
 it('binds timer slide/lock to actual HUD lift, availability once, RU voice at ready', () => {
- expect(bunker).toContain('face.y = 10 + p.lift');
+ expect(bunker).toContain('[face, faceMiddle, faceRight]');
+ expect(bunker).toContain('section.y = faceY + p.lift');
  expect(bunker).toContain('118 - go.y');
  expect(timerPanelClosedLift).toBe(108);
  expect(revealPose(860, false).lift).toBe(112);

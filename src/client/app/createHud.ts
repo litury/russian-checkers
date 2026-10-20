@@ -1,6 +1,7 @@
 import type Phaser from 'phaser';
 import type { Side } from '@/rules';
 import { matchLayout, readSafeInsets } from '@/client/config/matchLayout';
+import { playerPanelLayout } from '@/client/config/playerPanelLayout';
 import { createBunkerPanel } from './bunkerPanel';
 import { PanelReveal, preparationMs } from './panelReveal';
 import { matchActionGeometry } from './matchActionGeometry';
@@ -31,7 +32,11 @@ export function matchStatus(
 }
 export function createHud(
 	scene: Phaser.Scene,
-	handlers: { onAutoChange?: () => void; isPaused?: () => boolean; onRevealProgress?: (elapsed: number, reduced: boolean) => void } = {},
+	handlers: {
+		onAutoChange?: () => void;
+		isPaused?: () => boolean;
+		onRevealProgress?: (elapsed: number, reduced: boolean) => void;
+	} = {},
 ) {
 	const foe = createBunkerPanel(scene, false),
 		you = createBunkerPanel(scene, true);
@@ -62,7 +67,9 @@ export function createHud(
 		if (!visible || !reveal.active || document.hidden || handlers.isPaused?.())
 			return;
 		// Same time domain as match banks, not Phaser's FPS-smoothed animation delta.
-		reveal.advance(reduced ? preparationMs : delta * preparationMs / panelDurationMs);
+		reveal.advance(
+			reduced ? preparationMs : (delta * preparationMs) / panelDurationMs,
+		);
 		paint();
 	};
 	const autoChanged = (event: Event) => {
@@ -84,9 +91,12 @@ export function createHud(
 		isActionsReady: () => visible && you.isEntranceReady(),
 		isMenuOpen: () => false,
 		layout(width: number, height: number) {
-			const l = matchLayout(width, height, readSafeInsets());
-			foe.layout(l.foe.x, l.foe.y, l.panelScale);
-			you.layout(l.you.x, l.you.y, l.panelScale);
+			const safe = readSafeInsets();
+			const l = matchLayout(width, height, safe);
+			const ownPanel = playerPanelLayout(l, width, height, safe);
+			const foePanel = playerPanelLayout(l, width, height, safe, 'foe');
+			foe.layout(foePanel.x, foePanel.y, foePanel.scaleX, foePanel.scaleY);
+			you.layout(ownPanel.x, ownPanel.y, ownPanel.scaleX, ownPanel.scaleY);
 			// Read the transform actually applied to Phaser, never a viewport-bottom guess.
 			const actions = document.getElementById('match-actions');
 			if (actions) {
@@ -96,6 +106,8 @@ export function createHud(
 				actions.dataset.tooltipBelow = String(box.tooltipBelow);
 				actions.style.left = `${canvas.left + box.left}px`;
 				actions.style.top = `${canvas.top + box.top}px`;
+				actions.style.transformOrigin = 'top left';
+				actions.style.transform = `scaleX(${box.scaleX})`;
 			}
 		},
 		setTurn(copy: string) {
@@ -112,7 +124,11 @@ export function createHud(
 			const own = facing === 'black' ? blackSec : whiteSec;
 			const other = facing === 'black' ? whiteSec : blackSec;
 			you.setClock(panelClock(own), turn === facing, reveal.active);
-			foe.setClock(panelClock(other), turn !== null && turn !== facing, reveal.active);
+			foe.setClock(
+				panelClock(other),
+				turn !== null && turn !== facing,
+				reveal.active,
+			);
 		},
 		setVisible(on: boolean) {
 			visible = on;

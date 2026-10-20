@@ -52,17 +52,18 @@ function baselineField(w: number, h: number) {
 	return Math.max(8, fieldSize);
 }
 
-it('fits centered safe-area phone, wide sides and bounded tablet fallback without overlap', () => {
+it('keeps the opponent above and player below on phones, tablets and desktops', () => {
 	for (const [w, h, mode] of [
 		[390, 844, 'top-bottom'],
-		[1280, 720, 'sides'],
-		[1024, 768, 'above'],
+		[1280, 720, 'top-bottom'],
+		[1024, 768, 'top-bottom'],
+		[1920, 1080, 'top-bottom'],
 	] as const) {
 		const l = matchLayout(w, h);
 		expect(l.mode).toBe(mode);
 		if (w === 1280) {
 			expect(l.panelScale).toBeGreaterThanOrEqual(0.85);
-			expect(l.fieldSize).toBe(506);
+			expect(l.fieldSize).toBe(baselineField(w, h));
 		}
 		if (w === 390) {
 			expect(l.fieldSize).toBeGreaterThan(352);
@@ -73,6 +74,8 @@ it('fits centered safe-area phone, wide sides and bounded tablet fallback withou
 		const board = boardOf(l);
 		const pw = 374 * l.panelScale;
 		const ph = 128 * l.panelScale;
+		expect(l.foe.y + ph).toBeLessThanOrEqual(board.y);
+		expect(l.you.y).toBeGreaterThanOrEqual(board.y + board.h);
 		for (const p of [l.foe, l.you]) {
 			expect(p.x).toBeGreaterThanOrEqual(0);
 			expect(p.y).toBeGreaterThanOrEqual(0);
@@ -176,11 +179,26 @@ it('fits the button lip and safe areas by shrinking timers, not the board', () =
 });
 
 it('reads only device safe insets; in-card actions reserve no bottom rail', () => {
- const el = { style: { cssText: '' }, remove: vi.fn() };
- vi.stubGlobal('document', { createElement: () => el, body: { append: vi.fn() } });
- vi.stubGlobal('getComputedStyle', () => ({ paddingTop: '44px', paddingBottom: '34px', paddingLeft: '0px', paddingRight: '0px' }));
- try {
-  expect(readSafeInsets()).toEqual({ top: 44, bottom: 34, left: 0, right: 0 });
-  expect(el.remove).toHaveBeenCalledOnce();
- } finally { vi.unstubAllGlobals(); }
+	const el = { style: { cssText: '' }, remove: vi.fn() };
+	vi.stubGlobal('document', {
+		createElement: () => el,
+		body: { append: vi.fn() },
+	});
+	vi.stubGlobal('getComputedStyle', () => ({
+		paddingTop: '44px',
+		paddingBottom: '34px',
+		paddingLeft: '0px',
+		paddingRight: '0px',
+	}));
+	try {
+		expect(readSafeInsets()).toEqual({
+			top: 44,
+			bottom: 34,
+			left: 0,
+			right: 0,
+		});
+		expect(el.remove).toHaveBeenCalledOnce();
+	} finally {
+		vi.unstubAllGlobals();
+	}
 });
