@@ -5,7 +5,7 @@ import { createBunkerPanel } from './bunkerPanel';
 afterEach(() => vi.unstubAllGlobals());
 
 it.each([true, false])(
-	'keeps player names without a side badge (own=%s)',
+	'shows only the opponent name (own=%s)',
 	(own) => {
 		vi.stubGlobal('document', {});
 		const texts: { text: string; scaleX: number; scaleY: number }[] = [];
@@ -63,9 +63,11 @@ it.each([true, false])(
 			events: { on: vi.fn(), once: vi.fn() },
 		};
 		const panel = createBunkerPanel(scene as unknown as Phaser.Scene, own);
-		expect(texts[1].text).toBe(own ? 'Ты' : 'Бот');
+		expect(texts[1].text).toBe(own ? '' : 'Бот');
+		panel.setName('Ты');
+		expect(texts[1].text).toBe(own ? '' : 'Ты');
 		panel.setName('Александр');
-		expect(texts[1].text).toBe('Александр');
+		expect(texts[1].text).toBe(own ? '' : 'Александр');
 		panel.setStatus('Ход соперника');
 		panel.pose(2800, true);
 		expect(texts.some(({ text }) => text.includes('ВАША СТОРОНА'))).toBe(false);

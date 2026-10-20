@@ -80,9 +80,8 @@ export function createBunkerPanel(scene: Phaser.Scene, own: boolean) {
 		122,
 	);
 	const label = text(own ? '' : 'СОПЕРНИК', 39, 26, 11, '#bcb39e');
-	// Keep the player name, without a redundant side-identification suffix.
 	const name = text(
-		own ? 'Ты' : 'Бот',
+		own ? '' : 'Бот',
 		own ? 20 : 39,
 		own ? 16 : 46,
 		own ? 11 : 21,
@@ -313,7 +312,7 @@ export function createBunkerPanel(scene: Phaser.Scene, own: boolean) {
 			paint();
 		},
 		setName(value: string) {
-			name.setText(value);
+			name.setText(own ? '' : value);
 			while (name.width > 187 && Array.from(name.text).length > 2)
 				name.setText(Array.from(name.text).slice(0, -2).join('') + '…');
 			paint();
