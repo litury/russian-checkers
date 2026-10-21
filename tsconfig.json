@@ -6,6 +6,7 @@
 		"moduleResolution": "bundler",
 		"strict": true,
 		"noEmit": true,
+		"allowImportingTsExtensions": true,
 		"skipLibCheck": true,
 		"isolatedModules": true,
 		"verbatimModuleSyntax": true,
@@ -17,10 +18,9 @@
 		"ignoreDeprecations": "6.0",
 		"baseUrl": ".",
 		"paths": {
-			"@/*": ["src/*"]
+			"@/*": ["./*"]
 		},
 		"types": []
 	},
-	"include": ["src/**/*.ts", "src/**/*.d.ts", "vite.config.ts"],
-	"exclude": ["src/**/*.spec.ts"]
+	"include": ["client/**/*.ts", "shared/**/*.ts", "vite.config.ts"]
 }

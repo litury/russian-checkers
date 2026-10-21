@@ -1,12 +1,12 @@
 .git
 .github
-.playwright-cli
 node_modules
 server/node_modules
 dist
 docs
-integration-backups
+assets
 *.md
+.DS_Store
 .env
 .env.*
 !.env.example

@@ -1,6 +1,6 @@
-import {readdirSync, readFileSync} from 'node:fs';
-import {dirname, join} from 'node:path';
-import {fileURLToPath} from 'node:url';
+import { readdirSync,readFileSync } from 'node:fs';
+import { dirname,join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 export type SqlQuery = (text: string, params?: unknown[]) => Promise<{rows: {id?: string}[]}>;
 

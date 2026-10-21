@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
-import type { Pool, PoolClient } from 'pg';
-import { seedConfig, targetSql, verifyTarget } from './config.ts';
-import { buildFixture, FIXTURE, type Fixture } from './fixture.ts';
+import type { Pool,PoolClient } from 'pg';
+import { seedConfig,targetSql,verifyTarget } from './config.ts';
+import { buildFixture,FIXTURE,type Fixture } from './fixture.ts';
 
 type Client = Pick<PoolClient, 'query' | 'release'>;
 type ConnectionPool = Pick<Pool, 'connect'>;

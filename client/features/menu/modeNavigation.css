@@ -1,0 +1,31 @@
+/* Reuse the assembled opening atlas and its original plate dimensions. */
+#opening:not([data-menu-page="modes"]) #opening-online,
+#opening[data-menu-page="modes"] #opening-history {
+	display: none !important;
+}
+#opening:not([data-menu-page="modes"]) #opening-play {
+	left: calc(50% - var(--btn-w) / 2);
+}
+#opening #opening-online {
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	padding: 0 5px;
+	gap: 0;
+}
+#opening #opening-menu-online-count {
+	position: static;
+	display: inline;
+	width: auto;
+	font: inherit;
+	line-height: 1.15;
+	white-space: pre;
+	color: inherit;
+	margin: 0;
+	padding: 0;
+	background: none;
+	border: 0;
+}
+#opening #opening-menu-online-count[hidden] {
+	display: none;
+}

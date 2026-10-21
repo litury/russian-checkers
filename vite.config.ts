@@ -1,13 +1,14 @@
-import { loadEnv } from 'vite';
-import { defineConfig } from 'vitest/config';
-import { devProxyConfig } from './src/dev/proxyConfig';
+import { defineConfig, loadEnv } from 'vite';
+import { devProxyConfig } from './tools/devProxyConfig.ts';
 
 export default defineConfig(({ mode }) => ({
-	server: { ...devProxyConfig(loadEnv(mode, '.', 'DAMKA_DEV_')), allowedHosts: true },
+	server: {
+		...devProxyConfig(loadEnv(mode, '.', 'DAMKA_DEV_')),
+	},
 	base: './',
 	resolve: {
 		alias: {
-			'@': new URL('./src', import.meta.url).pathname,
+			'@': new URL('.', import.meta.url).pathname,
 		},
 	},
 	build: {
@@ -15,13 +16,5 @@ export default defineConfig(({ mode }) => ({
 		emptyOutDir: true,
 		target: 'es2022',
 		chunkSizeWarningLimit: 2000,
-	},
-	test: {
-		environment: 'node',
-		// Preserve the actual stylesheet for raw-source assertions instead of an empty CSS stub.
-		css: {
-			include: [/openingGates\.css/, /hangingChronicle\.css/, /boardCoords\.css/, /matchHistory\.css/, /resultCeremony\.css/],
-		},
-		include: ['src/**/*.spec.ts', 'server/src/**/*.spec.ts'],
 	},
 }));

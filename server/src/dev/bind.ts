@@ -1,5 +1,5 @@
-import { isIP } from 'node:net';
 import type { AddressInfo } from 'node:net';
+import { isIP } from 'node:net';
 
 /** Preserve the container's all-interface default; local development sets HOST explicitly. */
 export function bindHost(value: string | undefined) {

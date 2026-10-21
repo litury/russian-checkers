@@ -1,6 +1,6 @@
-import {createHash} from 'node:crypto';
-import type {IncomingMessage} from 'node:http';
-import type {Duplex} from 'node:stream';
+import { createHash } from 'node:crypto';
+import type { IncomingMessage } from 'node:http';
+import type { Duplex } from 'node:stream';
 
 const GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
 

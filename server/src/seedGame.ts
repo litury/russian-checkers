@@ -1,7 +1,7 @@
-import { apply, createInitialPosition, legalMoves, resultSide, type IPosition } from '../../src/rules/index.ts';
-import { hashPosition } from '../../src/online/matchState.ts';
-import { squareAlg } from '../../src/online/notation.ts';
-import type { RecordedPly } from '../../src/online/replay.ts';
+import { hashPosition } from '../../shared/protocol/matchState.ts';
+import { squareAlg } from '../../shared/protocol/notation.ts';
+import type { RecordedPly } from '../../shared/protocol/replay.ts';
+import { apply,createInitialPosition,legalMoves,resultSide,type IPosition } from '../../shared/rules/index.ts';
 
 export type GameResult = 'white' | 'black' | 'draw';
 export const mulberry32 = (seed: number) => {

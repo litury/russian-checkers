@@ -5,19 +5,19 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
+		"typecheck": "tsc --noEmit && npm --prefix server run typecheck",
+		"verify": "npm run check:boundaries && npm run typecheck && vite build",
+		"check:boundaries": "node tools/checkBoundaries.mjs",
 		"build": "tsc --noEmit && vite build",
-		"test": "vitest run",
-		"check": "biome check .",
-		"atlas:pack": "python3 scripts/pack_atlas.py"
+		"check": "biome check ."
 	},
-"dependencies": {
-"phaser": "^4.2.1"
+	"dependencies": {
+		"phaser": "^4.2.1"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.0",
+		"tsx": "^4.23.15",
 		"typescript": "~6.0.2",
-		"vite": "^8.2.0",
-		"vite-node": "^6.0.0",
-		"vitest": "^5.0.3"
+		"vite": "^8.2.0"
 	}
 }

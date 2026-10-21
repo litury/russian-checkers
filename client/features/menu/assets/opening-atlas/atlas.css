@@ -1,0 +1,121 @@
+/* Координаты поставляемого атласа меню. */
+#opening .atlas-slice { background-image:url('./atlas.webp'); background-image:image-set(url('./atlas.webp') type('image/webp'), url('./atlas.avif') type('image/avif')); background-repeat:no-repeat; opacity:1; }
+#opening .atlas-nine { position:absolute; inset:0; display:grid; grid-template-columns:var(--slice-x) minmax(0,1fr) var(--slice-x); grid-template-rows:var(--slice-y) minmax(0,1fr) var(--slice-y); pointer-events:none; z-index:-1; }
+#opening .atlas-nine > i { display:block; min-width:0; min-height:0; }
+#opening .chronicle-frame { --slice-x:var(--frame-corner); --slice-y:var(--frame-corner); }
+#opening .chronicle-right .chronicle-frame { transform:scaleX(-1); }
+#opening .chronicle-backplate { position:absolute; inset:8px; z-index:-2; box-shadow:0 6px 8px #0009; }
+#opening .siege-housing > span { position:absolute; width:max(100vw,150vh); height:auto; aspect-ratio:3/2; left:50%; top:50%; translate:-50% -50%; }
+#opening .gate-piece { position:absolute; width:var(--piece); height:var(--piece); left:50%; top:0; translate:-50% 0; }
+#opening .chronicle-chain { background:none; }
+#opening .chain-links { position:absolute; inset:0; display:flex; justify-content:flex-end; overflow:hidden; }
+#opening .chronicle-right .chain-links { justify-content:flex-start; }
+#opening .chain-links i { display:block; flex:0 0 calc(20px * 139 / 105); height:20px; }
+#opening .chronicle-chain::after { background:none; }
+#opening .chain-eyelet { position:absolute; width:30px; height:calc(30px * 339 / 303); right:-10px; top:-7px; transform:scaleX(-1); }
+#opening .chronicle-right .chain-eyelet { right:auto; left:-10px; transform:none; }
+#opening .menu-button-art { position:absolute; inset:0; pointer-events:none; z-index:-1; }
+#opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options) { isolation:isolate; background:none; }
+#opening .search-body-art { --slice-x:24px; --slice-y:24px; grid-template-rows:0 minmax(0,1fr) 24px; }
+#opening .search-count-art { --slice-x:10px; --slice-y:4px; }
+#opening .search-button-art { --slice-x:24px; --slice-y:20px; }
+#opening-search-actions button, #opening-online-count { isolation:isolate; }
+#opening .friend-code-frame { position:relative; isolation:isolate; flex:1 1 100%; width:100%; min-width:0; height:var(--btn-h); }
+#opening .friend-code-frame:has(input[hidden]) { display:none; }
+#opening .friend-code-frame .chronicle-frame { --slice-x:14px; --slice-y:14px; }
+#opening #opening-friend-code { border-image:none; background:none; height:100%; }
+#opening .opening-sheet { mask-image:url('./atlas.webp'); mask-image:image-set(url('./atlas.webp') type('image/webp'), url('./atlas.avif') type('image/avif')); mask-mode:alpha; mask-repeat:no-repeat; mask-size:160.0000000000% 205.7444314185%; mask-position:0.2604166667% 0.2217294900%; }
+#opening .siege-housing > span{background-size:160.0000000000% 205.7444314185%;background-position:0.2604166667% 0.2217294900%}
+#opening .siege-cartouche{background-size:243.8095238095% 535.0609756098%;background-position:0.1655629139% 60.1962158374%}
+#opening .chronicle-left .chronicle-backplate{background-size:613.1736526946% 458.2245430809%;background-position:12.0186697783% 16.5451895044%}
+#opening .chronicle-right .chronicle-backplate{background-size:615.0150150150% 458.2245430809%;background-position:43.3819241983% 16.5451895044%}
+#opening .chain-links i{background-size:1280.0000000000% 1450.4132231405%;background-position:88.8771186441% 94.3696450428%}
+#opening .chain-eyelet{background-size:2275.5555555556% 1737.6237623762%;background-position:94.0755873340% 93.2285368803%}
+#opening .opening-search-plate{background-size:533.3333333333% 2925.0000000000%;background-position:0.1201923077% 99.8820058997%}
+#opening [data-side="white"][aria-pressed="false"] .gate-piece{background-size:800.0000000000% 685.5468750000%;background-position:76.2276785714% 57.3048699133%}
+#opening [data-side="white"][aria-pressed="true"] .gate-piece{background-size:800.0000000000% 685.5468750000%;background-position:90.7366071429% 57.3048699133%}
+#opening [data-side="black"][aria-pressed="false"] .gate-piece{background-size:800.0000000000% 685.5468750000%;background-position:47.2098214286% 57.3048699133%}
+#opening [data-side="black"][aria-pressed="true"] .gate-piece{background-size:800.0000000000% 685.5468750000%;background-position:61.7187500000% 57.3048699133%}
+#opening .chronicle-frame > i:nth-child(1){background-size:1484.0579710145% 1271.7391304348%;background-position:67.3298429319% 0.1236858380%}
+#opening .chronicle-frame > i:nth-child(2){background-size:867.7966101695% 1271.7391304348%;background-position:78.5871964680% 0.1236858380%}
+#opening .chronicle-frame > i:nth-child(3){background-size:1484.0579710145% 1271.7391304348%;background-position:86.9109947644% 0.1236858380%}
+#opening .chronicle-frame > i:nth-child(4){background-size:1484.0579710145% 310.0706713781%;background-position:67.3298429319% 11.7746005046%}
+#opening .chronicle-frame > i:nth-child(5){background-size:867.7966101695% 310.0706713781%;background-position:78.5871964680% 11.7746005046%}
+#opening .chronicle-frame > i:nth-child(6){background-size:1484.0579710145% 310.0706713781%;background-position:86.9109947644% 11.7746005046%}
+#opening .chronicle-frame > i:nth-child(7){background-size:1484.0579710145% 1271.7391304348%;background-position:67.3298429319% 43.6611008040%}
+#opening .chronicle-frame > i:nth-child(8){background-size:867.7966101695% 1271.7391304348%;background-position:78.5871964680% 43.6611008040%}
+#opening .chronicle-frame > i:nth-child(9){background-size:1484.0579710145% 1271.7391304348%;background-position:86.9109947644% 43.6611008040%}
+#opening .search-body-art > i:nth-child(1){background:none}
+#opening .search-body-art > i:nth-child(2){background:none}
+#opening .search-body-art > i:nth-child(3){background:none}
+#opening .search-body-art > i:nth-child(4){background-size:5120.0000000000% 1125.0000000000%;background-position:0.0996015936% 74.4840525328%}
+#opening .search-body-art > i:nth-child(5){background-size:673.6842105263% 1125.0000000000%;background-position:2.4082568807% 74.4840525328%}
+#opening .search-body-art > i:nth-child(6){background-size:5120.0000000000% 1125.0000000000%;background-position:17.2310756972% 74.4840525328%}
+#opening .search-body-art > i:nth-child(7){background-size:5120.0000000000% 4387.5000000000%;background-position:0.0996015936% 78.5422740525%}
+#opening .search-body-art > i:nth-child(8){background-size:673.6842105263% 4387.5000000000%;background-position:2.4082568807% 78.5422740525%}
+#opening .search-body-art > i:nth-child(9){background-size:5120.0000000000% 4387.5000000000%;background-position:17.2310756972% 78.5422740525%}
+#opening .search-count-art > i:nth-child(1){background-size:10240.0000000000% 14625.0000000000%;background-position:19.2307692308% 97.1313826736%}
+#opening .search-count-art > i:nth-child(2){background-size:1280.0000000000% 14625.0000000000%;background-position:21.7161016949% 97.1313826736%}
+#opening .search-count-art > i:nth-child(3){background-size:10240.0000000000% 14625.0000000000%;background-position:28.1065088757% 97.1313826736%}
+#opening .search-count-art > i:nth-child(4){background-size:10240.0000000000% 9750.0000000000%;background-position:19.2307692308% 98.1577432355%}
+#opening .search-count-art > i:nth-child(5){background-size:1280.0000000000% 9750.0000000000%;background-position:21.7161016949% 98.1577432355%}
+#opening .search-count-art > i:nth-child(6){background-size:10240.0000000000% 9750.0000000000%;background-position:28.1065088757% 98.1577432355%}
+#opening .search-count-art > i:nth-child(7){background-size:10240.0000000000% 14625.0000000000%;background-position:19.2307692308% 98.8525530694%}
+#opening .search-count-art > i:nth-child(8){background-size:1280.0000000000% 14625.0000000000%;background-position:21.7161016949% 98.8525530694%}
+#opening .search-count-art > i:nth-child(9){background-size:10240.0000000000% 14625.0000000000%;background-position:28.1065088757% 98.8525530694%}
+#opening #opening-search-actions button .search-button-art > i:nth-child(1){background-size:4266.6666666667% 4387.5000000000%;background-position:73.9000000000% 89.9125364431%}
+#opening #opening-search-actions button .search-button-art > i:nth-child(2){background-size:2048.0000000000% 4387.5000000000%;background-position:78.3367556468% 89.9125364431%}
+#opening #opening-search-actions button .search-button-art > i:nth-child(3){background-size:4266.6666666667% 4387.5000000000%;background-position:81.3000000000% 89.9125364431%}
+#opening #opening-search-actions button .search-button-art > i:nth-child(4){background-size:4266.6666666667% 2925.0000000000%;background-position:73.9000000000% 93.3333333333%}
+#opening #opening-search-actions button .search-button-art > i:nth-child(5){background-size:2048.0000000000% 2925.0000000000%;background-position:78.3367556468% 93.3333333333%}
+#opening #opening-search-actions button .search-button-art > i:nth-child(6){background-size:4266.6666666667% 2925.0000000000%;background-position:81.3000000000% 93.3333333333%}
+#opening #opening-search-actions button .search-button-art > i:nth-child(7){background-size:4266.6666666667% 4387.5000000000%;background-position:73.9000000000% 95.7434402332%}
+#opening #opening-search-actions button .search-button-art > i:nth-child(8){background-size:2048.0000000000% 4387.5000000000%;background-position:78.3367556468% 95.7434402332%}
+#opening #opening-search-actions button .search-button-art > i:nth-child(9){background-size:4266.6666666667% 4387.5000000000%;background-position:81.3000000000% 95.7434402332%}
+#opening #opening-search-actions button:hover:not(:disabled) .search-button-art > i:nth-child(1){background-size:4266.6666666667% 4387.5000000000%;background-position:53.9000000000% 89.9125364431%}
+#opening #opening-search-actions button:hover:not(:disabled) .search-button-art > i:nth-child(2){background-size:2048.0000000000% 4387.5000000000%;background-position:57.8028747433% 89.9125364431%}
+#opening #opening-search-actions button:hover:not(:disabled) .search-button-art > i:nth-child(3){background-size:4266.6666666667% 4387.5000000000%;background-position:61.3000000000% 89.9125364431%}
+#opening #opening-search-actions button:hover:not(:disabled) .search-button-art > i:nth-child(4){background-size:4266.6666666667% 2925.0000000000%;background-position:53.9000000000% 93.3333333333%}
+#opening #opening-search-actions button:hover:not(:disabled) .search-button-art > i:nth-child(5){background-size:2048.0000000000% 2925.0000000000%;background-position:57.8028747433% 93.3333333333%}
+#opening #opening-search-actions button:hover:not(:disabled) .search-button-art > i:nth-child(6){background-size:4266.6666666667% 2925.0000000000%;background-position:61.3000000000% 93.3333333333%}
+#opening #opening-search-actions button:hover:not(:disabled) .search-button-art > i:nth-child(7){background-size:4266.6666666667% 4387.5000000000%;background-position:53.9000000000% 95.7434402332%}
+#opening #opening-search-actions button:hover:not(:disabled) .search-button-art > i:nth-child(8){background-size:2048.0000000000% 4387.5000000000%;background-position:57.8028747433% 95.7434402332%}
+#opening #opening-search-actions button:hover:not(:disabled) .search-button-art > i:nth-child(9){background-size:4266.6666666667% 4387.5000000000%;background-position:61.3000000000% 95.7434402332%}
+#opening #opening-search-actions button:focus-visible:not(:disabled) .search-button-art > i:nth-child(1){background-size:4266.6666666667% 4387.5000000000%;background-position:43.9000000000% 89.9125364431%}
+#opening #opening-search-actions button:focus-visible:not(:disabled) .search-button-art > i:nth-child(2){background-size:2048.0000000000% 4387.5000000000%;background-position:47.5359342916% 89.9125364431%}
+#opening #opening-search-actions button:focus-visible:not(:disabled) .search-button-art > i:nth-child(3){background-size:4266.6666666667% 4387.5000000000%;background-position:51.3000000000% 89.9125364431%}
+#opening #opening-search-actions button:focus-visible:not(:disabled) .search-button-art > i:nth-child(4){background-size:4266.6666666667% 2925.0000000000%;background-position:43.9000000000% 93.3333333333%}
+#opening #opening-search-actions button:focus-visible:not(:disabled) .search-button-art > i:nth-child(5){background-size:2048.0000000000% 2925.0000000000%;background-position:47.5359342916% 93.3333333333%}
+#opening #opening-search-actions button:focus-visible:not(:disabled) .search-button-art > i:nth-child(6){background-size:4266.6666666667% 2925.0000000000%;background-position:51.3000000000% 93.3333333333%}
+#opening #opening-search-actions button:focus-visible:not(:disabled) .search-button-art > i:nth-child(7){background-size:4266.6666666667% 4387.5000000000%;background-position:43.9000000000% 95.7434402332%}
+#opening #opening-search-actions button:focus-visible:not(:disabled) .search-button-art > i:nth-child(8){background-size:2048.0000000000% 4387.5000000000%;background-position:47.5359342916% 95.7434402332%}
+#opening #opening-search-actions button:focus-visible:not(:disabled) .search-button-art > i:nth-child(9){background-size:4266.6666666667% 4387.5000000000%;background-position:51.3000000000% 95.7434402332%}
+#opening #opening-search-actions button:active:not(:disabled) .search-button-art > i:nth-child(1){background-size:4266.6666666667% 4387.5000000000%;background-position:63.9000000000% 89.9125364431%}
+#opening #opening-search-actions button:active:not(:disabled) .search-button-art > i:nth-child(2){background-size:2048.0000000000% 4387.5000000000%;background-position:68.0698151951% 89.9125364431%}
+#opening #opening-search-actions button:active:not(:disabled) .search-button-art > i:nth-child(3){background-size:4266.6666666667% 4387.5000000000%;background-position:71.3000000000% 89.9125364431%}
+#opening #opening-search-actions button:active:not(:disabled) .search-button-art > i:nth-child(4){background-size:4266.6666666667% 2925.0000000000%;background-position:63.9000000000% 93.3333333333%}
+#opening #opening-search-actions button:active:not(:disabled) .search-button-art > i:nth-child(5){background-size:2048.0000000000% 2925.0000000000%;background-position:68.0698151951% 93.3333333333%}
+#opening #opening-search-actions button:active:not(:disabled) .search-button-art > i:nth-child(6){background-size:4266.6666666667% 2925.0000000000%;background-position:71.3000000000% 93.3333333333%}
+#opening #opening-search-actions button:active:not(:disabled) .search-button-art > i:nth-child(7){background-size:4266.6666666667% 4387.5000000000%;background-position:63.9000000000% 95.7434402332%}
+#opening #opening-search-actions button:active:not(:disabled) .search-button-art > i:nth-child(8){background-size:2048.0000000000% 4387.5000000000%;background-position:68.0698151951% 95.7434402332%}
+#opening #opening-search-actions button:active:not(:disabled) .search-button-art > i:nth-child(9){background-size:4266.6666666667% 4387.5000000000%;background-position:71.3000000000% 95.7434402332%}
+#opening #opening-search-actions button:disabled .search-button-art > i:nth-child(1){background-size:4266.6666666667% 4387.5000000000%;background-position:33.9000000000% 89.9125364431%}
+#opening #opening-search-actions button:disabled .search-button-art > i:nth-child(2){background-size:2048.0000000000% 4387.5000000000%;background-position:37.2689938398% 89.9125364431%}
+#opening #opening-search-actions button:disabled .search-button-art > i:nth-child(3){background-size:4266.6666666667% 4387.5000000000%;background-position:41.3000000000% 89.9125364431%}
+#opening #opening-search-actions button:disabled .search-button-art > i:nth-child(4){background-size:4266.6666666667% 2925.0000000000%;background-position:33.9000000000% 93.3333333333%}
+#opening #opening-search-actions button:disabled .search-button-art > i:nth-child(5){background-size:2048.0000000000% 2925.0000000000%;background-position:37.2689938398% 93.3333333333%}
+#opening #opening-search-actions button:disabled .search-button-art > i:nth-child(6){background-size:4266.6666666667% 2925.0000000000%;background-position:41.3000000000% 93.3333333333%}
+#opening #opening-search-actions button:disabled .search-button-art > i:nth-child(7){background-size:4266.6666666667% 4387.5000000000%;background-position:33.9000000000% 95.7434402332%}
+#opening #opening-search-actions button:disabled .search-button-art > i:nth-child(8){background-size:2048.0000000000% 4387.5000000000%;background-position:37.2689938398% 95.7434402332%}
+#opening #opening-search-actions button:disabled .search-button-art > i:nth-child(9){background-size:4266.6666666667% 4387.5000000000%;background-position:41.3000000000% 95.7434402332%}
+#opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options) .menu-button-art{background-size:533.3333333333% 1139.6103896104%;background-position:46.7548076923% 74.3910056215%}
+#opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options):active:not(:disabled) .menu-button-art{background-size:533.3333333333% 1139.6103896104%;background-position:23.4375000000% 74.3910056215%}
+@media(min-width:970px) and (min-height:501px) {
+#opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options) { container-type:size; }
+#opening .menu-button-art { inset:auto; left:50%; top:50%; translate:-50% -50%; width:min(100cqw,calc(100cqh * 1344 / 294)); height:min(100cqh,calc(100cqw * 294 / 1344)); }
+#opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options) .menu-button-art{background-size:304.7619047619% 1193.8775510204%;background-position:0.1453488372% 95.8955223881%}
+#opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options):hover:not(:disabled) .menu-button-art{background-size:304.7619047619% 1193.8775510204%;background-position:49.2732558140% 86.5049751244%}
+#opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options):focus-visible:not(:disabled) .menu-button-art{background-size:304.7619047619% 1193.8775510204%;background-position:0.1453488372% 86.5049751244%}
+#opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options):active:not(:disabled) .menu-button-art{background-size:304.7619047619% 1193.8775510204%;background-position:98.4011627907% 86.5049751244%}
+#opening :is(#opening-play,#opening-online,#opening-retry,#opening-history,#opening-options):disabled .menu-button-art{background-size:304.7619047619% 1193.8775510204%;background-position:84.7383720930% 74.0671641791%}
+}

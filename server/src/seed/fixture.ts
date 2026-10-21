@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { generateGame, mulberry32 } from '../seedGame.ts';
+import { generateGame,mulberry32 } from '../seedGame.ts';
 import type { SeedConfig } from './config.ts';
 
 export const FIXTURE = 'damka-demo-v2';
