@@ -1,6 +1,12 @@
 /* Selection-only layer. No pointer/press transforms; fixed button hitbox.
    Touch moves only the rendered disk, never this composite or labels/stats. */
 #opening .gate-piece-visual { position:absolute; inset:0; display:block; pointer-events:none; }
+#opening .gate-piece-slot[aria-pressed="true"]:not([data-art="animated"]) .gate-piece-visual::before {
+ content:''; position:absolute; left:50%; translate:-50% 0;
+ width:calc(var(--piece) * 852 / 724); height:calc(var(--piece) * 980 / 724);
+ top:calc(var(--piece) * -256 / 724);
+ background:url('./assets/siege/menu-selection-fire-still.webp') center / contain no-repeat;
+}
 #opening .gate-piece-visual canvas {
  width:calc(var(--piece) * 852 / 724);
  height:calc(var(--piece) * 980 / 724); top:calc(var(--piece) * -256 / 724);

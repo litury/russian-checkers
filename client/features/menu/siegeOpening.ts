@@ -17,7 +17,9 @@ export function mountSiegeOpening(root: HTMLElement, isPlayRequested: () => bool
  const touchMoving = () => touch.white.moving || touch.black.moving;
  const buttons = [...root.querySelectorAll<HTMLButtonElement>('.gate-piece-slot')];
  // CSS atlas endpoints own first paint and selection while animation layers load.
- let decorationsStarted = false;
+ const loading = new Set<SiegeSide>();
+ let idle: number | undefined;
+ let idleTimer: ReturnType<typeof setTimeout> | undefined;
  const painters: Partial<Record<SiegeSide, (displacement: number) => void>> = {};
  let frame = 0, previous = 0, disposed = false;
  let fire: HTMLImageElement[] = [], elapsed = 0, burst = 0, lastPaint = -Infinity;
@@ -25,15 +27,6 @@ export function mountSiegeOpening(root: HTMLElement, isPlayRequested: () => bool
   if (root.hidden || document.hidden || side !== state.side || !fire.length) return;
   drawMenuFire(context, fire[0], elapsed, burst, media.matches);
  };
- const loadFire = () => {
-  if (!decorationsStarted || fire.length || fireLoading) return;
-  fireLoading = true;
-  void Promise.all(fireUrls.map(decode)).then(images => {
-   if (disposed) return;
-   fire = images; wake();
-  }).catch(() => {});
- };
- let fireLoading = false;
  const paint = () => {
   for (const side of ['white', 'black'] as const) painters[side]?.(state.displacement(side));
  };
@@ -61,7 +54,7 @@ export function mountSiegeOpening(root: HTMLElement, isPlayRequested: () => bool
   if (next !== state.side && !media.matches) burst = MENU_FIRE.ignitionMs;
   if (media.matches) burst = 0;
   state.select(next, media.matches);
-  loadFire();
+  tryDecorations();
   // aria-pressed selects the matching atlas endpoint synchronously in CSS.
   paint();
   wake();
@@ -87,17 +80,20 @@ export function mountSiegeOpening(root: HTMLElement, isPlayRequested: () => bool
   button.addEventListener('click', choose);
   button.addEventListener('keydown', keyboard);
  }
- const startDecorations = () => {
-  if (disposed || decorationsStarted || root.hidden || root.inert) return;
-  decorationsStarted = true;
-  for (const button of buttons) {
-  const side = button.dataset.side as SiegeSide;
-  // Only six small source layers; no frame sequence fetched. Latest state wins on decode.
-  void Promise.all(['base', 'moving', 'front'].map(name => decode(layers[`./assets/siege/${side}-${name}.webp`]))).then(images => {
+ const loadSide = (side: SiegeSide) => {
+  if (disposed || root.hidden || root.inert || isPlayRequested() || painters[side] || loading.has(side)) return;
+  const button = buttons.find(button => button.dataset.side === side);
+  if (!button) return;
+  loading.add(side);
+  void Promise.all([
+   ...['base', 'moving', 'front'].map(name => decode(layers[`./assets/siege/${side}-${name}.webp`])),
+   decode(fireUrls[0]),
+  ]).then(images => {
    if (disposed) return;
    const canvas = button.querySelector('canvas')!;
    const context = canvas.getContext('2d');
    if (!context) return;
+   fire = [images[3]];
    painters[side] = displacement => {
     context.clearRect(0, 0, MENU_FIRE.canvasWidth, MENU_FIRE.canvasHeight);
     context.save();
@@ -116,17 +112,22 @@ export function mountSiegeOpening(root: HTMLElement, isPlayRequested: () => bool
    painters[side]!(state.displacement(side));
    canvas.hidden = false;
    button.querySelector<HTMLElement>('.gate-piece')!.hidden = true;
+   button.dataset.art = 'animated';
    wake();
-  }).catch(() => { if (!disposed) button.dataset.art = 'static'; });
-  }
-  loadFire();
+   if (side === state.side && idle === undefined && idleTimer === undefined) {
+    const warmOtherSide = () => {
+     idle = undefined; idleTimer = undefined;
+     loadSide(state.side === 'white' ? 'black' : 'white');
+    };
+    if ('requestIdleCallback' in window) idle = window.requestIdleCallback(warmOtherSide, { timeout: 1500 });
+    else idleTimer = setTimeout(warmOtherSide, 250);
+   }
+  }).catch(() => { if (!disposed) button.dataset.art = 'static'; })
+   .finally(() => loading.delete(side));
  };
  const tryDecorations = () => {
-  if (isPlayRequested()) return;
-  if (typeof window !== 'undefined' && !window.__damkaPerf?.marks['playfield-ready']) return;
-  startDecorations();
+  loadSide(state.side);
  };
- document.addEventListener('damka:playfield-ready', tryDecorations);
  tryDecorations();
  root.addEventListener('siege-side', update);
  const contact = (event: Event) => {
@@ -137,20 +138,22 @@ export function mountSiegeOpening(root: HTMLElement, isPlayRequested: () => bool
  };
  root.addEventListener('menu-touch', contact);
  media.addEventListener('change', update);
- document.addEventListener('visibilitychange', wake);
+ const resume = () => { if (!document.hidden) tryDecorations(); wake(); };
+ document.addEventListener('visibilitychange', resume);
  const observer = new MutationObserver(() => { tryDecorations(); wake(); });
  observer.observe(root, { attributes: true, attributeFilter: ['hidden', 'inert'] });
  return () => {
   disposed = true;
+  if (idle !== undefined) window.cancelIdleCallback(idle);
+  clearTimeout(idleTimer);
   fire = [];
   for (const side of ['white', 'black'] as const) delete painters[side];
   cancelAnimationFrame(frame);
   observer.disconnect();
   root.removeEventListener('siege-side', update);
-  document.removeEventListener('damka:playfield-ready', tryDecorations);
   root.removeEventListener('menu-touch', contact);
   media.removeEventListener('change', update);
-  document.removeEventListener('visibilitychange', wake);
+  document.removeEventListener('visibilitychange', resume);
   for (const button of buttons) {
    button.removeEventListener('click', choose);
    button.removeEventListener('keydown', keyboard);
