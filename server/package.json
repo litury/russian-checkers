@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "../node_modules/.bin/tsx watch --tsconfig tsconfig.json src/index.ts",
+    "dev": "node ../tools/dev.mjs api",
     "start": "../node_modules/.bin/tsx --tsconfig tsconfig.json src/index.ts",
     "typecheck": "tsc -p tsconfig.json",
     "seed": "../node_modules/.bin/tsx --tsconfig tsconfig.json src/seed.ts"

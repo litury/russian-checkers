@@ -297,6 +297,36 @@ export class GameScene extends Phaser.Scene {
 		this.title.flushPendingPlay();
 		this.title.flushPendingOnline();
 		this.sdk.ready();
+		if (import.meta.env.DEV) {
+			void import('./dev/scenarios')
+				.then(({ runDevScenario }) =>
+					runDevScenario({
+						ready: () => this.interactiveReady,
+						start: async () => {
+							this.session.preview = true;
+							this.session.online = false;
+							this.network.cancelSearch();
+							await this.startMatch();
+						},
+						configure: (position, bankMs) => {
+							this.stopCountdown();
+							this.bot.cancel();
+							this.session.position = position;
+							this.session.humanSide = 'white';
+							this.session.phase = 'human';
+							this.session.posKeys = [hashPosition(position)];
+							this.clock.banks = { white: bankMs, black: bankMs };
+							this.clock.startedAt = this.time.now;
+							this.title.hide(true);
+							this.title.beginMatch();
+							this.hud?.finishReveal();
+							this.refresh();
+						},
+						result: (winner) => this.endMatch(winner),
+					}),
+				)
+				.catch((error) => console.error('Dev scenario failed', error));
+		}
 	}
 
 	/**
