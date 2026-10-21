@@ -1,5 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { createServer } from 'node:http';
+import type { Duplex } from 'node:stream';
 import type { Pool } from 'pg';
 import type { MatchService } from '../matches/service.ts';
 import { acceptWebsocket } from '../wsRaw.ts';
@@ -15,6 +16,7 @@ export function createApiServer(
 	matches: MatchService,
 	routes: Route[],
 ) {
+	const upgradedSockets = new Set<Duplex>();
 	const server = createServer(async (req, res) => {
 		if (req.method === 'OPTIONS') {
 			res.writeHead(204, {
@@ -58,7 +60,18 @@ export function createApiServer(
 				if (context.player && sock) matches.disconnect(context.player, sock);
 			},
 		);
-if (!sock) socket.destroy();
+		if (!sock) socket.destroy();
+		else {
+			upgradedSockets.add(socket);
+			socket.once('close', () => {
+				upgradedSockets.delete(socket);
+			});
+		}
 	});
-return server;
+	return Object.assign(server, {
+		closeWebSockets() {
+			for (const socket of upgradedSockets) socket.destroy();
+			upgradedSockets.clear();
+		},
+	});
 }

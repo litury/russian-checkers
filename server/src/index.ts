@@ -34,6 +34,7 @@ const shutdown = () => {
 	if (stopping) return;
 	stopping = true;
 	matches.dispose();
+	server.closeWebSockets();
 	server.close(() => {
 		void pool.end();
 	});
