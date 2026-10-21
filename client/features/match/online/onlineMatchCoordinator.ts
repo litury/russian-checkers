@@ -332,7 +332,9 @@ export class OnlineMatchCoordinator {
 		this.session.selected = null;
 		if (snap.begun) this.finishOnlineOpening();
 		if (
-			!this.session.countingIn && snap.begun
+			!this.session.countingIn &&
+			snap.begun &&
+			this.session.phase !== 'title'
 		) {
 			this.session.phase =
 				this.serverTurn === this.session.humanSide ? 'human' : 'bot';
@@ -356,8 +358,10 @@ export class OnlineMatchCoordinator {
 		this.lastPly = snap.ply;
 		this.serverTurn = snap.turn;
 		if (snap.pieces.length) this.session.position = positionFromSnapshot(snap);
-this.session.phase =
+		if (this.session.phase !== 'title') {
+			this.session.phase =
 				this.serverTurn === this.session.humanSide ? 'human' : 'bot';
+		}
 		this.finishOnlineOpening();
 		this.applyAuthoritativeClocks(snap);
 		this.ui.paintClock();
@@ -377,7 +381,7 @@ this.session.phase =
 		this.session.humanChain = null;
 		this.session.selected = null;
 		if (snap.begun) this.finishOnlineOpening();
-		if (!this.session.countingIn) {
+		if (!this.session.countingIn && this.session.phase !== 'title') {
 			this.session.phase = !snap.begun
 				? this.session.phase
 				: this.serverTurn === this.session.humanSide
