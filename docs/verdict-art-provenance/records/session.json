@@ -7,10 +7,10 @@
   "call_budget_reserved": true,
   "status": "completed; single call consumed; no retries",
   "references_inspected_with_view_image": [
-    "src/client/app/ui/bunker/panel-own-face-prepared.webp",
-    "src/client/app/ui/siege/cassette-title.png",
-    "src/client/app/ui/siege/button-steel-desk-rest.webp",
-    "src/client/app/ui/siege/panel-revision2/frame.png"
+    "client/app/ui/bunker/panel-own-face-prepared.webp",
+    "client/app/ui/siege/cassette-title.png",
+    "client/app/ui/siege/button-steel-desk-rest.webp",
+    "client/app/ui/siege/panel-revision2/frame.png"
   ],
   "project_AGENTS_found": false,
   "calls_attempted": 1,

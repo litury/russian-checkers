@@ -15,7 +15,7 @@
     255
   ],
   "references": [
-    "src/client/app/ui/verdict/title.webp",
+    "client/app/ui/verdict/title.webp",
     "docs/preview-t_1577b2be/wide-title/wide-title-original.png"
   ],
   "prompt_file": "prompt.txt",

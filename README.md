@@ -1,33 +1,71 @@
-# russian-checkers
+# Русские шашки
 
-2D Russian draughts for [Yandex Games](https://yandex.com/games). Phaser 4 client. Slice 1 is a local game against a bot. No multiplayer server and no marketing site in this slice.
+Браузерная игра на Phaser 4 и TypeScript. Есть партия с ботом, онлайн через
+собственный Node.js API, игровые часы, профиль и история матчей.
+Сервер использует PostgreSQL; правила игры общие для клиента и API.
 
-## Rules (Russian draughts)
+## Запуск
 
-- Capture is mandatory, including backward capture
-- Flying kings
-- Turkish strike (continue capturing with the same piece)
+Нужны Node.js 22.12+ и npm. Для API нужна отдельная PostgreSQL-база.
 
-## Slice 1
+```sh
+npm ci
+npm --prefix server ci
+npm run dev
+```
 
-In:
+Последняя команда запускает клиент. Настройка БД, запуск API и остановка — в
+[инструкции для macOS](docs/development/localSetup.md).
+API автоматически применяет миграции, поэтому не подключайте его к рабочей БД.
+Для клиента и API вместе: заполните `.env.local` по `.env.example` и выполните
+`npm run dev:all`. PostgreSQL запускается отдельно. Команда `npm run dev:api`
+запускает только API с перезапуском после изменений.
 
-- Rules engine
-- Greybox table, legal-move highlights, first click without a rules wall of text
-- Game vs bot (legal moves only; captures if any exist; otherwise random legal)
-- Yandex Game Ready without login; interstitial only after a match
+## Сборка и проверка типов
 
-Out: WebSocket rooms, hotseat, landing/Next, bot ladder, rating, skins, chat, tutorial.
+```sh
+npm run verify
+npm run check
+```
 
-## Run
+Клиентская сборка создаётся в `dist`. Автоматические тесты и их инструменты
+удалены; игровые сценарии после правок проверяются вручную.
+В общем lint остаётся ранее накопленный долг; сборка и типизация от него не отключены.
+Для постоянной проверки типов в отдельном терминале: `npm run typecheck:watch`.
 
-Install JS dependencies, then use the package scripts:
+## Структура
 
-- `dev` — Vite dev server. Locally the Yandex SDK script is missing, so Game Ready is stubbed and ads are skipped.
-- `test` — Vitest
-- `check` — Biome format and lint
-- `build` — typecheck and write static `dist/` for a later Yandex ZIP
+- `client/` — игра в браузере: сцена, доска, бот, интерфейс, звук и сетевой клиент.
+- `server/` — API, WebSocket, комнаты, PostgreSQL и миграции.
+- `shared/` — общие правила шашек и сетевые модели; без браузера и базы данных.
+- `assets/` — исходники оформления и сведения о ресурсах; не включаются в сборку.
+- `tools/` — совместный dev-запуск, прокси Vite и проверка границ модулей.
+- `docs/` — описание устройства игры, запуска и ресурсов.
 
-## License
+`index.html` — входная страница и HTML-интерфейс меню. `vite.config.ts` собирает
+клиент, `Dockerfile` и `nginx.conf` нужны только для контейнерной раздачи сайта;
+`Dockerfile.api` и `docker-compose.yml` — для API и БД.
 
-MIT
+## Как устроена игра
+
+1. `index.html` и `client/app/bootstrap.ts` запускают лёгкое HTML-меню и настройки.
+   Phaser из `client/app/main.ts` загружается отдельно после первого показа меню.
+2. `main.ts` создаёт Phaser и сцену `client/features/match/gameScene.ts`.
+3. Сцена связывает `MatchSession`, `MatchInteraction`, `MatchClock`, `MatchResources`,
+   онлайн-координатор и представления. Легальность ходов определяет `shared/rules`.
+4. В онлайн-режиме `client/platform/network` связывается с `server/src/index.ts`.
+   Сервер проверяет ходы теми же правилами и сохраняет результат в PostgreSQL.
+
+Подробнее о том, где менять доску, таймеры и кнопки, — в [архитектуре](docs/architecture.md).
+
+## Документация
+
+- [Архитектура](docs/architecture.md) и [соглашения](docs/conventions.md).
+- [Рабочие команды и dev-сценарии](docs/development/workflow.md).
+- [Правила и игровой интерфейс](docs/game-design.md).
+- [Исходники и происхождение ресурсов](docs/assets/README.md).
+
+## Лицензия
+
+Код — MIT. Сторонние шрифты распространяются на условиях их собственных лицензий,
+сохранённых в `client/fonts`; лицензия кода их не заменяет.
