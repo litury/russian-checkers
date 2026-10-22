@@ -11,6 +11,7 @@ export function createOnlineHub(actions: {
 }) {
  const dialog = document.createElement('dialog');
  dialog.id = 'online-hub';
+ dialog.dataset.art = 'loading';
  dialog.setAttribute('aria-labelledby', 'online-hub-title');
  dialog.innerHTML = `<div class="oh-panel">
   <header class="oh-header"><div class="oh-title-plate"><p class="oh-eyebrow">Игра по сети</p><h2 id="online-hub-title" tabindex="-1">Онлайн</h2></div><button type="button" class="oh-button" data-action="cancel"><span>В меню</span></button></header>
@@ -31,23 +32,20 @@ export function createOnlineHub(actions: {
  const focusReturn = () => document.getElementById('opening-online')?.focus({preventScroll: true});
  const open = () => {
   if (disposed || dialog.open || leaving || !wanted) return;
-  if (!prepared) {
-   if (preparing) return;
-   preparing = true;
-   void prepareOnlineHubArt().then(ok => {
-    preparing = false;
-    if (disposed || !wanted) return;
-    prepared = true;
-    dialog.setAttribute('data-art', ok ? 'ready' : 'unavailable');
-    open();
-    prepared = ok;
-   });
-   return;
-  }
   history.pushState({...history.state, onlineHub: navigationKey}, '');
   dialog.showModal();
   uiSfx('ui-open');
   title.focus({preventScroll: true});
+  if (!prepared && !preparing) {
+   preparing = true;
+   dialog.dataset.art = 'loading';
+   void prepareOnlineHubArt().then(ok => {
+    preparing = false;
+    if (disposed) return;
+    dialog.setAttribute('data-art', ok ? 'ready' : 'unavailable');
+    prepared = ok;
+   });
+  }
  };
  const close = () => {
   if (!dialog.open) return;
