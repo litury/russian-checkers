@@ -24,6 +24,7 @@
 | --- | --- |
 | Запуск и HTML-меню | `index.html`, `client/features/menu/siegeOpeningBootstrap.ts` |
 | Выбор соперника, сложность и приглашения | `client/features/menu/menuNavigation.ts`, `client/features/menu/playMenu.css` |
+| Профиль, разделы и Back/Forward | `client/features/profile/profileNavigation.ts`, `client/features/profile/matchHistoryUi.ts` |
 | Композиция Phaser и представлений | `client/features/match/gameScene.ts` |
 | Состояние, история и отмена | `client/features/match/matchSession.ts` |
 | Выбор фигуры, ход, анимация и ответ бота | `client/features/match/matchInteraction.ts` |
