@@ -169,28 +169,6 @@ export class OnlineMatchCoordinator {
 		await this.live.connect();
 	}
 
-	stayInSearch(): void {
-		if (!this.live?.isOpen()) {
-			this.markSearchOffline();
-			return;
-		}
-		this.beginSearchUi('waiting');
-	}
-
-	searchPlayBot(): void {
-		this.generation++;
-		this.live?.leave();
-		this.live?.close();
-		this.live = null;
-		this.searchPhase = 'idle';
-		this.stopSearchTicker();
-		this.ui.clearSearch();
-		this.session.online = false;
-		this.session.humanSide = this.ui.humanSide();
-		if (window.checkersStartup) window.checkersStartup.source = 'play';
-		void this.ui.start();
-	}
-
 	async requestOnline(
 		kind: 'queue' | 'host' | 'join' = 'queue',
 		matchId = '',
@@ -202,7 +180,7 @@ export class OnlineMatchCoordinator {
 				? 'searching'
 				: kind === 'host'
 					? 'friend-wait'
-					: 'friend-enter',
+					: 'friend-joining',
 		);
 		const healthy = await probeApi();
 		if (this.disposed || generation !== this.generation) return;
@@ -213,18 +191,19 @@ export class OnlineMatchCoordinator {
 		this.live?.close();
 		this.live = openLive({
 			onQueued: () => {
+				if (this.disposed || generation !== this.generation) return;
 				if (this.searchPhase === 'timeout-offer') return;
 				this.searchPhase = 'waiting';
 				this.paintSearch();
 			},
 			onHosted: (_id, code) => {
+				if (this.disposed || generation !== this.generation) return;
 				this.friendJoin = code && /^\d{6}$/.test(code) ? code : '';
 				this.searchPhase = 'friend-wait';
 				this.paintSearch();
-				if (this.friendJoin)
-					void navigator.clipboard?.writeText(this.friendJoin).catch(() => {});
 			},
 			onStart: (color, _matchId, snap) => {
+				if (this.disposed || generation !== this.generation) return;
 				if (this.session.phase !== 'title') {
 					this.applyResume(color, snap);
 					return;
@@ -271,6 +250,7 @@ export class OnlineMatchCoordinator {
 				this.ui.end(side, reason);
 			},
 			onError: (error) => {
+				if (this.disposed || generation !== this.generation) return;
 				this.session.pendingHaptic = null;
 				if (error === 'illegal') {
 					this.live?.requestState();

@@ -1,4 +1,16 @@
-export type SearchPhase = 'idle' | 'searching' | 'waiting' | 'found' | 'offline' | 'timeout-offer' | 'friend-wait' | 'friend-pick' | 'friend-enter' | 'friend-miss' | 'online-hub';
+export type SearchPhase =
+	| 'idle'
+	| 'searching'
+	| 'waiting'
+	| 'found'
+	| 'offline'
+	| 'timeout-offer'
+	| 'friend-wait'
+	| 'friend-enter'
+	| 'friend-miss'
+	| 'friend-invalid'
+	| 'friend-joining'
+	| 'human-menu';
 
 export const SEARCH_TIMEOUT_MS = 45_000;
 export const FOUND_HOLD_MS = 800;
@@ -6,45 +18,39 @@ export const FOUND_HOLD_MS = 800;
 export type SearchView = {
 	title: string;
 	showCancel: boolean;
-	showStay: boolean;
 	showBot: boolean;
 	hidePlay: boolean;
-	showCreate?: boolean;
-	showEnter?: boolean;
-	showCode?: boolean;
-	showFind?: boolean;
 };
 
-export function searchCopy(phase: SearchPhase, seconds: number, join = ''): SearchView {
-	if (phase === 'searching') {
-		return {title: `Ищем соперника · ${seconds} с`, showCancel: true, showStay: false, showBot: false, hidePlay: true};
-	}
-	if (phase === 'waiting') {
-		return {title: `Ждём второго игрока · ${seconds} с`, showCancel: true, showStay: false, showBot: false, hidePlay: true};
-	}
-	if (phase === 'found') {
-		return {title: 'Соперник найден', showCancel: false, showStay: false, showBot: false, hidePlay: true};
-	}
-	if (phase === 'offline') {
-		return {title: 'Нет связи с сервером', showCancel: true, showStay: false, showBot: false, hidePlay: false, showFind: true};
-	}
-	if (phase === 'timeout-offer') {
-		return {title: 'Пока никого', showCancel: false, showStay: true, showBot: true, hidePlay: true};
-	}
-	if (phase === 'friend-wait') {
-		return {title: join ? `Ждём друга · ${join}` : 'Ждём друга', showCancel: true, showStay: false, showBot: false, hidePlay: true};
-	}
-	if (phase === 'online-hub') {
-		return {title: 'Онлайн', showCancel: true, showStay: false, showBot: false, hidePlay: true, showFind: true, showCreate: true, showEnter: true};
-	}
-	if (phase === 'friend-pick') {
-		return {title: 'С другом', showCancel: true, showStay: false, showBot: false, hidePlay: true, showCreate: true, showEnter: true};
-	}
-	if (phase === 'friend-enter') {
-		return {title: 'Введите код', showCancel: true, showStay: false, showBot: false, hidePlay: true, showCode: true};
-	}
-	if (phase === 'friend-miss') {
-		return {title: 'нет комнаты', showCancel: true, showStay: false, showBot: false, hidePlay: true, showCode: true};
-	}
-	return {title: '', showCancel: false, showStay: false, showBot: false, hidePlay: false};
+export function searchCopy(phase: SearchPhase): SearchView {
+	const active = {
+		showCancel: true,
+		showBot: false,
+		hidePlay: true,
+	};
+	if (phase === 'searching' || phase === 'waiting')
+		return { ...active, title: 'Ищем соперника…' };
+	if (phase === 'found')
+		return { ...active, title: 'Соперник найден', showCancel: false };
+	if (phase === 'offline')
+		return { ...active, title: 'Нет связи с сервером', hidePlay: false };
+	if (phase === 'timeout-offer')
+		return {
+			...active,
+			title: 'Соперник пока не найден',
+			showBot: true,
+		};
+	if (phase === 'friend-wait') return { ...active, title: 'Ждём друга' };
+	if (phase === 'human-menu') return { ...active, title: 'С человеком' };
+	if (phase === 'friend-enter') return { ...active, title: 'Введите код' };
+	if (phase === 'friend-miss')
+		return { ...active, title: 'Приглашение не найдено' };
+	if (phase === 'friend-invalid') return { ...active, title: 'Введите 6 цифр' };
+	if (phase === 'friend-joining') return { ...active, title: 'Подключаемся…' };
+	return {
+		title: '',
+		showCancel: false,
+		showBot: false,
+		hidePlay: false,
+	};
 }

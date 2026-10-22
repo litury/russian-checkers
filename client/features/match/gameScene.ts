@@ -226,7 +226,7 @@ export class GameScene extends Phaser.Scene {
 				void this.requestStartFromOpening();
 			},
 			onPlayOnline: () => {
-				this.network.beginSearchUi('online-hub');
+				this.network.beginSearchUi('human-menu');
 			},
 			onSearchFind: () => {
 				void this.network.requestOnline();
@@ -240,7 +240,9 @@ export class GameScene extends Phaser.Scene {
 			onFriendJoin: (code) => {
 				const digits = code.replace(/\D/g, '').slice(0, 6);
 				if (!/^\d{6}$/.test(digits) || digits === '000000') {
-					this.network.searchPhase = 'friend-miss';
+					this.network.searchPhase = /^\d{6}$/.test(digits)
+						? 'friend-miss'
+						: 'friend-invalid';
 					this.network.paintSearch();
 					return;
 				}
@@ -248,8 +250,6 @@ export class GameScene extends Phaser.Scene {
 				uiSfx('ui-tap');
 			},
 			onSearchCancel: () => this.network.cancelSearch(),
-			onSearchStay: () => this.network.stayInSearch(),
-			onSearchBot: () => this.network.searchPlayBot(),
 		});
 		this.actions = bindMatchActions({
 			undo: () => this.interaction.undoBot(),

@@ -1,8 +1,10 @@
-import { requiredElement as byId } from '@/client/platform/browser/dom';
 import { bindDialogNavigation } from '@/client/platform/browser/dialogNavigation';
+import { requiredElement as byId } from '@/client/platform/browser/dom';
 import type {} from './startupContract';
 
-const rulesNavigation = bindDialogNavigation(byId<HTMLDialogElement>('opening-help-dialog'));
+const rulesNavigation = bindDialogNavigation(
+	byId<HTMLDialogElement>('opening-help-dialog'),
+);
 if (import.meta.hot) import.meta.hot.dispose(rulesNavigation.dispose);
 window.checkersFlavor = { setState() {} };
 window.checkersRules = {
@@ -18,11 +20,9 @@ byId('opening-retry').onclick = () => location.reload();
 const play = byId<HTMLButtonElement>('opening-play');
 const online = byId<HTMLButtonElement>('opening-online');
 const setCta = (button: HTMLButtonElement, name: string, busy: boolean) => {
-	const label =
-		button.querySelector && button.querySelector('.opening-cta-label');
+	const label = button.querySelector('.opening-cta-label');
 	const text = busy ? 'Загрузка…' : name;
 	if (label) label.textContent = text;
-	else if (button === play && text === 'С ботом') play.textContent = 'С ботом';
 	else button.textContent = text;
 	button.disabled = busy;
 	button.setAttribute('aria-busy', busy ? 'true' : 'false');
@@ -37,7 +37,7 @@ window.checkersStartup = {
 		window.checkersStartup.framePresented = true;
 		// Record a native activation during the remaining module wait. Busy is not
 		// ready: do not promise the engine until import resolves, or lose the tap.
-		setCta(play, 'С ботом', false);
+		setCta(play, 'Начать партию', false);
 		play.disabled = false;
 		online.disabled = false;
 		window.checkersStartup.unlock();
@@ -71,9 +71,11 @@ window.checkersStartup = {
 		byId('opening-loading-status').textContent = message;
 		byId('opening-mode-status').textContent = message;
 		byId('opening-mode-status').hidden = false;
-		setCta(play, 'С ботом', false);
+		setCta(play, 'Начать партию', false);
 		play.disabled = true;
 		play.hidden = true;
+		setCta(online, 'С человеком', false);
+		online.disabled = true;
 		byId('opening-retry').hidden = false;
 	},
 	// Ready means both a presented menu and an evaluated engine module.
@@ -92,7 +94,7 @@ window.checkersStartup = {
 			window.checkersStartup.waitPlay();
 			return;
 		}
-		setCta(play, 'С ботом', false);
+		setCta(play, 'Начать партию', false);
 		play.hidden = false;
 		byId('opening-retry').hidden = true;
 		if (window.checkersStartup.pendingOnline)
@@ -100,7 +102,7 @@ window.checkersStartup = {
 	},
 	waitPlay() {
 		const armed = window.checkersStartup.source === 'online' ? online : play;
-		const name = armed === online ? 'Онлайн' : 'С ботом';
+		const name = armed === online ? 'С человеком' : 'Начать партию';
 		if (armed.hidden) return;
 		window.checkersStartup.playCommitted = true;
 		setCta(armed, name, true);
@@ -113,7 +115,7 @@ window.checkersStartup = {
 		if (online.hidden) return;
 		window.checkersStartup.source = 'online';
 		window.checkersStartup.pendingOnline = true;
-		setCta(online, 'Онлайн', true);
+		setCta(online, 'С человеком', true);
 		window.checkersStartup.status('Загружаем доску и шашки…');
 		byId('opening-status').hidden = true;
 		byId('opening-error').hidden = true;
@@ -126,7 +128,7 @@ window.checkersStartup = {
 				window.checkersStartup.source !== 'online')
 		)
 			return;
-		setCta(play, 'С ботом', false);
+		setCta(play, 'Начать партию', false);
 	},
 	idleOnline() {
 		if (
@@ -135,7 +137,7 @@ window.checkersStartup = {
 				window.checkersStartup.source === 'online')
 		)
 			return;
-		setCta(online, 'Онлайн', false);
+		setCta(online, 'С человеком', false);
 	},
 	ready() {
 		// Engine module is present. Hide the load banner; do not announce a finished match.
@@ -191,7 +193,7 @@ window.checkersStartup = {
 			};
 			if (label)
 				label.textContent =
-					stageLabels[message] || 'Загрузка ' + message.split(': ')[1];
+					stageLabels[message] || `Загрузка ${message.split(': ')[1]}`;
 		}
 	},
 };

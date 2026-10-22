@@ -82,38 +82,64 @@ html[data-menu-presentation="loading"] #menu-loading {
     </section>
    </div>
   </div>
-  <section id="opening-search" class="search-panel" aria-labelledby="opening-search-copy" hidden>
-   <h2 id="opening-search-copy">Онлайн</h2>
-   <p id="opening-online-count" hidden><span id="opening-online-count-label"></span></p>
-   <div class="action-list">
-    <button id="opening-search-find" class="metal-button primary" type="button" hidden>Найти соперника</button>
-    <button id="opening-search-create" class="metal-button secondary" type="button" hidden>Создать комнату</button>
-    <button id="opening-search-enter" class="metal-button secondary" type="button" hidden>Ввести код</button>
-    <label id="opening-friend-code-label" for="opening-friend-code" hidden>Код комнаты</label>
-    <input id="opening-friend-code" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="6 цифр" aria-label="Код комнаты" hidden />
-    <button id="opening-search-go" class="metal-button primary" type="button" hidden>Войти по коду</button>
-    <button id="opening-search-stay" class="metal-button secondary" type="button" hidden>Подождать ещё</button>
-    <button id="opening-search-bot" class="metal-button secondary" type="button" hidden>Сыграть с ботом</button>
-    <button id="opening-search-cancel" class="metal-button secondary" type="button">Отмена</button>
-   </div>
-  </section>
   <p id="opening-loading-status" class="opening-sr-only" role="status" aria-live="polite" aria-atomic="true">Загрузка игры</p>
   <p id="opening-status" class="status" role="alert" hidden><span id="opening-error" hidden></span></p>
   <noscript><p>Для игры нужен JavaScript. Включите его в настройках браузера и обновите страницу.</p></noscript>
  </div>
 </main>
 <dialog id="opening-modes-dialog" aria-labelledby="opening-modes-title">
- <div class="dialog-panel">
-  <header class="dialog-header"><h2 id="opening-modes-title" tabindex="-1">Выбор режима</h2><button id="opening-modes-back" type="button" class="text-button">В меню</button></header>
-  <label class="bot-skill-label" for="opening-bot-skill">Сложность бота</label>
-  <select id="opening-bot-skill"><option value="easy">Лёгкий</option><option value="normal">Обычный</option><option value="hard">Сложный</option></select>
-  <nav class="action-list opening-actions" aria-label="Режим игры">
-   <button id="opening-play" class="metal-button primary" type="button" disabled aria-busy="true"><span class="opening-cta-label">С ботом</span></button>
-   <button id="opening-online" class="metal-button secondary" type="button"><span class="opening-cta-label">Онлайн</span></button>
-   <button id="opening-retry" class="metal-button primary" type="button" hidden>Повторить загрузку</button>
-  </nav>
+ <div class="menu-choice-surface play-menu-body">
+  <header class="play-menu-header"><h2 id="opening-modes-title" tabindex="-1">С кем играть?</h2></header>
+  <div id="opening-presence" hidden><p>Игроков на сайте: <output id="opening-site-count" aria-live="polite">Нет данных</output></p></div>
+  <p id="opening-online-loading" class="play-note" role="status" hidden>Загружаем сетевой режим…</p>
+  <section class="play-page action-list" data-play-page="choose">
+   <button id="opening-computer" class="metal-button primary" type="button">С компьютером</button>
+   <button id="opening-online" class="metal-button secondary" type="button"><span class="opening-cta-label">С человеком</span></button>
+  </section>
+  <section class="play-page" data-play-page="bot" hidden>
+   <fieldset class="bot-difficulty"><legend>Сложность</legend><div class="difficulty-options">
+    <label class="difficulty-option"><input type="radio" name="opening-bot-skill" value="easy" /><span class="skill-name">Лёгкая</span></label>
+    <label class="difficulty-option"><input type="radio" name="opening-bot-skill" value="normal" checked /><span class="skill-name">Обычная</span></label>
+    <label class="difficulty-option"><input type="radio" name="opening-bot-skill" value="hard" /><span class="skill-name">Сложная</span></label>
+   </div></fieldset>
+   <p id="opening-bot-rules" class="play-note play-metadata"></p>
+   <button id="opening-play" class="metal-button primary" type="button" disabled aria-busy="true"><span class="opening-cta-label">Начать партию</span></button>
+  </section>
+  <section class="play-page action-list" data-play-page="human" hidden>
+   <p class="play-note play-metadata play-online-rules"></p>
+   <button id="opening-search-find" class="metal-button primary" type="button">Найти соперника</button>
+   <button id="opening-friend" class="metal-button secondary" type="button">С другом</button>
+  </section>
+  <section class="play-page action-list" data-play-page="friend" hidden>
+   <button id="opening-search-create" class="metal-button primary" type="button">Создать приглашение</button>
+   <button id="opening-search-enter" class="metal-button secondary" type="button">Ввести код</button>
+  </section>
+  <section class="play-page" data-play-page="enter" hidden>
+   <form id="opening-friend-form" novalidate>
+    <label for="opening-friend-code">Код приглашения</label>
+    <input id="opening-friend-code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="off" placeholder="6 цифр" aria-describedby="opening-friend-error" required />
+    <p id="opening-friend-error" class="play-error" role="alert" hidden></p>
+    <button id="opening-search-go" class="metal-button primary" type="submit" disabled>Присоединиться</button>
+   </form>
+  </section>
+  <section class="play-page" data-play-page="room" hidden>
+   <p id="opening-room-status" class="play-note" role="status">Создаём приглашение…</p>
+   <div id="opening-room-code" hidden><p class="play-note">Код приглашения</p><output id="opening-room-digits"></output><div class="action-list">
+    <button id="opening-copy-code" class="metal-button secondary" type="button">Скопировать код</button>
+    <button id="opening-share-code" class="metal-button secondary" type="button" hidden>Поделиться ссылкой</button>
+   </div><p id="opening-copy-status" class="play-note" role="status"></p></div>
+  </section>
+  <section id="opening-search" class="play-page" data-play-page="search" hidden>
+   <p id="opening-search-copy" class="opening-sr-only" role="status"></p><p id="opening-search-elapsed" aria-label="Время поиска" aria-live="off" hidden></p>
+   <p id="opening-search-detail" class="play-note"></p><div class="action-list">
+    <button id="opening-search-bot" class="metal-button secondary" type="button" hidden>С компьютером</button>
+    <button id="opening-search-retry" class="metal-button primary" type="button" hidden>Повторить попытку</button>
+   </div>
+  </section>
+  <button id="opening-retry" class="metal-button primary" type="button" hidden>Повторить загрузку</button>
   <p id="opening-mode-status" class="status" role="status" hidden></p>
  </div>
+ <div class="menu-score-surface play-menu-footer"><button id="opening-modes-back" class="play-back" type="button">← Назад</button><button id="opening-search-cancel" class="play-back" type="button" hidden>Отменить поиск</button></div>
 </dialog>
 <dialog id="match-history" aria-labelledby="match-history-title">
  <div class="mh-panel">
@@ -202,11 +228,6 @@ html[data-menu-presentation="loading"] #menu-loading {
 <label class="settings-check"><input id="settings-vibration" type="checkbox" role="switch" />Вибрация</label>
 <label class="settings-check"><input id="settings-auto" type="checkbox" role="switch" checked aria-describedby="settings-auto-description" />Автоход</label>
 <p id="settings-auto-description">Выполнять ход автоматически, если доступен только один вариант.</p>
-<fieldset class="settings-bot"><legend id="settings-bot-label">Сложность бота</legend>
-<label class="settings-check"><input type="radio" name="settings-bot" id="settings-bot-easy" value="easy" />Лёгкий</label>
-<label class="settings-check"><input type="radio" name="settings-bot" id="settings-bot-normal" value="normal" checked />Норма</label>
-<label class="settings-check"><input type="radio" name="settings-bot" id="settings-bot-hard" value="hard" />Сложный</label>
-</fieldset>
 </section>
 
 

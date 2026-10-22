@@ -1,5 +1,5 @@
-import { requiredElement } from '@/client/platform/browser/dom';
 import { bindDialogNavigation } from '@/client/platform/browser/dialogNavigation';
+import { requiredElement } from '@/client/platform/browser/dom';
 import type { BotSkill, Settings } from './settings';
 
 const keys = {
@@ -11,7 +11,6 @@ const keys = {
 	botSkill: 'checkers.botSkill',
 } as const;
 const levels = ['master', 'music', 'effects'] as const;
-const skills: BotSkill[] = ['easy', 'normal', 'hard'];
 function read(key: keyof Settings): string | null {
 	try {
 		return localStorage.getItem(keys[key]);
@@ -51,8 +50,6 @@ function sync(): void {
 		requiredElement(`settings-${key}-value`).textContent =
 			`${Math.round(state[key] * 100)}%`;
 	}
-	for (const skill of skills)
-		input(`settings-bot-${skill}`).checked = state.botSkill === skill;
 }
 window.checkersSettings = {
 	get: () => ({ ...state }),
@@ -85,11 +82,6 @@ input('settings-auto').onchange = () =>
 	window.checkersSettings.set({ autoMove: input('settings-auto').checked });
 input('settings-muted').onchange = () =>
 	window.checkersSettings.set({ muted: input('settings-muted').checked });
-for (const skill of skills)
-	input(`settings-bot-${skill}`).onchange = () => {
-		if (input(`settings-bot-${skill}`).checked)
-			window.checkersSettings.set({ botSkill: skill });
-	};
 for (const key of ['music', 'effects'] as const)
 	input(`settings-${key}`).oninput = () => {
 		window.checkersSettings.set({
