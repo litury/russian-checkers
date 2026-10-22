@@ -24,7 +24,6 @@
 #opening .friend-code-frame:has(input[hidden]) { display:none; }
 #opening .friend-code-frame .chronicle-frame { --slice-x:14px; --slice-y:14px; }
 #opening #opening-friend-code { border-image:none; background:none; height:100%; }
-#opening .opening-sheet { mask-image:url('./atlas.webp'); mask-image:image-set(url('./atlas.webp') type('image/webp'), url('./atlas.avif') type('image/avif')); mask-mode:alpha; mask-repeat:no-repeat; mask-size:160.0000000000% 205.7444314185%; mask-position:0.2604166667% 0.2217294900%; }
 #opening .siege-housing > span{background-size:160.0000000000% 205.7444314185%;background-position:0.2604166667% 0.2217294900%}
 #opening .siege-cartouche{background-size:243.8095238095% 535.0609756098%;background-position:0.1655629139% 60.1962158374%}
 #opening .chronicle-left .chronicle-backplate{background-size:613.1736526946% 458.2245430809%;background-position:12.0186697783% 16.5451895044%}

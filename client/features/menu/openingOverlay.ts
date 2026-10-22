@@ -3,7 +3,6 @@ import { setSiegeSide, siegeSide } from './siegeSelection';
 import type Phaser from 'phaser';
 import {createMenuAudio} from '../../audio/menuAudio';
 import {uiSfx} from '../../audio/uiSfx';
-import {bindMatchHistory} from '../profile/matchHistoryUi';
 import {createOnlineHub} from './onlineHub';
 import {loadPresence, beatPresence} from '@/client/platform/network/cloud';
 
@@ -251,7 +250,6 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  const startPresence = startBeat;
  const cancelHubWarmup = warmOnlineHubArt();
  startPresence();
- bindMatchHistory();
  document.addEventListener('visibilitychange',visibilityChange);
  window.addEventListener('pagehide', pageHide);
  window.addEventListener('pageshow', startBeat);
