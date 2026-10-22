@@ -3,9 +3,8 @@ import type { Side } from '@/shared/rules';
 import { matchLayout, readSafeInsets } from '@/client/features/match/hud/matchLayout';
 import { playerPanelLayout } from '@/client/features/match/hud/playerPanelLayout';
 import { createBunkerPanel } from './bunkerPanel';
-import { PanelReveal, preparationMs } from '../../../platform/browser/panelReveal';
+import { PanelReveal, preparationMs, panelDurationMs } from '../../../platform/browser/panelReveal';
 import { matchActionGeometry } from '../actions/matchActionGeometry';
-import { panelDurationMs } from '../../menu/openingGates';
 import { clockFrame } from './clockFrame';
 
 export function clipPlayerName(raw: string): string {

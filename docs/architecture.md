@@ -34,7 +34,7 @@
 | Геометрия доски и панелей | `client/features/match/hud/matchLayout.ts`, `client/features/match/hud/playerPanelLayout.ts` |
 | Панели и часы | `client/features/match/hud/createHud.ts`, `client/features/match/matchClock.ts` |
 | Кнопки отмены и сдачи | `client/features/match/actions/matchActions.css`, `client/features/match/actions/assets` |
-| Графика главного меню | `client/features/menu/assets/opening-atlas`, `client/features/menu/assets/siege` |
+| Графика главного меню | `client/features/menu/assets/menu-controls`, `client/features/menu/assets/siege` |
 | Игровые звуки | `client/audio/menuAudio.ts`, `client/audio/assets` |
 | Подключение к онлайн-партии | `client/platform/network/live.ts`, `client/platform/network/cloud.ts` |
 | Запуск API | `server/src/index.ts` |

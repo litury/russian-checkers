@@ -1,4 +1,4 @@
-import { animateSiegeGates } from './siegeGateTransition';
+import { animateMenuDeparture, MenuTransition, menuDepartureMs, repeatMenuDepartureMs } from './menuTransition';
 import { setSiegeSide, siegeSide } from './siegeSelection';
 import type Phaser from 'phaser';
 import {createMenuAudio} from '../../audio/menuAudio';
@@ -7,9 +7,7 @@ import {createOnlineHub} from './onlineHub';
 import {loadPresence, beatPresence} from '@/client/platform/network/cloud';
 
 import {HEARTBEAT_MS} from '@/client/platform/network/presencePolicy';
-import {warmOnlineHubArt} from './onlineHubArt';
 import {notePlayIntent, playIntentEvent} from './playIntent';
-import {OpeningGates, gateDurationMs, repeatGateDurationMs} from './openingGates';
 import {searchCopy, type SearchPhase} from '../match/online/matchmakingSearch';
 
 import type {} from './startupContract';
@@ -85,11 +83,11 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
 
  const retry = document.getElementById('opening-retry')!;
  const motion = matchMedia('(prefers-reduced-motion: reduce)');
- const gates = new OpeningGates();
+ const gates = new MenuTransition();
  let departures = 0;
  const audio=createMenuAudio(scene.registry.get('sdk'));
  let firstShow = true;
- let visual: ReturnType<typeof animateSiegeGates> = null;
+ let visual: ReturnType<typeof animateMenuDeparture> = null;
  let frozenScroll: number | null = null;
  const holdScroll = () => { if (frozenScroll !== null) root.scrollTop = frozenScroll; };
  const releaseScroll = () => { frozenScroll = null; };
@@ -103,10 +101,10 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  const pauseScene = () => { scenePaused=true; syncPause(); };
  const resumeScene = () => { scenePaused=false; syncPause(); };
  const motionChange = () => {
-  if (motion.matches && gates.active) { audio.gate(gateDurationMs,true); gates.advance(gateDurationMs); }
+  if (motion.matches && gates.active) { audio.gate(menuDepartureMs,true); gates.advance(menuDepartureMs); }
  };
  const closeDialogs = () => {
-  for (const id of ['opening-help-dialog','opening-settings-dialog']) {
+  for (const id of ['opening-modes-dialog','opening-help-dialog','opening-settings-dialog']) {
    const dialog=document.getElementById(id) as HTMLDialogElement;
    if(dialog.open) dialog.close();
   }
@@ -139,7 +137,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   const elapsed = motion.matches ? gates.duration : visual?.elapsed ?? gates.duration;
   // Sound windows stay on the canonical gate timeline, so a compressed repeat
   // keeps its cues aligned instead of cutting them off.
-  audio.gate(elapsed * gateDurationMs / gates.duration,motion.matches);
+  audio.gate(elapsed * menuDepartureMs / gates.duration,motion.matches);
   gates.advance(elapsed - gates.elapsed);
  };
  const invoke = (event?: Event) => {
@@ -157,6 +155,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   notePlayIntent(event);
   window.checkersStartup.source = 'online';
   window.checkersStartup.pendingOnline = false;
+  document.querySelector<HTMLDialogElement>('#opening-modes-dialog')?.close();
   handlers.onPlayOnline?.();
  };
  window.checkersStartup.onlineIntent = invokeOnline;
@@ -189,6 +188,8 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   if (searchCreate) searchCreate.hidden = !view.showCreate;
   if (searchEnter) searchEnter.hidden = !view.showEnter;
   if (friendCode) friendCode.hidden = !view.showCode;
+  const codeLabel = document.getElementById('opening-friend-code-label');
+  if (codeLabel) codeLabel.hidden = !view.showCode;
   if (searchGo) searchGo.hidden = !view.showCode;
   if (view.title) window.checkersStartup.status(view.title);
   else window.checkersStartup.ready();
@@ -196,6 +197,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
    window.checkersStartup.idlePlay?.();
    window.checkersStartup.idleOnline?.();
   }
+  if (phase === 'idle') root.dispatchEvent(new Event('opening-search-idle'));
  };
  const clearSearch = () => setSearch('idle', 0);
  const cancelForNavigation = () => {
@@ -252,7 +254,6 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   void poll();
  };
  const startPresence = startBeat;
- const cancelHubWarmup = warmOnlineHubArt();
  startPresence();
  document.addEventListener('visibilitychange',visibilityChange);
  window.addEventListener('pagehide', pageHide);
@@ -264,7 +265,6 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  scene.events.once('shutdown',()=>{
   hub.dispose();
   root.removeEventListener('opening-navigation-back', cancelForNavigation);
-  cancelHubWarmup();
   menuCount.remove();
  stopBeat();
   leavePresence();
@@ -313,7 +313,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
    else window.checkersStartup.unlock();
    root.hidden=false;document.getElementById('game')!.inert=true;
    paintSide(siegeSide(root));
-   if(!firstShow)play.focus({preventScroll:true});firstShow=false;
+   if(!firstShow)document.getElementById('opening-start')?.focus({preventScroll:true});firstShow=false;
    startPresence();
   },
   hide,
@@ -335,8 +335,8 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
    if (motion.matches) { hide(true); done(); return; }
    // The first arrival keeps the full approved choreography; later matches
    // compress the same pass. Input never waits on it, but the wait is shorter.
-   gates.duration = departures++ === 0 ? gateDurationMs : repeatGateDurationMs;
-   visual=animateSiegeGates(root,gates.duration);
+   gates.duration = departures++ === 0 ? menuDepartureMs : repeatMenuDepartureMs;
+   visual=animateMenuDeparture(root,gates.duration);
    if (!visual) { hide(true); done(); return; }
    gates.start(()=>{hide(true);done();});
    syncPause();

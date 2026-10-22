@@ -18,8 +18,6 @@ byId('opening-retry').onclick = () => location.reload();
 const play = byId<HTMLButtonElement>('opening-play');
 const online = byId<HTMLButtonElement>('opening-online');
 const setCta = (button: HTMLButtonElement, name: string, busy: boolean) => {
-	if (button === play && !busy && byId('opening').dataset.menuPage !== 'modes')
-		name = 'Играть';
 	const label =
 		button.querySelector && button.querySelector('.opening-cta-label');
 	const text = busy ? 'Загрузка…' : name;
@@ -71,6 +69,8 @@ window.checkersStartup = {
 		byId('opening-error').hidden = false;
 		byId('opening-error').textContent = message;
 		byId('opening-loading-status').textContent = message;
+		byId('opening-mode-status').textContent = message;
+		byId('opening-mode-status').hidden = false;
 		setCta(play, 'С ботом', false);
 		play.disabled = true;
 		play.hidden = true;
@@ -174,6 +174,8 @@ window.checkersStartup = {
 			window.checkersStartup.pendingPlay ||
 			window.checkersStartup.pendingOnline ||
 			window.checkersStartup.playCommitted;
+		byId('opening-mode-status').textContent = waiting ? message : '';
+		byId('opening-mode-status').hidden = !waiting;
 		if (
 			waiting &&
 			!byId('opening').classList.contains('is-departing') &&
@@ -225,100 +227,3 @@ window.checkersStartup.watchdog = setTimeout(
 	() => window.checkersStartup.slow(),
 	12000,
 );
-
-(() => {
-	const root = byId('opening');
-	const play = byId<HTMLButtonElement>('opening-play');
-	const options = byId<HTMLButtonElement>('opening-options');
-	const actions = root.querySelector<HTMLElement>('.opening-actions')!;
-	let returning = false;
-	const render = (modes: boolean) => {
-		if (!modes && root.dataset.menuPage === 'modes' && !root.hidden && !root.inert)
-			root.dispatchEvent(new Event('opening-navigation-back'));
-		root.dataset.menuPage = modes ? 'modes' : 'main';
-		actions.setAttribute('aria-label', modes ? 'Выбор режима' : 'Главное меню');
-		play.querySelector<HTMLElement>('.opening-cta-label')!.textContent = modes
-			? 'С ботом'
-			: 'Играть';
-		play.removeAttribute('aria-label');
-		options.querySelector<HTMLElement>('.opening-utility-label')!.textContent =
-			modes ? 'Назад' : 'Настройки';
-		if (modes) {
-			options.removeAttribute('aria-haspopup');
-			options.removeAttribute('aria-controls');
-		} else {
-			options.setAttribute('aria-haspopup', 'dialog');
-			options.setAttribute('aria-controls', 'opening-settings-dialog');
-		}
-		if (!root.hidden && !root.inert && !document.querySelector('dialog[open]'))
-			play.focus({ preventScroll: true });
-	};
-	const show = (modes: boolean) => {
-		if (returning) return;
-		if (modes && history.state?.menuPage !== 'modes')
-			history.pushState({ ...history.state, menuPage: 'modes' }, '');
-		else if (!modes && history.state?.menuPage === 'modes') {
-			returning = true;
-			history.back();
-		}
-		render(modes);
-	};
-	const pop = () => {
-		returning = false;
-		const modes = history.state?.menuPage === 'modes';
-		if (root.dataset.menuPage !== (modes ? 'modes' : 'main')) render(modes);
-	};
-	window.addEventListener('popstate', pop);
-	if (import.meta.hot) import.meta.hot.dispose(() => window.removeEventListener('popstate', pop));
-	render(history.state?.menuPage === 'modes');
-	play.addEventListener(
-		'click',
-		(event) => {
-			if (event.detail > 1) {
-				event.preventDefault();
-				event.stopImmediatePropagation();
-				return;
-			}
-			if (root.dataset.menuPage === 'modes' || play.disabled || root.inert)
-				return;
-			event.preventDefault();
-			event.stopImmediatePropagation();
-			show(true);
-		},
-		true,
-	);
-	options.addEventListener(
-		'click',
-		(event) => {
-			if (root.dataset.menuPage !== 'modes') return;
-			event.preventDefault();
-			event.stopImmediatePropagation();
-			if (
-				root.inert ||
-				window.checkersStartup.playCommitted ||
-				window.checkersStartup.pendingOnline
-			)
-				return;
-			show(false);
-		},
-		true,
-	);
-	const keydown = (event: KeyboardEvent) => {
-		if (
-			event.defaultPrevented ||
-			event.key !== 'Escape' ||
-			root.dataset.menuPage !== 'modes' ||
-			root.hidden ||
-			root.inert ||
-			document.querySelector('dialog[open]') ||
-			window.checkersStartup.playCommitted ||
-			window.checkersStartup.pendingOnline
-		)
-			return;
-		event.preventDefault();
-		show(false);
-	};
-	window.addEventListener('keydown', keydown);
-	if (import.meta.hot) import.meta.hot.dispose(() => window.removeEventListener('keydown', keydown));
-	root.addEventListener('opening-main-menu', () => show(false));
-})();

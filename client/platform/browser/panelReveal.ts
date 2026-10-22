@@ -1,4 +1,5 @@
 export const preparationMs = 2800;
+export const panelDurationMs = 1200;
 const clamp = (n: number) => Math.max(0, Math.min(1, n));
 /** The approved local timeline, sampled by Phaser's scene update. No independent timers. */
 export function revealPose(ms: number, reduced: boolean) {

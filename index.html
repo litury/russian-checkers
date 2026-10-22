@@ -5,18 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#161a1b" />
 <title>Русские шашки</title>
-<!-- One static menu atlas, discovered before scripts; fonts swap independently. -->
-<link rel="preload" href="/client/features/menu/assets/opening-atlas/atlas.webp" as="image" type="image/webp" fetchpriority="high" crossorigin="anonymous" />
+<link rel="preload" href="/client/features/menu/assets/menu-controls/atlas.webp" as="image" type="image/webp" fetchpriority="high" />
 <link rel="preload" href="/client/features/menu/assets/siege/menu-selection-fire-still.webp" as="image" type="image/webp" />
-
-<link rel="stylesheet" href="/client/features/menu/menuShell.css" />
-<link rel="stylesheet" href="/client/features/menu/openingGates.css" />
-<link rel="stylesheet" href="/client/features/menu/menuFireReadability.css" />
-<link rel="stylesheet" href="/client/features/menu/hangingChronicle.css" />
+<link rel="stylesheet" href="/client/features/menu/menu.css" />
+<link rel="stylesheet" href="/client/features/menu/menuDialogs.css" />
 <link rel="stylesheet" href="/client/features/match/actions/matchActions.css" />
 <link rel="stylesheet" href="/client/features/settings/compactSettings.css" />
-<link rel="stylesheet" href="/client/features/menu/assets/opening-atlas/atlas.css" />
-<link rel="stylesheet" href="/client/features/menu/modeNavigation.css" />
 </head>
 <body>
 <div id="game"></div>
@@ -35,81 +29,65 @@
 <button type="button" id="resign-confirm" class="match-action" data-art="resign"><img src="/client/features/match/actions/assets/resign-icon.webp" alt="" /><span class="action-label">Сдаться</span></button>
 </div>
 </dialog>
-<main id="opening" aria-labelledby="opening-title">
- <div class="opening-sheet">
-
-  <div class="gate-title-canopy"><div class="gate-title-clip"><div class="gate-title-plate">
-   <span class="siege-cartouche atlas-slice" aria-hidden="true"></span>
-   <h1 id="opening-title">РУССКИЕ <span>ШАШКИ</span></h1>
-  </div></div></div>
-  <div class="opening-art" role="group" aria-label="Ваша сторона">
-   <div class="siege-housing" aria-hidden="true">
-   <span class="siege-gate atlas-slice"></span>
-   <span class="siege-layer siege-left atlas-slice"></span>
-   <span class="siege-layer siege-right atlas-slice"></span>
-   </div>
-   <section class="chronicle-half chronicle-left" data-chronicle-mount="left" aria-label="Летопись: победы белых в онлайне">
-    <span class="chronicle-backplate atlas-slice" aria-hidden="true"></span><span class="atlas-nine chronicle-frame" aria-hidden="true"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span>
-    <span class="chronicle-chain" aria-hidden="true"><span class="chain-links"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span><span class="chain-eyelet atlas-slice"></span></span><span class="chronicle-chain second" aria-hidden="true"><span class="chain-links"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span><span class="chain-eyelet atlas-slice"></span></span>
-    <h2>ЛЕТОПИСЬ</h2><p id="opening-wins-white" class="chronicle-total">БЕЛЫЕ<strong id="opening-color-white" class="opening-win-count is-stat-pending" aria-busy="true"></strong></p>
-   <button type="button" class="gate-piece-slot gate-piece-ivory is-chosen" data-side="white" aria-pressed="true" aria-label="Играть белыми" aria-describedby="opening-wins-white">
-    <span class="gate-piece-visual" aria-hidden="true">
-     <span class="gate-piece atlas-slice"></span>
-     <canvas width="852" height="980" aria-hidden="true" hidden></canvas>
-    </span>
-    <span class="opening-side-label" aria-hidden="true">БЕЛЫЕ</span>
-    <span class="opening-your-color" aria-hidden="true"><span class="opening-sr-only">ТВОЙ ЦВЕТ: </span>✓ ВЫБРАНО</span>
-   </button>
-   </section>
-   <section class="chronicle-half chronicle-right" data-chronicle-mount="right" aria-label="Битвы: победы чёрных в онлайне">
-    <span class="chronicle-backplate atlas-slice" aria-hidden="true"></span><span class="atlas-nine chronicle-frame" aria-hidden="true"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span>
-    <span class="chronicle-chain" aria-hidden="true"><span class="chain-links"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span><span class="chain-eyelet atlas-slice"></span></span><span class="chronicle-chain second" aria-hidden="true"><span class="chain-links"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span><span class="chain-eyelet atlas-slice"></span></span>
-    <h2>БИТВЫ</h2><p id="opening-wins-black" class="chronicle-total">ЧЁРНЫЕ<strong id="opening-color-black" class="opening-win-count is-stat-pending" aria-busy="true"></strong></p>
-   <button type="button" class="gate-piece-slot gate-piece-black" data-side="black" aria-pressed="false" aria-label="Играть чёрными" aria-describedby="opening-wins-black">
-    <span class="gate-piece-visual" aria-hidden="true">
-     <span class="gate-piece atlas-slice"></span>
-     <canvas width="852" height="980" aria-hidden="true" hidden></canvas>
-    </span>
-    <span class="opening-side-label" aria-hidden="true">ЧЁРНЫЕ</span>
-    <span class="opening-your-color" aria-hidden="true"><span class="opening-sr-only">ТВОЙ ЦВЕТ: </span>✓ ВЫБРАНО</span>
-   </button>
-   </section>
-  </div>
-  <p id="opening-stats-unavailable" class="opening-sr-only" role="status" data-error="Статистика недоступна">Загружаем статистику…</p>
-  <button id="opening-stats-retry" class="opening-utility" type="button" aria-label="Повторить загрузку статистики" hidden>Повторить</button>
-  <nav class="opening-actions" aria-label="Главное меню">
-   <button id="opening-play" data-siege-mount="left" class="opening-button opening-primary" aria-label="Играть" aria-busy="true" disabled><span class="menu-button-art atlas-slice" aria-hidden="true"></span><span class="opening-cta-label">Играть</span></button>
-   <button id="opening-online" data-siege-mount="right" class="opening-button" type="button"><span class="menu-button-art atlas-slice" aria-hidden="true"></span><span class="opening-cta-label">Онлайн</span></button>
-   <div id="opening-search" data-siege-mount="right" hidden><span class="atlas-nine search-body-art" aria-hidden="true"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span>
-    <div id="opening-search-head">
-     <div class="opening-search-title">
-      <span class="opening-search-plate atlas-slice" aria-hidden="true"></span>
-      <p id="opening-search-copy">Онлайн</p>
-     </div>
-     <p id="opening-online-count" class="opening-online-count" hidden><span class="atlas-nine search-count-art" aria-hidden="true"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span><span id="opening-online-count-label"></span></p>
-    </div>
-    <div id="opening-search-actions">
-     <button type="button" id="opening-search-cancel"><span class="atlas-nine search-button-art" aria-hidden="true"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span>Отмена</button>
-     <button type="button" id="opening-search-find" hidden><span class="atlas-nine search-button-art" aria-hidden="true"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span>Найти</button>
-     <button type="button" id="opening-search-create" hidden><span class="atlas-nine search-button-art" aria-hidden="true"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span>Создать</button>
-     <button type="button" id="opening-search-enter" hidden><span class="atlas-nine search-button-art" aria-hidden="true"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span>Ввести код</button>
-     <button type="button" id="opening-search-go" hidden><span class="atlas-nine search-button-art" aria-hidden="true"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span>Войти</button>
-     <span class="friend-code-frame"><span class="atlas-nine chronicle-frame" aria-hidden="true"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span><input id="opening-friend-code" hidden maxlength="6" inputmode="numeric" autocomplete="one-time-code" /></span>
-     <button type="button" id="opening-search-stay" hidden><span class="atlas-nine search-button-art" aria-hidden="true"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span>Остаться</button>
-     <button type="button" id="opening-search-bot" hidden><span class="atlas-nine search-button-art" aria-hidden="true"><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i><i class="atlas-slice"></i></span>Играть с ботом</button>
-    </div>
-   </div>
-   <button id="opening-retry" data-siege-mount="left" class="opening-button opening-primary" hidden><span class="menu-button-art atlas-slice" aria-hidden="true"></span>Повторить загрузку</button>
-   <div class="opening-utilities">
-    <button id="opening-history" data-siege-mount="left" class="opening-utility" type="button" aria-label="Профиль" aria-haspopup="dialog" aria-controls="match-history"><span class="menu-button-art atlas-slice" aria-hidden="true"></span>Профиль</button>
-    <button id="opening-options" data-siege-mount="right" class="opening-utility" type="button" aria-haspopup="dialog" aria-controls="opening-settings-dialog"><span class="menu-button-art atlas-slice" aria-hidden="true"></span><span class="opening-utility-label">Настройки</span></button>
-   </div>
+<main id="opening" aria-labelledby="opening-title" data-menu-page="main">
+ <div class="menu-layout opening-sheet">
+  <header class="game-title"><h1 id="opening-title">Русские <span>шашки</span></h1></header>
+  <nav class="main-actions" aria-label="Главное меню">
+   <button id="opening-start" type="button" class="metal-button primary" aria-haspopup="dialog" aria-controls="opening-modes-dialog">Играть</button>
+   <button id="opening-history" type="button" class="metal-button secondary" aria-haspopup="dialog" aria-controls="match-history">Профиль</button>
   </nav>
+  <div class="side-score-panel">
+   <div class="menu-choice-surface">
+    <fieldset class="side-picker">
+     <legend>Ваша сторона</legend>
+     <div class="side-options">
+      <button type="button" class="side-option gate-piece-slot gate-piece-ivory is-chosen" data-side="white" aria-pressed="true"><span class="gate-piece-visual" aria-hidden="true"><span class="gate-piece"></span><canvas width="852" height="980" hidden></canvas></span><span class="side-name">Белые</span><span class="selected-mark" aria-hidden="true">Выбрано</span></button>
+      <button type="button" class="side-option gate-piece-slot gate-piece-black" data-side="black" aria-pressed="false"><span class="gate-piece-visual" aria-hidden="true"><span class="gate-piece"></span><canvas width="852" height="980" hidden></canvas></span><span class="side-name">Чёрные</span><span class="selected-mark" aria-hidden="true">Выбрано</span></button>
+     </div>
+    </fieldset>
+   </div>
+   <div class="menu-score-surface">
+    <section class="global-score" aria-labelledby="opening-score-title" aria-describedby="opening-score-description">
+     <h2 id="opening-score-title">Победы в онлайне</h2><p id="opening-score-description">Общий счёт всех игроков</p>
+     <dl><div><dt>Белые</dt><dd id="opening-color-white" class="opening-win-count is-stat-pending" aria-busy="true"></dd></div><div><dt>Чёрные</dt><dd id="opening-color-black" class="opening-win-count is-stat-pending" aria-busy="true"></dd></div></dl>
+     <div class="score-feedback"><p id="opening-stats-unavailable" class="status" role="status" data-error="Статистика недоступна">Загружаем статистику…</p></div>
+     <button id="opening-stats-retry" type="button" hidden>Повторить загрузку счёта</button>
+    </section>
+   </div>
+  </div>
+  <section id="opening-search" class="search-panel" aria-labelledby="opening-search-copy" hidden>
+   <h2 id="opening-search-copy">Онлайн</h2>
+   <p id="opening-online-count" hidden><span id="opening-online-count-label"></span></p>
+   <div class="action-list">
+    <button id="opening-search-find" class="metal-button primary" type="button" hidden>Найти соперника</button>
+    <button id="opening-search-create" class="metal-button secondary" type="button" hidden>Создать комнату</button>
+    <button id="opening-search-enter" class="metal-button secondary" type="button" hidden>Ввести код</button>
+    <label id="opening-friend-code-label" for="opening-friend-code" hidden>Код комнаты</label>
+    <input id="opening-friend-code" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="6 цифр" aria-label="Код комнаты" hidden />
+    <button id="opening-search-go" class="metal-button primary" type="button" hidden>Войти по коду</button>
+    <button id="opening-search-stay" class="metal-button secondary" type="button" hidden>Подождать ещё</button>
+    <button id="opening-search-bot" class="metal-button secondary" type="button" hidden>Сыграть с ботом</button>
+    <button id="opening-search-cancel" class="metal-button secondary" type="button">Отмена</button>
+   </div>
+  </section>
   <p id="opening-loading-status" class="opening-sr-only" role="status" aria-live="polite" aria-atomic="true">Загрузка игры</p>
-  <p id="opening-status" data-siege-mount="left" class="opening-status" aria-live="off" hidden><span id="opening-error" hidden></span></p>
+  <p id="opening-status" class="status" role="alert" hidden><span id="opening-error" hidden></span></p>
   <noscript><p>Для игры нужен JavaScript. Включите его в настройках браузера и обновите страницу.</p></noscript>
  </div>
 </main>
+<dialog id="opening-modes-dialog" aria-labelledby="opening-modes-title">
+ <div class="dialog-panel">
+  <header class="dialog-header"><h2 id="opening-modes-title" tabindex="-1">Выбор режима</h2><button id="opening-modes-back" type="button" class="text-button">В меню</button></header>
+  <label class="bot-skill-label" for="opening-bot-skill">Сложность бота</label>
+  <select id="opening-bot-skill"><option value="easy">Лёгкий</option><option value="normal">Обычный</option><option value="hard">Сложный</option></select>
+  <nav class="action-list opening-actions" aria-label="Режим игры">
+   <button id="opening-play" class="metal-button primary" type="button" disabled aria-busy="true"><span class="opening-cta-label">С ботом</span></button>
+   <button id="opening-online" class="metal-button secondary" type="button"><span class="opening-cta-label">Онлайн</span></button>
+   <button id="opening-retry" class="metal-button primary" type="button" hidden>Повторить загрузку</button>
+  </nav>
+  <p id="opening-mode-status" class="status" role="status" hidden></p>
+ </div>
+</dialog>
 <dialog id="match-history" aria-labelledby="match-history-title">
  <div class="mh-panel">
   <header class="mh-header">
@@ -121,8 +99,12 @@
     <h3>Ваш игрок</h3><p id="profile-identity" class="mh-muted">Загрузка игрока…</p><p id="profile-binding-summary" class="mh-muted">Статус привязки почты неизвестен.</p>
     <h3>Личная статистика</h3><p id="profile-stats" role="status">Загрузка…</p>
     <button id="profile-stats-retry" class="mh-button" type="button" hidden>Повторить загрузку</button>
-    <nav class="profile-links" aria-label="Разделы профиля"><button id="profile-history" class="mh-button" type="button">История партий</button><button id="profile-account" class="mh-button" type="button">Аккаунт</button></nav>
-    <button id="profile-rules" class="mh-button" type="button" aria-haspopup="dialog" aria-controls="opening-help-dialog">Правила игры</button>
+    <nav class="profile-links action-list" aria-label="Разделы профиля">
+     <button id="profile-history" class="metal-button secondary" type="button">История партий</button>
+     <button id="opening-options" class="metal-button secondary" type="button" aria-haspopup="dialog" aria-controls="opening-settings-dialog">Настройки</button>
+     <button id="profile-rules" class="metal-button secondary" type="button" aria-haspopup="dialog" aria-controls="opening-help-dialog">Правила игры</button>
+     <button id="profile-account" class="metal-button secondary" type="button">Аккаунт</button>
+    </nav>
    </section>
    <section id="profile-account-pane" class="mh-profile" hidden aria-label="Аккаунт">
     <p class="mh-muted">Здесь можно привязать почту к текущему игроку. Проверка прежней привязки пока недоступна. Вход по почте и перенос истории на другое устройство не предусмотрены.</p>

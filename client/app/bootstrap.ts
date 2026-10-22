@@ -1,5 +1,7 @@
 import '../features/settings/setupSettings';
 import '../features/menu/setupMenu';
+import '../features/menu/menuNavigation';
+import '../features/menu/menuAtlas';
 import '../features/menu/openingStats';
 import '../features/menu/siegeOpeningBootstrap';
 import '../features/menu/menuPressFeedback';

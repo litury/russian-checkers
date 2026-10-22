@@ -310,6 +310,7 @@ export function bindMatchHistory() {
    focusHeading();
   }
   else if (event.state?.mh === navigationKey && event.state.pane === 'root') {
+   if (pane === 'root') return;
    generation++;
    selected = null;
    const previous = pane;

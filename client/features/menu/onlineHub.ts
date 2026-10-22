@@ -1,5 +1,5 @@
 import './onlineHub.css';
-import { prepareOnlineHubArt } from './onlineHubArt';
+import { decorateMenu } from './menuAtlas';
 import { uiSfx } from '../../audio/uiSfx';
 
 /** The approved hub is a modal like «Партии». Matchmaking itself stays in the existing search UI. */
@@ -11,24 +11,22 @@ export function createOnlineHub(actions: {
 }) {
  const dialog = document.createElement('dialog');
  dialog.id = 'online-hub';
- dialog.dataset.art = 'loading';
  dialog.setAttribute('aria-labelledby', 'online-hub-title');
  dialog.innerHTML = `<div class="oh-panel">
-  <header class="oh-header"><div class="oh-title-plate"><p class="oh-eyebrow">Игра по сети</p><h2 id="online-hub-title" tabindex="-1">Онлайн</h2></div><button type="button" class="oh-button" data-action="cancel"><span>В меню</span></button></header>
+  <header class="oh-header"><div class="oh-title-plate"><p class="oh-eyebrow">Игра по сети</p><h2 id="online-hub-title" tabindex="-1">Онлайн</h2></div><button type="button" class="text-button" data-action="cancel"><span>Назад</span></button></header>
   <div class="oh-scroll"><section class="oh-actions" aria-label="Действия">
-   <button type="button" class="oh-button" data-action="find"><span>Найти</span></button>
-   <button type="button" class="oh-button" data-action="create"><span>Создать</span></button>
-   <button type="button" class="oh-button oh-code" data-action="enter"><span>Ввести код</span></button>
+   <button type="button" class="metal-button primary" data-action="find"><span>Найти соперника</span></button>
+   <button type="button" class="metal-button secondary" data-action="create"><span>Создать комнату</span></button>
+   <button type="button" class="metal-button secondary" data-action="enter"><span>Ввести код</span></button>
   </section></div>
  </div>`;
  document.body.append(dialog);
+ decorateMenu(dialog);
  const title = dialog.querySelector<HTMLElement>('h2')!;
  const navigationKey = `online-hub-${Date.now()}`;
  let wanted = false;
  let leaving = false;
  let disposed = false;
- let preparing = false;
- let prepared = false;
  const focusReturn = () => document.getElementById('opening-online')?.focus({preventScroll: true});
  const open = () => {
   if (disposed || dialog.open || leaving || !wanted) return;
@@ -36,16 +34,6 @@ export function createOnlineHub(actions: {
   dialog.showModal();
   uiSfx('ui-open');
   title.focus({preventScroll: true});
-  if (!prepared && !preparing) {
-   preparing = true;
-   dialog.dataset.art = 'loading';
-   void prepareOnlineHubArt().then(ok => {
-    preparing = false;
-    if (disposed) return;
-    dialog.setAttribute('data-art', ok ? 'ready' : 'unavailable');
-    prepared = ok;
-   });
-  }
  };
  const close = () => {
   if (!dialog.open) return;

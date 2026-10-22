@@ -120,8 +120,8 @@ dialog.addEventListener('keydown', (event) => {
 	}
 });
 dialog.addEventListener('close', () => {
-	const root = requiredElement('opening');
-	if (!root.hidden && !root.inert)
-		requiredElement('opening-options').focus({ preventScroll: true });
+	const trigger = requiredElement('opening-options');
+	if (trigger.getClientRects().length && !trigger.closest('[inert]'))
+		trigger.focus({ preventScroll: true });
 });
 sync();
