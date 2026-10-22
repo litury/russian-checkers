@@ -5,7 +5,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#161a1b" />
 <title>Русские шашки</title>
+<style>
+html[data-menu-presentation="loading"] #opening,
+html[data-menu-presentation="loading"] #opening *,
+html[data-menu-presentation="loading"] dialog,
+html[data-menu-presentation="loading"] dialog * { visibility: hidden; }
+html[data-menu-presentation="loading"] dialog::backdrop { background: transparent; }
+#menu-loading { display: none; }
+html[data-menu-presentation="loading"] #menu-loading {
+ position: fixed; inset: 0; z-index: 1000; display: grid; place-content: center;
+ gap: 8px; padding: 24px; background: #101313; color: #e8dfcd; text-align: center;
+ font: 600 20px/1.4 system-ui, sans-serif;
+}
+#menu-loading p { margin: 0; }
+#menu-loading p + p { font-size: 14px; font-weight: 400; color: #bdb7a9; }
+</style>
+<script>
+(() => {
+ const page = document.documentElement;
+ page.dataset.menuPresentation = 'loading';
+ const timer = setTimeout(() => {
+  if (page.dataset.menuPresentation === 'loading') page.dataset.menuPresentation = 'fallback';
+ }, 8000);
+ document.addEventListener('damka:menu-art-settled', () => clearTimeout(timer), { once: true });
+})();
+</script>
 <link rel="preload" href="/client/features/menu/assets/menu-controls/atlas.webp" as="image" type="image/webp" fetchpriority="high" />
+<link rel="preload" href="/client/features/menu/assets/menu-controls/background.webp" as="image" type="image/webp" fetchpriority="high" />
 <link rel="preload" href="/client/features/menu/assets/siege/menu-selection-fire-still.webp" as="image" type="image/webp" />
 <link rel="stylesheet" href="/client/features/menu/menu.css" />
 <link rel="stylesheet" href="/client/features/menu/menuDialogs.css" />
@@ -13,6 +39,7 @@
 <link rel="stylesheet" href="/client/features/settings/compactSettings.css" />
 </head>
 <body>
+<div id="menu-loading" role="status" aria-live="polite"><p>Русские шашки</p><p>Загрузка меню…</p></div>
 <div id="game"></div>
 <div id="match-actions" role="group" aria-label="Действия в партии" hidden>
 <span class="match-undo-slot" title="Отмена появится после вашего хода и ответа соперника">

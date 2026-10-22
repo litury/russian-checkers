@@ -7,14 +7,33 @@ const atlasUrl = new URL('./assets/menu-controls/atlas.webp', import.meta.url)
 const [atlasWidth, atlasHeight] = definition.size;
 document.body.style.setProperty('--menu-atlas', `url("${atlasUrl}")`);
 document.body.dataset.menuAtlas = 'loading';
-void loadImage(atlasUrl).then(
+const atlasReady = loadImage(atlasUrl).then(
 	() => {
 		document.body.dataset.menuAtlas = 'ready';
 	},
 	() => {
 		document.body.dataset.menuAtlas = 'unavailable';
+		throw new Error('Menu atlas unavailable');
 	},
 );
+const backgroundUrl = new URL(
+	'./assets/menu-controls/background.webp',
+	import.meta.url,
+).href;
+void Promise.allSettled([
+	atlasReady,
+	loadImage(backgroundUrl),
+	document.fonts.load('600 24px Literata', 'Русские шашки'),
+	document.fonts.load('600 20px "Golos Text"', 'Играть Профиль'),
+	document.fonts.load('400 12px "Golos Text"', 'Общий счёт'),
+]).then((results) => {
+	document.documentElement.dataset.menuPresentation = results.every(
+		(result) => result.status === 'fulfilled',
+	)
+		? 'ready'
+		: 'fallback';
+	document.dispatchEvent(new Event('damka:menu-art-settled'));
+});
 
 function position(rectangle: readonly number[]) {
 	const [left, top, width, height] = rectangle;
