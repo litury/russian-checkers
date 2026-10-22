@@ -1,6 +1,9 @@
 import { requiredElement as byId } from '@/client/platform/browser/dom';
+import { bindDialogNavigation } from '@/client/platform/browser/dialogNavigation';
 import type {} from './startupContract';
 
+const rulesNavigation = bindDialogNavigation(byId<HTMLDialogElement>('opening-help-dialog'));
+if (import.meta.hot) import.meta.hot.dispose(rulesNavigation.dispose);
 window.checkersFlavor = { setState() {} };
 window.checkersRules = {
 	open: () => {
@@ -8,7 +11,7 @@ window.checkersRules = {
 		dialog.querySelectorAll('template').forEach((template) => {
 			template.replaceWith(template.content.cloneNode(true));
 		});
-		if (!dialog.open) dialog.showModal();
+		rulesNavigation.open();
 	},
 };
 byId('opening-retry').onclick = () => location.reload();
@@ -228,7 +231,10 @@ window.checkersStartup.watchdog = setTimeout(
 	const play = byId<HTMLButtonElement>('opening-play');
 	const options = byId<HTMLButtonElement>('opening-options');
 	const actions = root.querySelector<HTMLElement>('.opening-actions')!;
-	const show = (modes: boolean) => {
+	let returning = false;
+	const render = (modes: boolean) => {
+		if (!modes && root.dataset.menuPage === 'modes' && !root.hidden && !root.inert)
+			root.dispatchEvent(new Event('opening-navigation-back'));
 		root.dataset.menuPage = modes ? 'modes' : 'main';
 		actions.setAttribute('aria-label', modes ? 'Выбор режима' : 'Главное меню');
 		play.querySelector<HTMLElement>('.opening-cta-label')!.textContent = modes
@@ -244,8 +250,27 @@ window.checkersStartup.watchdog = setTimeout(
 			options.setAttribute('aria-haspopup', 'dialog');
 			options.setAttribute('aria-controls', 'opening-settings-dialog');
 		}
-		play.focus({ preventScroll: true });
+		if (!root.hidden && !root.inert && !document.querySelector('dialog[open]'))
+			play.focus({ preventScroll: true });
 	};
+	const show = (modes: boolean) => {
+		if (returning) return;
+		if (modes && history.state?.menuPage !== 'modes')
+			history.pushState({ ...history.state, menuPage: 'modes' }, '');
+		else if (!modes && history.state?.menuPage === 'modes') {
+			returning = true;
+			history.back();
+		}
+		render(modes);
+	};
+	const pop = () => {
+		returning = false;
+		const modes = history.state?.menuPage === 'modes';
+		if (root.dataset.menuPage !== (modes ? 'modes' : 'main')) render(modes);
+	};
+	window.addEventListener('popstate', pop);
+	if (import.meta.hot) import.meta.hot.dispose(() => window.removeEventListener('popstate', pop));
+	render(history.state?.menuPage === 'modes');
 	play.addEventListener(
 		'click',
 		(event) => {
@@ -278,18 +303,22 @@ window.checkersStartup.watchdog = setTimeout(
 		},
 		true,
 	);
-	root.addEventListener('keydown', (event) => {
+	const keydown = (event: KeyboardEvent) => {
 		if (
+			event.defaultPrevented ||
 			event.key !== 'Escape' ||
 			root.dataset.menuPage !== 'modes' ||
+			root.hidden ||
 			root.inert ||
-			root.classList.contains('is-searching') ||
+			document.querySelector('dialog[open]') ||
 			window.checkersStartup.playCommitted ||
 			window.checkersStartup.pendingOnline
 		)
 			return;
 		event.preventDefault();
 		show(false);
-	});
+	};
+	window.addEventListener('keydown', keydown);
+	if (import.meta.hot) import.meta.hot.dispose(() => window.removeEventListener('keydown', keydown));
 	root.addEventListener('opening-main-menu', () => show(false));
 })();

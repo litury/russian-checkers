@@ -1,4 +1,5 @@
 import { requiredElement } from '@/client/platform/browser/dom';
+import { bindDialogNavigation } from '@/client/platform/browser/dialogNavigation';
 import type { BotSkill, Settings } from './settings';
 
 const keys = {
@@ -40,6 +41,8 @@ if (state.master === 0) {
 }
 const input = (id: string) => requiredElement<HTMLInputElement>(id);
 const dialog = requiredElement<HTMLDialogElement>('opening-settings-dialog');
+const navigation = bindDialogNavigation(dialog);
+if (import.meta.hot) import.meta.hot.dispose(navigation.dispose);
 function sync(): void {
 	input('settings-auto').checked = state.autoMove;
 	input('settings-muted').checked = state.muted;
@@ -75,7 +78,7 @@ window.checkersSettings = {
 	},
 	open: () => {
 		sync();
-		if (!dialog.open) dialog.showModal();
+		navigation.open();
 	},
 };
 input('settings-auto').onchange = () =>

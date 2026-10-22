@@ -198,6 +198,10 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
   }
  };
  const clearSearch = () => setSearch('idle', 0);
+ const cancelForNavigation = () => {
+  if (search && !search.hidden && !root.hidden && !root.inert) handlers.onSearchCancel?.();
+ };
+ root.addEventListener('opening-navigation-back', cancelForNavigation);
  ivory?.addEventListener('click', pickWhite);
  ebony?.addEventListener('click', pickBlack);
  window.checkersStartup.playIntent=invoke;
@@ -259,6 +263,7 @@ export function createOpeningOverlay(scene: Phaser.Scene, handlers: {
  motion.addEventListener?.('change',motionChange);
  scene.events.once('shutdown',()=>{
   hub.dispose();
+  root.removeEventListener('opening-navigation-back', cancelForNavigation);
   cancelHubWarmup();
   menuCount.remove();
  stopBeat();
