@@ -116,7 +116,7 @@ export function bindResignConfirmation(
 		try { confirm(); } catch { recover(); }
 	};
 	const covered = () => { if (dialog.open) finishClose(); };
-	document.addEventListener('damka:loss-covered', covered);
+	document.addEventListener('damka:result-covered', covered);
 	const restore = () => {
 		if (document.querySelector('.board-verdict.expanded:not([hidden])')) return;
 		if (!trigger.disabled && !trigger.hidden) trigger.focus({ preventScroll: true });
@@ -140,7 +140,7 @@ export function bindResignConfirmation(
 	return {
 		dismiss,
 		destroy() {
-			document.removeEventListener('damka:loss-covered', covered);
+			document.removeEventListener('damka:result-covered', covered);
 			destroyed = true;
 			for (const event of ['pointerenter', 'pointerdown', 'focus']) trigger.removeEventListener(event, refreshStates);
 			dismiss();

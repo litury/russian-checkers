@@ -239,6 +239,43 @@ body:not([data-menu-atlas="ready"])
 .metal-button:disabled .sprite-slice {
 	background-position: var(--sprite-disabled);
 }
+.menu-chip {
+	position: relative;
+	isolation: isolate;
+	min-width: 0;
+	min-height: 44px;
+	padding: 8px 6px;
+	border: 0;
+	background: none;
+	color: #e8dfcd;
+	font:
+		600 14px / 1.25 "Golos Text",
+		sans-serif;
+	overflow-wrap: anywhere;
+	cursor: pointer;
+}
+body:not([data-menu-atlas="ready"]) .menu-chip {
+	background: #252c2a;
+	box-shadow: inset 0 0 0 1px #877859;
+}
+.menu-chip:focus-visible {
+	outline: 2px solid #f5d391;
+	outline-offset: 2px;
+}
+@media (hover: hover) and (pointer: fine) {
+	.menu-chip:not(:disabled):hover .sprite-slice {
+		background-position: var(--sprite-hover);
+	}
+}
+.menu-chip:focus-visible .sprite-slice {
+	background-position: var(--sprite-focus);
+}
+.menu-chip:not(:disabled):active .sprite-slice {
+	background-position: var(--sprite-pressed);
+}
+.menu-chip:disabled .sprite-slice {
+	background-position: var(--sprite-disabled);
+}
 .side-picker legend {
 	width: 100%;
 	padding: 0;

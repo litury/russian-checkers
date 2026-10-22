@@ -69,7 +69,9 @@ function decorate(host: HTMLElement, variants: Variants, insets: number[]) {
 }
 
 export function decorateMenu(root: ParentNode) {
-	for (const option of root.querySelectorAll<HTMLElement>('.difficulty-option'))
+	for (const option of root.querySelectorAll<HTMLElement>(
+		'.difficulty-option, .menu-chip',
+	))
 		decorate(option, definition.chip.skins, definition.chip.cssInsets);
 	for (const button of root.querySelectorAll<HTMLElement>('.metal-button')) {
 		const skin = button.classList.contains('secondary')
@@ -97,7 +99,7 @@ const observer = new MutationObserver((records) => {
 			if (node instanceof HTMLElement) {
 				if (
 					node.matches(
-						'.metal-button, .difficulty-option, .game-title, .menu-choice-surface, .menu-score-surface',
+						'.metal-button, .difficulty-option, .menu-chip, .game-title, .menu-choice-surface, .menu-score-surface',
 					)
 				)
 					decorateMenu(node.parentNode ?? document);
