@@ -36,6 +36,7 @@
 | Геометрия доски и панелей | `client/features/match/hud/matchLayout.ts`, `client/features/match/hud/playerPanelLayout.ts` |
 | Панели и часы | `client/features/match/hud/createHud.ts`, `client/features/match/matchClock.ts` |
 | Кнопки отмены и сдачи | `client/features/match/actions/matchActions.css`, `client/features/match/actions/assets` |
+| Результат и действия после партии | `client/features/match/result/boardVerdict.ts`, `client/features/match/result/verdictControlsGeometry.ts` |
 | Графика главного меню | `client/features/menu/assets/menu-controls`, `client/features/menu/assets/siege` |
 | Игровые звуки | `client/audio/menuAudio.ts`, `client/audio/assets` |
 | Подключение к онлайн-партии | `client/platform/network/live.ts`, `client/platform/network/cloud.ts` |
@@ -92,8 +93,9 @@ Phaser lifecycle и сборки представлений, а не сетев�
 
 Игра использует готовые атласы, изображения, шрифты и звук рядом с клиентским кодом.
 Исходники кнопок и сведения о происхождении звука и шрифтов находятся
-в `assets/sources`, вне glob загрузки. Старое оформление результата и неиспользуемый
-аудиоархив удалены. Исходные лицензии шрифтов остаются в `client/fonts`,
+в `assets/sources`, вне glob загрузки. Результат использует общий атлас меню;
+прежние изображения в `match/result/assets` не входят в runtime и сборку.
+Неиспользуемый аудиоархив удалён. Исходные лицензии шрифтов остаются в `client/fonts`,
 но отдельные публичные копии больше не включаются в сборку.
 
 `nginx.conf` отвечает только за раздачу готового клиента в Docker: сжатие,

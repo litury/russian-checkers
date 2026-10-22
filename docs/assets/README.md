@@ -1,8 +1,9 @@
 # Ресурсы игры
 
 Готовые изображения и атласы находятся у владельцев: `client/features/menu/assets`,
-`client/features/match/board`, `hud/assets`, `actions/assets` и `result/assets`
-внутри модуля матча. Звуки — в `client/audio/assets`.
+`client/features/match/board`, `hud/assets` и `actions/assets`
+внутри модуля матча. Результат использует общий атлас меню, а не старые
+изображения из `match/result/assets`. Звуки — в `client/audio/assets`.
 Игра не требует Python или генераторов ресурсов.
 
 Сохранённые исходники и сведения об их происхождении:
