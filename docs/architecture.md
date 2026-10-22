@@ -23,6 +23,7 @@
 | Задача | Код |
 | --- | --- |
 | Запуск и HTML-меню | `index.html`, `client/features/menu/siegeOpeningBootstrap.ts` |
+| Выбор соперника, сложность и приглашения | `client/features/menu/menuNavigation.ts`, `client/features/menu/playMenu.css` |
 | Композиция Phaser и представлений | `client/features/match/gameScene.ts` |
 | Состояние, история и отмена | `client/features/match/matchSession.ts` |
 | Выбор фигуры, ход, анимация и ответ бота | `client/features/match/matchInteraction.ts` |
