@@ -45,6 +45,7 @@ export class OnlineMatchCoordinator {
 	searchPhase: SearchPhase = 'idle';
 	friendJoin = '';
 	searchStartedAt = 0;
+	private searchOfferAt = 0;
 	searchTimer?: TimerHandle;
 	foundHold?: TimerHandle;
 	lastPly = 0;
@@ -80,20 +81,26 @@ export class OnlineMatchCoordinator {
 	beginSearchUi(phase: SearchPhase = 'searching'): void {
 		this.searchPhase = phase;
 		this.searchStartedAt = this.ui.now();
+		this.searchOfferAt = this.searchStartedAt + SEARCH_TIMEOUT_MS;
 		this.paintSearch();
 		this.searchTimer?.remove(false);
 		this.searchTimer = this.ui.repeat({
 			delay: 250,
 			loop: true,
 			callback: () => {
-				if (this.searchPhase !== 'searching' && this.searchPhase !== 'waiting')
+				if (
+					this.searchPhase !== 'searching' &&
+					this.searchPhase !== 'waiting' &&
+					this.searchPhase !== 'timeout-offer'
+				)
 					return;
-				this.paintSearch();
-				if (this.ui.now() - this.searchStartedAt >= SEARCH_TIMEOUT_MS) {
+				if (
+					this.searchPhase !== 'timeout-offer' &&
+					this.ui.now() >= this.searchOfferAt
+				) {
 					this.searchPhase = 'timeout-offer';
-					this.stopSearchTicker();
-					this.paintSearch();
 				}
+				this.paintSearch();
 			},
 		});
 	}
