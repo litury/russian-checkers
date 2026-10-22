@@ -99,7 +99,13 @@ export function mountHapticControls(doc: Document): () => void {
 	const setting = doc.getElementById(
 		'settings-vibration',
 	) as HTMLInputElement | null;
-	if (setting) setting.checked = haptics.isEnabled;
+	if (setting) {
+		const supported = typeof navigator.vibrate === 'function';
+		setting.disabled = !supported;
+		setting.checked = supported && haptics.isEnabled;
+		const description = doc.getElementById('settings-vibration-description');
+		if (description) description.hidden = supported;
+	}
 	const change = (event: Event) => {
 		if (!event.isTrusted || event.defaultPrevented) return;
 		if (event.target === setting) {

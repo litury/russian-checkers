@@ -64,7 +64,12 @@ window.checkersSettings = {
 					typeof value === 'boolean' ? (value ? '1' : '0') : String(value),
 				);
 			}
-		} catch {}
+			requiredElement('settings-save-status').textContent =
+				'Сохраняется автоматически';
+		} catch {
+			requiredElement('settings-save-status').textContent =
+				'Не удалось сохранить. Изменения действуют до обновления страницы.';
+		}
 		window.dispatchEvent(
 			new CustomEvent('checkers-settings-change', { detail: patch }),
 		);
