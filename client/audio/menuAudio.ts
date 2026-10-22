@@ -2,7 +2,7 @@ import type {IYandexSdk} from '../platform/sdk/IYandexSdk';
 import {loadBytes} from '../platform/browser/assetLoader';
 import {MenuAudioPolicy,menuMusicShouldPlay,menuMusicStopsInstantly,menuMusicFadeSec,matchMusicShouldPlay} from './menuAudioPolicy';
 import {matchMusicDuck,matchMusicLevel,menuOrganLevel,sfxBus,voiceBus,uiOpenLevel,panelReadyLevel,undoAppliedLevel} from './audioMix';
-import {menuClickLevel,menuBackSound} from './menuClickLevel';
+import {menuClickLevel} from './menuClickLevel';
 import {bindMenuPressSound} from './menuPressSound';
 import {mechanismEnvelope} from './menuAudioPreview';
 import {menuMusicCompensation,matchMusicCompensation} from './musicDelivery';
@@ -236,7 +236,6 @@ export function createMenuAudio(sdk:IYandexSdk) {
  document.addEventListener('visibilitychange',sync);
  window.addEventListener('checkers-settings-change',sync);
  sdk.onPause(()=>{policy.platform=true;sync();});sdk.onResume(()=>{policy.platform=false;sync();});
- for(const id of ['opening-help-dialog','opening-settings-dialog'])document.getElementById(id)!.addEventListener('close',()=>sound(menuBackSound,menuClickLevel));
 
  // No network before a native gesture. The engine itself is
  // imported only after the menu's first frame and the two-second critical window.

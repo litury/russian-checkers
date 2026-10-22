@@ -143,59 +143,56 @@ html[data-menu-presentation="loading"] #menu-loading {
 </dialog>
 <dialog id="match-history" aria-labelledby="match-history-title">
  <div class="mh-panel">
+ <div class="menu-choice-surface mh-surface">
   <header class="mh-header">
-   <div class="mh-title-plate"><p class="mh-eyebrow">Игрок</p><h2 id="match-history-title" tabindex="-1">Профиль</h2></div>
-   <button type="button" id="match-history-back" class="mh-button" aria-label="Закрыть профиль">×</button>
+   <h2 id="match-history-title" tabindex="-1">Профиль</h2>
   </header>
   <div id="match-history-scroll" class="mh-scroll">
    <section id="match-history-profile" class="mh-profile" aria-label="Обзор игрока">
-    <h3>Ваш игрок</h3><p id="profile-identity" class="mh-muted">Загрузка игрока…</p><p id="profile-binding-summary" class="mh-muted">Статус привязки почты неизвестен.</p>
-    <h3>Личная статистика</h3><p id="profile-stats" role="status">Загрузка…</p>
-    <button id="profile-stats-retry" class="mh-button" type="button" hidden>Повторить загрузку</button>
+    <dl class="profile-stats" aria-label="Личная статистика" aria-live="polite" aria-atomic="true"><div><dt>Партий</dt><dd id="profile-games">—</dd></div><div><dt>Побед</dt><dd id="profile-wins">—</dd></div></dl>
+    <p id="profile-stats" class="mh-muted" role="status">Загрузка статистики…</p>
+    <button id="profile-stats-retry" class="mh-button metal-button secondary" type="button" hidden>Повторить загрузку</button>
     <nav class="profile-links action-list" aria-label="Разделы профиля">
      <button id="profile-history" class="metal-button secondary" type="button">История партий</button>
-     <button id="opening-options" class="metal-button secondary" type="button" aria-haspopup="dialog" aria-controls="opening-settings-dialog">Настройки</button>
-     <button id="profile-rules" class="metal-button secondary" type="button" aria-haspopup="dialog" aria-controls="opening-help-dialog">Правила игры</button>
+     <button id="opening-options" class="metal-button secondary" type="button" aria-controls="profile-settings-pane">Настройки</button>
+     <button id="profile-rules" class="metal-button secondary" type="button" aria-controls="profile-rules-pane">Правила игры</button>
      <button id="profile-account" class="metal-button secondary" type="button">Аккаунт</button>
     </nav>
    </section>
    <section id="profile-account-pane" class="mh-profile" hidden aria-label="Аккаунт">
-    <p class="mh-muted">Здесь можно привязать почту к текущему игроку. Проверка прежней привязки пока недоступна. Вход по почте и перенос истории на другое устройство не предусмотрены.</p>
-    <p id="profile-account-status" role="status">Статус привязки неизвестен.</p>
-    <form id="profile-email-form"><label>Почта <input id="profile-email" type="email" autocomplete="email" required /></label><button type="submit" class="mh-button">Получить код</button></form>
-    <form id="profile-code-form"><label>Код <input id="profile-email-code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required /></label><button type="submit" class="mh-button">Привязать</button></form>
+    <h3>Гостевой профиль</h3>
+    <p class="mh-muted">Доступ к истории связан с этим браузером. После очистки данных доступ может потеряться.</p>
+    <p class="mh-muted">Вход по почте и перенос профиля на другое устройство пока недоступны.</p>
    </section>
    <div id="profile-history-pane" hidden>
-   <h3 id="match-history-section-title" class="mh-history-title">История партий</h3>
    <section id="match-history-archive" aria-label="Список партий">
     <div class="mh-toolbar"><p id="match-history-summary">Последние записанные партии</p>
      <label id="match-history-filter-label" hidden>Соперник <select id="match-history-filter"><option value="all">Все</option><option value="online">Онлайн</option><option value="bot">Компьютер</option></select></label>
     </div>
     <div id="match-history-list"></div>
-    <p class="mh-profile-note mh-muted">Записи хранятся на сервере. Доступ определяется ключом игрока, сохранённым в браузере; после очистки данных доступ может потеряться.</p>
-    <p id="match-history-limit" class="mh-muted" hidden>Показаны последние 50 партий. Более ранние записи пока недоступны в этом списке.</p>
+    <p id="match-history-limit" class="mh-muted" hidden>Показаны последние 50 партий.</p>
    </section>
    <section id="match-history-state" class="mh-state" role="status" aria-live="polite" hidden>
     <h3 id="match-history-state-title"></h3><p id="match-history-state-copy"></p>
-    <button type="button" id="match-history-retry" class="mh-button" hidden>Повторить</button>
+    <button type="button" id="match-history-retry" class="mh-button metal-button secondary" hidden>Повторить</button>
    </section>
    <section id="match-history-board" hidden aria-label="Просмотр записи">
     <div class="mh-replay-layout">
      <div class="mh-board-column">
       <div class="mh-board-frame" data-facing="white"><div id="match-history-grid" role="img" aria-label="Позиция на доске"></div></div>
       <div class="mh-transport" role="group" aria-label="Навигация по записи">
-       <button type="button" class="mh-button" id="mh-first" aria-label="В начало записи">|‹</button>
-       <button type="button" class="mh-button" id="mh-prev" aria-label="Предыдущий полуход">‹</button>
-       <button type="button" class="mh-button" id="mh-next" aria-label="Следующий полуход">›</button>
-       <button type="button" class="mh-button" id="mh-end" aria-label="В конец записи">›|</button>
+       <button type="button" class="mh-button metal-button secondary" id="mh-first" aria-label="В начало записи">|‹</button>
+       <button type="button" class="mh-button metal-button secondary" id="mh-prev" aria-label="Предыдущий полуход">‹</button>
+       <button type="button" class="mh-button metal-button secondary" id="mh-next" aria-label="Следующий полуход">›</button>
+       <button type="button" class="mh-button metal-button secondary" id="mh-end" aria-label="В конец записи">›|</button>
       </div>
       <p id="match-history-ply" role="status" aria-live="polite"></p>
      </div>
      <aside class="mh-record">
-      <p class="mh-eyebrow">Результат партии</p><h3 id="match-history-result"></h3><p id="match-history-meta"></p>
+      <h3 id="match-history-result"></h3><p id="match-history-meta"></p>
       <p id="match-history-art-status" class="mh-muted" role="status"></p>
       <p id="match-history-warning" class="mh-warning" hidden></p>
-      <h4>Ходы партии</h4><p class="mh-muted">Один полуход — ход одной стороны.</p>
+      <h4>Ходы партии</h4>
       <div class="mh-notation-heading" aria-hidden="true"><span>Белые</span><span>Чёрные</span></div>
       <div id="match-history-notation" aria-label="Записанные ходы"></div>
       <p class="mh-key-hint">← → по ходам · Home / End · Esc назад</p>
@@ -203,34 +200,32 @@ html[data-menu-presentation="loading"] #menu-loading {
     </div>
    </section>
    </div>
-  </div>
- </div>
-</dialog>
-
-<dialog id="opening-help-dialog" aria-labelledby="opening-help-title">
-<h2 id="opening-help-title" tabindex="-1" autofocus>Как играть</h2>
+   <section id="profile-rules-pane" hidden aria-label="Правила игры">
+<p class="rules-time mh-muted" id="rules-time"></p>
 <section class="rules-row" aria-labelledby="rules-goal"><figure data-rules-figure="goal" style="aspect-ratio:3/3"><template><img src="/client/features/menu/assets/rules/goal.webp" width="528" height="528" alt="Чёрная шашка заперта у края двумя белыми: ходов нет, белые победили." decoding="async" /></template></figure><div><h3 id="rules-goal">Цель игры</h3><p>Заберите все шашки соперника или лишите его ходов. Первыми ходят белые, затем по очереди.</p></div></section>
 <section class="rules-row" aria-labelledby="rules-move"><figure data-rules-figure="move" style="aspect-ratio:3/3"><template><img src="/client/features/menu/assets/rules/move.webp" width="528" height="528" alt="Белая шашка внизу, обе свободные диагональные клетки впереди отмечены для хода." decoding="async" /></template></figure><div><h3 id="rules-move">Обычный ход</h3><p>Выберите свою шашку, затем отмеченное поле. Простая шашка ходит вперёд по диагонали на соседнее свободное поле.</p></div></section>
 <section class="rules-row" aria-labelledby="rules-capture"><figure data-rules-figure="capture" style="aspect-ratio:3/3"><template><img src="/client/features/menu/assets/rules/capture.webp" width="528" height="528" alt="Белая шашка берёт назад: через соседнюю чёрную на отмеченную клетку у нижнего края." decoding="async" /></template></figure><div><h3 id="rules-capture">Взятие обязательно</h3><p>Если можно побить шашку соперника, нужно бить. Простая шашка перепрыгивает её на свободное поле сразу за ней. Бить можно вперёд и назад.</p></div></section>
-<section class="rules-row" aria-labelledby="rules-chain"><figure data-rules-figure="chain" style="aspect-ratio:3/5"><template><img src="/client/features/menu/assets/rules/chain.webp" width="528" height="880" alt="Отмечено поле первого прыжка белой шашки через нижнюю чёрную. Затем нужно побить верхнюю той же шашкой." decoding="async" /></template></figure><div><h3 id="rules-chain">Несколько взятий</h3><p>Нажимайте отмеченные поля по одному и продолжайте бить той же шашкой, пока есть возможность. На развилке выбирайте любой путь, не обязательно самый длинный. Побитые шашки снимаются в конце хода и до этого преграждают путь. Бить одну шашку дважды нельзя.</p></div></section>
+<section class="rules-row" aria-labelledby="rules-chain"><figure data-rules-figure="chain" style="aspect-ratio:3/5"><template><img src="/client/features/menu/assets/rules/chain.webp" width="528" height="880" alt="Отмечено поле первого прыжка белой шашки через нижнюю чёрную. Затем нужно побить верхнюю той же шашкой." decoding="async" /></template></figure><div><h3 id="rules-chain">Несколько взятий</h3><p>Продолжайте бить той же шашкой, пока есть взятия. На развилке выбирайте любой путь, не обязательно самый длинный.</p><p>Побитые шашки снимаются в конце хода и до этого преграждают путь. Бить одну шашку дважды нельзя.</p></div></section>
 <section class="rules-row" aria-labelledby="rules-king"><figure data-rules-figure="king" style="aspect-ratio:4/4"><template><img src="/client/features/menu/assets/rules/king.webp" width="704" height="704" alt="Дамка берёт чёрную шашку на расстоянии и приземляется за ней у верхнего края." decoding="async" /></template></figure><div><h3 id="rules-king">Дамка</h3><p>На последнем ряду простая шашка становится дамкой. Дамка ходит вперёд и назад по свободной диагонали на любое расстояние. При взятии встаёт на любое свободное поле за шашкой соперника. Если превращение произошло при взятии, продолжайте бить как дамка, пока есть возможность.</p></div></section>
-<form method="dialog" class="rules-footer"><button class="opening-button">Понятно</button></form>
-</dialog>
-<dialog id="opening-settings-dialog" aria-labelledby="opening-settings-title">
-<form method="dialog"><button id="settings-close" aria-label="Закрыть настройки" type="submit"><span aria-hidden="true">×</span></button></form>
-<h2 id="opening-settings-title" tabindex="-1" autofocus>Настройки</h2>
-<section class="settings-section"><h3>Звук меню</h3>
+</section>
+<section id="profile-settings-pane" hidden aria-label="Настройки">
+<section class="settings-section"><h3>Звук</h3>
 <label class="settings-volume"><span>Музыка</span><input id="settings-music" type="range" min="0" max="1" step="0.05" /><output id="settings-music-value" for="settings-music">100%</output></label>
 <label class="settings-volume"><span>Эффекты</span><input id="settings-effects" type="range" min="0" max="1" step="0.05" /><output id="settings-effects-value" for="settings-effects">100%</output></label>
 <label class="settings-check"><input id="settings-muted" type="checkbox" role="switch" />Без звука</label>
 </section>
 <section class="settings-section" aria-labelledby="settings-game"><h3 id="settings-game">Игра</h3>
-<label class="settings-check"><input id="settings-vibration" type="checkbox" role="switch" />Вибрация</label>
+<label class="settings-check"><input id="settings-vibration" type="checkbox" role="switch" aria-describedby="settings-vibration-description" />Вибрация</label>
+<p id="settings-vibration-description" class="mh-muted" hidden>Недоступна в этом браузере.</p>
 <label class="settings-check"><input id="settings-auto" type="checkbox" role="switch" checked aria-describedby="settings-auto-description" />Автоход</label>
-<p id="settings-auto-description">Выполнять ход автоматически, если доступен только один вариант.</p>
+<p id="settings-auto-description" class="mh-muted">Автоматически, если доступен только один ход.</p>
 </section>
-
-
+<p class="settings-save-note mh-muted" id="settings-save-status" role="status">Сохраняется автоматически</p>
+</section>
+  </div>
+ </div>
+ <footer class="menu-score-surface mh-footer"><button type="button" id="match-history-back" class="play-back">← В меню</button></footer>
+ </div>
 </dialog>
 
 

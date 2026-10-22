@@ -1,19 +1,12 @@
-import { bindDialogNavigation } from '@/client/platform/browser/dialogNavigation';
 import { requiredElement as byId } from '@/client/platform/browser/dom';
 import type {} from './startupContract';
 
-const rulesNavigation = bindDialogNavigation(
-	byId<HTMLDialogElement>('opening-help-dialog'),
-);
-if (import.meta.hot) import.meta.hot.dispose(rulesNavigation.dispose);
 window.checkersFlavor = { setState() {} };
 window.checkersRules = {
 	open: () => {
-		const dialog = byId<HTMLDialogElement>('opening-help-dialog');
-		dialog.querySelectorAll('template').forEach((template) => {
-			template.replaceWith(template.content.cloneNode(true));
-		});
-		rulesNavigation.open();
+		window.dispatchEvent(
+			new CustomEvent('checkers-profile-open', { detail: 'rules' }),
+		);
 	},
 };
 byId('opening-retry').onclick = () => location.reload();

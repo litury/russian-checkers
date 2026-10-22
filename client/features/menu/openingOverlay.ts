@@ -95,8 +95,7 @@ export function createOpeningOverlay(
 	const closeDialogs = () => {
 		for (const id of [
 			'opening-modes-dialog',
-			'opening-help-dialog',
-			'opening-settings-dialog',
+			'match-history',
 		]) {
 			const dialog = document.getElementById(id) as HTMLDialogElement;
 			if (dialog.open) dialog.close();

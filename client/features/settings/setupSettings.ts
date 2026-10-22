@@ -1,4 +1,3 @@
-import { bindDialogNavigation } from '@/client/platform/browser/dialogNavigation';
 import { requiredElement } from '@/client/platform/browser/dom';
 import type { BotSkill, Settings } from './settings';
 
@@ -39,9 +38,6 @@ if (state.master === 0) {
 	state.muted = true;
 }
 const input = (id: string) => requiredElement<HTMLInputElement>(id);
-const dialog = requiredElement<HTMLDialogElement>('opening-settings-dialog');
-const navigation = bindDialogNavigation(dialog);
-if (import.meta.hot) import.meta.hot.dispose(navigation.dispose);
 function sync(): void {
 	input('settings-auto').checked = state.autoMove;
 	input('settings-muted').checked = state.muted;
@@ -75,7 +71,9 @@ window.checkersSettings = {
 	},
 	open: () => {
 		sync();
-		navigation.open();
+		window.dispatchEvent(
+			new CustomEvent('checkers-profile-open', { detail: 'settings' }),
+		);
 	},
 };
 input('settings-auto').onchange = () =>
@@ -90,30 +88,4 @@ for (const key of ['music', 'effects'] as const)
 	};
 requiredElement('opening-options').onclick = () =>
 	window.checkersSettings.open();
-dialog.addEventListener('keydown', (event) => {
-	if (event.key !== 'Tab') return;
-	const controls = [
-		...dialog.querySelectorAll<HTMLInputElement | HTMLButtonElement>(
-			'input, button',
-		),
-	].filter((control) => !control.disabled);
-	const first = controls[0],
-		last = controls[controls.length - 1];
-	if (
-		event.shiftKey &&
-		(document.activeElement === first ||
-			!controls.some((control) => control === document.activeElement))
-	) {
-		event.preventDefault();
-		last?.focus();
-	} else if (!event.shiftKey && document.activeElement === last) {
-		event.preventDefault();
-		first?.focus();
-	}
-});
-dialog.addEventListener('close', () => {
-	const trigger = requiredElement('opening-options');
-	if (trigger.getClientRects().length && !trigger.closest('[inert]'))
-		trigger.focus({ preventScroll: true });
-});
 sync();
