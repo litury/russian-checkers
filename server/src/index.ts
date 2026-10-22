@@ -26,7 +26,7 @@ const server = createApiServer(pool, matches, [
 	createStatsRoutes(pool),
 	createPresenceRoutes(presence, auth),
 	createPlayersRoutes(pool, limited),
-	createAuthRoutes(pool, auth, limited),
+	createAuthRoutes(),
 	createMatchesRoutes(pool, auth),
 ]);
 let stopping = false;
