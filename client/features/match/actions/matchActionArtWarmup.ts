@@ -4,7 +4,6 @@ const assets = import.meta.glob<string>(
 		'./assets/dialog*.webp',
 		'./assets/*-atlas.webp',
 		'./assets/*-icon.webp',
-		'../result/assets/*.webp',
 	],
 	{
 		eager: true,
