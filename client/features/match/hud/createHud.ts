@@ -1,10 +1,18 @@
 import type Phaser from 'phaser';
-import type { Side } from '@/shared/rules';
-import { matchLayout, readSafeInsets } from '@/client/features/match/hud/matchLayout';
+import {
+	matchLayout,
+	readSafeInsets,
+} from '@/client/features/match/hud/matchLayout';
 import { playerPanelLayout } from '@/client/features/match/hud/playerPanelLayout';
-import { createBunkerPanel } from './bunkerPanel';
-import { PanelReveal, preparationMs, panelDurationMs } from '../../../platform/browser/panelReveal';
+import type { Side } from '@/shared/rules';
+import {
+	PanelReveal,
+	panelDurationMs,
+	preparationMs,
+} from '../../../platform/browser/panelReveal';
 import { matchActionGeometry } from '../actions/matchActionGeometry';
+import type { PanelState } from './panelState';
+import { createPlayerPanel } from './playerPanel';
 
 export function clipPlayerName(raw: string): string {
 	const chars = Array.from(raw.trim());
@@ -16,18 +24,6 @@ export function panelClock(seconds: number): string {
 	const total = Math.max(0, Math.floor(seconds));
 	return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
 }
-export function matchStatus(
-	preparing: boolean,
-	phase: string,
-	capture: boolean,
-	continuing: boolean,
-): string {
-	if (preparing) return 'Подготовка к партии';
-	if (phase === 'bot') return 'Ход соперника';
-	if (phase === 'over') return 'Партия завершена';
-	if (phase !== 'human') return '';
-	return continuing ? 'Продолжайте взятие' : capture ? 'Нужно бить' : 'Ваш ход';
-}
 export function createHud(
 	scene: Phaser.Scene,
 	handlers: {
@@ -36,8 +32,8 @@ export function createHud(
 		onRevealProgress?: (elapsed: number, reduced: boolean) => void;
 	} = {},
 ) {
-	const foe = createBunkerPanel(scene, false),
-		you = createBunkerPanel(scene, true);
+	const foe = createPlayerPanel(scene, false),
+		you = createPlayerPanel(scene, true);
 	const reveal = new PanelReveal();
 	const media = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)');
 	let reduced = media?.matches ?? false,
@@ -45,6 +41,14 @@ export function createHud(
 		visible = false;
 	let sampledAt: number | null = null;
 	let facing: Side = 'white';
+	const announcement = document.createElement('p');
+	announcement.id = 'match-hud-status';
+	announcement.className = 'match-hud-announcement';
+	announcement.setAttribute('role', 'status');
+	announcement.setAttribute('aria-live', 'polite');
+	announcement.setAttribute('aria-atomic', 'true');
+	announcement.hidden = true;
+	document.body.append(announcement);
 	const visibilityChange = () => {
 		sampledAt = null;
 	};
@@ -79,6 +83,7 @@ export function createHud(
 	document.addEventListener('visibilitychange', visibilityChange);
 	scene.events.on('update', update);
 	scene.events.once('shutdown', () => {
+		announcement.remove();
 		reveal.cancel();
 		scene.events.off('update', update);
 		media?.removeEventListener('change', motionChange);
@@ -106,11 +111,18 @@ export function createHud(
 				actions.style.width = `${box.width}px`;
 			}
 		},
-		setTurn(copy: string) {
-			you.setStatus(copy);
+		setState(state: PanelState) {
+			you.setState(state);
+			foe.setState(state);
+			const copy =
+				state.kind === 'disconnected'
+					? 'Соперник отключился. Ожидаем возвращения.'
+					: [state.title, state.detail].filter(Boolean).join('. ');
+			if (announcement.textContent !== copy) announcement.textContent = copy;
 		},
 		setFacing(side: Side) {
 			facing = side;
+			foe.setSide(side === 'white' ? 'black' : 'white');
 			scene.game.canvas.setAttribute(
 				'aria-description',
 				`Ваша сторона: ${side === 'white' ? 'белые' : 'чёрные'}. Ваши шашки внизу доски.`,
@@ -128,13 +140,13 @@ export function createHud(
 		},
 		setVisible(on: boolean) {
 			visible = on;
+			announcement.hidden = !on;
 			foe.root.setVisible(on);
 			you.root.setVisible(on);
 			if (!on) reveal.cancel();
 		},
-		setNames(own: string, other: string) {
-			you.setName(clipPlayerName(own) || 'Ты');
-			foe.setName(clipPlayerName(other) || 'Бот');
+		setOpponent(name: string, description: string) {
+			foe.setIdentity(clipPlayerName(name) || 'Соперник', description);
 		},
 		prepareClosed() {
 			reveal.cancel();

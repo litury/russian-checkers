@@ -1,0 +1,208 @@
+{
+	"frames": {
+		"panel": {
+			"frame": {
+				"x": 4,
+				"y": 4,
+				"w": 748,
+				"h": 256
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 748,
+				"h": 256
+			},
+			"sourceSize": {
+				"w": 748,
+				"h": 256
+			}
+		},
+		"clock-idle": {
+			"frame": {
+				"x": 4,
+				"y": 268,
+				"w": 264,
+				"h": 136
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 264,
+				"h": 136
+			},
+			"sourceSize": {
+				"w": 264,
+				"h": 136
+			}
+		},
+		"clock-active": {
+			"frame": {
+				"x": 276,
+				"y": 268,
+				"w": 264,
+				"h": 136
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 264,
+				"h": 136
+			},
+			"sourceSize": {
+				"w": 264,
+				"h": 136
+			}
+		},
+		"clock-critical": {
+			"frame": {
+				"x": 548,
+				"y": 268,
+				"w": 264,
+				"h": 136
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 264,
+				"h": 136
+			},
+			"sourceSize": {
+				"w": 264,
+				"h": 136
+			}
+		},
+		"status-neutral": {
+			"frame": {
+				"x": 4,
+				"y": 452,
+				"w": 400,
+				"h": 88
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 400,
+				"h": 88
+			},
+			"sourceSize": {
+				"w": 400,
+				"h": 88
+			}
+		},
+		"status-active": {
+			"frame": {
+				"x": 412,
+				"y": 452,
+				"w": 400,
+				"h": 88
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 400,
+				"h": 88
+			},
+			"sourceSize": {
+				"w": 400,
+				"h": 88
+			}
+		},
+		"status-warning": {
+			"frame": {
+				"x": 4,
+				"y": 548,
+				"w": 400,
+				"h": 88
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 400,
+				"h": 88
+			},
+			"sourceSize": {
+				"w": 400,
+				"h": 88
+			}
+		},
+		"identity": {
+			"frame": {
+				"x": 412,
+				"y": 548,
+				"w": 400,
+				"h": 136
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 400,
+				"h": 136
+			},
+			"sourceSize": {
+				"w": 400,
+				"h": 136
+			}
+		}
+	},
+	"meta": {
+		"image": "atlas.webp",
+		"size": {
+			"w": 1024,
+			"h": 704
+		},
+		"scale": "1"
+	},
+	"provenance": {
+		"method": "Panel and clocks recomposed from approved menu artwork; status and identity are newly generated raster insets.",
+		"source": "client/features/menu/assets/menu-controls/atlas.webp",
+		"sourceSha256": "296921761513eb74bdded0bbd19a369bd80f39534233ae4d329ef324b2f59c78",
+		"pixelRatio": 2,
+		"panelInsets": [30, 40, 30, 40],
+		"clockInsets": [18, 24, 18, 24],
+		"stateEdgeRgbMultipliers": {
+			"idle": [1, 1, 1],
+			"active": [1.45, 1.16, 0.78],
+			"critical": [1.65, 0.75, 0.61]
+		},
+		"extrusion": 2,
+		"insets": {
+			"source": "assets/sources/hud-insets/insets.png",
+			"sourceSha256": "068a811650ff8ab5363918e6dde9f576f66cb22620bac23ce90ae2e56b70dce3",
+			"brief": "assets/sources/hud-insets/brief.txt",
+			"generator": "Codex CLI built-in image_gen",
+			"generatedAt": "2026-10-23",
+			"originalSize": [1536, 1024],
+			"crops": {
+				"status": [88, 160, 1450, 361],
+				"identity": [76, 468, 1460, 838]
+			},
+			"sourceInsets": [40, 140, 40, 140],
+			"runtimeInsets": [8, 28, 8, 28],
+			"alphaDiscardAtMost": 24,
+			"alphaOpaqueAtLeast": 248,
+			"neutralizeEdgeBelowAlpha": 192,
+			"edgeRgbMultipliers": {
+				"neutral": [1, 1, 1],
+				"active": [1.2, 1.07, 0.83],
+				"warning": [1.24, 0.91, 0.78]
+			}
+		}
+	}
+}

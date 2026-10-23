@@ -1,0 +1,7 @@
+Original Russian-checkers HUD information insets, generated with Codex CLI's built-in image_gen on 2026-10-23.
+
+References: the approved menu title plaque and the existing game HUD, for materials and composition only. Sombre gothic charcoal stone and blackened iron, upper-left light, inward bevels, calm opaque text-safe centers. Information recesses must not resemble raised buttons. No text, digits, icons, checker sockets, heavy gold frames, bolts, lamps, pipes, franchise symbols or scene background.
+
+One transparent 1536x1024 component sheet: a wide shallow status channel above, and a taller opponent-identity recess below. Straight repeatable centers suitable for nine-slice. Live Cyrillic labels, timer values and checker-color markers are composited separately. Preserve the original raster and record alpha cleanup, crop bounds and state derivations in the runtime atlas metadata.
+
+The generated edges were heavier than requested, and opaque interiors reached alpha 254 rather than 255. The runtime derivation reduces the border scale, discards very faint alpha, and normalizes near-opaque pixels without overwriting the original.

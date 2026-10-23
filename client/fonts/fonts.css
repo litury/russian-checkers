@@ -1,3 +1,5 @@
+@import "./typography.css";
+
 @font-face {
 	font-family: "Tiny5";
 	src: url("./tiny5/Tiny5-Regular.woff") format("woff");

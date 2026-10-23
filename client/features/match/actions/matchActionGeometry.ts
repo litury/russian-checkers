@@ -1,4 +1,5 @@
-import { actionTarget, compactPanelHeight } from './actionLayout';
+import { playerPanelGeometry } from '../hud/playerPanelGeometry';
+
 export { actionTarget } from './actionLayout';
 export type CardTransform = {
 	x: number;
@@ -7,23 +8,13 @@ export type CardTransform = {
 	scaleY: number;
 };
 export function matchActionGeometry(card: CardTransform) {
-	const compact = 128 * card.scaleY < compactPanelHeight;
-	const top =
-		card.y +
-		(compact
-			? 8
-			: Math.max(
-					34 * card.scaleY + 2,
-					89 * card.scaleY - actionTarget.height - 4,
-				));
-	const width = Math.min(actionTarget.width * 2, 203 * card.scaleX - 8);
+	const { actions } = playerPanelGeometry(374 * card.scaleX, 128 * card.scaleY);
+	const top = card.y + actions.y;
 	return {
-		// Inner card edge is local x=10; heading starts at x=20.
-		// Share its 10-unit breathing room rather than sitting on the frame.
-		left: card.x + 20 * card.scaleX,
+		left: card.x + actions.x,
 		top,
 		tooltipBelow: top < 90,
-		width,
-		height: actionTarget.height,
+		width: actions.width,
+		height: actions.height,
 	};
 }

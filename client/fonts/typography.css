@@ -1,0 +1,61 @@
+@font-face {
+	font-family: "Golos Text";
+	src: url("./GolosText-400-cyrillic.woff2") format("woff2");
+	font-weight: 400;
+	font-display: swap;
+}
+@font-face {
+	font-family: "Golos Text";
+	src: url("./GolosText-600-cyrillic.woff2") format("woff2");
+	font-weight: 600;
+	font-display: swap;
+}
+@font-face {
+	font-family: "Literata";
+	src: url("./Literata-600-cyrillic.woff2") format("woff2");
+	font-weight: 600;
+	font-display: swap;
+}
+:root {
+	--font-interface: "Golos Text", sans-serif;
+	--font-display: "Literata", Georgia, serif;
+	--type-hero: 600 1.5rem / 1.1 var(--font-display);
+	--type-heading: 600 1.5rem / 1.2 var(--font-display);
+	--type-section: 600 1.125rem / 1.3 var(--font-display);
+	--type-body: 400 1rem / 1.5 var(--font-interface);
+	--type-note: 400 0.875rem / 1.5 var(--font-interface);
+	--type-caption: 400 0.8125rem / 1.4 var(--font-interface);
+	--type-label: 600 0.875rem / 1.35 var(--font-interface);
+	--type-label-large: 600 1rem / 1.35 var(--font-interface);
+	--type-action: 600 1.125rem / 1.25 var(--font-interface);
+	--type-action-primary: 600 1.3125rem / 1.25 var(--font-interface);
+	--type-action-secondary: 600 1.1875rem / 1.25 var(--font-interface);
+	--type-action-dialog: 600 1.25rem / 1.25 var(--font-interface);
+	--type-entry: 400 1.25rem / 1.4 var(--font-interface);
+	--type-number: 600 1.5rem / 1.2 var(--font-interface);
+	--type-number-large: 600 1.75rem / 1.2 var(--font-interface);
+	--type-code: 600 clamp(1.75rem, 8vw, 2.5rem) / 1.2 var(--font-interface);
+	--type-hud-name: 600 1.125rem / 1.3 var(--font-display);
+	--type-hud-name-compact: 600 1rem / 1.3 var(--font-display);
+	--type-hud-status: 600 0.9375rem / 1.35 var(--font-interface);
+	--type-hud-status-compact: 600 0.75rem / 1.35 var(--font-interface);
+	--type-hud-result: 600 1.3125rem / 1.2 var(--font-display);
+	--type-hud-result-compact: 600 0.9375rem / 1.2 var(--font-display);
+	--type-clock: var(--type-number-large);
+	--type-clock-compact: 600 1.25rem / 1.2 var(--font-interface);
+	--text-inset-block: 8px;
+	--text-inset-compact: 6px;
+	--text-line-gap: 5px;
+	--surface-content-inline: 24px;
+	--surface-content-top: 28px;
+	--surface-content-bottom: 24px;
+}
+@media (max-width: 359px) {
+	:root {
+		--type-heading: 600 1.375rem / 1.2 var(--font-display);
+		--type-hero: 600 1.3125rem / 1.1 var(--font-display);
+		--surface-content-inline: 18px;
+		--surface-content-top: 24px;
+		--surface-content-bottom: 20px;
+	}
+}

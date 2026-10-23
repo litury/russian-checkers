@@ -29,8 +29,9 @@ import { getAutoMove, getBotSkill } from '../settings/settings';
 import { bindMatchActions } from './actions/bindMatchActions';
 import { canResign } from './actions/matchActionState';
 import { BotTurn } from './bot/botTurn';
-import { createHud, matchStatus } from './hud/createHud';
-import { dropNoticeLine } from './hud/dropNotice';
+import { createHud } from './hud/createHud';
+import { dropNoticeTime } from './hud/dropNotice';
+import { matchPanelState } from './hud/panelState';
 import { MatchClock } from './matchClock';
 import { MatchInteraction } from './matchInteraction';
 import { MatchResources } from './matchResources';
@@ -62,6 +63,7 @@ export class GameScene extends Phaser.Scene {
 	private playfieldReadyDone = false;
 	private boardPainted = false;
 	private actionsEntered = false;
+	private captureAvailable = false;
 	private timeLowSaid = false;
 	/** Pending first-frame listener; kept so shutdown can remove it. */
 	private boardFrameListener?: () => void;
@@ -145,6 +147,7 @@ export class GameScene extends Phaser.Scene {
 		this.playfieldReadyDone = false;
 		this.boardPainted = false;
 		this.actionsEntered = false;
+		this.captureAvailable = false;
 		this.timeLowSaid = false;
 		this.boardFrameListener = undefined;
 		this.playfieldBuilt = false;
@@ -164,6 +167,7 @@ export class GameScene extends Phaser.Scene {
 			// decoration warmup alive. The renderer hides an unavailable seal.
 			if (
 				file.key === 'selection_king-seal' ||
+				file.key === 'match-hud' ||
 				file.key?.startsWith('king-fire_')
 			)
 				return;
@@ -539,7 +543,13 @@ export class GameScene extends Phaser.Scene {
 		this.overlay?.hide();
 		this.hud.prepareClosed();
 		this.hud.setVisible(true);
-		this.hud.setNames('Ты', this.session.online ? 'Соперник' : 'Бот');
+		const difficulty = { easy: 'лёгкая', normal: 'обычная', hard: 'сложная' }[getBotSkill()];
+		this.hud.setOpponent(
+			this.session.online ? 'Соперник' : 'Компьютер',
+			this.session.online
+				? this.session.humanSide === 'white' ? 'Чёрные' : 'Белые'
+				: `Сложность: ${difficulty}`,
+		);
 		// Real piece disks stay. Selection-v2 frames are not substituted on the board.
 		this.board.setPlayfieldVisible(true);
 		this.markBoardFirstFrame();
@@ -697,13 +707,24 @@ export class GameScene extends Phaser.Scene {
 				? null
 				: this.clockTurn(),
 		);
-		const drop = dropNoticeLine(
-			this.network.dropUntil || undefined,
-			Date.now(),
-			this.network.dropServerNow,
-			this.network.dropReceivedAt,
-		);
-		if (drop) this.hud?.setTurn(drop);
+		this.paintPanelState();
+	}
+
+	private paintPanelState(): void {
+		if (!this.hud || this.session.phase === 'title') return;
+		this.hud.setState(matchPanelState({
+			phase: this.session.phase,
+			preparing: this.session.countingIn || (this.session.online && !this.network.onlineBegun),
+			paused: this.session.paused || this.clock.remotePaused,
+			waitingResult: this.session.flagLock,
+			humanTurn: this.session.online ? this.onlineHumanTurn() : this.session.phase === 'human',
+			capture: this.captureAvailable,
+			continuing: Boolean(this.session.humanChain),
+			disconnectedTime: dropNoticeTime(
+				this.network.dropUntil || undefined, Date.now(), this.network.dropServerNow, this.network.dropReceivedAt,
+			),
+			outcome: this.session.acceptedResult,
+		}));
 	}
 
 	private tickClock(): void {
@@ -776,7 +797,6 @@ export class GameScene extends Phaser.Scene {
 			return;
 		}
 		if (this.session.phase === 'title') {
-			this.hud?.setTurn('');
 			return;
 		}
 		if (!this.board || !this.hud) return;
@@ -808,43 +828,10 @@ export class GameScene extends Phaser.Scene {
 					(this.session.online && !this.network.onlineBegun) ||
 					(this.session.online && !this.onlineHumanTurn())),
 		);
-		const drop = dropNoticeLine(
-			this.network.dropUntil || undefined,
-			Date.now(),
-			this.network.dropServerNow,
-			this.network.dropReceivedAt,
+		this.captureAvailable = legalMoves(this.session.position).some(
+			(move) => move.path[0] && capturedOnSegment(this.session.position, move.from, move.path[0]),
 		);
-		const outcome = this.session.acceptedResult;
-		this.hud.setTurn(
-			outcome
-				? outcome.winner === 'draw'
-					? 'Ничья'
-					: outcome.winner === outcome.humanSide
-						? 'Победа'
-						: 'Поражение'
-				: drop ||
-						matchStatus(
-							this.session.countingIn ||
-								(this.session.online && !this.network.onlineBegun),
-							this.session.phase === 'over'
-								? 'over'
-								: this.session.online && this.network.onlineBegun
-									? this.onlineHumanTurn()
-										? 'human'
-										: 'bot'
-									: this.session.phase,
-							legalMoves(this.session.position).some(
-								(move) =>
-									move.path[0] &&
-									capturedOnSegment(
-										this.session.position,
-										move.from,
-										move.path[0],
-									),
-							),
-							Boolean(this.session.humanChain),
-						),
-		);
+		this.paintPanelState();
 		this.interaction.maybeAutoMove();
 		this.paintUndo();
 	}
@@ -870,10 +857,10 @@ export class GameScene extends Phaser.Scene {
 				online: this.session.online,
 				paused: this.session.paused,
 				flagLock: this.session.flagLock,
-				countingIn: this.session.countingIn,
-				moving: this.session.moving,
-				humanChain: Boolean(this.session.humanChain),
 				undoDepth: this.session.botUndoStack.length,
+				moving: this.session.moving,
+				countingIn: this.session.countingIn,
+				humanChain: Boolean(this.session.humanChain),
 				concealed: this.railConcealed(),
 				entered: this.actionsEntered,
 			}) ?? this.actionsEntered;
@@ -999,5 +986,7 @@ export class GameScene extends Phaser.Scene {
 		if (!paused && this.bot.pending) {
 			this.interaction.playBot();
 		}
+		this.paintPanelState();
+		this.paintUndo();
 	}
 }

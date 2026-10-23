@@ -8,7 +8,7 @@ import {
 	selectionOverlayTexture,
 } from './board/selectionOverlay';
 import { boardDelivery } from './boardDelivery';
-import { preloadBunkerPanels } from './hud/bunkerPanel';
+import { preloadPlayerPanels } from './hud/playerPanel';
 import { pieceSprites } from './layout';
 
 interface ResourceOwner {
@@ -185,7 +185,7 @@ export class MatchResources {
 
 		if (this.failed || this.disposed) return;
 		window.checkersStartup?.status('Загрузка: маркеры и панели…');
-		preloadBunkerPanels(this.scene);
+		preloadPlayerPanels(this.scene);
 		await this.flushLoader();
 		if (this.failed || this.disposed) return;
 		this.owner.build();
