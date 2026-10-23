@@ -4,16 +4,21 @@ import {MenuAudioPolicy,menuMusicShouldPlay,menuMusicStopsInstantly,menuMusicFad
 import {matchMusicDuck,matchMusicLevel,menuOrganLevel,sfxBus,voiceBus,uiOpenLevel,panelReadyLevel,undoAppliedLevel} from './audioMix';
 import {menuClickLevel} from './menuClickLevel';
 import {bindMenuPressSound} from './menuPressSound';
-import {mechanismEnvelope} from './menuAudioPreview';
 import {menuMusicCompensation,matchMusicCompensation} from './musicDelivery';
-import {startPanelWindows,startTimerLock,startTimerSlide} from './startAudio';
 import {orcArenaLine} from './orcTurn';
 import {announcerCue} from './announcer';
 import {bindKingFireSfx} from './kingFireSfx';
 import {bindPieceSfx,bindPieceVoice,cancelPieceAh,voiceStealSec} from './pieceSfx';
 import {bindUiSfx} from './uiSfx';
 import {sfxCategory} from './sfxLimits';
-const urls=import.meta.glob('./assets/*',{eager:true,query:'?url',import:'default'}) as Record<string,string>;
+const urls=import.meta.glob([
+ './assets/*',
+ '!./assets/gate_*.wav',
+ '!./assets/panel-slide.wav',
+ '!./assets/timer-lock.wav',
+ '!./assets/timer-slide.wav',
+ '!./assets/availability-wave.wav',
+],{eager:true,query:'?url',import:'default'}) as Record<string,string>;
 const AUDIO_SOURCE_ALIASES: Record<string, string> = {
  './assets/elf-time-up.mp3': './assets/time-up.mp3',
  './assets/elf-time-low.mp3': './assets/time-low.mp3',
@@ -31,12 +36,10 @@ export function createMenuAudio(sdk:IYandexSdk) {
  const buffers=new Map<string,AudioBuffer>(), effects=new Set<AudioBufferSourceNode>();
  const limited=new Map<AudioBufferSourceNode,string>();
  const retiringVoices=new Set<AudioBufferSourceNode>();
- let gateStopped=false;
  let voice:AudioBufferSourceNode|undefined, voiceGain:GainNode|undefined, voiceBark=false;
  let unlocked=false, musicEnded=false, fadeGen=0, fading=false;
  let epoch=0, clickSerial=0;
  const loading=new Map<string,Promise<void>>();
- const mechanisms=new Map<string,{source:AudioBufferSourceNode,gain:GainNode}|null>();
 
  const settings=()=>window.checkersSettings.get();
  const stopEffects=()=>{cancelPieceAh();voice=undefined;voiceGain=undefined;voiceBark=false;for(const s of effects){try{s.stop()}catch{}}effects.clear();limited.clear();retiringVoices.clear();duckMatch();};
@@ -254,46 +257,21 @@ export function createMenuAudio(sdk:IYandexSdk) {
  return {
   warmAudio,
   menuContact,
-  show(){epoch++;gateStopped=false;mechanisms.clear();policy.menu=true;policy.match=false;policy.departing=false;musicEnded=false;stopEffects();stopMatch();sync();},
-  hide(completed=false,reduced=false){epoch++;if(!gateStopped)stopEffects();if(completed&&!gateStopped){gateStopped=true;if(!reduced)sound('gate_stop');}policy.menu=false;policy.departing=false;if(completed)policy.match=true;mechanisms.clear();sync();},
+  show(){epoch++;policy.menu=true;policy.match=false;policy.departing=false;musicEnded=false;stopEffects();stopMatch();sync();},
+  hide(completed=false){
+   if(completed&&!policy.menu&&!policy.departing){sync();return;}
+   epoch++;stopEffects();policy.menu=false;policy.departing=false;
+   if(completed)policy.match=true;
+   sync();
+  },
   // Normal departure belongs to the Play intent; hide/show still invalidate it.
-  depart(){if(!policy.departing)gateStopped=false;mechanisms.clear();policy.departing=true;sync();},
-  beginMatch(){epoch++;policy.match=true;policy.menu=false;policy.departing=false;mechanisms.clear();sync();},
+  depart(){policy.departing=true;sync();},
+  beginMatch(){epoch++;policy.match=true;policy.menu=false;policy.departing=false;sync();},
   // Explicit completed-ply event only; sound() owns mute/hidden/SDK/autoplay policy.
   turnHandoff(){if(policy.match&&!policy.menu&&settings().master>0)sound('turn-handoff',.45);},
-  hintWave(){sound('availability-wave',.85);},
   arenaVoice(humanSide:'white'|'black'='white'){say(announcerCue(humanSide,orcArenaLine));},
   speakOrcTurn(name:string,humanSide:'white'|'black'='white'){say(announcerCue(humanSide,name));},
   resultSting(_win:boolean,line:string,humanSide:'white'|'black'='white'){say(announcerCue(humanSide,line));},
-  reveal(ms:number,reduced:boolean){
-   for(const [id,start,end,name,level] of [
-    ['timer-slide',startTimerSlide[0],startTimerSlide[1],'timer-slide',.9],
-    ['timer-lock',startTimerLock[0],startTimerLock[1],'timer-lock',1],
-   ] as const){
-    if(!mechanisms.has(id)&&ms>=start){mechanisms.set(id,!reduced&&ms<end?sound(name,0)??null:null);}
-    const m=mechanisms.get(id);
-    if(m&&effects.has(m.source)){
-     m.gain.gain.setTargetAtTime(reduced?0:settings().master*settings().effects*sfxBus*level*mechanismEnvelope(ms,start,end),ctx!.currentTime,.008);
-     if(ms>=end||reduced){m.source.stop();mechanisms.set(id,null);}
-    }
-   }
-  },
-  gate(ms:number,reduced:boolean){
-
-   // Same scene-time windows as gatePose/CSS; no phrase-typing sounds.
-   for(const [id,start,end,name,level] of [
-    ['unlock',400,1160,'gate_unlock',1],
-    ...startPanelWindows,
-    ['doors',1160,2000,'gate_motion',1],
-   ] as const){
-    if(!mechanisms.has(id)&&ms>=start){mechanisms.set(id,!reduced&&ms<end?sound(name,0)??null:null);}
-    const m=mechanisms.get(id);
-    if(m&&effects.has(m.source)){
-     m.gain.gain.setTargetAtTime(reduced?0:settings().master*settings().effects*sfxBus*level*mechanismEnvelope(ms,start,end),ctx!.currentTime,.008);
-     if(ms>=end||reduced){m.source.stop();mechanisms.set(id,null);}
-    }
-   }
-  },
   dispose(){disposed=true;bindUiSfx(()=>{});bindMenuPressSound(()=>{});bindKingFireSfx(()=>{});bindPieceSfx(()=>{});bindPieceVoice(()=>{});policy.menu=false;stopEffects();stopMusic();stopMatch();document.removeEventListener('pointerdown',gesture,true);document.removeEventListener('keydown',gesture,true);document.removeEventListener('click',click,true);document.removeEventListener('visibilitychange',sync);window.removeEventListener('checkers-settings-change',sync);void ctx?.close();},
  };
 }

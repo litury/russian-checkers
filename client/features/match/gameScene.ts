@@ -21,7 +21,7 @@ import {
 	logicalSize,
 } from '../../platform/browser/displayDensity';
 import { optionalPack } from '../../platform/browser/idleWork';
-import { preparationMs } from '../../platform/browser/panelReveal';
+import { panelDurationMs } from '../../platform/browser/panelReveal';
 import { markPerf } from '../../platform/browser/perfMarks';
 import type { IYandexSdk } from '../../platform/sdk/IYandexSdk';
 import { createOpeningOverlay } from '../menu/openingOverlay';
@@ -388,8 +388,7 @@ export class GameScene extends Phaser.Scene {
 		if (this.playfieldBuilt || this.resources.failed) return;
 		this.hud = createHud(this, {
 			onRevealProgress: (elapsed, reduced) => {
-				this.board?.paintOpeningHint(elapsed / preparationMs, reduced);
-				this.title?.revealAudio(elapsed, reduced);
+				this.board?.paintOpeningHint(elapsed / panelDurationMs, reduced);
 			},
 			isPaused: () => this.session.paused,
 			onAutoChange: () => {
@@ -606,8 +605,6 @@ export class GameScene extends Phaser.Scene {
 			this.network.live?.requestState();
 			return;
 		}
-		// Input and banks never wait for the decorative reveal: as soon as the
-		// gates leave and the board is on screen the match is already playable.
 		const settle = () => {
 			if (!this.session.countingIn) return;
 			this.title.speakOrcTurn(
@@ -630,17 +627,13 @@ export class GameScene extends Phaser.Scene {
 			this.network.live?.ready();
 			this.refresh();
 		};
-		// Keep closed housings behind the gates. Their completed departure is the
-		// only gate: the HUD reveal runs on as decoration behind a playable board.
 		hud.setVisible(true);
 		const afterTitle = () => {
 			if (!this.session.countingIn) return;
 			this.title.beginMatch();
 			board.startOpeningHint(this.session.position, this.session.humanSide);
-			this.title.hintWave();
 			if (this.session.online && !this.network.onlineBegun) handshake();
 			else settle();
-			// Decoration only: the panels finish sliding; nothing waits on them.
 			hud.startReveal(() => undefined);
 		};
 		if (fromOpening) this.title.depart(afterTitle);

@@ -88,8 +88,7 @@ export function createOpeningOverlay(
 	};
 	const motionChange = () => {
 		if (motion.matches && gates.active) {
-			audio.gate(menuDepartureMs, true);
-			gates.advance(menuDepartureMs);
+			gates.advance(gates.duration);
 		}
 	};
 	const closeDialogs = () => {
@@ -109,7 +108,7 @@ export function createOpeningOverlay(
 		window.checkersStartup.playIntentAt = null;
 		window.checkersStartup.onlineIntentAt = null;
 		clearSearch();
-		audio.hide(completed, motion.matches);
+		audio.hide(completed);
 		gates.cancel();
 		closeDialogs();
 		root.hidden = true;
@@ -143,9 +142,6 @@ export function createOpeningOverlay(
 		const elapsed = motion.matches
 			? gates.duration
 			: (visual?.elapsed ?? gates.duration);
-		// Sound windows stay on the canonical gate timeline, so a compressed repeat
-		// keeps its cues aligned instead of cutting them off.
-		audio.gate((elapsed * menuDepartureMs) / gates.duration, motion.matches);
 		gates.advance(elapsed - gates.elapsed);
 	};
 	const invoke = (event?: Event) => {
@@ -394,7 +390,6 @@ export function createOpeningOverlay(
 			play.disabled = true;
 			frozenScroll = root.scrollTop;
 			root.classList.add('is-departing');
-			// Loading is finished; the following time belongs to the approved gate motion.
 			const activeButton =
 				window.checkersStartup.source === 'online' ? online : play;
 			const activeLabel = activeButton?.querySelector('.opening-cta-label');
@@ -407,8 +402,6 @@ export function createOpeningOverlay(
 				done();
 				return;
 			}
-			// The first arrival keeps the full approved choreography; later matches
-			// compress the same pass. Input never waits on it, but the wait is shorter.
 			gates.duration =
 				departures++ === 0 ? menuDepartureMs : repeatMenuDepartureMs;
 			visual = animateMenuDeparture(root, gates.duration);
@@ -422,12 +415,10 @@ export function createOpeningOverlay(
 				done();
 			});
 			syncPause();
-			audio.gate(0, false);
 		},
 		beginMatch: () => audio.beginMatch(),
 		humanSide: () => siegeSide(root),
 		turnHandoff: () => audio.turnHandoff(),
-		hintWave: () => audio.hintWave(),
 		arenaVoice: (humanSide: 'white' | 'black' = 'white') =>
 			audio.arenaVoice(humanSide),
 		speakOrcTurn: (name: string, humanSide: 'white' | 'black' = 'white') =>
@@ -437,7 +428,6 @@ export function createOpeningOverlay(
 			line: string,
 			humanSide: 'white' | 'black' = 'white',
 		) => audio.resultSting(win, line, humanSide),
-		revealAudio: (ms: number, reduced: boolean) => audio.reveal(ms, reduced),
 		warmAudio: () => audio.warmAudio(),
 	};
 }
