@@ -8,7 +8,6 @@ import type { Side } from '@/shared/rules';
 import {
 	PanelReveal,
 	panelDurationMs,
-	preparationMs,
 } from '../../../platform/browser/panelReveal';
 import { matchActionGeometry } from '../actions/matchActionGeometry';
 import type { PanelState } from './panelState';
@@ -69,9 +68,7 @@ export function createHud(
 		if (!visible || !reveal.active || document.hidden || handlers.isPaused?.())
 			return;
 		// Same time domain as match banks, not Phaser's FPS-smoothed animation delta.
-		reveal.advance(
-			reduced ? preparationMs : (delta * preparationMs) / panelDurationMs,
-		);
+		reveal.advance(reduced ? panelDurationMs : delta);
 		paint();
 	};
 	const autoChanged = (event: Event) => {
@@ -91,7 +88,7 @@ export function createHud(
 		document.removeEventListener('visibilitychange', visibilityChange);
 	});
 	return {
-		isActionsReady: () => visible && you.isEntranceReady(),
+		isActionsReady: () => visible,
 		isMenuOpen: () => false,
 		layout(width: number, height: number) {
 			const safe = readSafeInsets();
@@ -131,11 +128,11 @@ export function createHud(
 		setClock(whiteSec: number, blackSec: number, turn: Side | null = 'white') {
 			const own = facing === 'black' ? blackSec : whiteSec;
 			const other = facing === 'black' ? whiteSec : blackSec;
-			you.setClock(panelClock(own), turn === facing, reveal.active);
+			you.setClock(panelClock(own), turn === facing, turn === null);
 			foe.setClock(
 				panelClock(other),
 				turn !== null && turn !== facing,
-				reveal.active,
+				turn === null,
 			);
 		},
 		setVisible(on: boolean) {
@@ -163,13 +160,13 @@ export function createHud(
 				done();
 			});
 			// Normal motion is advanced by scene updates, never completed at start.
-			if (reduced) reveal.advance(preparationMs);
+			if (reduced) reveal.advance(panelDurationMs);
 			paint();
 		},
 		finishReveal() {
 			// Authoritative online begin/resume cannot wait behind decoration.
 			reveal.cancel();
-			reveal.elapsed = preparationMs;
+			reveal.elapsed = panelDurationMs;
 			staticRun = reduced;
 			paint();
 		},

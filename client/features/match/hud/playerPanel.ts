@@ -4,7 +4,7 @@ import {
 	readTextSpacing,
 	type TextRole,
 } from '@/client/fonts/typography';
-import { preparationMs } from '@/client/platform/browser/panelReveal';
+import { panelDurationMs } from '@/client/platform/browser/panelReveal';
 import type { Side } from '@/shared/rules';
 import { pieceSprites } from '../layout';
 import hudAtlas from './assets/gothic/atlas.json';
@@ -105,7 +105,6 @@ export function createPlayerPanel(scene: Phaser.Scene, own: boolean) {
 	let clockValue = '00:00';
 	let active = false;
 	let preparing = false;
-	let entranceReady = true;
 	let disposed = false;
 	const placeSurface = (
 		art: typeof panel,
@@ -294,7 +293,6 @@ export function createPlayerPanel(scene: Phaser.Scene, own: boolean) {
 	layoutContent();
 	return {
 		root,
-		isEntranceReady: () => entranceReady && !preparing,
 		layout(
 			left: number,
 			top: number,
@@ -309,12 +307,8 @@ export function createPlayerPanel(scene: Phaser.Scene, own: boolean) {
 			layoutContent();
 		},
 		pose(elapsed: number, reduced: boolean) {
-			entranceReady = elapsed >= preparationMs;
-			root.setAlpha(
-				reduced
-					? 1
-					: 0.45 + 0.55 * Math.min(1, Math.max(0, elapsed) / preparationMs),
-			);
+			const progress = Math.min(1, Math.max(0, elapsed) / panelDurationMs);
+			root.setAlpha(reduced ? 1 : 0.9 + 0.1 * (1 - (1 - progress) ** 3));
 		},
 		setIdentity(value: string, description: string) {
 			if (playerName === value && playerDetail === description) return;
