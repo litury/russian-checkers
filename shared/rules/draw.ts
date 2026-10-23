@@ -1,4 +1,5 @@
 import { winner } from './winner';
+import { hasCountedDraw } from './drawCounters';
 import type { IPosition } from './types/IPosition';
 import type { Side } from './types/Side';
 
@@ -40,6 +41,7 @@ export function isThreefold(keys: string[]): boolean {
 export function isMatchDraw(position: IPosition, keys: string[]): boolean {
  if (winner(position)) return false;
  if (isThreefold(keys)) return true;
+ if (hasCountedDraw(position)) return true;
  if (hasWinningMaterial(position)) return false;
  return false;
 }

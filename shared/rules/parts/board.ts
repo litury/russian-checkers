@@ -46,6 +46,11 @@ export function emptyBoard(): (IPiece | null)[][] {
 export function clonePosition(position: IPosition): IPosition {
 	return {
 		turn: position.turn,
+		...(position.drawCounters ? { drawCounters: {
+			...position.drawCounters,
+			stable: { ...position.drawCounters.stable },
+			kingsOnly: { ...position.drawCounters.kingsOnly },
+		} } : {}),
 		squares: position.squares.map((row) =>
 			row.map((piece) => (piece ? { ...piece } : null)),
 		),

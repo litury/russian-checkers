@@ -1,4 +1,5 @@
 import { legalMoves } from './legalMoves';
+import { advanceDrawCounters } from './drawCounters';
 import { clonePosition, getPiece, isKingRow, setPiece } from './parts/board';
 import { capturedOnSegment } from './parts/capturedOnPath';
 import { moveKey } from './parts/moveKey';
@@ -38,5 +39,8 @@ export function apply(position: IPosition, move: IMove): IPosition | null {
 	}
 	setPiece(next, current, { side: piece.side, kind });
 	next.turn = oppositeSide(position.turn);
+	next.drawCounters = advanceDrawCounters(
+		position, next, piece.kind === 'king', captured.length > 0, kind !== piece.kind,
+	);
 	return next;
 }
