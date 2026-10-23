@@ -1,7 +1,7 @@
 import { PanelReveal } from '../../platform/browser/panelReveal';
 
-export const menuDepartureMs = 2000;
-export const repeatMenuDepartureMs = 900;
+export const menuDepartureMs = 420;
+export const repeatMenuDepartureMs = 280;
 
 export class MenuTransition extends PanelReveal {
 	constructor() {
@@ -14,9 +14,9 @@ export function animateMenuDeparture(root: HTMLElement, duration: number) {
 		const animation = root.animate(
 			[
 				{ opacity: 1, transform: 'translateY(0)' },
-				{ opacity: 0, transform: 'translateY(-12px)' },
+				{ opacity: 0, transform: 'translateY(-6px)' },
 			],
-			{ duration, easing: 'ease-in-out', fill: 'both' },
+			{ duration, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'both' },
 		);
 		return {
 			get elapsed() {
