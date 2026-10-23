@@ -8,7 +8,7 @@ import type { IBoardView } from './board/IBoardView';
 import { sameSquare } from './board/sameSquare';
 import type { BotTurn } from './bot/botTurn';
 import type { BotSkill } from './bot/pickBotMove';
-import { canUndoBot } from './botUndo';
+import { canResign, undoBlockedReason } from './actions/matchActionState';
 import type { MatchClock } from './matchClock';
 import type { MatchSession } from './matchSession';
 import type { OnlineMatchCoordinator } from './online/onlineMatchCoordinator';
@@ -154,9 +154,9 @@ export class MatchInteraction {
 		const actions = kinds.map(() => ({}));
 		let landing = 0;
 		if (!this.session.humanChain) this.session.saveUndo(this.clock.banks);
-		this.ui.paintActions();
 		this.session.humanChain = chain;
 		this.session.moving = true;
+		this.ui.paintActions();
 
 		const undoGen = this.session.online ? null : this.session.botUndoGen;
 		const matchGen = this.session.resultGen;
@@ -218,6 +218,7 @@ export class MatchInteraction {
 	animateMove(move: IMove, after: () => void): void {
 		this.session.moving = true;
 		this.session.selected = null;
+		this.ui.paintActions();
 
 		const undoGen = this.session.online ? null : this.session.botUndoGen;
 		const matchGen = this.session.resultGen;
@@ -231,8 +232,18 @@ export class MatchInteraction {
 	}
 
 	undoBot(): void {
-		if (this.session.online || this.session.phase === 'over') return;
-		if (!canUndoBot(this.session.online, this.session.botUndoStack.length))
+		if (
+			undoBlockedReason({
+				phase: this.session.phase,
+				online: this.session.online,
+				paused: this.session.paused,
+				flagLock: this.session.flagLock,
+				countingIn: this.session.countingIn,
+				moving: this.session.moving,
+				humanChain: Boolean(this.session.humanChain),
+				undoDepth: this.session.botUndoStack.length,
+			})
+		)
 			return;
 		const clocks = this.session.restoreUndo();
 		if (!clocks) return;
@@ -388,12 +399,7 @@ export class MatchInteraction {
 	}
 
 	resignMatch(): void {
-		if (
-			this.session.phase === 'title' ||
-			this.session.phase === 'over' ||
-			this.session.flagLock
-		)
-			return;
+		if (!canResign(this.session)) return;
 		if (this.session.online) {
 			this.network.live?.resign();
 			return;

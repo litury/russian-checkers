@@ -27,7 +27,7 @@ import type { IYandexSdk } from '../../platform/sdk/IYandexSdk';
 import { createOpeningOverlay } from '../menu/openingOverlay';
 import { getAutoMove, getBotSkill } from '../settings/settings';
 import { bindMatchActions } from './actions/bindMatchActions';
-import { warmMatchActionArt } from './actions/matchActionArtWarmup';
+import { canResign } from './actions/matchActionState';
 import { BotTurn } from './bot/botTurn';
 import { createHud, matchStatus } from './hud/createHud';
 import { dropNoticeLine } from './hud/dropNotice';
@@ -254,11 +254,7 @@ export class GameScene extends Phaser.Scene {
 		this.actions = bindMatchActions({
 			undo: () => this.interaction.undoBot(),
 			resign: () => this.interaction.resignMatch(),
-			available: () =>
-				!this.railConcealed() &&
-				this.session.phase !== 'title' &&
-				!this.session.paused &&
-				!this.session.flagLock,
+			available: () => !this.railConcealed() && canResign(this.session),
 		});
 		this.events.once('shutdown', () => {
 			this.actions?.dispose();
@@ -579,7 +575,6 @@ export class GameScene extends Phaser.Scene {
 			events.off(Phaser.Core.Events.POST_RENDER, done);
 			this.events.off('shutdown', shutdown);
 			markPerf('board-first-frame');
-			warmMatchActionArt();
 			// The board is on screen now: the rail may follow it. Never earlier.
 			this.boardPainted = true;
 			if (this.session.phase !== 'title') this.paintUndo();
@@ -875,6 +870,9 @@ export class GameScene extends Phaser.Scene {
 				online: this.session.online,
 				paused: this.session.paused,
 				flagLock: this.session.flagLock,
+				countingIn: this.session.countingIn,
+				moving: this.session.moving,
+				humanChain: Boolean(this.session.humanChain),
 				undoDepth: this.session.botUndoStack.length,
 				concealed: this.railConcealed(),
 				entered: this.actionsEntered,

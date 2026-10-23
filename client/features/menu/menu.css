@@ -273,7 +273,8 @@ body:not([data-menu-atlas="ready"]) .menu-chip {
 .menu-chip:not(:disabled):active .sprite-slice {
 	background-position: var(--sprite-pressed);
 }
-.menu-chip:disabled .sprite-slice {
+.menu-chip:disabled .sprite-slice,
+.menu-chip[aria-disabled="true"] .sprite-slice {
 	background-position: var(--sprite-disabled);
 }
 .side-picker legend {

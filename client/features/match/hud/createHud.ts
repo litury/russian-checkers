@@ -5,7 +5,6 @@ import { playerPanelLayout } from '@/client/features/match/hud/playerPanelLayout
 import { createBunkerPanel } from './bunkerPanel';
 import { PanelReveal, preparationMs, panelDurationMs } from '../../../platform/browser/panelReveal';
 import { matchActionGeometry } from '../actions/matchActionGeometry';
-import { clockFrame } from './clockFrame';
 
 export function clipPlayerName(raw: string): string {
 	const chars = Array.from(raw.trim());
@@ -101,12 +100,10 @@ export function createHud(
 			if (actions) {
 				const box = matchActionGeometry(you.root);
 				const canvas = scene.game.canvas.getBoundingClientRect();
-				actions.style.setProperty('--action-enter-ms', `${clockFrame.enterMs}ms`);
 				actions.dataset.tooltipBelow = String(box.tooltipBelow);
 				actions.style.left = `${canvas.left + box.left}px`;
 				actions.style.top = `${canvas.top + box.top}px`;
-				actions.style.transformOrigin = 'top left';
-				actions.style.transform = `scaleX(${box.scaleX})`;
+				actions.style.width = `${box.width}px`;
 			}
 		},
 		setTurn(copy: string) {

@@ -25,6 +25,5 @@ export function matchActionGeometry(card: CardTransform) {
 		tooltipBelow: top < 90,
 		width,
 		height: actionTarget.height,
-		scaleX: width / (actionTarget.width * 2),
 	};
 }
