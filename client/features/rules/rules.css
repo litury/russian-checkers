@@ -1,0 +1,71 @@
+#match-history[data-profile-page="rules"] {
+	width: min(760px, calc(100% - 16px));
+	max-height: calc(100dvh - 16px);
+}
+#match-history[data-profile-page="rules"] .mh-panel {
+	height: calc(100dvh - 16px);
+	max-height: none;
+}
+#match-history[data-profile-page="rules"] .mh-surface {
+	flex: 1;
+}
+#match-history[data-profile-page="rules"]
+	.mh-surface
+	> .sprite-art
+	> .sprite-slice:nth-child(5) {
+	background-image: none;
+	background-color: #151917;
+}
+#match-history[data-profile-page="rules"] .mh-header {
+	padding: var(--surface-content-top) var(--surface-content-inline) 8px;
+}
+#match-history[data-profile-page="rules"] .mh-scroll {
+	flex: 1;
+	scrollbar-gutter: stable;
+}
+#profile-rules-pane {
+	width: 100%;
+	max-width: 65ch;
+	margin-inline: auto;
+	font: var(--type-body);
+	overflow-wrap: anywhere;
+}
+#profile-rules-pane .rules-intro {
+	margin-top: 8px;
+}
+.rules-section {
+	padding-block: 18px;
+	border-bottom: 1px solid #8e80652b;
+}
+#profile-rules-pane .rules-section h3 {
+	margin-bottom: 10px;
+}
+#profile-rules-pane .rules-section p + p {
+	margin-top: 12px;
+}
+.rules-section ul {
+	display: grid;
+	gap: 10px;
+	margin: 12px 0;
+	padding-left: 1.25em;
+}
+#profile-rules-pane .rules-limitations {
+	padding-left: 12px;
+	border-left: 2px solid #b49a6d;
+}
+.rules-section:last-child {
+	border-bottom: 0;
+}
+.rules-original a {
+	display: inline-flex;
+	align-items: center;
+	min-height: 44px;
+	color: #e0c28d;
+	text-underline-offset: 3px;
+}
+@media (max-height: 450px) {
+	#match-history[data-profile-page="rules"] .mh-header {
+		padding-top: 12px;
+		padding-bottom: 8px;
+	}
+}

@@ -232,12 +232,39 @@ html[data-menu-presentation="loading"] #menu-loading {
    </section>
    </div>
    <section id="profile-rules-pane" hidden aria-label="Правила игры">
-<p class="rules-time mh-muted" id="rules-time"></p>
-<section class="rules-row" aria-labelledby="rules-goal"><figure data-rules-figure="goal" style="aspect-ratio:3/3"><template><img src="/client/features/menu/assets/rules/goal.webp" width="528" height="528" alt="Чёрная шашка заперта у края двумя белыми: ходов нет, белые победили." decoding="async" /></template></figure><div><h3 id="rules-goal">Цель игры</h3><p>Заберите все шашки соперника или лишите его ходов. Первыми ходят белые, затем по очереди.</p></div></section>
-<section class="rules-row" aria-labelledby="rules-move"><figure data-rules-figure="move" style="aspect-ratio:3/3"><template><img src="/client/features/menu/assets/rules/move.webp" width="528" height="528" alt="Белая шашка внизу, обе свободные диагональные клетки впереди отмечены для хода." decoding="async" /></template></figure><div><h3 id="rules-move">Обычный ход</h3><p>Выберите свою шашку, затем отмеченное поле. Простая шашка ходит вперёд по диагонали на соседнее свободное поле.</p></div></section>
-<section class="rules-row" aria-labelledby="rules-capture"><figure data-rules-figure="capture" style="aspect-ratio:3/3"><template><img src="/client/features/menu/assets/rules/capture.webp" width="528" height="528" alt="Белая шашка берёт назад: через соседнюю чёрную на отмеченную клетку у нижнего края." decoding="async" /></template></figure><div><h3 id="rules-capture">Взятие обязательно</h3><p>Если можно побить шашку соперника, нужно бить. Простая шашка перепрыгивает её на свободное поле сразу за ней. Бить можно вперёд и назад.</p></div></section>
-<section class="rules-row" aria-labelledby="rules-chain"><figure data-rules-figure="chain" style="aspect-ratio:3/5"><template><img src="/client/features/menu/assets/rules/chain.webp" width="528" height="880" alt="Отмечено поле первого прыжка белой шашки через нижнюю чёрную. Затем нужно побить верхнюю той же шашкой." decoding="async" /></template></figure><div><h3 id="rules-chain">Несколько взятий</h3><p>Продолжайте бить той же шашкой, пока есть взятия. На развилке выбирайте любой путь, не обязательно самый длинный.</p><p>Побитые шашки снимаются в конце хода и до этого преграждают путь. Бить одну шашку дважды нельзя.</p></div></section>
-<section class="rules-row" aria-labelledby="rules-king"><figure data-rules-figure="king" style="aspect-ratio:4/4"><template><img src="/client/features/menu/assets/rules/king.webp" width="704" height="704" alt="Дамка берёт чёрную шашку на расстоянии и приземляется за ней у верхнего края." decoding="async" /></template></figure><div><h3 id="rules-king">Дамка</h3><p>На последнем ряду простая шашка становится дамкой. Дамка ходит вперёд и назад по свободной диагонали на любое расстояние. При взятии встаёт на любое свободное поле за шашкой соперника. Если превращение произошло при взятии, продолжайте бить как дамка, пока есть возможность.</p></div></section>
+<p class="rules-original"><a href="https://shashki.ru/download/2022/doc/FSHR_shashki_pravila_2022.doc" target="_blank" rel="noopener noreferrer" aria-label="Официальные правила — документ Word, новая вкладка" title="Документ Word на сайте Федерации шашек России">Официальные правила ↗</a></p>
+<p class="rules-intro">Доска 8×8, по 12 шашек. Играют по тёмным полям. Первыми ходят белые.</p>
+<section class="rules-section" aria-labelledby="rules-man">
+ <h3 id="rules-man">Ход</h3>
+ <p>Простая шашка ходит на одну свободную клетку вперёд по диагонали.</p>
+</section>
+<section class="rules-section" aria-labelledby="rules-capture">
+ <h3 id="rules-capture">Взятие</h3>
+ <ul>
+  <li>Есть взятие — нужно бить. Простая шашка бьёт вперёд и назад, вставая на свободную клетку сразу за шашкой соперника.</li>
+  <li>Продолжайте той же шашкой, пока есть взятия. На развилке выбирайте любой допустимый путь — не обязательно самый длинный.</li>
+  <li>Побитые шашки снимаются в конце серии и до этого преграждают путь. Одну шашку нельзя перепрыгнуть дважды.</li>
+ </ul>
+</section>
+<section class="rules-section" aria-labelledby="rules-king">
+ <h3 id="rules-king">Дамка</h3>
+ <p>На последнем ряду шашка становится дамкой. Она ходит вперёд и назад по свободной диагонали на любое расстояние. Через свои шашки прыгать нельзя.</p>
+ <p>При взятии дамка встаёт на любое свободное поле за шашкой соперника. Если превращение произошло во время взятия, продолжайте ту же серию уже как дамка.</p>
+</section>
+<section class="rules-section" aria-labelledby="rules-win">
+ <h3 id="rules-win">Завершение партии</h3>
+ <p>Победа — у соперника нет шашек, нет ходов или он сдался. Просрочка времени обычно означает поражение.</p>
+ <p>Ничья — троекратное повторение позиции с той же очередью хода, соглашение игроков или достижение установленного правилами счётчика ходов в окончании.</p>
+ <p>В онлайне ничью предлагают после своего хода. Ответный ход означает отказ.</p>
+ <p class="rules-limitations">Разбор окончаний, требующих решения судьи, пока недоступен.</p>
+</section>
+<section class="rules-section" aria-labelledby="rules-time">
+ <h3 id="rules-time">Время</h3>
+ <p><strong>3+2</strong> — 3 минуты каждому и 2 секунды за завершённый ход. Серия взятий — один ход.</p>
+ <p>Поиск соперника — <strong>3+2</strong>. С компьютером и другом: <strong>1+1, 3+2 или 5+3</strong>.</p>
+ <p>Отменять ход можно только против компьютера.</p>
+ <p>В онлайне отключение не останавливает часы. На возвращение — до 60 секунд.</p>
+</section>
 </section>
 <section id="profile-settings-pane" hidden aria-label="Настройки">
 <section class="settings-section"><h3>Звук</h3>

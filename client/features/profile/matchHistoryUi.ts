@@ -1,4 +1,5 @@
 import './matchHistory.css';
+import '../rules/rules.css';
 import {
 	buildHistoryReplay,
 	incompleteReplayCopy,
@@ -7,7 +8,7 @@ import {
 import { loadMatch, loadMatches } from '@/client/platform/network/cloud';
 import { canOpenBoard, type MatchRow } from '@/shared/protocol/matchHistory';
 import { squareAlg } from '@/shared/protocol/notation';
-import { blitzStartMs, type Side } from '@/shared/rules';
+import type { Side } from '@/shared/rules';
 import { uiSfx } from '../../audio/uiSfx';
 import blackArt from '../match/board/reliquary/black_disk.webp';
 import blackKingArt from '../match/board/reliquary/black_king.webp';
@@ -442,16 +443,6 @@ export function bindMatchHistory() {
 				if (returning) restoreList();
 				else void fetchList();
 			} else if (page === 'record' && record) void openMatch(record);
-			else if (page === 'rules') {
-				el('profile-rules-pane')
-					.querySelectorAll('template')
-					.forEach((template) => {
-						template.replaceWith(template.content.cloneNode(true));
-					});
-				const seconds = Math.ceil(blitzStartMs / 1000);
-				el('rules-time').textContent =
-					`${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')} на игрока. Время вышло — поражение.`;
-			}
 		},
 		close,
 	});
