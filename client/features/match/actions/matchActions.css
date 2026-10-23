@@ -56,7 +56,7 @@
 	border: 1px solid #877859;
 	background: #1c2220;
 	color: #e8dfcd;
-	font: 400 14px / 1.5 "Golos Text", sans-serif;
+	font: var(--type-note);
 	overflow-wrap: anywhere;
 	pointer-events: none;
 }
@@ -100,8 +100,8 @@
 }
 .resign-content {
 	width: 100%;
-	padding: 28px 24px
-		24px;
+	padding: var(--surface-content-top) var(--surface-content-inline)
+		var(--surface-content-bottom);
 	overflow: auto;
 	overscroll-behavior: contain;
 	scroll-padding: 12px;
@@ -109,7 +109,7 @@
 }
 #resign-title {
 	margin: 0 0 12px;
-	font: 600 24px / 1.2 Literata, Georgia, serif;
+	font: var(--type-heading);
 	overflow-wrap: anywhere;
 }
 #resign-title:focus {
@@ -117,21 +117,21 @@
 }
 #resign-copy {
 	margin: 0 0 8px;
-	font: 400 16px / 1.5 "Golos Text", sans-serif;
+	font: var(--type-body);
 }
 #resign-clock-note,
 #resign-status {
 	margin: 0 0 20px;
-	font: 400 14px / 1.5 "Golos Text", sans-serif;
+	font: var(--type-note);
 	color: #c5bdab;
 	overflow-wrap: anywhere;
 }
 #resign-confirmation .metal-button {
-	font: 600 20px / 1.25 "Golos Text", sans-serif;
+	font: var(--type-action-dialog);
 }
 .resign-footer {
 	flex: none;
-	padding: 8px 24px 24px;
+	padding: 8px var(--surface-content-inline) var(--surface-content-bottom);
 }
 #resign-confirmation #resign-confirm {
 	color: #e6b8a6;
