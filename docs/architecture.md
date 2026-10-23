@@ -35,7 +35,7 @@
 | Выбор хода бота | `client/features/match/bot/pickBotMove.ts` |
 | Геометрия доски и панелей | `client/features/match/hud/matchLayout.ts`, `client/features/match/hud/playerPanelLayout.ts` |
 | Панели и часы | `client/features/match/hud/createHud.ts`, `client/features/match/matchClock.ts` |
-| Кнопки отмены и сдачи | `client/features/match/actions/matchActions.css`, `client/features/match/actions/assets` |
+| Кнопки отмены и сдачи, условия доступности | `client/features/match/actions/matchActions.css`, `client/features/match/actions/matchActionState.ts` |
 | Результат и действия после партии | `client/features/match/result/boardVerdict.ts`, `client/features/match/result/verdictControlsGeometry.ts` |
 | Графика главного меню | `client/features/menu/assets/menu-controls`, `client/features/menu/assets/siege` |
 | Игровые звуки | `client/audio/menuAudio.ts`, `client/audio/assets` |

@@ -6,4 +6,5 @@
 - [Архитектура](architecture.md).
 - [Соглашения](conventions.md).
 - [Правила и игровой интерфейс](game-design.md).
+- [Художественное направление для всех артов](art-direction.md).
 - [Ресурсы и происхождение](assets/README.md).
