@@ -22,6 +22,7 @@ const auth = createAuthService(pool);
 const limited = createRateLimiter();
 const presence = createPresenceService();
 const matches = createMatchService(createMatchRepository(pool), auth, limited);
+await matches.restore();
 const server = createApiServer(pool, matches, [
 	createStatsRoutes(pool),
 	createPresenceRoutes(presence, auth),

@@ -38,6 +38,8 @@ export class MatchSession {
 	flagLock = false;
 	countingIn = false;
 	online = false;
+	drawOffer: Side | null = null;
+	lastDrawOffer: Side | null = null;
 	resultGen = 0;
 	acceptedResult: MatchOutcome | null = null;
 	resultPresented = false;

@@ -4,6 +4,7 @@ import { isMatchRow } from '@/shared/protocol/matchHistory';
 import type { IMove } from '@/shared/rules';
 import { runtimeApiOrigin } from './apiOrigin';
 import { CONNECT_BUDGET_MS } from './networkPolicy';
+import type { TimeControlId } from '@/shared/rules/timeControl';
 
 const api = () => runtimeApiOrigin();
 
@@ -59,6 +60,7 @@ async function createGuest(): Promise<{ id: string; token: string } | null> {
 }
 
 export async function recordBotMatch(opts: {
+ timeControl: TimeControlId;
  humanSide: Side;
  winner: Side | 'draw';
  plies: CloudPly[];
@@ -70,6 +72,7 @@ export async function recordBotMatch(opts: {
   headers: { authorization: `Bearer ${guest.token}` },
   body: JSON.stringify({
    mode: 'bot',
+   timeControl: opts.timeControl,
    humanSide: opts.humanSide,
    winner: opts.winner,
    plies: opts.plies.map((p) => ({

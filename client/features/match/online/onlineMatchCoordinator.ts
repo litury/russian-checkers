@@ -8,6 +8,7 @@ import {
 	takeNextPly,
 } from '@/shared/protocol/matchState';
 import type { IMove, Side } from '@/shared/rules';
+import { getTimeControl } from '@/client/features/settings/settings';
 import type { MatchClock } from '../matchClock';
 import type { MatchSession } from '../matchSession';
 import {
@@ -33,6 +34,8 @@ interface OnlineView {
 	start(): Promise<void>;
 	refresh(): void;
 	paintClock(): void;
+	paintActions(): void;
+	resetBoard(): void;
 	stopCountdown(): void;
 	finishOpening(): void;
 	end(side: Side | 'draw', reason: string): void;
@@ -134,6 +137,8 @@ export class OnlineMatchCoordinator {
 		if (new URLSearchParams(location.search).get('join')) return;
 		this.live?.close();
 		this.live = openLive({
+			onDraw: (offer, lastOffer) => this.applyDraw(offer, lastOffer),
+			onRecovered: (color, snap, winner, reason) => { void this.resumeResult(color, snap, winner, reason); },
 			onStart: (color, _matchId, snap) => {
 				if (this.disposed || generation !== this.generation) return;
 				if (this.session.phase !== 'title') {
@@ -142,6 +147,7 @@ export class OnlineMatchCoordinator {
 				}
 				if (!snap.begun && !snap.pieces.length && snap.ply < 1) return;
 				this.session.online = true;
+				this.clock.timeControl = snap.clocks?.timeControl ?? '1+0';
 				this.session.humanSide = color;
 				this.lastPly = snap.ply;
 				this.serverTurn = snap.turn;
@@ -197,6 +203,8 @@ export class OnlineMatchCoordinator {
 		}
 		this.live?.close();
 		this.live = openLive({
+			onDraw: (offer, lastOffer) => this.applyDraw(offer, lastOffer),
+			onRecovered: (color, snap, winner, reason) => { void this.resumeResult(color, snap, winner, reason); },
 			onQueued: () => {
 				if (this.disposed || generation !== this.generation) return;
 				if (this.searchPhase === 'timeout-offer') return;
@@ -219,6 +227,7 @@ export class OnlineMatchCoordinator {
 				this.stopSearchTicker();
 				this.paintSearch();
 				this.session.online = true;
+				this.clock.timeControl = snap.clocks?.timeControl ?? '1+0';
 				this.session.humanSide = color;
 				this.lastPly = snap.ply;
 				this.serverTurn = snap.turn;
@@ -289,12 +298,41 @@ export class OnlineMatchCoordinator {
 			this.markSearchOffline();
 			return;
 		}
-		if (kind === 'host') this.live.host();
+		if (kind === 'host') this.live.host(getTimeControl());
 		else if (kind === 'join') this.live.join(matchId);
 		else this.live.queue();
 	}
 
+	private async resumeResult(color: Side, snap: MatchSnapshot, winner: Side | 'draw', reason: string): Promise<void> {
+		if (this.disposed || this.session.acceptedResult) return;
+		if (this.session.phase !== 'title') {
+			this.applyResume(color, snap);
+			this.ui.end(winner, reason);
+			return;
+		}
+		this.session.online = true;
+		this.session.humanSide = color;
+		this.clock.timeControl = snap.clocks?.timeControl ?? '1+0';
+		this.lastPly = snap.ply;
+		this.serverTurn = snap.turn;
+		this.onlineBegun = true;
+		this.session.position = positionFromSnapshot(snap);
+		this.ui.clearSearch();
+		await this.ui.start();
+		if (this.disposed || !this.session.online) return;
+		this.applyResume(color, snap);
+		this.ui.end(winner, reason);
+	}
+
+	applyDraw(offer: Side | null, lastOffer?: Side | null): void {
+		this.session.drawOffer = offer;
+		if (lastOffer !== undefined) this.session.lastDrawOffer = lastOffer;
+		this.ui.paintActions();
+	}
+
 	applyAuthoritativeClocks(snap: MatchSnapshot): void {
+		this.session.drawOffer = snap.drawOffer ?? null;
+		this.session.lastDrawOffer = snap.lastDrawOffer ?? null;
 		if (!snap.clocks) return;
 		this.clock.applySnapshot(snap.clocks, this.ui.now());
 		this.dropUntil = snap.clocks.dropUntil ?? 0;
@@ -307,6 +345,10 @@ export class OnlineMatchCoordinator {
 	applyResume(color: Side, snap: MatchSnapshot): void {
 		this.session.pendingHaptic = null;
 		if (this.session.acceptedResult) return;
+		if (this.session.moving) {
+			this.session.resultGen++;
+			this.ui.resetBoard();
+		}
 		this.session.online = true;
 		this.session.humanSide = color;
 		this.lastPly = snap.ply;
@@ -359,6 +401,10 @@ export class OnlineMatchCoordinator {
 	applyState(snap: MatchSnapshot): void {
 		this.session.pendingHaptic = null;
 		if (this.session.acceptedResult) return;
+		if (this.session.moving) {
+			this.session.resultGen++;
+			this.ui.resetBoard();
+		}
 		this.lastPly = snap.ply;
 		this.serverTurn = snap.turn;
 		this.onlineBegun = snap.begun;
@@ -404,6 +450,17 @@ export class OnlineMatchCoordinator {
 		}
 		this.lastPly = next.ply;
 		this.serverTurn = next.turn;
+		if (next.clocks)
+			this.clock.applySnapshot(
+				{
+					...next.clocks,
+					serverNow:
+						next.clocks.serverNow +
+						Math.max(0, Date.now() - (next.receivedAt ?? Date.now())),
+				},
+				this.ui.now(),
+			);
+		else this.clock.settle(next.side, this.ui.now(), this.session.paused);
 		this.applyingNet = true;
 		if (
 			next.side === this.session.humanSide &&

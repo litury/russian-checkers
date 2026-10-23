@@ -2,8 +2,9 @@ import { clonePosition, setPiece } from './parts/board';
 import type { IPosition } from './types/IPosition';
 import type { ISquare } from './types/ISquare';
 import type { Side } from './types/Side';
+import { defaultTimeControl, timeControls } from './timeControl';
 
-export const blitzStartMs = 60_000;
+export const blitzStartMs = timeControls[defaultTimeControl].initialMs;
 export const blitzHoldMs = 0;
 
 export function ownPieceSquares(position: IPosition, side: Side): ISquare[] {
@@ -61,8 +62,8 @@ export function remainingMs(
 	return Math.max(0, bankMs - (elapsed - holdMs));
 }
 
-export function afterMoveBank(bankMs: number): number {
-	return Math.max(0, bankMs);
+export function afterMoveBank(bankMs: number, incrementMs = 0): number {
+	return bankMs > 0 ? bankMs + incrementMs : 0;
 }
 
 export function afterFlagBank(): number {

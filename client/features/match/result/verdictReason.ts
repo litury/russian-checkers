@@ -3,6 +3,7 @@ import { isThreefold } from '@/shared/rules/draw';
 
 export function verdictReason(winner: Side | 'draw', human: Side, kind: string, position: IPosition, keys: string[]): string {
 	const won = winner === human;
+	if (kind === 'agreement') return 'По соглашению игроков';
 	if (kind === 'timeout') return winner === 'draw' ? 'Игроки не вернулись в партию' : won ? 'Соперник не вернулся в партию' : 'Вы не вернулись в партию';
 	if (kind === 'resign') return won ? 'Соперник сдался' : 'Вы сдались';
 	if (kind === 'flag') return won ? 'У соперника закончилось время' : 'У вас закончилось время';

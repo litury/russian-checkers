@@ -43,6 +43,7 @@ html[data-menu-presentation="loading"] #menu-loading {
 <div id="game"></div>
 <div id="match-actions" role="group" aria-label="Действия в партии" hidden>
 <button type="button" id="match-undo" class="menu-chip match-action" aria-label="Отмена хода" aria-describedby="match-undo-reason" aria-controls="match-undo-reason" aria-expanded="false" aria-disabled="true"><span class="action-label">Отмена</span></button>
+<button type="button" id="match-draw" class="menu-chip match-action" aria-haspopup="dialog" aria-controls="draw-confirmation" hidden><span class="action-label">Ничья</span></button>
 <button type="button" id="match-resign" class="menu-chip match-action"><span class="action-label">Сдаться</span></button>
 <p id="match-undo-reason" class="match-action-note" role="status" hidden>После вашего хода и ответа компьютера можно вернуть позицию и часы.</p>
 </div>
@@ -57,6 +58,19 @@ html[data-menu-presentation="loading"] #menu-loading {
 </div></div>
 <footer class="menu-score-surface resign-footer">
 <button type="button" id="resign-confirm" class="metal-button secondary"><span class="action-label">Сдаться</span></button>
+</footer>
+</section>
+</dialog>
+<dialog id="draw-confirmation" aria-labelledby="draw-title" aria-describedby="draw-copy draw-clock-note">
+<section class="resign-panel">
+<div class="menu-choice-surface resign-body"><div class="resign-content">
+<h2 id="draw-title">Предложить ничью?</h2>
+<p id="draw-copy">Партия завершится, если соперник согласится.</p>
+<p id="draw-clock-note">Часы продолжают идти.</p>
+<button type="button" id="draw-continue" class="metal-button primary">Продолжить игру</button>
+</div></div>
+<footer class="menu-score-surface resign-footer">
+<button type="button" id="draw-confirm" class="metal-button secondary">Предложить ничью</button>
 </footer>
 </section>
 </dialog>
@@ -106,6 +120,11 @@ html[data-menu-presentation="loading"] #menu-loading {
     <label class="difficulty-option"><input type="radio" name="opening-bot-skill" value="normal" checked /><span class="skill-name">Обычная</span></label>
     <label class="difficulty-option"><input type="radio" name="opening-bot-skill" value="hard" /><span class="skill-name">Сложная</span></label>
    </div></fieldset>
+   <fieldset class="bot-difficulty"><legend>Время</legend><div class="difficulty-options">
+    <label class="difficulty-option"><input type="radio" name="opening-bot-time" value="1+1" /><span>1+1</span></label>
+    <label class="difficulty-option"><input type="radio" name="opening-bot-time" value="3+2" checked /><span>3+2</span></label>
+    <label class="difficulty-option"><input type="radio" name="opening-bot-time" value="5+3" /><span>5+3</span></label>
+   </div></fieldset>
    <p id="opening-bot-rules" class="play-note play-metadata"></p>
    <button id="opening-play" class="metal-button primary" type="button" disabled aria-busy="true"><span class="opening-cta-label">Начать партию</span></button>
   </section>
@@ -115,10 +134,17 @@ html[data-menu-presentation="loading"] #menu-loading {
    <button id="opening-friend" class="metal-button secondary" type="button">С другом</button>
   </section>
   <section class="play-page action-list" data-play-page="friend" hidden>
+   <fieldset class="bot-difficulty"><legend>Время приглашения</legend><div class="difficulty-options">
+    <label class="difficulty-option"><input type="radio" name="opening-friend-time" value="1+1" /><span>1+1</span></label>
+    <label class="difficulty-option"><input type="radio" name="opening-friend-time" value="3+2" checked /><span>3+2</span></label>
+    <label class="difficulty-option"><input type="radio" name="opening-friend-time" value="5+3" /><span>5+3</span></label>
+   </div></fieldset>
+   <p id="opening-friend-time-description" class="play-note play-metadata"></p>
    <button id="opening-search-create" class="metal-button primary" type="button">Создать приглашение</button>
    <button id="opening-search-enter" class="metal-button secondary" type="button">Ввести код</button>
   </section>
   <section class="play-page" data-play-page="enter" hidden>
+   <p class="play-note play-metadata">Время задано приглашением</p>
    <form id="opening-friend-form" novalidate>
     <label for="opening-friend-code">Код приглашения</label>
     <input id="opening-friend-code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="off" placeholder="6 цифр" aria-describedby="opening-friend-error" required />
@@ -127,6 +153,7 @@ html[data-menu-presentation="loading"] #menu-loading {
    </form>
   </section>
   <section class="play-page" data-play-page="room" hidden>
+   <p id="opening-room-time" class="play-note play-metadata"></p>
    <p id="opening-room-status" class="play-note" role="status">Создаём приглашение…</p>
    <div id="opening-room-code" hidden><p class="play-note">Код приглашения</p><output id="opening-room-digits"></output><div class="action-list">
     <button id="opening-copy-code" class="metal-button secondary" type="button">Скопировать код</button>

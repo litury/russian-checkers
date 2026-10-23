@@ -1,4 +1,4 @@
-import { blitzStartMs, remainingMs, type Side } from '@/shared/rules';
+import { remainingMs, type Side } from '@/shared/rules';
 
 export type MatchClockPhase = 'title' | 'human' | 'bot' | 'over';
 
@@ -13,7 +13,7 @@ export function remainingForHud(opts: {
 	turn: Side;
 }): number {
 	if (opts.phase === 'title' || opts.countingIn) {
-		return blitzStartMs;
+		return opts.bankMs;
 	}
 	if (opts.phase === 'over' || opts.paused || opts.side !== opts.turn) {
 		return opts.bankMs;

@@ -54,7 +54,7 @@ export function matchPanelState(input: {
 			'disconnected',
 			'Соперник отключился',
 			`Нет связи ${input.disconnectedTime}`,
-			`Ожидаем · ${input.disconnectedTime}`,
+			`Часы идут · ${input.disconnectedTime}`,
 			'warning',
 		);
 	if (input.paused) return state('paused', 'Пауза');

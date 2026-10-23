@@ -1,6 +1,6 @@
 import { remainingMs, type Side } from '../../../shared/rules/index.ts';
 
-export const FLAG_SLACK_MS = 750;
+export const FLAG_SLACK_MS = 0;
 
 export function turnLeft(
 	bankMs: number,

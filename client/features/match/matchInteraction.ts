@@ -136,10 +136,7 @@ export class MatchInteraction {
 
 	playHumanHop(square: ISquare): boolean {
 		if (!this.session.selected) return false;
-		if (
-			this.session.online &&
-			this.ui.remaining(this.session.position.turn) <= 0
-		) {
+		if (this.ui.remaining(this.session.position.turn) <= 0) {
 			this.ui.flag();
 			return false;
 		}
@@ -157,6 +154,15 @@ export class MatchInteraction {
 		this.session.humanChain = chain;
 		this.session.moving = true;
 		this.ui.paintActions();
+		if (chosen.complete) {
+			if (this.session.online) {
+				const kind = kinds.at(-1);
+				if (kind) this.session.pendingHaptic = {
+					move: chosen.complete, kind, ply: this.network.lastPly + 1,
+				};
+				this.network.live?.move(chosen.complete);
+			} else this.clock.completedAt = this.ui.now();
+		}
 
 		const undoGen = this.session.online ? null : this.session.botUndoGen;
 		const matchGen = this.session.resultGen;
@@ -172,21 +178,12 @@ export class MatchInteraction {
 					return;
 				}
 				this.session.selected = chain.selected;
-				// Time runs through hops and branch decisions; a final tap cannot rescue a flag.
-				if (this.ui.remaining(this.session.position.turn) <= 0) {
+				if (!chosen.complete && this.ui.remaining(this.session.position.turn) <= 0) {
 					this.ui.flag();
 					return;
 				}
 				if (chosen.complete) {
 					if (this.session.online) {
-						const kind = kinds.at(-1);
-						if (kind)
-							this.session.pendingHaptic = {
-								move: chosen.complete,
-								kind,
-								ply: this.network.lastPly + 1,
-							};
-						this.network.live?.move(chosen.complete);
 						this.network.drainInbound();
 					} else this.completeHumanMove(chosen.complete);
 				} else this.ui.refresh();
@@ -254,6 +251,7 @@ export class MatchInteraction {
 		this.ui.board()?.reset();
 		this.session.moving = false;
 		this.clock.banks = clocks;
+		this.clock.completedAt = null;
 		this.session.selected = null;
 		this.session.humanChain = null;
 		this.session.flagLock = false;
@@ -272,18 +270,27 @@ export class MatchInteraction {
 	}
 
 	playHuman(move: IMove): void {
+		if (this.ui.remaining(this.session.position.turn) <= 0) {
+			this.ui.flag();
+			return;
+		}
 		this.session.saveUndo(this.clock.banks);
 		this.ui.paintActions();
+		if (this.session.online) this.network.live?.move(move);
+		else this.clock.completedAt = this.ui.now();
 		this.animateMove(move, () => {
 			if (this.session.online) {
-				if (!this.session.acceptedResult) this.network.live?.move(move);
-				else this.network.drainInbound();
+				this.network.drainInbound();
 			} else this.completeHumanMove(move);
 		});
 	}
 
 	completeHumanMove(move: IMove): void {
 		const mover = this.session.position.turn;
+		if (!this.session.online && this.ui.remaining(mover) <= 0) {
+			this.ui.end(mover === 'white' ? 'black' : 'white', 'flag');
+			return;
+		}
 		if (!this.session.commit(move)) return;
 		const pending = this.session.pendingHaptic;
 		this.session.pendingHaptic = null;
@@ -300,7 +307,7 @@ export class MatchInteraction {
 		) {
 			haptics.play(pending.kind, pending);
 		}
-		if (!this.session.acceptedResult)
+		if (!this.session.acceptedResult && !this.session.online)
 			this.clock.settle(mover, this.ui.now(), this.session.paused);
 		// First accepted move of the human side: bots may have played earlier plies.
 		// markPerf keeps the first write, so later human moves never move the mark.
@@ -370,8 +377,17 @@ export class MatchInteraction {
 			this.ui.end(winner(this.session.position) ?? 'white');
 			return;
 		}
+		if (this.ui.remaining(this.session.position.turn) <= 0) {
+			this.ui.flag();
+			return;
+		}
+		this.clock.completedAt = this.ui.now();
 		this.animateMove(move, () => {
 			const mover = this.session.position.turn;
+			if (this.ui.remaining(mover) <= 0) {
+				this.ui.end(mover === 'white' ? 'black' : 'white', 'flag');
+				return;
+			}
 			if (!this.session.commit(move)) {
 				this.ui.end(winner(this.session.position) ?? 'white');
 				return;

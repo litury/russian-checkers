@@ -6,16 +6,26 @@ import {
 	undoBlockedReason,
 } from './matchActionState';
 import { bindResignConfirmation } from './resignConfirmation';
+import { bindDrawConfirmation } from './drawConfirmation';
+import type { Side } from '@/shared/rules';
 
 interface ActionView extends UndoState {
 	concealed: boolean;
 	entered: boolean;
+	humanSide: Side;
+	drawOffer: Side | null;
+	lastDrawOffer: Side | null;
+	turn: Side;
+	ply: number;
 }
 
 export function bindMatchActions(handlers: {
 	undo(): void;
 	resign(): void;
 	available(): boolean;
+	offerDraw(): void;
+	acceptDraw(): void;
+	declineDraw(): void;
 }) {
 	const undo = requiredElement<HTMLButtonElement>('match-undo');
 	const resign = requiredElement<HTMLButtonElement>('match-resign');
@@ -28,6 +38,9 @@ export function bindMatchActions(handlers: {
 		handlers.resign,
 		handlers.available,
 	);
+	const draw = bindDrawConfirmation({
+		offer: handlers.offerDraw, accept: handlers.acceptDraw, decline: handlers.declineDraw,
+	});
 	let latest: ActionView | null = null;
 	const hideExplanation = () => {
 		explanation.hidden = true;
@@ -93,6 +106,11 @@ export function bindMatchActions(handlers: {
 			undo.hidden = view.online;
 			if (view.online) hideExplanation();
 			const inMatch = view.phase === 'human' || view.phase === 'bot';
+			draw.paint({
+				active: view.online && inMatch && !view.concealed && canResign(view),
+				canOffer: view.ply > 0 && view.turn !== view.humanSide && !view.drawOffer && view.lastDrawOffer !== view.humanSide,
+				humanSide: view.humanSide, offer: view.drawOffer,
+			});
 			if (
 				view.phase === 'title' ||
 				(view.phase !== 'over' && (view.paused || view.flagLock))
@@ -119,11 +137,12 @@ export function bindMatchActions(handlers: {
 			}
 			return view.entered;
 		},
-		dismiss: () => confirmation.dismiss(),
+		dismiss: () => { confirmation.dismiss(); draw.dismiss(); },
 		dispose() {
 			controls.abort();
 			hideExplanation();
 			confirmation.destroy();
+			draw.dispose();
 		},
 	};
 }

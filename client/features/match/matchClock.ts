@@ -7,8 +7,23 @@ import {
 } from '@/shared/rules';
 import { remainingForHud } from './hud/matchClock';
 import type { MatchPhase } from './matchSession';
+import {
+	defaultTimeControl,
+	timeControls,
+	type TimeControlId,
+} from '@/shared/rules/timeControl';
 export class MatchClock {
+	timeControl: TimeControlId = defaultTimeControl;
 	banks: Record<Side, number> = { white: blitzStartMs, black: blitzStartMs };
+	completedAt: number | null = null;
+	reset(timeControl: TimeControlId): void {
+		this.timeControl = timeControl;
+		const initialMs = timeControls[timeControl].initialMs;
+		this.banks = { white: initialMs, black: initialMs };
+		this.startedAt = 0;
+		this.completedAt = null;
+		this.remotePaused = false;
+	}
 	startedAt = 0;
 	remotePaused = false;
 	remaining(
@@ -26,20 +41,24 @@ export class MatchClock {
 			side,
 			bankMs: this.banks[side],
 			startedAt: this.startedAt,
-			now,
+			now: this.completedAt ?? now,
 			paused: state.paused || this.remotePaused,
 		});
 	}
 	settle(side: Side, now: number, paused: boolean): void {
 		this.banks[side] = afterMoveBank(
-			remainingMs(this.banks[side], this.startedAt, now, paused),
+			remainingMs(this.banks[side], this.startedAt, this.completedAt ?? now, paused),
+			timeControls[this.timeControl].incrementMs,
 		);
 		this.startedAt = now;
+		this.completedAt = null;
 	}
 	applySnapshot(
 		clocks: NonNullable<MatchSnapshot['clocks']>,
 		now: number,
 	): void {
+		this.timeControl = clocks.timeControl ?? '1+0';
+		this.completedAt = null;
 		this.banks = { ...clocks.banks };
 		this.remotePaused = clocks.paused;
 		this.startedAt = this.remotePaused

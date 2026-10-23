@@ -162,7 +162,11 @@ export function bindMatchHistory() {
 			if (Number.isFinite(Date.parse(row.startedAt)))
 				date.dateTime = row.startedAt;
 			info.append(name, date);
-			const detail = element('p', 'mh-row-detail', sideLabel(row));
+			const detail = element(
+				'p',
+				'mh-row-detail',
+				`${sideLabel(row)} · ${row.timeControl ?? '1+0'}`,
+			);
 			const action = element('div', 'mh-row-action');
 			if (canOpenBoard(row)) {
 				const button = element(
@@ -383,7 +387,7 @@ export function bindMatchHistory() {
 		}
 		el('match-history-result').textContent = outcomeLabel(detail);
 		el('match-history-meta').textContent =
-			`${opponent(detail)} · ${sideLabel(detail)} · ${dateLabel(detail.startedAt)}`;
+			`${opponent(detail)} · ${sideLabel(detail)} · ${detail.timeControl ?? '1+0'} · ${dateLabel(detail.startedAt)}`;
 		const warning = el('match-history-warning');
 		warning.hidden = !replay.incomplete && detail.winner !== null;
 		warning.textContent = replay.incomplete

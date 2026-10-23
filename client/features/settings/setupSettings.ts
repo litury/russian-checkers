@@ -1,5 +1,9 @@
 import { requiredElement } from '@/client/platform/browser/dom';
 import type { BotSkill, Settings } from './settings';
+import {
+	defaultTimeControl,
+	isSelectableTimeControl,
+} from '@/shared/rules/timeControl';
 
 const keys = {
 	master: 'checkers.sfxMaster',
@@ -8,6 +12,7 @@ const keys = {
 	music: 'checkers.musicVolume',
 	autoMove: 'checkers.autoMove',
 	botSkill: 'checkers.botSkill',
+	timeControl: 'checkers.timeControl',
 } as const;
 const levels = ['master', 'music', 'effects'] as const;
 function read(key: keyof Settings): string | null {
@@ -25,6 +30,7 @@ function numeric(raw: string | null, fallback: number): number {
 function botSkillOf(raw: string | null | undefined): BotSkill {
 	return raw === 'easy' || raw === 'hard' || raw === 'normal' ? raw : 'normal';
 }
+const savedTimeControl = read('timeControl');
 const state: Settings = {
 	master: numeric(read('master'), 0.4),
 	effects: numeric(read('effects'), 1),
@@ -32,6 +38,9 @@ const state: Settings = {
 	muted: ['1', 'true'].includes(read('muted') ?? ''),
 	autoMove: !['0', 'false'].includes(read('autoMove') ?? ''),
 	botSkill: botSkillOf(read('botSkill')),
+	timeControl: isSelectableTimeControl(savedTimeControl)
+		? savedTimeControl
+		: defaultTimeControl,
 };
 if (state.master === 0) {
 	state.master = 0.4;
@@ -55,6 +64,8 @@ window.checkersSettings = {
 		if ('muted' in patch) state.muted = Boolean(patch.muted);
 		if ('autoMove' in patch) state.autoMove = Boolean(patch.autoMove);
 		if ('botSkill' in patch) state.botSkill = botSkillOf(patch.botSkill);
+		if (isSelectableTimeControl(patch.timeControl))
+			state.timeControl = patch.timeControl;
 		sync();
 		try {
 			for (const key of Object.keys(keys) as (keyof Settings)[]) {

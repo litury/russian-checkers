@@ -1,6 +1,10 @@
 import { requiredElement } from '@/client/platform/browser/dom';
 import './playMenu.css';
-import { blitzStartMs } from '@/shared/rules';
+import {
+	defaultTimeControl,
+	isSelectableTimeControl,
+	timeControlDescription,
+} from '@/shared/rules/timeControl';
 import { uiSfx } from '../../audio/uiSfx';
 import {
 	type SearchPhase,
@@ -60,7 +64,7 @@ function refreshBack() {
 	back.disabled = !canBack();
 	cancel.disabled = !canBack();
 	for (const radio of dialog.querySelectorAll<HTMLInputElement>(
-		'input[name="opening-bot-skill"]',
+		'input[name="opening-bot-skill"], input[name="opening-bot-time"], input[name="opening-friend-time"]',
 	))
 		radio.disabled = back.disabled;
 	for (const id of [
@@ -81,15 +85,36 @@ function syncSkill() {
 		'input[name="opening-bot-skill"]',
 	))
 		radio.checked = radio.value === skill;
+	const timeControl = window.checkersSettings.get().timeControl;
+	for (const radio of dialog.querySelectorAll<HTMLInputElement>(
+		'input[name="opening-bot-time"], input[name="opening-friend-time"]',
+	))
+		radio.checked = radio.value === timeControl;
 	const color = siegeSide(root) === 'white' ? 'Белые' : 'Чёрные';
 	requiredElement('opening-bot-rules').textContent =
-		`${color} · ${clockLabel()} на игрока`;
+		`${color} · ${timeControlDescription(timeControl)}`;
+	requiredElement('opening-friend-time-description').textContent =
+		timeControlDescription(timeControl);
+	if (page !== 'room')
+		requiredElement('opening-room-time').textContent =
+			`${timeControl} · ${timeControlDescription(timeControl)}`;
 }
 
-function clockLabel() {
-	const seconds = Math.ceil(blitzStartMs / 1000);
-	return `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
-}
+dialog.addEventListener(
+	'change',
+	(event) => {
+		const target = event.target;
+		if (
+			!(target instanceof HTMLInputElement) ||
+			!['opening-bot-time', 'opening-friend-time'].includes(target.name) ||
+			!isSelectableTimeControl(target.value)
+		)
+			return;
+		window.checkersSettings.set({ timeControl: target.value });
+		syncSkill();
+	},
+	options,
+);
 
 function validateCode() {
 	join.disabled = !onlineReady || !/^\d{6}$/.test(input.value);
@@ -391,7 +416,7 @@ requiredElement('opening-share-code').addEventListener(
 );
 
 for (const note of dialog.querySelectorAll('.play-online-rules'))
-	note.textContent = `${clockLabel()} на игрока · Цвет — автоматически`;
+	note.textContent = `${timeControlDescription(defaultTimeControl)} · Цвет — автоматически`;
 const initialCode = new URLSearchParams(location.search).get('join');
 if (initialCode && /^\d{6}$/.test(initialCode)) input.value = initialCode;
 const observer = new MutationObserver(refreshBack);

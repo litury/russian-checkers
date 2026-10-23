@@ -1,4 +1,5 @@
 import type { IPiece, IPosition, PieceKind, Side } from '@/shared/rules';
+import type { TimeControlId } from '@/shared/rules/timeControl';
 
 export const READY_MS = 25_000;
 
@@ -10,6 +11,7 @@ export type ClockSnap = {
 	paused: boolean;
 	serverNow: number;
 	dropUntil?: number;
+	timeControl?: TimeControlId;
 };
 
 export type MatchSnapshot = {
@@ -20,6 +22,9 @@ export type MatchSnapshot = {
 	begun: boolean;
 	pieces: BoardPiece[];
 	clocks?: ClockSnap;
+	drawCounters?: IPosition['drawCounters'];
+	drawOffer?: Side | null;
+	lastDrawOffer?: Side | null;
 };
 
 export function encodePieces(position: IPosition): BoardPiece[] {
@@ -41,15 +46,15 @@ export function hashPosition(position: IPosition): string {
 
 export function snapshotOf(matchId: string, position: IPosition, ply: number, begun: boolean, clocks?: ClockSnap): MatchSnapshot {
 	const pieces = encodePieces(position);
-	return {matchId, ply, turn: position.turn, hash: hashPosition(position), begun, pieces, ...(clocks ? {clocks} : {})};
+	return {matchId, ply, turn: position.turn, hash: hashPosition(position), begun, pieces, ...(clocks ? {clocks} : {}), ...(position.drawCounters ? {drawCounters: position.drawCounters} : {})};
 }
 
-export function positionFromSnapshot(snap: Pick<MatchSnapshot, 'pieces' | 'turn'>): IPosition {
+export function positionFromSnapshot(snap: Pick<MatchSnapshot, 'pieces' | 'turn' | 'drawCounters'>): IPosition {
 	const squares: (IPiece | null)[][] = Array.from({length: 8}, () => Array.from({length: 8}, () => null));
 	for (const p of snap.pieces) {
 		squares[p.row][p.col] = {side: p.side, kind: p.kind};
 	}
-	return {squares, turn: snap.turn};
+	return {squares, turn: snap.turn, ...(snap.drawCounters ? {drawCounters: structuredClone(snap.drawCounters)} : {})};
 }
 
 export function classifyPly(lastPly: number, incomingPly: number): 'apply' | 'gap' | 'stale' {

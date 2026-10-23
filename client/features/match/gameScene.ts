@@ -6,7 +6,6 @@ import { recordBotMatch } from '@/client/platform/network/cloud';
 import { hashPosition } from '@/shared/protocol/matchState';
 import type { Side } from '@/shared/rules';
 import {
-	blitzStartMs,
 	createInitialPosition,
 	legalMoves,
 	remainingMs,
@@ -25,7 +24,7 @@ import { panelDurationMs } from '../../platform/browser/panelReveal';
 import { markPerf } from '../../platform/browser/perfMarks';
 import type { IYandexSdk } from '../../platform/sdk/IYandexSdk';
 import { createOpeningOverlay } from '../menu/openingOverlay';
-import { getAutoMove, getBotSkill } from '../settings/settings';
+import { getAutoMove, getBotSkill, getTimeControl } from '../settings/settings';
 import { bindMatchActions } from './actions/bindMatchActions';
 import { canResign } from './actions/matchActionState';
 import { BotTurn } from './bot/botTurn';
@@ -114,6 +113,8 @@ export class GameScene extends Phaser.Scene {
 			end: (side, reason) => this.endMatch(side, reason),
 			presentResult: () => this.presentResult(),
 			playHumanLocal: (move) => this.interaction.playHumanLocal(move),
+			paintActions: () => this.paintUndo(),
+			resetBoard: () => this.board?.reset(),
 			playRemote: (move) => this.interaction.playRemote(move),
 		});
 		this.interaction = new MatchInteraction(
@@ -256,6 +257,9 @@ export class GameScene extends Phaser.Scene {
 			onSearchCancel: () => this.network.cancelSearch(),
 		});
 		this.actions = bindMatchActions({
+			offerDraw: () => this.network.live?.offerDraw(),
+			acceptDraw: () => this.network.live?.acceptDraw(),
+			declineDraw: () => this.network.live?.declineDraw(),
 			undo: () => this.interaction.undoBot(),
 			resign: () => this.interaction.resignMatch(),
 			available: () => !this.railConcealed() && canResign(this.session),
@@ -525,8 +529,7 @@ export class GameScene extends Phaser.Scene {
 		this.session.phase = this.session.humanSide === 'black' ? 'bot' : 'human';
 		this.timeLowSaid = false;
 		this.bot.pending = false;
-		this.clock.banks = { white: blitzStartMs, black: blitzStartMs };
-		this.clock.startedAt = 0;
+		this.clock.reset(this.session.online ? this.clock.timeControl : getTimeControl());
 		this.session.flagLock = false;
 		this.session.matchPlies = [];
 		this.session.posKeys = [hashPosition(this.session.position)];
@@ -535,8 +538,8 @@ export class GameScene extends Phaser.Scene {
 		this.network.inboundNet = [];
 
 		this.hud.setClock(
-			Math.ceil(blitzStartMs / 1000),
-			Math.ceil(blitzStartMs / 1000),
+			Math.ceil(this.clock.banks.white / 1000),
+			Math.ceil(this.clock.banks.black / 1000),
 		);
 		if (!fromOpening) this.title.hide();
 		this.overlay?.hide();
@@ -546,8 +549,8 @@ export class GameScene extends Phaser.Scene {
 		this.hud.setOpponent(
 			this.session.online ? 'Соперник' : 'Компьютер',
 			this.session.online
-				? this.session.humanSide === 'white' ? 'Чёрные' : 'Белые'
-				: `Сложность: ${difficulty}`,
+				? `${this.session.humanSide === 'white' ? 'Чёрные' : 'Белые'} · ${this.clock.timeControl}`
+				: `${difficulty[0].toUpperCase()}${difficulty.slice(1)} · ${this.clock.timeControl}`,
 		);
 		// Real piece disks stay. Selection-v2 frames are not substituted on the board.
 		this.board.setPlayfieldVisible(true);
@@ -650,11 +653,7 @@ export class GameScene extends Phaser.Scene {
 
 	private clockTurn(): Side {
 		if (this.session.online && this.network.onlineBegun) {
-			return this.onlineHumanTurn()
-				? this.session.humanSide
-				: this.session.humanSide === 'white'
-					? 'black'
-					: 'white';
+			return this.network.serverTurn;
 		}
 		return this.session.position.turn;
 	}
@@ -856,6 +855,11 @@ export class GameScene extends Phaser.Scene {
 				humanChain: Boolean(this.session.humanChain),
 				concealed: this.railConcealed(),
 				entered: this.actionsEntered,
+				humanSide: this.session.humanSide,
+				drawOffer: this.session.drawOffer,
+				lastDrawOffer: this.session.lastDrawOffer,
+				turn: this.session.position.turn,
+				ply: this.session.online ? this.network.lastPly : this.session.matchPlies.length,
 			}) ?? this.actionsEntered;
 	}
 
@@ -938,6 +942,7 @@ export class GameScene extends Phaser.Scene {
 		}
 		if (!this.session.online && !this.session.preview) {
 			void recordBotMatch({
+				timeControl: this.clock.timeControl,
 				humanSide: this.session.humanSide,
 				winner: side,
 				plies: this.session.matchPlies,

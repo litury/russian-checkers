@@ -1,3 +1,8 @@
+import {
+	defaultTimeControl,
+	type SelectableTimeControl,
+} from '@/shared/rules/timeControl';
+
 export type BotSkill = 'easy' | 'normal' | 'hard';
 
 export type Settings = {
@@ -7,6 +12,7 @@ export type Settings = {
 	music: number;
 	autoMove: boolean;
 	botSkill: BotSkill;
+	timeControl: SelectableTimeControl;
 };
 
 declare global {
@@ -38,8 +44,13 @@ try {
 } catch {}
 export function getBotSkill(): BotSkill {
 	return typeof window !== 'undefined' && window.checkersSettings
-		? window.checkersSettings.get().botSkill ?? botSkill
+		? (window.checkersSettings.get().botSkill ?? botSkill)
 		: botSkill;
+}
+export function getTimeControl(): SelectableTimeControl {
+	return (
+		globalThis.window?.checkersSettings?.get().timeControl ?? defaultTimeControl
+	);
 }
 export function setBotSkill(next: BotSkill): void {
 	botSkill = botSkills.includes(next) ? next : 'normal';

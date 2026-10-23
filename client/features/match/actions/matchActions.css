@@ -8,6 +8,7 @@
 }
 #match-actions[hidden],
 #match-actions [hidden],
+#match-actions .match-action[hidden],
 #resign-confirmation [hidden] {
 	display: none;
 }
@@ -24,13 +25,19 @@
 	min-width: 0;
 	white-space: nowrap;
 }
-#match-actions[data-online="true"] {
-	grid-template-columns: minmax(0, 1fr);
+#draw-confirmation {
+	width: min(400px, calc(100% - 24px));
+	max-height: calc(100dvh - 24px);
+	margin: auto;
+	padding: 0;
+	border: 0;
+	background: none;
+	overflow: hidden;
 }
-#match-actions[data-online="true"] .match-action {
-	width: 100%;
-	max-width: 96px;
-}
+#draw-confirmation::backdrop { background: #060b0bd9; }
+#draw-title { margin: 0 0 16px; font: var(--type-heading); }
+#draw-copy { margin: 0 0 8px; font: var(--type-body); }
+#draw-clock-note { margin: 0 0 20px; font: var(--type-note); color: #c5bdab; }
 .match-hud-announcement {
 	position: absolute;
 	width: 1px;
