@@ -51,6 +51,9 @@ export function acceptWebsocket(req: IncomingMessage, socket: Duplex, onText: (t
    }
    buf = buf.subarray(dataOff + len);
    if (op === 8) {
+    socket.end(payload.length <= 125
+     ? Buffer.concat([Buffer.from([0x88, payload.length]), payload])
+     : Buffer.from([0x88, 2, 0x03, 0xea]));
     fail();
     return;
    }
@@ -69,7 +72,7 @@ export function acceptWebsocket(req: IncomingMessage, socket: Duplex, onText: (t
   close() {
    if (closed) return;
    closed = true;
-   try { socket.end(); } catch {}
+   try { socket.end(Buffer.from([0x88, 2, 0x03, 0xe8])); } catch {}
    onClose();
   },
  };
