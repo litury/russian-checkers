@@ -23,9 +23,11 @@ export class MatchClock {
 		this.startedAt = 0;
 		this.completedAt = null;
 		this.remotePaused = false;
+		this.serverPause = undefined;
 	}
 	startedAt = 0;
 	remotePaused = false;
+	serverPause?: 'shutdown' | 'storage';
 	remaining(
 		side: Side,
 		now: number,
@@ -61,6 +63,7 @@ export class MatchClock {
 		this.completedAt = null;
 		this.banks = { ...clocks.banks };
 		this.remotePaused = clocks.paused;
+		this.serverPause = clocks.serverPause;
 		this.startedAt = this.remotePaused
 			? now
 			: now - Math.max(0, clocks.serverNow - clocks.turnStarted);

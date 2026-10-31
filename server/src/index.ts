@@ -31,15 +31,24 @@ const server = createApiServer(pool, matches, [
 	createMatchesRoutes(pool, auth),
 ]);
 let stopping = false;
-const shutdown = () => {
+const shutdown = async () => {
 	if (stopping) return;
 	stopping = true;
-	matches.dispose();
-	server.closeWebSockets();
-	server.close(() => {
-		void pool.end();
-	});
-	server.closeAllConnections();
+	const deadline = setTimeout(() => process.exit(1), 15000);
+	deadline.unref();
+	try {
+		await matches.shutdown();
+	} catch (error) {
+		process.stderr.write(`shutdown save ${error}\n`);
+		process.exitCode = 1;
+	} finally {
+		matches.dispose();
+		server.closeWebSockets();
+		server.closeAllConnections();
+		await new Promise<void>(resolve => server.close(() => resolve()));
+		await pool.end();
+		clearTimeout(deadline);
+	}
 };
 process.once('SIGINT', shutdown);
 process.once('SIGTERM', shutdown);

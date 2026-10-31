@@ -9,6 +9,7 @@ export type ClockSnap = {
 	banks: {white: number; black: number};
 	turnStarted: number;
 	paused: boolean;
+	serverPause?: 'shutdown' | 'storage';
 	serverNow: number;
 	dropUntil?: number;
 	timeControl?: TimeControlId;

@@ -1,4 +1,5 @@
 import { markPerf } from '@/client/platform/browser/perfMarks';
+import type { MatchResult } from '@/shared/protocol/matchResult';
 import { probeApi } from '@/client/platform/network/cloud';
 import { type NetMove, openLive } from '@/client/platform/network/live';
 import {
@@ -38,7 +39,7 @@ interface OnlineView {
 	resetBoard(): void;
 	stopCountdown(): void;
 	finishOpening(): void;
-	end(side: Side | 'draw', reason: string): void;
+	end(side: MatchResult, reason: string): void;
 	presentResult(): void;
 	playHumanLocal(move: IMove): void;
 	playRemote(move: IMove): void;
@@ -167,8 +168,8 @@ export class OnlineMatchCoordinator {
 			onEnd: (winner, reason, youWin) => {
 				if (this.session.phase === 'over') return;
 				const side =
-					winner === 'draw'
-						? 'draw'
+					winner === 'draw' || winner === 'aborted'
+						? winner
 						: youWin === true
 							? this.session.humanSide
 							: youWin === false
@@ -254,8 +255,8 @@ export class OnlineMatchCoordinator {
 			onEnd: (winner, reason, youWin) => {
 				if (this.session.phase === 'over') return;
 				const side =
-					winner === 'draw'
-						? 'draw'
+					winner === 'draw' || winner === 'aborted'
+						? winner
 						: youWin === true
 							? this.session.humanSide
 							: youWin === false
@@ -303,7 +304,7 @@ export class OnlineMatchCoordinator {
 		else this.live.queue();
 	}
 
-	private async resumeResult(color: Side, snap: MatchSnapshot, winner: Side | 'draw', reason: string): Promise<void> {
+	private async resumeResult(color: Side, snap: MatchSnapshot, winner: MatchResult, reason: string): Promise<void> {
 		if (this.disposed || this.session.acceptedResult) return;
 		if (this.session.phase !== 'title') {
 			this.applyResume(color, snap);

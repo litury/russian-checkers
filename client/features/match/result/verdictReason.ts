@@ -1,7 +1,9 @@
 import type { IPosition, Side } from '@/shared/rules';
+import type { MatchResult } from '@/shared/protocol/matchResult';
 import { isThreefold } from '@/shared/rules/draw';
 
-export function verdictReason(winner: Side | 'draw', human: Side, kind: string, position: IPosition, keys: string[]): string {
+export function verdictReason(winner: MatchResult, human: Side, kind: string, position: IPosition, keys: string[]): string {
+	if (winner === 'aborted') return 'Сбой сервера. Результат не засчитан.';
 	const won = winner === human;
 	if (kind === 'agreement') return 'По соглашению игроков';
 	if (kind === 'timeout') return winner === 'draw' ? 'Игроки не вернулись в партию' : won ? 'Соперник не вернулся в партию' : 'Вы не вернулись в партию';

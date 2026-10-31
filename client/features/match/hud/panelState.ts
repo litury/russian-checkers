@@ -20,6 +20,7 @@ export function matchPanelState(input: {
 	phase: MatchPhase;
 	preparing: boolean;
 	paused: boolean;
+	serverPause?: 'shutdown' | 'storage';
 	waitingResult: boolean;
 	humanTurn: boolean;
 	capture: boolean;
@@ -36,9 +37,9 @@ export function matchPanelState(input: {
 	): PanelState => ({ kind, title, compactTitle, detail, tone });
 	if (input.outcome) {
 		const outcome = input.outcome;
-		const draw = outcome.winner === 'draw';
+		const draw = outcome.winner === 'draw' || outcome.winner === 'aborted';
 		const won = outcome.winner === outcome.humanSide;
-		const title = draw ? 'Ничья' : won ? 'Победа' : 'Поражение';
+		const title = outcome.winner === 'aborted' ? 'Партия прервана' : draw ? 'Ничья' : won ? 'Победа' : 'Поражение';
 		return state(
 			'finished',
 			title,
@@ -47,6 +48,10 @@ export function matchPanelState(input: {
 			draw ? 'neutral' : won ? 'win' : 'loss',
 		);
 	}
+	if (input.serverPause) return state('paused',
+		input.serverPause === 'storage' ? 'Сбой сервера' : 'Восстанавливаем партию',
+		input.serverPause === 'storage' ? 'Сбой сервера' : 'Восстановление',
+		'Часы остановлены', 'warning');
 	if (input.phase === 'over' || input.waitingResult)
 		return state('waiting', 'Ожидаем результат', 'Ждём результат');
 	if (input.disconnectedTime)

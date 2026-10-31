@@ -6,5 +6,6 @@ RUN npm ci && cd server && npm ci
 COPY shared ./shared
 COPY server ./server
 ENV PORT=8787
+ENV TSX_TSCONFIG_PATH=server/tsconfig.json
 EXPOSE 8787
-CMD ["./node_modules/.bin/tsx", "--tsconfig", "server/tsconfig.json", "server/src/index.ts"]
+CMD ["node", "--import", "tsx", "server/src/index.ts"]

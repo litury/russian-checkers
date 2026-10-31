@@ -12,6 +12,7 @@ export interface MatchRuntime {
 	banks: Record<Side, number>;
 	turnStarted: number;
 	clockPending?: boolean;
+	serverPause?: 'shutdown' | 'storage';
 	friend: boolean;
 	friendCode?: string;
 	timeControl: SelectableTimeControl;

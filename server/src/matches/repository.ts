@@ -1,16 +1,36 @@
 import type { Pool } from 'pg';
 import type { RecordedPly } from '../../../shared/protocol/replay.ts';
-import type { Side } from '../../../shared/rules/index.ts';
 import type { SelectableTimeControl } from '../../../shared/rules/timeControl.ts';
 import type { MatchRuntime } from './runtime.ts';
+import type { MatchResult } from '../../../shared/protocol/matchResult.ts';
+
+export interface StoredMatch {
+	winner: MatchResult;
+	reason: string;
+	runtime: MatchRuntime;
+	ended: boolean;
+}
+
+function stored(row: { winner: MatchResult | null; reason: string; runtime: MatchRuntime; ended: boolean }): StoredMatch {
+	return { ...row, winner: row.winner ?? 'aborted' };
+}
+
 export function createMatchRepository(pool: Pool) {
 	return {
-		async completed(id: string, player: string): Promise<{ winner: Side | 'draw'; reason: string; runtime: MatchRuntime } | null> {
+		async read(id: string): Promise<StoredMatch> {
+			const result = await pool.query(
+				'SELECT winner,end_reason AS reason,runtime,ended_at IS NOT NULL AS ended FROM matches WHERE id=$1 FOR UPDATE',
+				[id],
+			);
+			if (!result.rows[0]?.runtime) throw new Error('Match snapshot missing');
+			return stored(result.rows[0]);
+		},
+		async completed(id: string, player: string): Promise<StoredMatch | null> {
 			const result = await pool.query(
 				'SELECT winner,end_reason AS reason,runtime FROM matches WHERE id::text=$1 AND (white_id=$2 OR black_id=$2) AND ended_at IS NOT NULL AND runtime IS NOT NULL',
 				[id, player],
 			);
-			return result.rows[0] ?? null;
+			return result.rows[0] ? stored({ ...result.rows[0], ended: true }) : null;
 		},
 		async active(): Promise<{ id: string; runtime: MatchRuntime }[]> {
 			const result = await pool.query(
@@ -20,6 +40,7 @@ export function createMatchRepository(pool: Pool) {
 		},
 		async save(id: string, runtime: MatchRuntime, ply?: RecordedPly): Promise<void> {
 			const connection = await pool.connect();
+			let failed = false;
 			try {
 				await connection.query('BEGIN');
 				const updated = await connection.query(
@@ -33,10 +54,11 @@ export function createMatchRepository(pool: Pool) {
 				);
 				await connection.query('COMMIT');
 			} catch (error) {
-				await connection.query('ROLLBACK');
+				failed = true;
+				try { await connection.query('ROLLBACK'); } catch {}
 				throw error;
 			} finally {
-				connection.release();
+				connection.release(failed);
 			}
 		},
 		async startClock(id: string, ply: number, turnStarted: number): Promise<void> {
@@ -56,11 +78,18 @@ export function createMatchRepository(pool: Pool) {
 			);
 			return result.rows[0].id as string;
 		},
-		async finish(id: string, winner: Side | 'draw', reason: string, runtime: MatchRuntime): Promise<void> {
-			await pool.query(
-				'UPDATE matches SET winner=$2,ended_at=now(),end_reason=$3,runtime=$4 WHERE id=$1 AND ended_at IS NULL',
-				[id, winner, reason, JSON.stringify(runtime)],
+		async finish(id: string, winner: MatchResult, reason: string, runtime: MatchRuntime): Promise<StoredMatch> {
+			const result = await pool.query(
+				'UPDATE matches SET winner=$2,ended_at=now(),end_reason=$3,runtime=$4 WHERE id=$1 AND ended_at IS NULL RETURNING winner,end_reason AS reason,runtime',
+				[id, winner === 'aborted' ? null : winner, reason, JSON.stringify(runtime)],
 			);
+			if (result.rows[0]) return stored({ ...result.rows[0], ended: true });
+			const existing = await pool.query(
+				'SELECT winner,end_reason AS reason,runtime,ended_at IS NOT NULL AS ended FROM matches WHERE id=$1',
+				[id],
+			);
+			if (!existing.rows[0]?.ended) throw new Error('Match result missing');
+			return stored(existing.rows[0]);
 		},
 	};
 }

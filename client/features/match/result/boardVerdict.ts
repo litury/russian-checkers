@@ -1,6 +1,7 @@
 import type Phaser from 'phaser';
 import { requiredElement } from '@/client/platform/browser/dom';
 import type { Side } from '@/shared/rules';
+import type { MatchResult } from '@/shared/protocol/matchResult';
 import { uiSfx } from '../../../audio/uiSfx';
 import { decorateMenu } from '../../menu/menuAtlas';
 import { readSafeInsets } from '../hud/matchLayout';
@@ -8,7 +9,7 @@ import { verdictControlsGeometry } from './verdictControlsGeometry';
 import './boardVerdict.css';
 
 export type Verdict = {
-	winner: Side | 'draw';
+	winner: MatchResult;
 	humanSide: Side;
 	reason: string;
 	online: boolean;
@@ -189,14 +190,14 @@ export function createResultOverlay(
 					? document.activeElement
 					: null;
 			const state =
-				verdict.winner === 'draw'
+				verdict.winner === 'draw' || verdict.winner === 'aborted'
 					? 'draw'
 					: verdict.winner === verdict.humanSide
 						? 'win'
 						: 'loss';
 			root.dataset.outcome = state;
 			heading.textContent =
-				state === 'win' ? 'Победа' : state === 'loss' ? 'Поражение' : 'Ничья';
+				verdict.winner === 'aborted' ? 'Партия прервана' : state === 'win' ? 'Победа' : state === 'loss' ? 'Поражение' : 'Ничья';
 			reason.textContent = verdict.reason;
 			againLabel.textContent = verdict.online
 				? 'Найти соперника'

@@ -38,6 +38,7 @@ import { MatchSession } from './matchSession';
 import { OnlineMatchCoordinator } from './online/onlineMatchCoordinator';
 import { createResultOverlay } from './result/boardVerdict';
 import { verdictReason } from './result/verdictReason';
+import type { MatchResult } from '@/shared/protocol/matchResult';
 
 export class GameScene extends Phaser.Scene {
 	private session!: MatchSession;
@@ -708,6 +709,7 @@ export class GameScene extends Phaser.Scene {
 			phase: this.session.phase,
 			preparing: this.session.countingIn || (this.session.online && !this.network.onlineBegun),
 			paused: this.session.paused || this.clock.remotePaused,
+			serverPause: this.clock.serverPause,
 			waitingResult: this.session.flagLock,
 			humanTurn: this.session.online ? this.onlineHumanTurn() : this.session.phase === 'human',
 			capture: this.captureAvailable,
@@ -847,7 +849,7 @@ export class GameScene extends Phaser.Scene {
 			this.actions?.paint({
 				phase: this.session.phase,
 				online: this.session.online,
-				paused: this.session.paused,
+				paused: this.session.paused || this.clock.remotePaused,
 				flagLock: this.session.flagLock,
 				undoDepth: this.session.botUndoStack.length,
 				moving: this.session.moving,
@@ -863,7 +865,7 @@ export class GameScene extends Phaser.Scene {
 			}) ?? this.actionsEntered;
 	}
 
-	private endMatch(side: Side | 'draw', kind = 'rules'): void {
+	private endMatch(side: MatchResult, kind = 'rules'): void {
 		if (
 			!this.board ||
 			this.session.acceptedResult ||
@@ -926,7 +928,7 @@ export class GameScene extends Phaser.Scene {
 		this.refresh();
 		const { winner: side } = result;
 		if (side === 'draw') uiSfx('draw-result');
-		if (side !== 'draw') {
+		if (side !== 'draw' && side !== 'aborted') {
 			const line = orcOutcomeLine(
 				this.session.resultKind === 'flag' ? 'flag' : 'rules',
 				side === this.session.humanSide,
@@ -940,7 +942,7 @@ export class GameScene extends Phaser.Scene {
 					this.session.humanSide,
 				);
 		}
-		if (!this.session.online && !this.session.preview) {
+		if (!this.session.online && !this.session.preview && side !== 'aborted') {
 			void recordBotMatch({
 				timeControl: this.clock.timeControl,
 				humanSide: this.session.humanSide,

@@ -26,6 +26,7 @@ import {
 import { mintFriendCode, resolveFriendJoin } from './friendCode.ts';
 import type { MatchRepository } from './repository.ts';
 import type { MatchRuntime } from './runtime.ts';
+import { MATCH_PROTOCOL_VERSION, type MatchResult } from '../../../shared/protocol/matchResult.ts';
 export function createMatchService(
 	repository: MatchRepository,
 	auth: AuthService,
@@ -47,6 +48,7 @@ export function createMatchService(
 		flagTimer?: ReturnType<typeof setTimeout>;
 		clockTimer?: ReturnType<typeof setTimeout>;
 		clockPending?: boolean;
+		serverPause?: MatchRuntime['serverPause'];
 		banks: Record<Side, number>;
 		turnStarted: number;
 		socks: Map<string, TextSock>;
@@ -71,6 +73,7 @@ export function createMatchService(
 	const playerRoom = new Map<string, string>();
 	const operations = new Map<string, Promise<unknown>>();
 	let disposed = false;
+	let stopping = false;
 	const serialize = <Value>(key: string, operation: () => Promise<Value>): Promise<Value> => {
 		const previous = operations.get(key) ?? Promise.resolve();
 		const next = previous.catch(() => {}).then(operation);
@@ -85,6 +88,7 @@ export function createMatchService(
 		position: room.position, ply: room.ply, keys: room.keys,
 		begun: room.begun, banks: room.banks, turnStarted: room.turnStarted,
 		clockPending: room.clockPending,
+		serverPause: room.serverPause,
 		friend: room.friend, friendCode: room.friendCode, timeControl: room.timeControl,
 		drawOffer: room.drawOffer, lastDrawOffer: room.lastDrawOffer,
 		dropDeadlines: room.dropDeadlines,
@@ -96,7 +100,7 @@ export function createMatchService(
 
 	const endRoom = async (
 		room: Room,
-		win: Side | 'draw',
+		win: MatchResult,
 		reason: string,
 		loserId?: string,
 	) => {
@@ -112,9 +116,16 @@ export function createMatchService(
 			room.resultFrozen = true;
 		}
 		try {
-			await repository.finish(room.id, win, reason, runtimeOf(room));
+			const saved = await repository.finish(room.id, win, reason, runtimeOf(room));
+			win = saved.winner;
+			reason = saved.reason;
+			Object.assign(room, saved.runtime);
+			if (win === 'aborted') for (const sock of room.socks.values()) pushState(room, sock);
 		} catch (error) {
 			process.stderr.write(`endRoom db ${error}\n`);
+			room.serverPause = 'storage';
+			for (const sock of room.socks.values()) pushState(room, sock);
+			if (stopping) return;
 			room.flagTimer = setTimeout(() => {
 				void serialize(room.id, async () => {
 					room.ending = false;
@@ -133,11 +144,8 @@ export function createMatchService(
 		if (room.flagTimer) clearTimeout(room.flagTimer);
 		for (const t of room.drop.values()) clearTimeout(t);
 		for (const [pid, sock] of room.socks) {
-			const youWin = loserId
-				? pid !== loserId
-				: win !== 'draw' &&
-					((win === 'white' && pid === room.white) ||
-						(win === 'black' && pid === room.black));
+			const youWin = (win === 'white' && pid === room.white) ||
+				(win === 'black' && pid === room.black);
 			send(sock, { type: 'end', winner: win, youWin, reason });
 		}
 	};
@@ -149,6 +157,7 @@ export function createMatchService(
 		banks: { white: room.banks.white, black: room.banks.black },
 		turnStarted: room.turnStarted,
 		paused: !room.begun || Boolean(room.ending) || Boolean(room.clockPending),
+		serverPause: room.serverPause,
 		serverNow: Date.now(),
 		timeControl: room.timeControl,
 		dropUntil: room.drop.size > 0 ? (room.dropUntil ?? 0) : 0,
@@ -177,12 +186,12 @@ export function createMatchService(
 
 	const armFlag = (room: Room) => {
 		if (room.flagTimer) clearTimeout(room.flagTimer);
-		if (!room.begun || room.clockPending || room.ending || disposed) return;
+		if (!room.begun || room.clockPending || room.ending || disposed || stopping) return;
 		const side = room.position.turn;
 		const left = turnLeft(room.banks[side], room.turnStarted, Date.now());
 		room.flagTimer = setTimeout(() => {
 			void serialize(room.id, async () => {
-				if (!rooms.has(room.id) || !room.begun || room.clockPending || room.ending) return;
+				if (stopping || !rooms.has(room.id) || !room.begun || room.clockPending || room.ending) return;
 				if (turnLeft(room.banks[room.position.turn], room.turnStarted, Date.now()) > 0) armFlag(room);
 				else await flagRoom(room);
 			});
@@ -197,16 +206,44 @@ export function createMatchService(
 		armFlag(room);
 	};
 
+	const recoverStorage = async (room: Room): Promise<void> => {
+		if (disposed || !rooms.has(room.id) || room.ending) return;
+		try {
+			const saved = await repository.read(room.id);
+			Object.assign(room, saved.runtime, { serverPause: 'storage', clockPending: true });
+			const outcome = resultSide(room.position, room.keys);
+			await endRoom(room, saved.ended ? saved.winner : outcome ?? 'aborted',
+				saved.ended ? saved.reason : outcome ? 'rules' : 'server_interruption');
+		} catch (error) {
+			process.stderr.write(`recovery db ${error}\n`);
+			if (disposed || stopping || !rooms.has(room.id)) return;
+			room.clockTimer = setTimeout(() => {
+				void serialize(room.id, () => recoverStorage(room));
+			}, 1000);
+		}
+	};
+
+	const storageFailure = async (room: Room): Promise<void> => {
+		if (room.serverPause === 'storage' || room.ending) return;
+		if (room.flagTimer) clearTimeout(room.flagTimer);
+		if (room.clockTimer) clearTimeout(room.clockTimer);
+		if (room.readyTimer) clearTimeout(room.readyTimer);
+		for (const timer of room.drop.values()) clearTimeout(timer);
+		if (room.begun && !room.clockPending)
+			room.banks[room.position.turn] = turnLeft(room.banks[room.position.turn], room.turnStarted, Date.now());
+		room.clockPending = true;
+		room.serverPause = 'storage';
+		for (const sock of room.socks.values()) pushState(room, sock);
+		await recoverStorage(room);
+	};
+
 	const checkpointClock = async (room: Room, ply = room.ply, started = room.turnStarted): Promise<void> => {
 		if (disposed || room.ending || !rooms.has(room.id) || room.ply !== ply || room.turnStarted !== started) return;
 		try {
 			await repository.startClock(room.id, ply, started);
 		} catch (error) {
 			process.stderr.write(`clock checkpoint db ${error}\n`);
-			if (disposed || room.ending || !rooms.has(room.id)) return;
-			room.clockTimer = setTimeout(() => {
-				void serialize(room.id, () => checkpointClock(room, ply, started));
-			}, 1000);
+			await storageFailure(room);
 		}
 	};
 
@@ -234,8 +271,11 @@ export function createMatchService(
 		room.drop.delete(id);
 		delete room.dropDeadlines[id];
 		room.dropUntil = Math.min(...Object.values(room.dropDeadlines), Infinity);
-		await repository.save(room.id, runtimeOf(room));
-		const resumeClock = room.begun && room.clockPending && room.socks.has(room.white) && room.socks.has(room.black);
+		const resumeClock = room.begun && room.serverPause === 'shutdown' && room.socks.has(room.white) && room.socks.has(room.black);
+		if (room.serverPause !== 'storage' && !room.ending) {
+			await repository.save(room.id, { ...runtimeOf(room), ...(resumeClock ? { serverPause: undefined } : {}) });
+		}
+		if (resumeClock) room.serverPause = undefined;
 		if (resumeClock) startClock(room);
 		const color: Side = id === room.white ? 'white' : 'black';
 		if (room.friend && !room.black) return;
@@ -270,7 +310,11 @@ export function createMatchService(
 			id,
 			setTimeout(() => {
 				void serialize(room.id, async () => {
-					if (!rooms.has(room.id) || room.socks.has(id)) return;
+					if (stopping || !rooms.has(room.id) || room.socks.has(id) || room.serverPause === 'storage') return;
+					if (room.serverPause === 'shutdown') {
+						await endRoom(room, 'aborted', 'server_interruption');
+						return;
+					}
 					if (room.begun && !room.clockPending && turnLeft(room.banks[room.position.turn], room.turnStarted, Date.now()) <= 0)
 						await flagRoom(room);
 					else {
@@ -291,7 +335,7 @@ export function createMatchService(
 	const armReady = (room: Room) => {
 		if (room.readyTimer) clearTimeout(room.readyTimer);
 		room.readyTimer = setTimeout(() => { void serialize(room.id, async () => {
-			if (room.begun || !rooms.has(room.id)) return;
+			if (stopping || room.ending || room.serverPause || room.begun || !rooms.has(room.id)) return;
 			const missing = [room.white, room.black].filter(
 				(pid) => pid && !room.ready.has(pid),
 			);
@@ -368,6 +412,7 @@ export function createMatchService(
 			matchId?: string;
 			timeControl?: unknown;
 			ply?: number;
+			protocol?: number;
 		} = {};
 		try {
 			msg = JSON.parse(raw);
@@ -376,6 +421,11 @@ export function createMatchService(
 			return;
 		}
 		if (msg.type === 'auth') {
+			if (msg.protocol !== MATCH_PROTOCOL_VERSION) {
+				send(sock, { type: 'error', error: 'update_required' });
+				sock.close();
+				return;
+			}
 			if (ctx.player) {
 				send(sock, { type: 'error', error: 'already_authenticated' });
 				return;
@@ -420,7 +470,7 @@ export function createMatchService(
 		const activeId = playerRoom.get(player);
 		const activeRoom = activeId ? rooms.get(activeId) : undefined;
 		if (activeRoom && activeRoom.socks.get(player) !== sock) return;
-		if (activeRoom?.ending) return;
+		if (activeRoom?.ending || (activeRoom?.serverPause && msg.type !== 'state')) return;
 		if (msg.type === 'queue') {
 			if (limited(`q:${player}`, 8)) {
 				send(sock, { type: 'error', error: 'rate' });
@@ -657,13 +707,17 @@ export function createMatchService(
 				if (room.friendCode && !room.black) friendCodes.set(room.friendCode, room.id);
 				const outcome = resultSide(room.position, room.keys);
 				if (outcome) {
+					room.clockPending = true;
 					await endRoom(room, outcome, 'rules');
 					continue;
 				}
-				if (room.begun && !room.clockPending && turnLeft(room.banks[room.position.turn], room.turnStarted, Date.now()) <= 0) {
-					await flagRoom(room);
+				if (room.serverPause !== 'shutdown') {
+					room.clockPending = true;
+					await endRoom(room, 'aborted', 'server_interruption');
 					continue;
 				}
+				room.clockPending = true;
+				room.dropDeadlines = {};
 				await dropPlayer(room, room.white);
 				if (room.black) await dropPlayer(room, room.black);
 				if (room.begun) armFlag(room);
@@ -671,6 +725,7 @@ export function createMatchService(
 			}
 		},
 		handleWs(sock: TextSock, raw: string, ctx: { player?: string }) {
+			if (stopping || disposed) return Promise.resolve();
 			const receivedAt = Date.now();
 			const key = ctx.player ? playerRoom.get(ctx.player) ?? 'lobby' : 'lobby';
 			return serialize(key, async () => {
@@ -679,13 +734,19 @@ export function createMatchService(
 					await handleWs(sock, raw, ctx, receivedAt);
 				} catch (error) {
 					send(sock, { type: 'error', error: 'storage_unavailable' });
+					const roomId = ctx.player ? playerRoom.get(ctx.player) : undefined;
+					const room = roomId ? rooms.get(roomId) : undefined;
+					if (room) {
+						if (key === room.id) await storageFailure(room);
+						else await serialize(room.id, () => storageFailure(room));
+					}
 					throw error;
 				}
 			});
 		},
 		status: () => ({ queue: queue.length, rooms: rooms.size }),
 		disconnect(player: string, sock: TextSock) {
-			if (disposed) return;
+			if (disposed || stopping) return;
 			const index = queue.findIndex(
 				(entry) => entry.id === player && entry.sock === sock,
 			);
@@ -693,9 +754,41 @@ export function createMatchService(
 			const roomId = playerRoom.get(player);
 			const room = roomId ? rooms.get(roomId) : undefined;
 			if (room) void serialize(room.id, async () => {
-				if (!disposed && rooms.has(room.id) && room.socks.get(player) === sock)
-					await dropPlayer(room, player);
+				if (!disposed && !stopping && rooms.has(room.id) && room.socks.get(player) === sock) {
+					if (room.serverPause === 'storage') room.socks.delete(player);
+					else try { await dropPlayer(room, player); } catch { await storageFailure(room); }
+				}
 			}).catch((error) => process.stderr.write(`disconnect db ${error}\n`));
+		},
+		async shutdown() {
+			if (stopping || disposed) return;
+			stopping = true;
+			const stoppedAt = Date.now();
+			await Promise.allSettled([...operations.values()]);
+			await Promise.all([...rooms.values()].map(room => serialize(room.id, async () => {
+				if (room.flagTimer) clearTimeout(room.flagTimer);
+				if (room.clockTimer) clearTimeout(room.clockTimer);
+				if (room.readyTimer) clearTimeout(room.readyTimer);
+				for (const timer of room.drop.values()) clearTimeout(timer);
+				if (room.ending || room.serverPause === 'storage') return;
+				if (!room.begun) {
+					await endRoom(room, 'aborted', 'server_interruption');
+					return;
+				}
+				if (room.begun && !room.clockPending) {
+					room.banks[room.position.turn] = turnLeft(room.banks[room.position.turn], room.turnStarted, stoppedAt);
+					if (room.banks[room.position.turn] <= 0) {
+						await flagRoom(room);
+						return;
+					}
+				}
+				room.turnStarted = stoppedAt;
+				room.clockPending = true;
+				room.serverPause = 'shutdown';
+				room.dropDeadlines = {};
+				await repository.save(room.id, runtimeOf(room));
+				for (const sock of room.socks.values()) pushState(room, sock);
+			})));
 		},
 		dispose() {
 			disposed = true;

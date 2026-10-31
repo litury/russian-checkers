@@ -1,4 +1,5 @@
 import type { IMove, Side } from '@/shared/rules';
+import { MATCH_PROTOCOL_VERSION, isMatchResult, type MatchResult } from '@/shared/protocol/matchResult';
 import { squareAlg } from '@/shared/protocol/notation';
 import { ensureGuest } from './cloud';
 import { runtimeApiOrigin, wsUrl as wsFromOrigin } from './apiOrigin';
@@ -16,8 +17,8 @@ export type LiveHandlers = {
  onState?: (snap: MatchSnapshot) => void;
  onMove?: (move: NetMove) => void;
  onDraw?: (offer: Side | null, lastOffer?: Side | null) => void;
- onRecovered?: (color: Side, snap: MatchSnapshot, winner: Side | 'draw', reason: string) => void;
- onEnd?: (winner: Side | 'draw', reason: string, youWin?: boolean) => void;
+ onRecovered?: (color: Side, snap: MatchSnapshot, winner: MatchResult, reason: string) => void;
+ onEnd?: (winner: MatchResult, reason: string, youWin?: boolean) => void;
  onError?: (error: string) => void;
 };
 
@@ -25,11 +26,12 @@ const wsUrl = () => wsFromOrigin(runtimeApiOrigin());
 
 const asSnap = (msg: Record<string, unknown>, fallbackId = ''): MatchSnapshot => {
  const banks = msg.banks as {white?: number; black?: number} | undefined;
- const clocks = banks && typeof banks.white === 'number' && typeof banks.black === 'number'
+ const clocks: MatchSnapshot['clocks'] = banks && typeof banks.white === 'number' && typeof banks.black === 'number'
   ? {
      banks: {white: Number(banks.white), black: Number(banks.black)},
      turnStarted: Number(msg.turnStarted ?? 0),
      paused: Boolean(msg.paused),
+     serverPause: msg.serverPause === 'shutdown' || msg.serverPause === 'storage' ? msg.serverPause : undefined,
      serverNow: Number(msg.serverNow ?? 0),
      dropUntil: Number(msg.dropUntil ?? 0),
      timeControl: isTimeControl(msg.timeControl) ? msg.timeControl : '1+0' as const,
@@ -50,7 +52,7 @@ const asSnap = (msg: Record<string, unknown>, fallbackId = ''): MatchSnapshot =>
 };
 
 const RECONNECT_MS = 1000;
-const RECONNECT_BUDGET = 3;
+const RECONNECT_BUDGET = 60;
 
 export function openLive(handlers: LiveHandlers) {
  let ws: WebSocket | null = null;
@@ -111,7 +113,7 @@ export function openLive(handlers: LiveHandlers) {
     const cancel = () => finish(false);
     cancelPending = cancel;
     const timer = setTimeout(cancel, CONNECT_BUDGET_MS);
-    socket.onopen = () => { if (current()) socket.send(JSON.stringify({ type: 'auth', token: guest.token, ...(matchId ? {matchId} : {}) })); };
+    socket.onopen = () => { if (current()) socket.send(JSON.stringify({ type: 'auth', protocol: MATCH_PROTOCOL_VERSION, token: guest.token, ...(matchId ? {matchId} : {}) })); };
     socket.onerror = () => finish(false);
     socket.onclose = () => {
      finish(false);
@@ -158,18 +160,18 @@ export function openLive(handlers: LiveHandlers) {
        receivedAt: Date.now(),
       });
      }
-     if (type === 'end' && msg.winner) {
+     if (type === 'end' && isMatchResult(msg.winner)) {
       rememberMatch('');
       activeMatch = false;
       reconnectLeft = 0;
-      handlers.onEnd?.(msg.winner as Side | 'draw', String(msg.reason ?? ''), msg.youWin as boolean | undefined);
+      handlers.onEnd?.(msg.winner, String(msg.reason ?? ''), msg.youWin as boolean | undefined);
      }
-     if (type === 'resume_end' && msg.color && msg.winner) {
+     if (type === 'resume_end' && msg.color && isMatchResult(msg.winner)) {
       rememberMatch(''); activeMatch = false; reconnectLeft = 0;
-      handlers.onRecovered?.(msg.color as Side, asSnap(msg), msg.winner as Side | 'draw', String(msg.reason ?? 'unknown'));
+      handlers.onRecovered?.(msg.color as Side, asSnap(msg), msg.winner, String(msg.reason ?? 'unknown'));
      }
      if (type === 'error' && msg.error) {
-      if (msg.error === 'storage_unavailable' || msg.error === 'illegal' || msg.error === 'draw_unavailable') api.requestState();
+      if (msg.error === 'illegal' || msg.error === 'draw_unavailable') api.requestState();
       handlers.onError?.(String(msg.error));
      }
     };

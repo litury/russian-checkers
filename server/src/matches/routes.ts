@@ -26,7 +26,7 @@ export function createMatchesRoutes(pool: Pool, auth: AuthService) {
 				`SELECT m.id, m.mode, m.winner, m.started_at, m.white_id, m.black_id, m.time_control,
       (SELECT count(*)::int FROM match_plies p WHERE p.match_id = m.id) AS plies
      FROM matches m
-     WHERE m.white_id = $1 OR m.black_id = $1
+     WHERE (m.white_id = $1 OR m.black_id = $1) AND m.ended_at IS NOT NULL
      ORDER BY m.started_at DESC
      LIMIT 50`,
 				[playerId],
