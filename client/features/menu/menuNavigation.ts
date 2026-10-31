@@ -320,6 +320,7 @@ input.addEventListener(
 	() => {
 		input.value = input.value.replace(/\D/g, '').slice(0, 6);
 		codeError.hidden = true;
+		codeError.textContent = '';
 		input.removeAttribute('aria-invalid');
 		validateCode();
 	},
@@ -456,9 +457,11 @@ export const playMenu = {
 		) {
 			codeError.hidden = next === 'friend-enter';
 			codeError.textContent =
-				next === 'friend-invalid'
-					? 'Введите 6 цифр.'
-					: 'Приглашение не найдено. Проверьте код.';
+				next === 'friend-enter'
+					? ''
+					: next === 'friend-invalid'
+						? 'Введите 6 цифр.'
+						: 'Приглашение не найдено. Проверьте код.';
 			if (codeError.hidden) input.removeAttribute('aria-invalid');
 			else input.setAttribute('aria-invalid', 'true');
 			navigate('enter', next === 'friend-enter');
