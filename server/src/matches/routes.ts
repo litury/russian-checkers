@@ -8,8 +8,9 @@ import type { Side } from '../../../shared/rules/index.ts';
 import type { AuthService } from '../auth/service.ts';
 import { json, read } from '../transport/http.ts';
 import { isTimeControl } from '../../../shared/rules/timeControl.ts';
+import type { RateLimiter } from '../transport/rateLimit.ts';
 
-export function createMatchesRoutes(pool: Pool, auth: AuthService) {
+export function createMatchesRoutes(pool: Pool, auth: AuthService, _limited: RateLimiter) {
 	const { playerFromAuth } = auth;
 	return async (
 		req: IncomingMessage,
@@ -115,6 +116,11 @@ export function createMatchesRoutes(pool: Pool, auth: AuthService) {
 			const playerId = await playerFromAuth(req.headers.authorization);
 			if (!playerId) {
 				json(res, 401, { error: 'unauthorized' });
+				return true;
+			}
+			if (_limited(`record:${playerId}`, 30)) {
+				res.setHeader('Retry-After', '60');
+				json(res, 429, { error: 'rate' });
 				return true;
 			}
 			const raw = await read(req);

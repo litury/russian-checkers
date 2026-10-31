@@ -121,9 +121,9 @@ export class OnlineMatchCoordinator {
 		window.checkersStartup.unlock();
 	}
 
-	markSearchOffline(): void {
+	markSearchOffline(_phase: 'offline' | 'rate-limited' = 'offline'): void {
 		this.generation++;
-		this.searchPhase = 'offline';
+		this.searchPhase = _phase;
 		this.stopSearchTicker();
 		this.paintSearch();
 		this.live?.close();
@@ -284,7 +284,7 @@ export class OnlineMatchCoordinator {
 					this.paintSearch();
 					return;
 				}
-				this.markSearchOffline();
+				this.markSearchOffline(error === 'rate' ? 'rate-limited' : 'offline');
 			},
 		});
 		const attempt = this.live;

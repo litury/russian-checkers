@@ -131,7 +131,7 @@ function render(focus = true) {
 	cancel.textContent =
 		phase === 'friend-joining'
 			? 'Отменить подключение'
-			: phase === 'offline' && lastAction !== 'queue'
+			: (phase === 'offline' || phase === 'rate-limited') && lastAction !== 'queue'
 				? '← Назад'
 				: 'Отменить поиск';
 	back.hidden = page === 'search' && phase !== 'found';
@@ -482,16 +482,18 @@ export const playMenu = {
 			elapsed.textContent = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
 			const detail = requiredElement('opening-search-detail');
 			detail.textContent =
-				next === 'timeout-offer'
-					? 'Поиск продолжается'
-					: next === 'offline'
-						? 'Проверьте подключение и попробуйте снова.'
-						: next === 'found'
-							? 'Готовим партию…'
-							: '';
+				next === 'rate-limited'
+					? 'Подождите минуту и попробуйте снова.'
+					: next === 'timeout-offer'
+						? 'Поиск продолжается'
+						: next === 'offline'
+							? 'Проверьте подключение и попробуйте снова.'
+							: next === 'found'
+								? 'Готовим партию…'
+								: '';
 			detail.hidden = !detail.textContent;
 			requiredElement('opening-search-bot').hidden = !view.showBot;
-			requiredElement('opening-search-retry').hidden = next !== 'offline';
+			requiredElement('opening-search-retry').hidden = next !== 'offline' && next !== 'rate-limited';
 			navigate(
 				'search',
 				(next === 'searching' || next === 'waiting') && page !== 'search',

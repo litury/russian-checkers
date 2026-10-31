@@ -486,6 +486,10 @@ export function createMatchService(
 			return;
 		}
 		if (msg.type === 'host') {
+			if (limited(`host:${player}`, 8)) {
+				send(sock, { type: 'error', error: 'rate' });
+				return;
+			}
 			if (
 				msg.timeControl !== undefined &&
 				!isSelectableTimeControl(msg.timeControl)
@@ -517,6 +521,10 @@ export function createMatchService(
 			return;
 		}
 		if (msg.type === 'join') {
+			if (limited(`join:${player}`, 8)) {
+				send(sock, { type: 'error', error: 'rate' });
+				return;
+			}
 			if (playerRoom.has(player) || queue.some((entry) => entry.id === player)) {
 				send(sock, { type: 'error', error: 'busy' });
 				return;

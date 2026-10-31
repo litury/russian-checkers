@@ -4,6 +4,7 @@ export type SearchPhase =
 	| 'waiting'
 	| 'found'
 	| 'offline'
+	| 'rate-limited'
 	| 'timeout-offer'
 	| 'friend-wait'
 	| 'friend-enter'
@@ -34,6 +35,8 @@ export function searchCopy(phase: SearchPhase): SearchView {
 		return { ...active, title: 'Соперник найден', showCancel: false };
 	if (phase === 'offline')
 		return { ...active, title: 'Нет связи с сервером', hidePlay: false };
+	if (phase === 'rate-limited')
+		return { ...active, title: 'Слишком много попыток', hidePlay: false };
 	if (phase === 'timeout-offer')
 		return {
 			...active,

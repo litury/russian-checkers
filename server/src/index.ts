@@ -28,7 +28,7 @@ const server = createApiServer(pool, matches, [
 	createPresenceRoutes(presence, auth),
 	createPlayersRoutes(pool, limited),
 	createAuthRoutes(),
-	createMatchesRoutes(pool, auth),
+	createMatchesRoutes(pool, auth, limited),
 ]);
 let stopping = false;
 const shutdown = async () => {

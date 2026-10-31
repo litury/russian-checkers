@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { createClientIp } from './clientIp.ts';
 
 type Res = import('node:http').ServerResponse;
 
@@ -34,9 +35,4 @@ export const read = (req: import('node:http').IncomingMessage, limit = 256 * 102
 export const hashToken = (token: string) =>
 	createHash('sha256').update(token).digest('hex');
 
-export const ipOf = (req: import('node:http').IncomingMessage) =>
-	(
-		req.headers['x-forwarded-for']?.toString().split(',')[0] ??
-		req.socket.remoteAddress ??
-		''
-	).trim();
+export const ipOf = createClientIp(process.env.TRUSTED_PROXY_CIDRS ?? '');
