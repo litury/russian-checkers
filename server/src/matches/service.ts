@@ -311,6 +311,10 @@ export function createMatchService(
 			setTimeout(() => {
 				void serialize(room.id, async () => {
 					if (stopping || !rooms.has(room.id) || room.socks.has(id) || room.serverPause === 'storage') return;
+					if (!room.begun) {
+						await endRoom(room, 'aborted', 'not_started');
+						return;
+					}
 					if (room.serverPause === 'shutdown') {
 						await endRoom(room, 'aborted', 'server_interruption');
 						return;
@@ -336,12 +340,7 @@ export function createMatchService(
 		if (room.readyTimer) clearTimeout(room.readyTimer);
 		room.readyTimer = setTimeout(() => { void serialize(room.id, async () => {
 			if (stopping || room.ending || room.serverPause || room.begun || !rooms.has(room.id)) return;
-			const missing = [room.white, room.black].filter(
-				(pid) => pid && !room.ready.has(pid),
-			);
-			if (missing.length === 1)
-				await endRoom(room, otherOf(room, missing[0]), 'timeout', missing[0]);
-			else await endRoom(room, 'draw', 'timeout');
+			await endRoom(room, 'aborted', 'not_started');
 		}); }, READY_MS);
 	};
 
@@ -553,7 +552,7 @@ export function createMatchService(
 			const rid = playerRoom.get(player);
 			const room = rid ? rooms.get(rid) : undefined;
 			if (room?.friend && !room.begun) {
-				void endRoom(room, 'draw', 'timeout');
+				await endRoom(room, 'aborted', 'cancelled');
 			}
 			return;
 		}

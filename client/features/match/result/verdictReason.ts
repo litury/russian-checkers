@@ -3,6 +3,8 @@ import type { MatchResult } from '@/shared/protocol/matchResult';
 import { isThreefold } from '@/shared/rules/draw';
 
 export function verdictReason(winner: MatchResult, human: Side, kind: string, position: IPosition, keys: string[]): string {
+	if (winner === 'aborted' && kind === 'cancelled') return 'Приглашение отменено. Результат не засчитан.';
+	if (winner === 'aborted' && kind === 'not_started') return 'Партия не началась. Результат не засчитан.';
 	if (winner === 'aborted') return 'Сбой сервера. Результат не засчитан.';
 	const won = winner === human;
 	if (kind === 'agreement') return 'По соглашению игроков';
