@@ -55,6 +55,7 @@ export class OnlineMatchCoordinator {
 	lastPly = 0;
 	serverTurn: Side = 'white';
 	onlineBegun = false;
+	connectionLost = false;
 	inboundNet: NetMove[] = [];
 	applyingNet = false;
 	dropUntil = 0;
@@ -73,6 +74,14 @@ export class OnlineMatchCoordinator {
 			Math.floor((this.ui.now() - this.searchStartedAt) / 1000),
 		);
 		this.ui.search(this.searchPhase, seconds, this.friendJoin);
+	}
+	private connectionChanged(connected: boolean): void {
+		if (this.disposed || this.connectionLost === !connected) return;
+		this.connectionLost = !connected;
+		if (!this.session.online || this.session.phase === 'title') return;
+		this.ui.refresh();
+		this.ui.paintClock();
+		this.ui.paintActions();
 	}
 
 	stopSearchTicker(): void {
@@ -138,6 +147,7 @@ export class OnlineMatchCoordinator {
 		if (new URLSearchParams(location.search).get('join')) return;
 		this.live?.close();
 		this.live = openLive({
+			onConnectionChange: (connected) => this.connectionChanged(connected),
 			onDraw: (offer, lastOffer) => this.applyDraw(offer, lastOffer),
 			onRecovered: (color, snap, winner, reason) => { void this.resumeResult(color, snap, winner, reason); },
 			onStart: (color, _matchId, snap) => {
@@ -204,6 +214,7 @@ export class OnlineMatchCoordinator {
 		}
 		this.live?.close();
 		this.live = openLive({
+			onConnectionChange: (connected) => this.connectionChanged(connected),
 			onDraw: (offer, lastOffer) => this.applyDraw(offer, lastOffer),
 			onRecovered: (color, snap, winner, reason) => { void this.resumeResult(color, snap, winner, reason); },
 			onQueued: () => {

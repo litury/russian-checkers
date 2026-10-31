@@ -112,7 +112,7 @@ export function createHud(
 			you.setState(state);
 			foe.setState(state);
 			const copy =
-				state.kind === 'disconnected'
+				state.kind === 'disconnected' && state.title === 'Соперник отключился'
 					? 'Соперник отключился. Ожидаем возвращения.'
 					: [state.title, state.detail].filter(Boolean).join('. ');
 			if (announcement.textContent !== copy) announcement.textContent = copy;

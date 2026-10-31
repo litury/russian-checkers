@@ -21,6 +21,7 @@ export function matchPanelState(input: {
 	preparing: boolean;
 	paused: boolean;
 	serverPause?: 'shutdown' | 'storage';
+	connectionLost?: boolean;
 	waitingResult: boolean;
 	humanTurn: boolean;
 	capture: boolean;
@@ -48,6 +49,8 @@ export function matchPanelState(input: {
 			draw ? 'neutral' : won ? 'win' : 'loss',
 		);
 	}
+	if (input.connectionLost)
+		return state('disconnected', 'Нет связи с сервером', 'Нет связи', 'Переподключаемся', 'warning');
 	if (input.serverPause) return state('paused',
 		input.serverPause === 'storage' ? 'Сбой сервера' : 'Восстанавливаем партию',
 		input.serverPause === 'storage' ? 'Сбой сервера' : 'Восстановление',

@@ -3,6 +3,7 @@ import type { Side } from '@/shared/rules';
 
 export interface DrawActionView {
 	active: boolean;
+	available: boolean;
 	canOffer: boolean;
 	humanSide: Side;
 	offer: Side | null;
@@ -34,7 +35,7 @@ export function bindDrawConfirmation(handlers: {
 	trigger.addEventListener(
 		'click',
 		() => {
-			if (!latest?.active || trigger.disabled || dialog.open) return;
+			if (!latest?.active || !latest.available || trigger.disabled || dialog.open) return;
 			committed = false;
 			const received = incoming();
 			heading.textContent = received
@@ -53,7 +54,7 @@ export function bindDrawConfirmation(handlers: {
 	accept.addEventListener(
 		'click',
 		() => {
-			if (!latest?.active || committed) return;
+			if (!latest?.active || !latest.available || committed) return;
 			if (!incoming() && !latest.canOffer) return dismiss();
 			committed = true;
 			if (incoming()) handlers.accept();
@@ -82,7 +83,7 @@ export function bindDrawConfirmation(handlers: {
 			const changed = latest?.offer !== view.offer;
 			latest = view;
 			trigger.hidden = !view.active;
-			trigger.disabled = !view.active || (!incoming() && !view.canOffer);
+			trigger.disabled = !view.active || !view.available || (!incoming() && !view.canOffer);
 			label.textContent = incoming()
 				? 'Ответить'
 				: view.offer
@@ -96,7 +97,7 @@ export function bindDrawConfirmation(handlers: {
 						? 'Предложить ничью'
 						: 'Предложение доступно после вашего хода; повторное — после предложения соперника';
 			trigger.setAttribute('aria-label', trigger.title);
-			if (!view.active || changed) dismiss();
+			if (!view.active || !view.available || changed || (dialog.open && !incoming() && !view.canOffer)) dismiss();
 		},
 		dismiss,
 		dispose() {

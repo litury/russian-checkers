@@ -10,6 +10,7 @@ import { defaultTimeControl, isTimeControl, type SelectableTimeControl } from '@
 export type NetMove = IMove & {ply: number; turn: Side; hash: string; side: Side; clocks?: MatchSnapshot['clocks']; receivedAt?: number};
 
 export type LiveHandlers = {
+ onConnectionChange?: (connected: boolean) => void;
  onQueued?: () => void;
  onHosted?: (matchId: string, code?: string) => void;
  onStart?: (color: Side, matchId: string, snap: MatchSnapshot) => void;
@@ -116,8 +117,10 @@ export function openLive(handlers: LiveHandlers) {
     socket.onopen = () => { if (current()) socket.send(JSON.stringify({ type: 'auth', protocol: MATCH_PROTOCOL_VERSION, token: guest.token, ...(matchId ? {matchId} : {}) })); };
     socket.onerror = () => finish(false);
     socket.onclose = () => {
+     const wasCurrent = current();
      finish(false);
      if (ws === socket) ws = null;
+     if (wasCurrent && activeMatch) handlers.onConnectionChange?.(false);
      if (attempt !== generation || !activeMatch || reconnectLeft <= 0) return;
      reconnectLeft -= 1;
      reconnectTimer = setTimeout(() => { reconnectTimer = undefined; void api.connect(); }, RECONNECT_MS);
@@ -136,9 +139,10 @@ export function openLive(handlers: LiveHandlers) {
       activeMatch = true;
       reconnectLeft = RECONNECT_BUDGET;
       handlers.onStart?.(msg.color as Side, String(msg.matchId ?? ''), asSnap(msg, String(msg.matchId ?? '')));
+      handlers.onConnectionChange?.(true);
      }
      if (type === 'begin') { lastPly = Number(msg.ply ?? 0); handlers.onBegin?.(asSnap(msg)); }
-     if (type === 'state') { lastPly = Number(msg.ply ?? 0); handlers.onState?.(asSnap(msg, String(msg.matchId ?? ''))); }
+     if (type === 'state') { lastPly = Number(msg.ply ?? 0); handlers.onState?.(asSnap(msg, String(msg.matchId ?? ''))); handlers.onConnectionChange?.(true); }
      if (type === 'draw') handlers.onDraw?.(
       msg.drawOffer === 'white' || msg.drawOffer === 'black' ? msg.drawOffer : null,
       msg.lastDrawOffer === 'white' || msg.lastDrawOffer === 'black' ? msg.lastDrawOffer : null,

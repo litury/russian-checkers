@@ -5,6 +5,7 @@ interface ActionState {
 	paused: boolean;
 	flagLock: boolean;
 	countingIn: boolean;
+	connectionLost?: boolean;
 }
 
 export interface UndoState extends ActionState {
@@ -19,6 +20,7 @@ export function canResign(state: ActionState): boolean {
 		(state.phase === 'human' || state.phase === 'bot') &&
 		!state.paused &&
 		!state.flagLock &&
+		!state.connectionLost &&
 		!state.countingIn
 	);
 }

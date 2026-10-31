@@ -107,13 +107,14 @@ export function bindMatchActions(handlers: {
 			if (view.online) hideExplanation();
 			const inMatch = view.phase === 'human' || view.phase === 'bot';
 			draw.paint({
-				active: view.online && inMatch && !view.concealed && canResign(view),
+				active: view.online && inMatch && !view.concealed,
+				available: canResign(view),
 				canOffer: view.ply > 0 && view.turn !== view.humanSide && !view.drawOffer && view.lastDrawOffer !== view.humanSide,
 				humanSide: view.humanSide, offer: view.drawOffer,
 			});
 			if (
 				view.phase === 'title' ||
-				(view.phase !== 'over' && (view.paused || view.flagLock))
+				(view.phase !== 'over' && (view.paused || view.flagLock || view.connectionLost))
 			)
 				confirmation.dismiss();
 			rail.hidden = !inMatch;

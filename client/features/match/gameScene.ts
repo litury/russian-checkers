@@ -263,7 +263,7 @@ export class GameScene extends Phaser.Scene {
 			declineDraw: () => this.network.live?.declineDraw(),
 			undo: () => this.interaction.undoBot(),
 			resign: () => this.interaction.resignMatch(),
-			available: () => !this.railConcealed() && canResign(this.session),
+			available: () => !this.railConcealed() && !(this.session.online && this.network.connectionLost) && canResign(this.session),
 		});
 		this.events.once('shutdown', () => {
 			this.actions?.dispose();
@@ -678,6 +678,7 @@ export class GameScene extends Phaser.Scene {
 
 	private canSelect(): boolean {
 		if (
+			(this.session.online && this.network.connectionLost) ||
 			this.session.paused ||
 			this.clock.remotePaused ||
 			this.session.moving ||
@@ -710,6 +711,7 @@ export class GameScene extends Phaser.Scene {
 			preparing: this.session.countingIn || (this.session.online && !this.network.onlineBegun),
 			paused: this.session.paused || this.clock.remotePaused,
 			serverPause: this.clock.serverPause,
+			connectionLost: this.session.online && this.network.connectionLost,
 			waitingResult: this.session.flagLock,
 			humanTurn: this.session.online ? this.onlineHumanTurn() : this.session.phase === 'human',
 			capture: this.captureAvailable,
@@ -851,6 +853,7 @@ export class GameScene extends Phaser.Scene {
 				online: this.session.online,
 				paused: this.session.paused || this.clock.remotePaused,
 				flagLock: this.session.flagLock,
+				connectionLost: this.session.online && this.network.connectionLost,
 				undoDepth: this.session.botUndoStack.length,
 				moving: this.session.moving,
 				countingIn: this.session.countingIn,

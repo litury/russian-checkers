@@ -416,6 +416,7 @@ export class MatchInteraction {
 
 	resignMatch(): void {
 		if (!canResign(this.session)) return;
+		if (this.session.online && this.network.connectionLost) return;
 		if (this.session.online) {
 			this.network.live?.resign();
 			return;
