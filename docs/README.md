@@ -2,6 +2,8 @@
 
 - [Локальный запуск](development/localSetup.md).
 - [Прокси локального API](development/devProxy.md).
+- [Прокси production](development/productionProxy.md).
+- [Копирование и восстановление БД](development/databaseRecovery.md).
 - [Рабочие команды и dev-сценарии](development/workflow.md).
 - [Архитектура](architecture.md).
 - [Соглашения](conventions.md).
