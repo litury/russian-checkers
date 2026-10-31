@@ -45,6 +45,8 @@ export function createMatchService(
 		ready: Set<string>;
 		readyTimer?: ReturnType<typeof setTimeout>;
 		flagTimer?: ReturnType<typeof setTimeout>;
+		clockTimer?: ReturnType<typeof setTimeout>;
+		clockPending?: boolean;
 		banks: Record<Side, number>;
 		turnStarted: number;
 		socks: Map<string, TextSock>;
@@ -82,6 +84,7 @@ export function createMatchService(
 		version: 1, white: room.white, black: room.black,
 		position: room.position, ply: room.ply, keys: room.keys,
 		begun: room.begun, banks: room.banks, turnStarted: room.turnStarted,
+		clockPending: room.clockPending,
 		friend: room.friend, friendCode: room.friendCode, timeControl: room.timeControl,
 		drawOffer: room.drawOffer, lastDrawOffer: room.lastDrawOffer,
 		dropDeadlines: room.dropDeadlines,
@@ -100,7 +103,8 @@ export function createMatchService(
 		if (!rooms.has(room.id) || room.ending || disposed) return;
 		room.ending = true;
 		if (room.flagTimer) clearTimeout(room.flagTimer);
-		if (!room.resultFrozen && room.begun) {
+		if (room.clockTimer) clearTimeout(room.clockTimer);
+		if (!room.resultFrozen && room.begun && !room.clockPending) {
 			const side = room.position.turn;
 			const now = Date.now();
 			room.banks[side] = turnLeft(room.banks[side], room.turnStarted, now);
@@ -144,7 +148,7 @@ export function createMatchService(
 	const clockFields = (room: Room) => ({
 		banks: { white: room.banks.white, black: room.banks.black },
 		turnStarted: room.turnStarted,
-		paused: !room.begun || Boolean(room.ending),
+		paused: !room.begun || Boolean(room.ending) || Boolean(room.clockPending),
 		serverNow: Date.now(),
 		timeControl: room.timeControl,
 		dropUntil: room.drop.size > 0 ? (room.dropUntil ?? 0) : 0,
@@ -173,31 +177,53 @@ export function createMatchService(
 
 	const armFlag = (room: Room) => {
 		if (room.flagTimer) clearTimeout(room.flagTimer);
-		if (!room.begun || room.ending || disposed) return;
+		if (!room.begun || room.clockPending || room.ending || disposed) return;
 		const side = room.position.turn;
 		const left = turnLeft(room.banks[side], room.turnStarted, Date.now());
 		room.flagTimer = setTimeout(() => {
 			void serialize(room.id, async () => {
-				if (!rooms.has(room.id) || !room.begun || room.ending) return;
+				if (!rooms.has(room.id) || !room.begun || room.clockPending || room.ending) return;
 				if (turnLeft(room.banks[room.position.turn], room.turnStarted, Date.now()) > 0) armFlag(room);
 				else await flagRoom(room);
 			});
 		}, left);
 	};
 
+	const startClock = (room: Room) => {
+		if (room.clockTimer) clearTimeout(room.clockTimer);
+		room.clockTimer = undefined;
+		room.clockPending = false;
+		room.turnStarted = Date.now();
+		armFlag(room);
+	};
+
+	const checkpointClock = async (room: Room, ply = room.ply, started = room.turnStarted): Promise<void> => {
+		if (disposed || room.ending || !rooms.has(room.id) || room.ply !== ply || room.turnStarted !== started) return;
+		try {
+			await repository.startClock(room.id, ply, started);
+		} catch (error) {
+			process.stderr.write(`clock checkpoint db ${error}\n`);
+			if (disposed || room.ending || !rooms.has(room.id)) return;
+			room.clockTimer = setTimeout(() => {
+				void serialize(room.id, () => checkpointClock(room, ply, started));
+			}, 1000);
+		}
+	};
+
 	const beginRoom = async (room: Room) => {
 		if (room.begun) return;
 		const initialMs = timeControls[room.timeControl].initialMs;
-		const proposed = { ...runtimeOf(room), begun: true, banks: { white: initialMs, black: initialMs }, turnStarted: Date.now() };
+		const proposed = { ...runtimeOf(room), begun: true, banks: { white: initialMs, black: initialMs }, turnStarted: Date.now(), clockPending: true };
 		await repository.save(room.id, proposed);
 		Object.assign(room, proposed);
 		if (room.readyTimer) clearTimeout(room.readyTimer);
 		room.readyTimer = undefined;
-		armFlag(room);
+		startClock(room);
 		const clocks = clockFields(room);
 		const snap = snapshotOf(room.id, room.position, room.ply, true, clocks);
 		for (const s of room.socks.values())
 			send(s, { type: 'begin', ...snap, ...clocks });
+		await checkpointClock(room);
 	};
 
 	const attach = async (room: Room, id: string, sock: TextSock) => {
@@ -209,6 +235,8 @@ export function createMatchService(
 		delete room.dropDeadlines[id];
 		room.dropUntil = Math.min(...Object.values(room.dropDeadlines), Infinity);
 		await repository.save(room.id, runtimeOf(room));
+		const resumeClock = room.begun && room.clockPending && room.socks.has(room.white) && room.socks.has(room.black);
+		if (resumeClock) startClock(room);
 		const color: Side = id === room.white ? 'white' : 'black';
 		if (room.friend && !room.black) return;
 		const clocks = clockFields(room);
@@ -228,6 +256,7 @@ export function createMatchService(
 				pushState(room, s, pid === room.white ? 'white' : 'black');
 			}
 		}
+		if (resumeClock) await checkpointClock(room);
 	};
 
 	const dropPlayer = async (room: Room, id: string) => {
@@ -242,7 +271,7 @@ export function createMatchService(
 			setTimeout(() => {
 				void serialize(room.id, async () => {
 					if (!rooms.has(room.id) || room.socks.has(id)) return;
-					if (room.begun && turnLeft(room.banks[room.position.turn], room.turnStarted, Date.now()) <= 0)
+					if (room.begun && !room.clockPending && turnLeft(room.banks[room.position.turn], room.turnStarted, Date.now()) <= 0)
 						await flagRoom(room);
 					else {
 						const other = id === room.white ? room.black : room.white;
@@ -501,7 +530,7 @@ export function createMatchService(
 				send(sock, { type: 'error', error: 'no_match' });
 				return;
 			}
-			if (!room.begun) {
+			if (!room.begun || room.clockPending) {
 				send(sock, { type: 'error', error: 'illegal' });
 				return;
 			}
@@ -540,10 +569,12 @@ export function createMatchService(
 			const proposed: MatchRuntime = {
 				...runtimeOf(room), banks, position: next, ply: room.ply + 1,
 				keys: [...room.keys, hashPosition(next)], turnStarted: receivedAt,
-				drawOffer: null,
+				drawOffer: null, clockPending: true,
 			};
 			await repository.save(room.id, proposed, ply);
 			Object.assign(room, proposed);
+			const outcome = resultSide(next, room.keys);
+			if (!outcome) startClock(room);
 			const payload = {
 				type: 'move',
 				from: ply.from,
@@ -555,15 +586,14 @@ export function createMatchService(
 				...clockFields(room),
 			};
 			for (const s of room.socks.values()) send(s, payload);
-			const outcome = resultSide(next, room.keys);
 			if (outcome === 'draw') await endRoom(room, 'draw', 'rules');
 			else if (outcome) await endRoom(room, outcome, 'rules');
-			else armFlag(room);
+			else await checkpointClock(room);
 			return;
 		}
 		if (msg.type === 'draw_offer' || msg.type === 'draw_accept' || msg.type === 'draw_decline') {
 			const room = activeRoom;
-			if (!room || !room.begun) return;
+			if (!room || !room.begun || room.clockPending) return;
 			if (msg.ply !== room.ply) {
 				send(sock, { type: 'error', error: 'draw_unavailable' });
 				return;
@@ -598,7 +628,7 @@ export function createMatchService(
 			const rid = playerRoom.get(player);
 			const room = rid ? rooms.get(rid) : undefined;
 			if (!room) return;
-			if (room.begun && turnLeft(room.banks[room.position.turn], room.turnStarted, receivedAt) <= 0) {
+			if (room.begun && !room.clockPending && turnLeft(room.banks[room.position.turn], room.turnStarted, receivedAt) <= 0) {
 				await flagRoom(room);
 				return;
 			}
@@ -608,7 +638,7 @@ export function createMatchService(
 		if (msg.type === 'flag') {
 			const rid = playerRoom.get(player);
 			const room = rid ? rooms.get(rid) : undefined;
-			if (!room || !room.begun) return;
+			if (!room || !room.begun || room.clockPending) return;
 			const side = room.position.turn;
 			if (!flagDue(room.banks[side], room.turnStarted, Date.now())) return;
 			await flagRoom(room);
@@ -630,7 +660,7 @@ export function createMatchService(
 					await endRoom(room, outcome, 'rules');
 					continue;
 				}
-				if (room.begun && turnLeft(room.banks[room.position.turn], room.turnStarted, Date.now()) <= 0) {
+				if (room.begun && !room.clockPending && turnLeft(room.banks[room.position.turn], room.turnStarted, Date.now()) <= 0) {
 					await flagRoom(room);
 					continue;
 				}
@@ -672,6 +702,7 @@ export function createMatchService(
 			for (const room of rooms.values()) {
 				if (room.readyTimer) clearTimeout(room.readyTimer);
 				if (room.flagTimer) clearTimeout(room.flagTimer);
+				if (room.clockTimer) clearTimeout(room.clockTimer);
 				for (const timer of room.drop.values()) clearTimeout(timer);
 				for (const sock of room.socks.values()) sock.close();
 			}

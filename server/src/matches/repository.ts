@@ -39,6 +39,12 @@ export function createMatchRepository(pool: Pool) {
 				connection.release();
 			}
 		},
+		async startClock(id: string, ply: number, turnStarted: number): Promise<void> {
+			await pool.query(
+				"UPDATE matches SET runtime=jsonb_set(jsonb_set(runtime,'{turnStarted}',to_jsonb($3::bigint)),'{clockPending}','false'::jsonb) WHERE id=$1 AND ended_at IS NULL AND (runtime->>'ply')::integer=$2 AND runtime->>'clockPending'='true'",
+				[id, ply, turnStarted],
+			);
+		},
 		async open(
 			white: string,
 			black: string,

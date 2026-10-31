@@ -11,6 +11,7 @@ export interface MatchRuntime {
 	begun: boolean;
 	banks: Record<Side, number>;
 	turnStarted: number;
+	clockPending?: boolean;
 	friend: boolean;
 	friendCode?: string;
 	timeControl: SelectableTimeControl;
