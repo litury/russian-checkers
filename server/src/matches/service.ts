@@ -676,7 +676,7 @@ export function createMatchService(
 		if (msg.type === 'resign') {
 			const rid = playerRoom.get(player);
 			const room = rid ? rooms.get(rid) : undefined;
-			if (!room) return;
+			if (!room || !room.begun || room.clockPending) return;
 			if (room.begun && !room.clockPending && turnLeft(room.banks[room.position.turn], room.turnStarted, receivedAt) <= 0) {
 				await flagRoom(room);
 				return;

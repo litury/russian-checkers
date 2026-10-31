@@ -26,7 +26,7 @@ export function bindProfileOverview() {
 				throw new Error('Invalid player statistics');
 			games.textContent = String(data.games);
 			wins.textContent = String(data.white_wins + data.black_wins);
-			status.textContent = '';
+			status.textContent = 'Только онлайн-партии';
 		} catch {
 			status.textContent = 'Статистика недоступна';
 			retry.hidden = false;

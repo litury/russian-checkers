@@ -37,12 +37,12 @@ export function createPlayersRoutes(pool: Pool, limited: RateLimiter) {
 			const id = path.slice('/players/'.length, -'/stats'.length);
 			const stats = await pool.query(
 				`SELECT
-      count(*) FILTER (WHERE winner IS NOT NULL)::int AS games,
-      count(*) FILTER (WHERE winner = 'white' AND white_id = $1)::int AS white_wins,
-      count(*) FILTER (WHERE winner = 'black' AND black_id = $1)::int AS black_wins,
+      count(*) FILTER (WHERE mode = 'online' AND winner IS NOT NULL)::int AS games,
+      count(*) FILTER (WHERE mode = 'online' AND winner = 'white' AND white_id = $1)::int AS white_wins,
+      count(*) FILTER (WHERE mode = 'online' AND winner = 'black' AND black_id = $1)::int AS black_wins,
       count(*) FILTER (WHERE mode = 'bot' AND winner IS NOT NULL)::int AS bot_games,
       count(*) FILTER (WHERE mode = 'online' AND winner IS NOT NULL)::int AS online_games
-     FROM matches WHERE white_id = $1 OR black_id = $1`,
+     FROM matches WHERE (white_id = $1 OR black_id = $1) AND ended_at IS NOT NULL`,
 				[id],
 			);
 			json(res, 200, { playerId: id, ...stats.rows[0] });

@@ -1,4 +1,5 @@
-import { apply, createInitialPosition, winner, type IMove, type IPosition, type Side } from '@/shared/rules';
+import { apply, createInitialPosition, resultSide, type IMove, type IPosition, type Side } from '@/shared/rules';
+import { hashPosition } from './matchState';
 import { parseAlg } from './notation';
 
 export type RecordedPly = { side: Side; from: string; path: string[] };
@@ -16,16 +17,21 @@ export function applyPly(position: IPosition, ply: RecordedPly): IPosition | nul
  return move ? apply(position, move) : null;
 }
 
-export function replayPlies(plies: RecordedPly[]): { ok: true; winner: Side | null } | { ok: false; ply: number } {
+export function replayPlies(plies: RecordedPly[]): { ok: true; winner: Side | 'draw' | null } | { ok: false; ply: number } {
  let position = createInitialPosition();
+ const keys = [hashPosition(position)];
+ let outcome: Side | 'draw' | null = null;
  let i = 0;
  for (const ply of plies) {
   i += 1;
+  if (outcome) return { ok: false, ply: i };
   const next = applyPly(position, ply);
   if (!next) return { ok: false, ply: i };
   position = next;
+  keys.push(hashPosition(position));
+  outcome = resultSide(position, keys);
  }
- return { ok: true, winner: winner(position) };
+ return { ok: true, winner: outcome };
 }
 
 export function positionAt(plies: RecordedPly[], n: number): IPosition {

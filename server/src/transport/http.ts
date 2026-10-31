@@ -11,12 +11,24 @@ export const json = (res: Res, code: number, body: unknown) => {
 	res.end(JSON.stringify(body));
 };
 
-export const read = (req: import('node:http').IncomingMessage) =>
+export class RequestBodyTooLarge extends Error {}
+
+export const read = (req: import('node:http').IncomingMessage, limit = 256 * 1024) =>
 	new Promise<string>((resolve, reject) => {
 		const chunks: Buffer[] = [];
-		req.on('data', (c) => chunks.push(c as Buffer));
+		let size = 0;
+		req.on('data', (chunk: Buffer) => {
+			size += chunk.length;
+			if (size > limit) {
+				chunks.length = 0;
+				reject(new RequestBodyTooLarge('Request body too large'));
+				return;
+			}
+			chunks.push(chunk);
+		});
 		req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
 		req.on('error', reject);
+		req.on('aborted', () => reject(new Error('Request aborted')));
 	});
 
 export const hashToken = (token: string) =>

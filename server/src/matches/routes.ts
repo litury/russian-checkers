@@ -117,14 +117,22 @@ export function createMatchesRoutes(pool: Pool, auth: AuthService) {
 				json(res, 401, { error: 'unauthorized' });
 				return true;
 			}
-			const body = JSON.parse((await read(req)) || '{}') as {
+			const raw = await read(req);
+			let body: {
 				mode?: string;
 				timeControl?: unknown;
 				humanSide?: Side;
 				winner?: Side | 'draw';
-				plies?: RecordedPly[];
+				plies?: unknown;
 			};
+			try {
+				body = JSON.parse(raw);
+			} catch {
+				json(res, 400, { error: 'bad_json' });
+				return true;
+			}
 			if (
+				!body || typeof body !== 'object' ||
 				body.mode !== 'bot' ||
 				(body.humanSide !== 'white' && body.humanSide !== 'black')
 			) {
@@ -139,7 +147,17 @@ export function createMatchesRoutes(pool: Pool, auth: AuthService) {
 				json(res, 400, { error: 'bad_winner' });
 				return true;
 			}
-			const plies = Array.isArray(body.plies) ? body.plies : [];
+			const plies = body.plies;
+			if (!Array.isArray(plies) || plies.length > 1024 || !plies.every((step): step is RecordedPly =>
+				step && typeof step === 'object' &&
+				(step.side === 'white' || step.side === 'black') &&
+				typeof step.from === 'string' && /^[a-h][1-8]$/.test(step.from) &&
+				Array.isArray(step.path) && step.path.length > 0 && step.path.length <= 32 &&
+				step.path.every((square: unknown) => typeof square === 'string' && /^[a-h][1-8]$/.test(square)),
+			)) {
+				json(res, 400, { error: 'bad_plies' });
+				return true;
+			}
 			if (body.timeControl !== undefined && !isTimeControl(body.timeControl)) {
 				json(res, 400, { error: 'bad_time_control' });
 				return true;
@@ -149,22 +167,38 @@ export function createMatchesRoutes(pool: Pool, auth: AuthService) {
 				json(res, 400, { error: 'illegal_ply', ply: replayed.ply });
 				return true;
 			}
+			if (replayed.winner && replayed.winner !== body.winner) {
+				json(res, 400, { error: 'result_mismatch' });
+				return true;
+			}
 			const whiteId = body.humanSide === 'white' ? playerId : null;
 			const blackId = body.humanSide === 'black' ? playerId : null;
-			const inserted = await pool.query(
-				`INSERT INTO matches (mode, white_id, black_id, winner, time_control, ended_at) VALUES ('bot', $1, $2, $3, $4, now()) RETURNING id`,
-				[whiteId, blackId, body.winner, body.timeControl ?? '1+0'],
-			);
-			const matchId = inserted.rows[0].id as string;
-			let ply = 0;
-			for (const step of plies) {
-				ply += 1;
-				await pool.query(
-					`INSERT INTO match_plies (match_id, ply, side, from_sq, path) VALUES ($1,$2,$3,$4,$5)`,
-					[matchId, ply, step.side, step.from, JSON.stringify(step.path)],
+			const connection = await pool.connect();
+			let failed = false;
+			try {
+				await connection.query('BEGIN');
+				const inserted = await connection.query(
+					`INSERT INTO matches (mode, white_id, black_id, winner, time_control, ended_at) VALUES ('bot', $1, $2, $3, $4, now()) RETURNING id`,
+					[whiteId, blackId, body.winner, body.timeControl ?? '1+0'],
 				);
+				const matchId = inserted.rows[0].id as string;
+				let ply = 0;
+				for (const step of plies) {
+					ply += 1;
+					await connection.query(
+						`INSERT INTO match_plies (match_id, ply, side, from_sq, path) VALUES ($1,$2,$3,$4,$5)`,
+						[matchId, ply, step.side, step.from, JSON.stringify(step.path)],
+					);
+				}
+				await connection.query('COMMIT');
+				json(res, 201, { id: matchId, winner: body.winner, plies: ply });
+			} catch (error) {
+				failed = true;
+				try { await connection.query('ROLLBACK'); } catch {}
+				throw error;
+			} finally {
+				connection.release(failed);
 			}
-			json(res, 201, { id: matchId, winner: body.winner, plies: ply });
 			return true;
 		}
 		return false;

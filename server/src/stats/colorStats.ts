@@ -7,5 +7,6 @@ SELECT
   count(*)::int AS games
  FROM matches m
  WHERE m.mode = 'online'
+   AND m.ended_at IS NOT NULL
    AND m.winner IN ('white', 'black')
 `.trim();

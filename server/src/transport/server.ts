@@ -4,7 +4,7 @@ import type { Duplex } from 'node:stream';
 import type { Pool } from 'pg';
 import type { MatchService } from '../matches/service.ts';
 import { acceptWebsocket } from '../wsRaw.ts';
-import { json } from './http.ts';
+import { json, RequestBodyTooLarge } from './http.ts';
 
 type Route = (
 	req: IncomingMessage,
@@ -37,6 +37,10 @@ export function createApiServer(
 			for (const route of routes) if (await route(req, res, path)) return;
 			json(res, 404, { error: 'not_found' });
 		} catch (error) {
+			if (error instanceof RequestBodyTooLarge) {
+				json(res, 413, { error: 'body_too_large' });
+				return;
+			}
 			json(res, 500, {
 				error: error instanceof Error ? error.message : 'server_error',
 			});
