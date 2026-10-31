@@ -17,4 +17,4 @@ export type { ISquare } from './types/ISquare';
 export type { PieceKind } from './types/PieceKind';
 export type { Side } from './types/Side';
 export { winner } from './winner';
-export { hasWinningMaterial, isMatchDraw, resultSide } from './draw';
+export { isMatchDraw, resultSide } from './draw';
