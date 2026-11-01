@@ -136,7 +136,7 @@ export class MatchInteraction {
 
 	playHumanHop(square: ISquare): boolean {
 		if (!this.session.selected) return false;
-		if (this.ui.remaining(this.session.position.turn) <= 0) {
+		if (!this.session.online && this.ui.remaining(this.session.position.turn) <= 0) {
 			this.ui.flag();
 			return false;
 		}
@@ -178,7 +178,7 @@ export class MatchInteraction {
 					return;
 				}
 				this.session.selected = chain.selected;
-				if (!chosen.complete && this.ui.remaining(this.session.position.turn) <= 0) {
+				if (!this.session.online && !chosen.complete && this.ui.remaining(this.session.position.turn) <= 0) {
 					this.ui.flag();
 					return;
 				}
@@ -270,7 +270,7 @@ export class MatchInteraction {
 	}
 
 	playHuman(move: IMove): void {
-		if (this.ui.remaining(this.session.position.turn) <= 0) {
+		if (!this.session.online && this.ui.remaining(this.session.position.turn) <= 0) {
 			this.ui.flag();
 			return;
 		}

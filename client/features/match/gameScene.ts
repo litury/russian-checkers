@@ -41,6 +41,7 @@ import { verdictReason } from './result/verdictReason';
 import type { MatchResult } from '@/shared/protocol/matchResult';
 
 export class GameScene extends Phaser.Scene {
+	private flagRequestedAt = -Infinity;
 	private session!: MatchSession;
 	private clock!: MatchClock;
 	private bot!: BotTurn;
@@ -151,6 +152,7 @@ export class GameScene extends Phaser.Scene {
 		this.actionsEntered = false;
 		this.captureAvailable = false;
 		this.timeLowSaid = false;
+		this.flagRequestedAt = -Infinity;
 		this.boardFrameListener = undefined;
 		this.playfieldBuilt = false;
 		this.startingFromOpening = false;
@@ -773,11 +775,10 @@ export class GameScene extends Phaser.Scene {
 			return;
 		}
 		if (this.session.online) {
-			this.session.flagLock = true;
-			this.session.selected = null;
-			this.session.humanChain = null;
-			this.refresh();
-			this.network.live?.flag();
+			if (this.time.now - this.flagRequestedAt >= 1000) {
+				this.flagRequestedAt = this.time.now;
+				this.network.live?.flag();
+			}
 			return;
 		}
 		this.session.flagLock = true;

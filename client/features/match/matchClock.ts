@@ -64,8 +64,9 @@ export class MatchClock {
 		this.banks = { ...clocks.banks };
 		this.remotePaused = clocks.paused;
 		this.serverPause = clocks.serverPause;
+		const queuedMs = clocks.receivedAt === undefined ? 0 : Math.max(0, performance.now() - clocks.receivedAt);
 		this.startedAt = this.remotePaused
 			? now
-			: now - Math.max(0, clocks.serverNow - clocks.turnStarted);
+			: now - Math.max(0, clocks.serverNow - clocks.turnStarted + queuedMs);
 	}
 }

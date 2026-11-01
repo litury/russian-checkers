@@ -83,6 +83,13 @@ export class OnlineMatchCoordinator {
 		this.ui.paintClock();
 		this.ui.paintActions();
 	}
+	private updateClock(ply: number, clocks: NonNullable<MatchSnapshot['clocks']>): void {
+		if (this.disposed || !this.session.online || this.session.acceptedResult ||
+			this.session.phase === 'title' || this.session.moving || this.applyingNet ||
+			this.inboundNet.length || ply !== this.lastPly) return;
+		this.clock.applySnapshot(clocks, this.ui.now());
+		this.ui.paintClock();
+	}
 
 	stopSearchTicker(): void {
 		this.searchTimer?.remove(false);
@@ -148,6 +155,7 @@ export class OnlineMatchCoordinator {
 		this.live?.close();
 		this.live = openLive({
 			onConnectionChange: (connected) => this.connectionChanged(connected),
+			onClock: (ply, clocks) => this.updateClock(ply, clocks),
 			onDraw: (offer, lastOffer) => this.applyDraw(offer, lastOffer),
 			onRecovered: (color, snap, winner, reason) => { void this.resumeResult(color, snap, winner, reason); },
 			onStart: (color, _matchId, snap) => {
@@ -215,6 +223,7 @@ export class OnlineMatchCoordinator {
 		this.live?.close();
 		this.live = openLive({
 			onConnectionChange: (connected) => this.connectionChanged(connected),
+			onClock: (ply, clocks) => this.updateClock(ply, clocks),
 			onDraw: (offer, lastOffer) => this.applyDraw(offer, lastOffer),
 			onRecovered: (color, snap, winner, reason) => { void this.resumeResult(color, snap, winner, reason); },
 			onQueued: () => {
@@ -463,15 +472,7 @@ export class OnlineMatchCoordinator {
 		this.lastPly = next.ply;
 		this.serverTurn = next.turn;
 		if (next.clocks)
-			this.clock.applySnapshot(
-				{
-					...next.clocks,
-					serverNow:
-						next.clocks.serverNow +
-						Math.max(0, Date.now() - (next.receivedAt ?? Date.now())),
-				},
-				this.ui.now(),
-			);
+			this.clock.applySnapshot(next.clocks, this.ui.now());
 		else this.clock.settle(next.side, this.ui.now(), this.session.paused);
 		this.applyingNet = true;
 		if (

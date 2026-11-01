@@ -4,13 +4,15 @@ import { squareAlg } from '@/shared/protocol/notation';
 import { ensureGuest } from './cloud';
 import { runtimeApiOrigin, wsUrl as wsFromOrigin } from './apiOrigin';
 import { CONNECT_BUDGET_MS } from './networkPolicy';
+import { ClockSync } from './clockSync';
 import type { MatchSnapshot } from '@/shared/protocol/matchState';
 import { defaultTimeControl, isTimeControl, type SelectableTimeControl } from '@/shared/rules/timeControl';
 
-export type NetMove = IMove & {ply: number; turn: Side; hash: string; side: Side; clocks?: MatchSnapshot['clocks']; receivedAt?: number};
+export type NetMove = IMove & {ply: number; turn: Side; hash: string; side: Side; clocks?: MatchSnapshot['clocks']};
 
 export type LiveHandlers = {
  onConnectionChange?: (connected: boolean) => void;
+ onClock?: (ply: number, clocks: NonNullable<MatchSnapshot['clocks']>) => void;
  onQueued?: () => void;
  onHosted?: (matchId: string, code?: string) => void;
  onStart?: (color: Side, matchId: string, snap: MatchSnapshot) => void;
@@ -65,6 +67,57 @@ export function openLive(handlers: LiveHandlers) {
  let lastPly = 0;
  let storageKey = '';
  let matchId = '';
+ const clockSync = new ClockSync();
+ let probeTimer: ReturnType<typeof setTimeout> | undefined;
+ let pendingProbe: { id: number; sent: number } | undefined;
+ let probeSequence = 0;
+ let probeReplies = 0;
+ let supportsProbes = false;
+ let resumeTimer: ReturnType<typeof setTimeout> | undefined;
+ let listeners: AbortController | undefined;
+ const snap = (msg: Record<string, unknown>, fallbackId = '') => {
+  const value = asSnap(msg, fallbackId);
+  if (value.clocks) {
+   value.clocks.receivedAt = performance.now();
+   if (!value.clocks.paused)
+    value.clocks.serverNow += clockSync.age(value.clocks.serverNow, value.clocks.receivedAt);
+  }
+  return value;
+ };
+ const stopProbes = () => {
+  if (probeTimer) clearTimeout(probeTimer);
+  if (resumeTimer) clearTimeout(resumeTimer);
+  resumeTimer = undefined;
+  probeTimer = undefined;
+  pendingProbe = undefined;
+ };
+ const probe = () => {
+  if (ws?.readyState !== 1) return;
+  if (pendingProbe && supportsProbes && performance.now() - pendingProbe.sent > 8000) {
+   ws.close();
+   return;
+  }
+  if (probeTimer) clearTimeout(probeTimer);
+  pendingProbe = { id: ++probeSequence, sent: performance.now() };
+  send({ type: 'clock_probe', probe: pendingProbe.id });
+  probeTimer = setTimeout(probe, 15_000);
+ };
+ const resume = () => {
+  if (!activeMatch || document.visibilityState === 'hidden') return;
+  clockSync.reset();
+  stopProbes();
+  probeReplies = 0;
+  handlers.onConnectionChange?.(false);
+  if (ws?.readyState === 1) {
+   probe();
+   api.requestState();
+   resumeTimer = setTimeout(() => { if (activeMatch) ws?.close(); }, 8000);
+  } else if (ws?.readyState !== 0) {
+   if (reconnectTimer) clearTimeout(reconnectTimer);
+   reconnectTimer = undefined;
+   void api.connect();
+  }
+ };
  const rememberMatch = (id: string) => {
   matchId = id;
   try {
@@ -73,6 +126,9 @@ export function openLive(handlers: LiveHandlers) {
   } catch {}
  };
  const dropAttempt = () => {
+  stopProbes();
+  clockSync.reset();
+  probeReplies = 0;
   generation++;
   cancelPending?.();
   cancelPending = undefined;
@@ -81,6 +137,8 @@ export function openLive(handlers: LiveHandlers) {
   try { socket?.close(); } catch {}
  };
  const close = () => {
+  listeners?.abort();
+  listeners = undefined;
   activeMatch = false;
   reconnectLeft = 0;
   if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = undefined; }
@@ -89,6 +147,12 @@ export function openLive(handlers: LiveHandlers) {
  const send = (msg: unknown) => { if (ws?.readyState === 1) ws.send(JSON.stringify(msg)); };
  const api = {
   async connect(): Promise<boolean> {
+   if (!listeners) {
+    listeners = new AbortController();
+    document.addEventListener('visibilitychange', resume, { signal: listeners.signal });
+    window.addEventListener('pageshow', resume, { signal: listeners.signal });
+    window.addEventListener('online', resume, { signal: listeners.signal });
+   }
    dropAttempt();
    const attempt = generation;
    const guest = await ensureGuest();
@@ -118,6 +182,7 @@ export function openLive(handlers: LiveHandlers) {
     socket.onerror = () => finish(false);
     socket.onclose = () => {
      const wasCurrent = current();
+     if (wasCurrent) stopProbes();
      finish(false);
      if (ws === socket) ws = null;
      if (wasCurrent && activeMatch) handlers.onConnectionChange?.(false);
@@ -130,7 +195,21 @@ export function openLive(handlers: LiveHandlers) {
      let msg: Record<string, unknown> = {};
      try { msg = JSON.parse(String(ev.data)); } catch { return; }
      const type = String(msg.type ?? '');
-     if (type === 'ok') { finish(true); }
+     if (type === 'ok') { finish(true); probe(); }
+     if (type === 'clock_probe' && pendingProbe && msg.probe === pendingProbe.id) {
+      supportsProbes = true;
+      const accepted = clockSync.record(pendingProbe.sent, performance.now(), Number(msg.serverReceived), Number(msg.serverNow));
+      pendingProbe = undefined;
+      if (accepted) {
+       probeReplies++;
+       const clocks = snap(msg).clocks;
+       if (activeMatch && clocks && Number.isSafeInteger(msg.ply)) handlers.onClock?.(Number(msg.ply), clocks);
+      }
+      if (probeReplies < 3) {
+       if (probeTimer) clearTimeout(probeTimer);
+       probeTimer = setTimeout(probe, 250);
+      }
+     }
      if (type === 'queued') { activeMatch = false; handlers.onQueued?.(); }
      if (type === 'hosted' && msg.matchId) handlers.onHosted?.(String(msg.matchId), msg.code ? String(msg.code) : undefined);
      if (type === 'start' && msg.color) {
@@ -138,11 +217,17 @@ export function openLive(handlers: LiveHandlers) {
       lastPly = Number(msg.ply ?? 0);
       activeMatch = true;
       reconnectLeft = RECONNECT_BUDGET;
-      handlers.onStart?.(msg.color as Side, String(msg.matchId ?? ''), asSnap(msg, String(msg.matchId ?? '')));
+      handlers.onStart?.(msg.color as Side, String(msg.matchId ?? ''), snap(msg, String(msg.matchId ?? '')));
       handlers.onConnectionChange?.(true);
      }
-     if (type === 'begin') { lastPly = Number(msg.ply ?? 0); handlers.onBegin?.(asSnap(msg)); }
-     if (type === 'state') { lastPly = Number(msg.ply ?? 0); handlers.onState?.(asSnap(msg, String(msg.matchId ?? ''))); handlers.onConnectionChange?.(true); }
+     if (type === 'begin') { lastPly = Number(msg.ply ?? 0); handlers.onBegin?.(snap(msg)); }
+     if (type === 'state') {
+      if (resumeTimer) clearTimeout(resumeTimer);
+      resumeTimer = undefined;
+      lastPly = Number(msg.ply ?? 0);
+      handlers.onState?.(snap(msg, String(msg.matchId ?? '')));
+      handlers.onConnectionChange?.(true);
+     }
      if (type === 'draw') handlers.onDraw?.(
       msg.drawOffer === 'white' || msg.drawOffer === 'black' ? msg.drawOffer : null,
       msg.lastDrawOffer === 'white' || msg.lastDrawOffer === 'black' ? msg.lastDrawOffer : null,
@@ -160,17 +245,18 @@ export function openLive(handlers: LiveHandlers) {
        turn: (msg.turn === 'black' ? 'black' : 'white') as Side,
        hash: String(msg.hash ?? ''),
        side: msg.side as Side,
-       clocks: asSnap(msg).clocks,
-       receivedAt: Date.now(),
+       clocks: snap(msg).clocks,
       });
      }
      if (type === 'end' && isMatchResult(msg.winner)) {
+      stopProbes();
       rememberMatch('');
       activeMatch = false;
       reconnectLeft = 0;
       handlers.onEnd?.(msg.winner, String(msg.reason ?? ''), msg.youWin as boolean | undefined);
      }
      if (type === 'resume_end' && msg.color && isMatchResult(msg.winner)) {
+      stopProbes();
       rememberMatch(''); activeMatch = false; reconnectLeft = 0;
       handlers.onRecovered?.(msg.color as Side, asSnap(msg), msg.winner, String(msg.reason ?? 'unknown'));
      }

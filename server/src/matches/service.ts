@@ -17,6 +17,7 @@ import type { AuthService } from '../auth/service.ts';
 import type { RateLimiter } from '../transport/rateLimit.ts';
 import type { TextSock } from '../wsRaw.ts';
 import { flagDue, flagWinner, turnLeft } from './flagClock.ts';
+import { createMatchTime } from './clockSource.ts';
 import {
 	defaultTimeControl,
 	isSelectableTimeControl,
@@ -31,6 +32,7 @@ export function createMatchService(
 	repository: MatchRepository,
 	auth: AuthService,
 	limited: RateLimiter,
+	clockNow: () => number = createMatchTime(),
 ) {
 	const { playerFromAuth } = auth;
 	const DROP_MS = 60_000;
@@ -110,7 +112,7 @@ export function createMatchService(
 		if (room.clockTimer) clearTimeout(room.clockTimer);
 		if (!room.resultFrozen && room.begun && !room.clockPending) {
 			const side = room.position.turn;
-			const now = Date.now();
+			const now = clockNow();
 			room.banks[side] = turnLeft(room.banks[side], room.turnStarted, now);
 			room.turnStarted = now;
 			room.resultFrozen = true;
@@ -158,7 +160,7 @@ export function createMatchService(
 		turnStarted: room.turnStarted,
 		paused: !room.begun || Boolean(room.ending) || Boolean(room.clockPending),
 		serverPause: room.serverPause,
-		serverNow: Date.now(),
+		serverNow: clockNow(),
 		timeControl: room.timeControl,
 		dropUntil: room.drop.size > 0 ? (room.dropUntil ?? 0) : 0,
 		drawOffer: room.drawOffer,
@@ -188,11 +190,11 @@ export function createMatchService(
 		if (room.flagTimer) clearTimeout(room.flagTimer);
 		if (!room.begun || room.clockPending || room.ending || disposed || stopping) return;
 		const side = room.position.turn;
-		const left = turnLeft(room.banks[side], room.turnStarted, Date.now());
+		const left = turnLeft(room.banks[side], room.turnStarted, clockNow());
 		room.flagTimer = setTimeout(() => {
 			void serialize(room.id, async () => {
 				if (stopping || !rooms.has(room.id) || !room.begun || room.clockPending || room.ending) return;
-				if (turnLeft(room.banks[room.position.turn], room.turnStarted, Date.now()) > 0) armFlag(room);
+				if (turnLeft(room.banks[room.position.turn], room.turnStarted, clockNow()) > 0) armFlag(room);
 				else await flagRoom(room);
 			});
 		}, left);
@@ -202,7 +204,7 @@ export function createMatchService(
 		if (room.clockTimer) clearTimeout(room.clockTimer);
 		room.clockTimer = undefined;
 		room.clockPending = false;
-		room.turnStarted = Date.now();
+		room.turnStarted = clockNow();
 		armFlag(room);
 	};
 
@@ -230,7 +232,7 @@ export function createMatchService(
 		if (room.readyTimer) clearTimeout(room.readyTimer);
 		for (const timer of room.drop.values()) clearTimeout(timer);
 		if (room.begun && !room.clockPending)
-			room.banks[room.position.turn] = turnLeft(room.banks[room.position.turn], room.turnStarted, Date.now());
+			room.banks[room.position.turn] = turnLeft(room.banks[room.position.turn], room.turnStarted, clockNow());
 		room.clockPending = true;
 		room.serverPause = 'storage';
 		for (const sock of room.socks.values()) pushState(room, sock);
@@ -250,7 +252,7 @@ export function createMatchService(
 	const beginRoom = async (room: Room) => {
 		if (room.begun) return;
 		const initialMs = timeControls[room.timeControl].initialMs;
-		const proposed = { ...runtimeOf(room), begun: true, banks: { white: initialMs, black: initialMs }, turnStarted: Date.now(), clockPending: true };
+		const proposed = { ...runtimeOf(room), begun: true, banks: { white: initialMs, black: initialMs }, turnStarted: clockNow(), clockPending: true };
 		await repository.save(room.id, proposed);
 		Object.assign(room, proposed);
 		if (room.readyTimer) clearTimeout(room.readyTimer);
@@ -304,7 +306,7 @@ export function createMatchService(
 
 		const pending = room.drop.get(id);
 		if (pending) clearTimeout(pending);
-		const deadline = room.dropDeadlines[id] ?? Date.now() + DROP_MS;
+		const deadline = room.dropDeadlines[id] ?? clockNow() + DROP_MS;
 		room.dropDeadlines[id] = deadline;
 		room.drop.set(
 			id,
@@ -319,7 +321,7 @@ export function createMatchService(
 						await endRoom(room, 'aborted', 'server_interruption');
 						return;
 					}
-					if (room.begun && !room.clockPending && turnLeft(room.banks[room.position.turn], room.turnStarted, Date.now()) <= 0)
+					if (room.begun && !room.clockPending && turnLeft(room.banks[room.position.turn], room.turnStarted, clockNow()) <= 0)
 						await flagRoom(room);
 					else {
 						const other = id === room.white ? room.black : room.white;
@@ -327,7 +329,7 @@ export function createMatchService(
 						await endRoom(room, bothAbsent ? 'draw' : otherOf(room, id), 'timeout', bothAbsent ? undefined : id);
 					}
 				});
-			}, Math.max(0, deadline - Date.now())),
+			}, Math.max(0, deadline - clockNow())),
 		);
 		room.dropUntil = Math.min(...Object.values(room.dropDeadlines));
 		await repository.save(room.id, runtimeOf(room));
@@ -412,6 +414,7 @@ export function createMatchService(
 			timeControl?: unknown;
 			ply?: number;
 			protocol?: number;
+			probe?: number;
 		} = {};
 		try {
 			msg = JSON.parse(raw);
@@ -452,10 +455,10 @@ export function createMatchService(
 						winner: completed.winner, reason: completed.reason,
 						...snapshotOf(msg.matchId, saved.position, saved.ply, true, {
 							banks: saved.banks, turnStarted: saved.turnStarted, paused: true,
-							serverNow: Date.now(), timeControl: saved.timeControl,
+							serverNow: clockNow(), timeControl: saved.timeControl,
 						}),
 						banks: saved.banks, turnStarted: saved.turnStarted, paused: true,
-						serverNow: Date.now(), timeControl: saved.timeControl,
+						serverNow: clockNow(), timeControl: saved.timeControl,
 					});
 				}
 			}
@@ -469,6 +472,14 @@ export function createMatchService(
 		const activeId = playerRoom.get(player);
 		const activeRoom = activeId ? rooms.get(activeId) : undefined;
 		if (activeRoom && activeRoom.socks.get(player) !== sock) return;
+		if (msg.type === 'clock_probe') {
+			if (Number.isSafeInteger(msg.probe) && !limited(`clock:${player}`, 30))
+				send(sock, {
+					type: 'clock_probe', probe: msg.probe, serverReceived: receivedAt, serverNow: clockNow(),
+					...(activeRoom ? { ...clockFields(activeRoom), ply: activeRoom.ply } : {}),
+				});
+			return;
+		}
 		if (activeRoom?.ending || (activeRoom?.serverPause && msg.type !== 'state')) return;
 		if (msg.type === 'queue') {
 			if (limited(`q:${player}`, 8)) {
@@ -697,7 +708,7 @@ export function createMatchService(
 			const room = rid ? rooms.get(rid) : undefined;
 			if (!room || !room.begun || room.clockPending) return;
 			const side = room.position.turn;
-			if (!flagDue(room.banks[side], room.turnStarted, Date.now())) return;
+			if (!flagDue(room.banks[side], room.turnStarted, clockNow())) return;
 			await flagRoom(room);
 		}
 	};
@@ -733,7 +744,7 @@ export function createMatchService(
 		},
 		handleWs(sock: TextSock, raw: string, ctx: { player?: string }) {
 			if (stopping || disposed) return Promise.resolve();
-			const receivedAt = Date.now();
+			const receivedAt = clockNow();
 			const key = ctx.player ? playerRoom.get(ctx.player) ?? 'lobby' : 'lobby';
 			return serialize(key, async () => {
 				if (disposed) return;
@@ -770,7 +781,7 @@ export function createMatchService(
 		async shutdown() {
 			if (stopping || disposed) return;
 			stopping = true;
-			const stoppedAt = Date.now();
+			const stoppedAt = clockNow();
 			await Promise.allSettled([...operations.values()]);
 			await Promise.all([...rooms.values()].map(room => serialize(room.id, async () => {
 				if (room.flagTimer) clearTimeout(room.flagTimer);

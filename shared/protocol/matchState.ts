@@ -11,6 +11,7 @@ export type ClockSnap = {
 	paused: boolean;
 	serverPause?: 'shutdown' | 'storage';
 	serverNow: number;
+	receivedAt?: number;
 	dropUntil?: number;
 	timeControl?: TimeControlId;
 };
