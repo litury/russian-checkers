@@ -7,8 +7,11 @@ import { decorateMenu } from '../../menu/menuAtlas';
 import { readSafeInsets } from '../hud/matchLayout';
 import { verdictControlsGeometry } from './verdictControlsGeometry';
 import './boardVerdict.css';
+import type { RatingChange } from '@/shared/protocol/rating';
+import { ratingChangeLabel } from '../../profile/ratingLabel';
 
 export type Verdict = {
+	ratingChange?: RatingChange;
 	winner: MatchResult;
 	humanSide: Side;
 	reason: string;
@@ -32,6 +35,7 @@ export function createResultOverlay(
 					<div class="verdict-content">
 						<h2 id="verdict-heading" tabindex="-1"></h2>
 						<p id="verdict-reason"></p>
+						<p id="verdict-rating" hidden></p>
 						<div class="verdict-actions">
 							<button type="button" class="metal-button primary" data-verdict="again"><span class="verdict-again-label">Ещё партия</span></button>
 							<button type="button" class="metal-button secondary" data-verdict="board">Посмотреть доску</button>
@@ -62,6 +66,7 @@ export function createResultOverlay(
 	const reopen = control<HTMLButtonElement>('[data-verdict="open"]');
 	const heading = requiredElement('verdict-heading');
 	const reason = requiredElement('verdict-reason');
+	const rating = requiredElement('verdict-rating');
 	let previous: HTMLElement | null = null;
 	let shown = false;
 	let disposed = false;
@@ -199,6 +204,9 @@ export function createResultOverlay(
 			heading.textContent =
 				verdict.winner === 'aborted' ? 'Партия прервана' : state === 'win' ? 'Победа' : state === 'loss' ? 'Поражение' : 'Ничья';
 			reason.textContent = verdict.reason;
+			rating.hidden = !verdict.ratingChange;
+			rating.textContent = verdict.ratingChange ? ratingChangeLabel(verdict.ratingChange) : '';
+			if (verdict.ratingChange) document.dispatchEvent(new Event('damka:rating-updated'));
 			againLabel.textContent = verdict.online
 				? 'Найти соперника'
 				: 'Ещё партия';

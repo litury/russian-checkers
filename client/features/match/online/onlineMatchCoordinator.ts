@@ -1,4 +1,5 @@
 import { markPerf } from '@/client/platform/browser/perfMarks';
+import type { RatingChange } from '@/shared/protocol/rating';
 import type { MatchResult } from '@/shared/protocol/matchResult';
 import { type NetMove, openLive } from '@/client/platform/network/live';
 import {
@@ -38,7 +39,7 @@ interface OnlineView {
 	resetBoard(): void;
 	stopCountdown(): void;
 	finishOpening(): void;
-	end(side: MatchResult, reason: string): void;
+	end(side: MatchResult, reason: string, ratingChange?: RatingChange): void;
 	presentResult(): void;
 	playHumanLocal(move: IMove): void;
 	playRemote(move: IMove): void;
@@ -156,7 +157,7 @@ export class OnlineMatchCoordinator {
 			onConnectionChange: (connected) => this.connectionChanged(connected),
 			onClock: (ply, clocks) => this.updateClock(ply, clocks),
 			onDraw: (offer, lastOffer) => this.applyDraw(offer, lastOffer),
-			onRecovered: (color, snap, winner, reason) => { void this.resumeResult(color, snap, winner, reason); },
+			onRecovered: (color, snap, winner, reason, ratingChange) => { void this.resumeResult(color, snap, winner, reason, ratingChange); },
 			onStart: (color, _matchId, snap) => {
 				if (this.disposed || generation !== this.generation) return;
 				if (this.session.phase !== 'title') {
@@ -182,7 +183,7 @@ export class OnlineMatchCoordinator {
 				this.inboundNet.push(move);
 				this.drainInbound();
 			},
-			onEnd: (winner, reason, youWin) => {
+			onEnd: (winner, reason, youWin, ratingChange) => {
 				if (this.session.phase === 'over') return;
 				const side =
 					winner === 'draw' || winner === 'aborted'
@@ -194,7 +195,7 @@ export class OnlineMatchCoordinator {
 									? 'black'
 									: 'white'
 								: winner;
-				this.ui.end(side, reason);
+				this.ui.end(side, reason, ratingChange);
 			},
 		});
 		await this.live.connect();
@@ -218,7 +219,7 @@ export class OnlineMatchCoordinator {
 			onConnectionChange: (connected) => this.connectionChanged(connected),
 			onClock: (ply, clocks) => this.updateClock(ply, clocks),
 			onDraw: (offer, lastOffer) => this.applyDraw(offer, lastOffer),
-			onRecovered: (color, snap, winner, reason) => { void this.resumeResult(color, snap, winner, reason); },
+			onRecovered: (color, snap, winner, reason, ratingChange) => { void this.resumeResult(color, snap, winner, reason, ratingChange); },
 			onQueued: () => {
 				if (this.disposed || generation !== this.generation) return;
 				if (this.searchPhase === 'timeout-offer') return;
@@ -265,7 +266,7 @@ export class OnlineMatchCoordinator {
 				this.inboundNet.push(move);
 				this.drainInbound();
 			},
-			onEnd: (winner, reason, youWin) => {
+			onEnd: (winner, reason, youWin, ratingChange) => {
 				if (this.session.phase === 'over') return;
 				const side =
 					winner === 'draw' || winner === 'aborted'
@@ -277,7 +278,7 @@ export class OnlineMatchCoordinator {
 									? 'black'
 									: 'white'
 								: winner;
-				this.ui.end(side, reason);
+				this.ui.end(side, reason, ratingChange);
 			},
 			onError: (error) => {
 				if (this.disposed || generation !== this.generation) return;
@@ -317,11 +318,11 @@ export class OnlineMatchCoordinator {
 		else this.live.queue();
 	}
 
-	private async resumeResult(color: Side, snap: MatchSnapshot, winner: MatchResult, reason: string): Promise<void> {
+	private async resumeResult(color: Side, snap: MatchSnapshot, winner: MatchResult, reason: string, ratingChange?: RatingChange): Promise<void> {
 		if (this.disposed || this.session.acceptedResult) return;
 		if (this.session.phase !== 'title') {
 			this.applyResume(color, snap);
-			this.ui.end(winner, reason);
+			this.ui.end(winner, reason, ratingChange);
 			return;
 		}
 		this.session.online = true;
@@ -335,7 +336,7 @@ export class OnlineMatchCoordinator {
 		await this.ui.start();
 		if (this.disposed || !this.session.online) return;
 		this.applyResume(color, snap);
-		this.ui.end(winner, reason);
+		this.ui.end(winner, reason, ratingChange);
 	}
 
 	applyDraw(offer: Side | null, lastOffer?: Side | null): void {

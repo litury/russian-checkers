@@ -1,5 +1,6 @@
 import type { HapticKind } from '@/client/platform/browser/haptics';
 import type { MatchResult } from '@/shared/protocol/matchResult';
+import type { RatingChange } from '@/shared/protocol/rating';
 
 import { hashPosition } from '@/shared/protocol/matchState';
 import {
@@ -19,6 +20,7 @@ interface PlayedMove extends IMove {
 }
 export type MatchPhase = 'title' | 'human' | 'bot' | 'over';
 export interface MatchOutcome {
+	ratingChange?: RatingChange;
 	winner: MatchResult;
 	humanSide: Side;
 	reason: string;

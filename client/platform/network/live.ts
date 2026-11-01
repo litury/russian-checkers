@@ -1,4 +1,5 @@
 import type { IMove, Side } from '@/shared/rules';
+import { isRatingChange, type RatingChange } from '@/shared/protocol/rating';
 import { MATCH_PROTOCOL_VERSION, isMatchResult, type MatchResult } from '@/shared/protocol/matchResult';
 import { squareAlg } from '@/shared/protocol/notation';
 import { ensureGuest } from './cloud';
@@ -21,8 +22,8 @@ export type LiveHandlers = {
  onState?: (snap: MatchSnapshot) => void;
  onMove?: (move: NetMove) => void;
  onDraw?: (offer: Side | null, lastOffer?: Side | null) => void;
- onRecovered?: (color: Side, snap: MatchSnapshot, winner: MatchResult, reason: string) => void;
- onEnd?: (winner: MatchResult, reason: string, youWin?: boolean) => void;
+ onRecovered?: (color: Side, snap: MatchSnapshot, winner: MatchResult, reason: string, ratingChange?: RatingChange) => void;
+ onEnd?: (winner: MatchResult, reason: string, youWin?: boolean, ratingChange?: RatingChange) => void;
  onError?: (error: string) => void;
 };
 
@@ -300,12 +301,12 @@ export function openLive(handlers: LiveHandlers) {
       rememberMatch('');
       activeMatch = false;
       recovered();
-      handlers.onEnd?.(msg.winner, String(msg.reason ?? ''), msg.youWin as boolean | undefined);
+      handlers.onEnd?.(msg.winner, String(msg.reason ?? ''), msg.youWin as boolean | undefined, isRatingChange(msg.ratingChange) ? msg.ratingChange : undefined);
      }
      if (type === 'resume_end' && msg.color && isMatchResult(msg.winner)) {
       stopProbes();
       rememberMatch(''); activeMatch = false; recovered();
-      handlers.onRecovered?.(msg.color as Side, asSnap(msg), msg.winner, String(msg.reason ?? 'unknown'));
+      handlers.onRecovered?.(msg.color as Side, asSnap(msg), msg.winner, String(msg.reason ?? 'unknown'), isRatingChange(msg.ratingChange) ? msg.ratingChange : undefined);
      }
      if (type === 'error' && msg.error) {
       if (msg.error === 'unauthorized' || msg.error === 'update_required' || msg.error === 'rate') {

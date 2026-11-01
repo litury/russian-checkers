@@ -37,6 +37,7 @@ import { MatchResources } from './matchResources';
 import { MatchSession } from './matchSession';
 import { OnlineMatchCoordinator } from './online/onlineMatchCoordinator';
 import { createResultOverlay } from './result/boardVerdict';
+import type { RatingChange } from '@/shared/protocol/rating';
 import { verdictReason } from './result/verdictReason';
 import type { MatchResult } from '@/shared/protocol/matchResult';
 
@@ -112,7 +113,7 @@ export class GameScene extends Phaser.Scene {
 				this.title.beginMatch();
 				this.hud?.finishReveal();
 			},
-			end: (side, reason) => this.endMatch(side, reason),
+			end: (side, reason, ratingChange) => this.endMatch(side, reason, ratingChange),
 			presentResult: () => this.presentResult(),
 			playHumanLocal: (move) => this.interaction.playHumanLocal(move),
 			paintActions: () => this.paintUndo(),
@@ -869,7 +870,7 @@ export class GameScene extends Phaser.Scene {
 			}) ?? this.actionsEntered;
 	}
 
-	private endMatch(side: MatchResult, kind = 'rules'): void {
+	private endMatch(side: MatchResult, kind = 'rules', ratingChange?: RatingChange): void {
 		if (
 			!this.board ||
 			this.session.acceptedResult ||
@@ -882,6 +883,7 @@ export class GameScene extends Phaser.Scene {
 			black: this.sideRemainingMs('black'),
 		};
 		this.session.acceptedResult = {
+			ratingChange,
 			winner: side,
 			humanSide: this.session.humanSide,
 			online: this.session.online,

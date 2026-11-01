@@ -20,6 +20,7 @@ import whiteArt from '../match/board/reliquary/ivory_disk.webp';
 import whiteKingArt from '../match/board/reliquary/ivory_king.webp';
 import { bindProfileNavigation, type ProfilePage } from './profileNavigation';
 import { bindProfileOverview } from './profileOverview';
+import { ratingChangeLabel } from './ratingLabel';
 
 const dateLabel = (value: string) => {
 	const date = new Date(value);
@@ -166,7 +167,7 @@ export function bindMatchHistory() {
 			if (Number.isFinite(Date.parse(row.startedAt)))
 				date.dateTime = row.startedAt;
 			info.append(name, date);
-			const reason = historyReason(row);
+			const reason = [historyReason(row), row.ratingChange ? ratingChangeLabel(row.ratingChange) : ''].filter(Boolean).join(' · ');
 			if (reason) info.append(element('p', 'mh-muted', reason));
 			const detail = element(
 				'p',
@@ -400,8 +401,9 @@ export function bindMatchHistory() {
 			return;
 		}
 		el('match-history-result').textContent = outcomeLabel(detail);
-		el('match-history-reason').textContent = historyReason(detail);
-		el('match-history-reason').hidden = !historyReason(detail);
+		const detailReason = [historyReason(detail), detail.ratingChange ? ratingChangeLabel(detail.ratingChange) : ''].filter(Boolean).join(' · ');
+		el('match-history-reason').textContent = detailReason;
+		el('match-history-reason').hidden = !detailReason;
 		el('match-history-meta').textContent =
 			`${opponent(detail)} · ${sideLabel(detail)} · ${detail.timeControl ?? '1+0'} · ${dateLabel(detail.startedAt)}`;
 		const warning = el('match-history-warning');

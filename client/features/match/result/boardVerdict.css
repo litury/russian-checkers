@@ -79,6 +79,13 @@
 	display: grid;
 	gap: 10px;
 }
+#verdict-rating {
+	margin: 0 0 20px;
+	font: var(--type-body);
+	font-variant-numeric: tabular-nums;
+	color: #eed1a0;
+	overflow-wrap: anywhere;
+}
 .verdict-actions .metal-button {
 	font: var(--type-action-dialog);
 }
