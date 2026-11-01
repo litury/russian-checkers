@@ -322,6 +322,15 @@
 #match-history-ply > span {
 	display: block;
 }
+#match-history-clocks {
+	margin-top: 8px;
+	text-align: center;
+	font-variant-numeric: tabular-nums;
+}
+#match-history-reason {
+	margin-top: 8px;
+	font: var(--type-body);
+}
 #match-history .mh-record {
 	min-width: 0;
 	overflow-wrap: anywhere;

@@ -4,11 +4,14 @@ import {
 	buildHistoryReplay,
 	incompleteReplayCopy,
 	outcomeLabel,
+	historyReason,
+	historyClockLabel,
 } from '@/client/features/profile/historyReplay';
 import { loadMatch, loadMatches } from '@/client/platform/network/cloud';
 import { canOpenBoard, type MatchRow } from '@/shared/protocol/matchHistory';
 import { squareAlg } from '@/shared/protocol/notation';
 import type { Side } from '@/shared/rules';
+import { timeControls } from '@/shared/rules/timeControl';
 import { uiSfx } from '../../audio/uiSfx';
 import blackArt from '../match/board/reliquary/black_disk.webp';
 import blackKingArt from '../match/board/reliquary/black_king.webp';
@@ -163,6 +166,8 @@ export function bindMatchHistory() {
 			if (Number.isFinite(Date.parse(row.startedAt)))
 				date.dateTime = row.startedAt;
 			info.append(name, date);
+			const reason = historyReason(row);
+			if (reason) info.append(element('p', 'mh-muted', reason));
 			const detail = element(
 				'p',
 				'mh-row-detail',
@@ -268,6 +273,13 @@ export function bindMatchHistory() {
 		board.replaceChildren();
 		const description: string[] = [];
 		const last = replay.plies[ply - 1];
+		const initialMs = selected?.timeControl ? timeControls[selected.timeControl].initialMs : null;
+		const banks = ply > 0 ? replay.clocks[ply - 1] : initialMs !== null && replay.clocks[0]
+			? { white: initialMs, black: initialMs } : null;
+		el('match-history-clocks').textContent = banks
+			? `${ply ? 'После хода' : 'В начале'} · ${historyClockLabel(banks)}`
+			: historyClockLabel(null);
+		el('match-history-clocks').setAttribute('aria-label', `${ply ? 'Часы после полного хода, с добавлением' : 'Начальные часы'}. ${historyClockLabel(banks)}`);
 		const facing: Side = selected?.color === 'black' ? 'black' : 'white';
 		const frame = board.parentElement;
 		if (frame) frame.dataset.facing = facing;
@@ -367,10 +379,11 @@ export function bindMatchHistory() {
 			return;
 		}
 		const detail = result.detail;
+		selected = detail;
 		if (!detail.pliesList.length) {
 			showState(
-				'Ходы не записаны',
-				'Партия есть в истории, но запись её ходов пуста.',
+				outcomeLabel(detail),
+				[historyReason(detail), 'Ходы не записаны.'].filter(Boolean).join('. '),
 			);
 			return;
 		}
@@ -387,6 +400,8 @@ export function bindMatchHistory() {
 			return;
 		}
 		el('match-history-result').textContent = outcomeLabel(detail);
+		el('match-history-reason').textContent = historyReason(detail);
+		el('match-history-reason').hidden = !historyReason(detail);
 		el('match-history-meta').textContent =
 			`${opponent(detail)} · ${sideLabel(detail)} · ${detail.timeControl ?? '1+0'} · ${dateLabel(detail.startedAt)}`;
 		const warning = el('match-history-warning');

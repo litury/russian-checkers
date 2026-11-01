@@ -5,13 +5,14 @@ import type { IMove } from '@/shared/rules';
 import { runtimeApiOrigin } from './apiOrigin';
 import { CONNECT_BUDGET_MS } from './networkPolicy';
 import type { TimeControlId } from '@/shared/rules/timeControl';
+import type { ClockBanks } from '@/shared/protocol/clockBanks';
 
 const api = () => runtimeApiOrigin();
 
 const tokenKey = 'checkers.playerToken';
 const idKey = 'checkers.playerId';
 
-export type CloudPly = { side: Side; from: IMove['from']; path: IMove['path'] };
+export type CloudPly = { side: Side; from: IMove['from']; path: IMove['path']; clocks?: ClockBanks };
 
 async function request(path: string, init: RequestInit = {}): Promise<Response | null> {
  try {
@@ -63,6 +64,7 @@ export async function recordBotMatch(opts: {
  timeControl: TimeControlId;
  humanSide: Side;
  winner: Side | 'draw';
+ endReason?: string;
  plies: CloudPly[];
 }): Promise<void> {
  const guest = await ensureGuest();
@@ -75,10 +77,12 @@ export async function recordBotMatch(opts: {
    timeControl: opts.timeControl,
    humanSide: opts.humanSide,
    winner: opts.winner,
+   endReason: opts.endReason,
    plies: opts.plies.map((p) => ({
     side: p.side,
     from: squareAlg(p.from),
     path: p.path.map(squareAlg),
+    clocks: p.clocks,
    })),
   }),
  });

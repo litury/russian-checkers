@@ -951,6 +951,7 @@ export class GameScene extends Phaser.Scene {
 				timeControl: this.clock.timeControl,
 				humanSide: this.session.humanSide,
 				winner: side,
+				endReason: this.session.resultKind,
 				plies: this.session.matchPlies,
 			});
 		}

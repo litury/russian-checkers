@@ -1,0 +1,1 @@
+ALTER TABLE match_plies ADD COLUMN IF NOT EXISTS clocks JSONB;

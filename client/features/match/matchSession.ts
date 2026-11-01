@@ -15,6 +15,7 @@ import type { StepwiseMove } from './stepwiseMove';
 
 interface PlayedMove extends IMove {
 	side: Side;
+	clocks?: { white: number; black: number };
 }
 export type MatchPhase = 'title' | 'human' | 'bot' | 'over';
 export interface MatchOutcome {

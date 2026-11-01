@@ -49,8 +49,8 @@ export function createMatchRepository(pool: Pool) {
 				);
 				if (updated.rowCount !== 1) throw new Error('Match is no longer active');
 				if (ply) await connection.query(
-					'INSERT INTO match_plies (match_id,ply,side,from_sq,path) VALUES ($1,$2,$3,$4,$5)',
-					[id, runtime.ply, ply.side, ply.from, JSON.stringify(ply.path)],
+					'INSERT INTO match_plies (match_id,ply,side,from_sq,path,clocks) VALUES ($1,$2,$3,$4,$5,$6)',
+					[id, runtime.ply, ply.side, ply.from, JSON.stringify(ply.path), JSON.stringify(runtime.banks)],
 				);
 				await connection.query('COMMIT');
 			} catch (error) {

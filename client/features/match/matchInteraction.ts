@@ -307,8 +307,10 @@ export class MatchInteraction {
 		) {
 			haptics.play(pending.kind, pending);
 		}
-		if (!this.session.acceptedResult && !this.session.online)
+		if (!this.session.acceptedResult && !this.session.online) {
 			this.clock.settle(mover, this.ui.now(), this.session.paused);
+			this.session.matchPlies.at(-1)!.clocks = { ...this.clock.banks };
+		}
 		// First accepted move of the human side: bots may have played earlier plies.
 		// markPerf keeps the first write, so later human moves never move the mark.
 		if (mover === this.session.humanSide) markPerf('first-move-played');
@@ -392,8 +394,10 @@ export class MatchInteraction {
 				this.ui.end(winner(this.session.position) ?? 'white');
 				return;
 			}
-			if (!this.session.acceptedResult)
+			if (!this.session.acceptedResult) {
 				this.clock.settle(mover, this.ui.now(), this.session.paused);
+				this.session.matchPlies.at(-1)!.clocks = { ...this.clock.banks };
+			}
 
 			if (this.session.acceptedResult) {
 				this.ui.presentResult();

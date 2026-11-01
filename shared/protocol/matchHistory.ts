@@ -1,17 +1,19 @@
 import { isTimeControl, type TimeControlId } from '@/shared/rules/timeControl';
+import type { ClockBanks } from './clockBanks';
 
 export type MatchRow = {
  timeControl?: TimeControlId;
  id: string;
  mode: 'bot' | 'online';
  winner: 'white' | 'black' | 'draw' | null;
+ endReason?: string | null;
  startedAt: string;
  color: 'white' | 'black';
  plies: number;
 };
 
 export type MatchDetail = MatchRow & {
- pliesList: { side: 'white' | 'black'; from: string; path: string[] }[];
+ pliesList: { side: 'white' | 'black'; from: string; path: string[]; clocks?: ClockBanks | null }[];
 };
 
 export function ownColor(whiteId: string | null, blackId: string | null, me: string): 'white' | 'black' | null {
@@ -28,6 +30,7 @@ export function isMatchRow(value: unknown): value is MatchRow {
 	if (!value || typeof value !== 'object') return false;
 	const row = value as MatchRow;
 	return (row.timeControl === undefined || isTimeControl(row.timeControl)) && typeof row.id === 'string' && row.id.length > 0 && typeof row.startedAt === 'string'
+		&& (row.endReason == null || typeof row.endReason === 'string')
 		&& ['bot', 'online'].includes(row.mode) && ['white', 'black'].includes(row.color)
 		&& (row.winner === null || ['white', 'black', 'draw'].includes(row.winner))
 		&& Number.isSafeInteger(row.plies) && row.plies >= 0;
