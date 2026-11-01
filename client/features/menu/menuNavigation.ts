@@ -416,8 +416,7 @@ requiredElement('opening-share-code').addEventListener(
 	options,
 );
 
-for (const note of dialog.querySelectorAll('.play-online-rules'))
-	note.textContent = `${timeControlDescription(defaultTimeControl)} · Цвет — автоматически`;
+requiredElement('opening-ranked-description').textContent = `С рейтингом · ${defaultTimeControl}`;
 const initialCode = new URLSearchParams(location.search).get('join');
 if (initialCode && /^\d{6}$/.test(initialCode)) input.value = initialCode;
 const observer = new MutationObserver(refreshBack);

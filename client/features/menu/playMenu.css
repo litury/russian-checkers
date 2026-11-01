@@ -41,7 +41,7 @@
 	margin: 0 0 10px;
 }
 #opening-presence {
-	margin-bottom: 8px;
+	margin-bottom: 20px;
 	font: var(--type-note);
 	text-align: center;
 	color: #c5bdab;
@@ -49,6 +49,19 @@
 #opening-presence output {
 	font-weight: 600;
 	color: #e8dfcd;
+}
+.play-mode-options {
+	display: grid;
+	gap: 20px;
+}
+.play-mode-option {
+	display: grid;
+	gap: 6px;
+	min-width: 0;
+}
+.play-mode-option > .play-note {
+	margin: 0;
+	text-align: center;
 }
 .bot-difficulty {
 	margin-bottom: 16px;

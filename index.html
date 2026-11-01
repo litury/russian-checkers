@@ -137,10 +137,15 @@ html[data-menu-presentation="loading"] #menu-loading {
    <p id="opening-bot-rules" class="play-note play-metadata"></p>
    <button id="opening-play" class="metal-button primary" type="button" disabled aria-busy="true"><span class="opening-cta-label">Начать партию</span></button>
   </section>
-  <section class="play-page action-list" data-play-page="human" hidden>
-   <p class="play-note play-metadata play-online-rules"></p>
-   <button id="opening-search-find" class="metal-button primary" type="button">Найти соперника</button>
-   <button id="opening-friend" class="metal-button secondary" type="button">С другом</button>
+  <section class="play-page play-mode-options" data-play-page="human" hidden>
+   <div class="play-mode-option">
+    <button id="opening-search-find" class="metal-button primary" type="button" aria-describedby="opening-ranked-description">Найти соперника</button>
+    <p id="opening-ranked-description" class="play-note"></p>
+   </div>
+   <div class="play-mode-option">
+    <button id="opening-friend" class="metal-button secondary" type="button" aria-describedby="opening-friend-description">С другом</button>
+    <p id="opening-friend-description" class="play-note">Без рейтинга</p>
+   </div>
   </section>
   <section class="play-page action-list" data-play-page="friend" hidden>
    <fieldset class="bot-difficulty"><legend>Время приглашения</legend><div class="difficulty-options">
