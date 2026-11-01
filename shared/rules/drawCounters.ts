@@ -1,5 +1,6 @@
 import type { DrawCounters, IPosition } from './types/IPosition';
 import type { Side } from './types/Side';
+import type { DrawReason } from './drawReason';
 
 export function material(position: IPosition) {
 	const counts = {
@@ -63,9 +64,9 @@ export function advanceDrawCounters(
 	};
 }
 
-export function hasCountedDraw(position: IPosition): boolean {
+export function countedDrawReason(position: IPosition): DrawReason | null {
 	const counters = position.drawCounters;
-	if (!counters) return false;
+	if (!counters) return null;
 	const counts = material(position);
 	const total =
 		counts.white.men +
@@ -79,14 +80,26 @@ export function hasCountedDraw(position: IPosition): boolean {
 	);
 	if (counts.white.kings && counts.black.kings) {
 		const limit = total <= 3 ? 5 : total <= 5 ? 30 : total <= 7 ? 60 : Infinity;
-		if (stableMoves >= limit) return true;
+		if (stableMoves >= limit) {
+			if (limit === 5) return 'draw_stable_5';
+			if (limit === 30) return 'draw_stable_30';
+			if (limit === 60) return 'draw_stable_60';
+		}
 	}
 	const kingLimit =
 		total >= 4 && total <= 5 ? 15 : total >= 6 && total <= 7 ? 25 : Infinity;
-	if (kingMoves >= kingLimit) return true;
+	if (kingMoves >= kingLimit) {
+		if (kingLimit === 15) return 'draw_kings_15';
+		if (kingLimit === 25) return 'draw_kings_25';
+	}
 	if (counters.stronger && counters.strongerMoves >= 15) {
 		const own = counts[counters.stronger];
-		if (own.kings + own.men > 3 || own.mainDiagonal) return true;
+		if (own.kings + own.men > 3) return 'draw_stronger_15';
+		if (own.mainDiagonal) return 'draw_three_kings_15';
 	}
-	return false;
+	return null;
+}
+
+export function hasCountedDraw(position: IPosition): boolean {
+	return countedDrawReason(position) !== null;
 }

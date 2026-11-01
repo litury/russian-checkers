@@ -18,6 +18,7 @@ import type { RateLimiter } from '../transport/rateLimit.ts';
 import type { TextSock } from '../wsRaw.ts';
 import { flagDue, flagWinner, turnLeft } from './flagClock.ts';
 import { createMatchTime } from './clockSource.ts';
+import { drawReason } from '../../../shared/rules/draw.ts';
 import {
 	defaultTimeControl,
 	isSelectableTimeControl,
@@ -107,6 +108,7 @@ export function createMatchService(
 		loserId?: string,
 	) => {
 		if (!rooms.has(room.id) || room.ending || disposed) return;
+		if (win === 'draw' && reason === 'rules') reason = drawReason(room.position, room.keys) ?? reason;
 		room.ending = true;
 		if (room.flagTimer) clearTimeout(room.flagTimer);
 		if (room.clockTimer) clearTimeout(room.clockTimer);

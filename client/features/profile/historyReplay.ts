@@ -2,6 +2,7 @@ import { createInitialPosition, type IPosition } from '@/shared/rules';
 import { applyPly, type RecordedPly } from '@/shared/protocol/replay';
 import type { MatchRow } from '@/shared/protocol/matchHistory';
 import { isClockBanks, type ClockBanks } from '@/shared/protocol/clockBanks';
+import { drawReasonLabel } from '../match/result/drawReasonLabel';
 
 export function outcomeLabel(row: Pick<MatchRow, 'winner' | 'color'>): string {
  if (row.winner === null) return 'Без результата';
@@ -10,6 +11,8 @@ export function outcomeLabel(row: Pick<MatchRow, 'winner' | 'color'>): string {
 }
 
 export function historyReason(row: Pick<MatchRow, 'winner' | 'color' | 'endReason'>): string {
+ const drawLabel = row.winner === 'draw' ? drawReasonLabel(row.endReason) : null;
+ if (drawLabel) return drawLabel;
  const won = row.winner === row.color;
  switch (row.endReason) {
   case 'resign': return won ? 'Соперник сдался' : 'Вы сдались';

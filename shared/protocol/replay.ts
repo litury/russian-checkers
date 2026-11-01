@@ -1,6 +1,8 @@
 import { apply, createInitialPosition, resultSide, type IMove, type IPosition, type Side } from '@/shared/rules';
 import { hashPosition } from './matchState';
 import { parseAlg } from './notation';
+import { drawReason } from '../rules/draw';
+import type { DrawReason } from '../rules/drawReason';
 
 export type RecordedPly = { side: Side; from: string; path: string[] };
 
@@ -17,7 +19,7 @@ export function applyPly(position: IPosition, ply: RecordedPly): IPosition | nul
  return move ? apply(position, move) : null;
 }
 
-export function replayPlies(plies: RecordedPly[]): { ok: true; winner: Side | 'draw' | null } | { ok: false; ply: number } {
+export function replayPlies(plies: RecordedPly[]): { ok: true; winner: Side | 'draw' | null; drawReason?: DrawReason } | { ok: false; ply: number } {
  let position = createInitialPosition();
  const keys = [hashPosition(position)];
  let outcome: Side | 'draw' | null = null;
@@ -31,7 +33,8 @@ export function replayPlies(plies: RecordedPly[]): { ok: true; winner: Side | 'd
   keys.push(hashPosition(position));
   outcome = resultSide(position, keys);
  }
- return { ok: true, winner: outcome };
+ const reason = outcome === 'draw' ? drawReason(position, keys) : null;
+ return { ok: true, winner: outcome, ...(reason ? { drawReason: reason } : {}) };
 }
 
 export function positionAt(plies: RecordedPly[], n: number): IPosition {

@@ -200,7 +200,7 @@ export function createMatchesRoutes(pool: Pool, auth: AuthService, _limited: Rat
 				await connection.query('BEGIN');
 				const inserted = await connection.query(
 					`INSERT INTO matches (mode, white_id, black_id, winner, time_control, end_reason, ended_at) VALUES ('bot', $1, $2, $3, $4, $5, now()) RETURNING id`,
-					[whiteId, blackId, body.winner, body.timeControl ?? '1+0', replayed.winner ? 'rules' : body.endReason ?? null],
+					[whiteId, blackId, body.winner, body.timeControl ?? '1+0', replayed.drawReason ?? (replayed.winner ? 'rules' : body.endReason ?? null)],
 				);
 				const matchId = inserted.rows[0].id as string;
 				let ply = 0;
