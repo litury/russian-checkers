@@ -1,7 +1,9 @@
 import { isTimeControl, type TimeControlId } from '@/shared/rules/timeControl';
 import type { ClockBanks } from './clockBanks';
+import { isRatingChange, type RatingChange } from './rating';
 
 export type MatchRow = {
+ ratingChange?: RatingChange | null;
  timeControl?: TimeControlId;
  id: string;
  mode: 'bot' | 'online';
@@ -30,6 +32,7 @@ export function isMatchRow(value: unknown): value is MatchRow {
 	if (!value || typeof value !== 'object') return false;
 	const row = value as MatchRow;
 	return (row.timeControl === undefined || isTimeControl(row.timeControl)) && typeof row.id === 'string' && row.id.length > 0 && typeof row.startedAt === 'string'
+		&& (row.ratingChange == null || isRatingChange(row.ratingChange))
 		&& (row.endReason == null || typeof row.endReason === 'string')
 		&& ['bot', 'online'].includes(row.mode) && ['white', 'black'].includes(row.color)
 		&& (row.winner === null || ['white', 'black', 'draw'].includes(row.winner))

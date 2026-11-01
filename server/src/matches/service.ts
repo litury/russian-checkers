@@ -29,6 +29,7 @@ import { mintFriendCode, resolveFriendJoin } from './friendCode.ts';
 import type { MatchRepository } from './repository.ts';
 import type { MatchRuntime } from './runtime.ts';
 import { MATCH_PROTOCOL_VERSION, type MatchResult } from '../../../shared/protocol/matchResult.ts';
+import type { RatingChange } from '../../../shared/protocol/rating.ts';
 export function createMatchService(
 	repository: MatchRepository,
 	auth: AuthService,
@@ -65,6 +66,7 @@ export function createMatchService(
 		dropDeadlines: Record<string, number>;
 		ending?: boolean;
 		resultFrozen?: boolean;
+		ratingChanges?: Record<string, RatingChange> | null;
 	};
 
 	const queue: { id: string; sock: TextSock }[] = [];
@@ -123,6 +125,7 @@ export function createMatchService(
 			const saved = await repository.finish(room.id, win, reason, runtimeOf(room));
 			win = saved.winner;
 			reason = saved.reason;
+			room.ratingChanges = saved.ratingChanges;
 			Object.assign(room, saved.runtime);
 			if (win === 'aborted') for (const sock of room.socks.values()) pushState(room, sock);
 		} catch (error) {
@@ -150,7 +153,7 @@ export function createMatchService(
 		for (const [pid, sock] of room.socks) {
 			const youWin = (win === 'white' && pid === room.white) ||
 				(win === 'black' && pid === room.black);
-			send(sock, { type: 'end', winner: win, youWin, reason });
+			send(sock, { type: 'end', winner: win, youWin, reason, ratingChange: room.ratingChanges?.[pid] ?? null });
 		}
 	};
 
@@ -354,7 +357,7 @@ export function createMatchService(
 		friend: boolean,
 		timeControl: SelectableTimeControl = defaultTimeControl,
 	) => {
-		const id = await repository.open(white, black, timeControl);
+		const id = await repository.open(white, black, timeControl, !friend && timeControl === '3+2');
 		const initialMs = timeControls[timeControl].initialMs;
 		const room: Room = {
 			id,
@@ -455,6 +458,7 @@ export function createMatchService(
 					send(sock, {
 						type: 'resume_end', color: saved.white === id ? 'white' : 'black',
 						winner: completed.winner, reason: completed.reason,
+						ratingChange: completed.ratingChanges?.[id] ?? null,
 						...snapshotOf(msg.matchId, saved.position, saved.ply, true, {
 							banks: saved.banks, turnStarted: saved.turnStarted, paused: true,
 							serverNow: clockNow(), timeControl: saved.timeControl,

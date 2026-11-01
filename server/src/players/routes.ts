@@ -3,6 +3,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { Pool } from 'pg';
 import { hashToken, ipOf, json } from '../transport/http.ts';
 import type { RateLimiter } from '../transport/rateLimit.ts';
+import { ratingSummary, type StoredRating } from '../ratings/service.ts';
 
 export function createPlayersRoutes(pool: Pool, limited: RateLimiter) {
 	return async (
@@ -45,7 +46,8 @@ export function createPlayersRoutes(pool: Pool, limited: RateLimiter) {
      FROM matches WHERE (white_id = $1 OR black_id = $1) AND ended_at IS NOT NULL`,
 				[id],
 			);
-			json(res, 200, { playerId: id, ...stats.rows[0] });
+			const rating = await pool.query<StoredRating>('SELECT * FROM player_ratings WHERE player_id=$1', [id]);
+			json(res, 200, { playerId: id, ...stats.rows[0], rating: ratingSummary(rating.rows[0]) });
 			return true;
 		}
 		return false;

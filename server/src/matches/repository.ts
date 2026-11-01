@@ -3,12 +3,15 @@ import type { RecordedPly } from '../../../shared/protocol/replay.ts';
 import type { SelectableTimeControl } from '../../../shared/rules/timeControl.ts';
 import type { MatchRuntime } from './runtime.ts';
 import type { MatchResult } from '../../../shared/protocol/matchResult.ts';
+import type { RatingChange } from '../../../shared/protocol/rating.ts';
+import { rateMatch } from '../ratings/service.ts';
 
 export interface StoredMatch {
 	winner: MatchResult;
 	reason: string;
 	runtime: MatchRuntime;
 	ended: boolean;
+	ratingChanges?: Record<string, RatingChange> | null;
 }
 
 function stored(row: { winner: MatchResult | null; reason: string; runtime: MatchRuntime; ended: boolean }): StoredMatch {
@@ -27,7 +30,7 @@ export function createMatchRepository(pool: Pool) {
 		},
 		async completed(id: string, player: string): Promise<StoredMatch | null> {
 			const result = await pool.query(
-				'SELECT winner,end_reason AS reason,runtime FROM matches WHERE id::text=$1 AND (white_id=$2 OR black_id=$2) AND ended_at IS NOT NULL AND runtime IS NOT NULL',
+				'SELECT winner,end_reason AS reason,runtime,rating_changes AS "ratingChanges" FROM matches WHERE id::text=$1 AND (white_id=$2 OR black_id=$2) AND ended_at IS NOT NULL AND runtime IS NOT NULL',
 				[id, player],
 			);
 			return result.rows[0] ? stored({ ...result.rows[0], ended: true }) : null;
@@ -71,25 +74,46 @@ export function createMatchRepository(pool: Pool) {
 			white: string,
 			black: string,
 			timeControl: SelectableTimeControl,
+			rated = false,
 		): Promise<string> {
 			const result = await pool.query(
-				"INSERT INTO matches (mode,white_id,black_id,time_control) VALUES ('online',$1,$2,$3) RETURNING id",
-				[white, black || null, timeControl],
+				"INSERT INTO matches (mode,white_id,black_id,time_control,rated) VALUES ('online',$1,$2,$3,$4) RETURNING id",
+				[white, black || null, timeControl, rated],
 			);
 			return result.rows[0].id as string;
 		},
 		async finish(id: string, winner: MatchResult, reason: string, runtime: MatchRuntime): Promise<StoredMatch> {
-			const result = await pool.query(
-				'UPDATE matches SET winner=$2,ended_at=now(),end_reason=$3,runtime=$4 WHERE id=$1 AND ended_at IS NULL RETURNING winner,end_reason AS reason,runtime',
-				[id, winner === 'aborted' ? null : winner, reason, JSON.stringify(runtime)],
-			);
-			if (result.rows[0]) return stored({ ...result.rows[0], ended: true });
-			const existing = await pool.query(
-				'SELECT winner,end_reason AS reason,runtime,ended_at IS NOT NULL AS ended FROM matches WHERE id=$1',
-				[id],
-			);
-			if (!existing.rows[0]?.ended) throw new Error('Match result missing');
-			return stored(existing.rows[0]);
+			const connection = await pool.connect();
+			let failed = false;
+			try {
+				await connection.query('BEGIN');
+				const existing = await connection.query(
+					'SELECT *,end_reason AS reason,rating_changes AS "ratingChanges",ended_at IS NOT NULL AS ended FROM matches WHERE id=$1 FOR UPDATE', [id],
+				);
+				const match = existing.rows[0];
+				if (!match) throw new Error('Match result missing');
+				if (match.ended) {
+					await connection.query('COMMIT');
+					return stored(match);
+				}
+				const eligible = match.rated && match.mode === 'online' && match.time_control === '3+2'
+					&& runtime.begun && !runtime.friend && match.white_id && match.black_id
+					&& match.white_id !== match.black_id && winner !== 'aborted';
+				const ratingChanges = eligible
+					? await rateMatch(connection, id, match.white_id, match.black_id, winner) : null;
+				await connection.query(
+					'UPDATE matches SET winner=$2,ended_at=now(),end_reason=$3,runtime=$4,rating_changes=$5 WHERE id=$1',
+					[id, winner === 'aborted' ? null : winner, reason, JSON.stringify(runtime), JSON.stringify(ratingChanges)],
+				);
+				await connection.query('COMMIT');
+				return { winner, reason, runtime, ended: true, ratingChanges };
+			} catch (error) {
+				failed = true;
+				try { await connection.query('ROLLBACK'); } catch {}
+				throw error;
+			} finally {
+				connection.release(failed);
+			}
 		},
 	};
 }

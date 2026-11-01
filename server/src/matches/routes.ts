@@ -10,6 +10,7 @@ import { json, read } from '../transport/http.ts';
 import { isTimeControl } from '../../../shared/rules/timeControl.ts';
 import type { RateLimiter } from '../transport/rateLimit.ts';
 import { isClockBanks, type ClockBanks } from '../../../shared/protocol/clockBanks.ts';
+import type { RatingChange } from '../../../shared/protocol/rating.ts';
 
 export function createMatchesRoutes(pool: Pool, auth: AuthService, _limited: RateLimiter) {
 	const { playerFromAuth } = auth;
@@ -26,6 +27,7 @@ export function createMatchesRoutes(pool: Pool, auth: AuthService, _limited: Rat
 			}
 			const rows = await pool.query(
 				`SELECT m.id, m.mode, m.winner, m.end_reason, m.started_at, m.white_id, m.black_id, m.time_control,
+      m.rating_changes -> ($1::uuid)::text AS rating_change,
       (SELECT count(*)::int FROM match_plies p WHERE p.match_id = m.id) AS plies
      FROM matches m
      WHERE (m.white_id = $1 OR m.black_id = $1) AND m.ended_at IS NOT NULL
@@ -45,12 +47,14 @@ export function createMatchesRoutes(pool: Pool, auth: AuthService, _limited: Rat
 						black_id: string | null;
 						plies: number;
 						time_control: string;
+						rating_change: RatingChange | null;
 					}) => ({
 						id: r.id,
 						mode: r.mode,
 						timeControl: r.time_control,
 						winner: r.winner,
 						endReason: r.end_reason,
+						ratingChange: r.rating_change,
 						startedAt: r.started_at,
 						color: r.white_id === playerId ? 'white' : 'black',
 						plies: Number(r.plies ?? 0),
@@ -71,14 +75,15 @@ export function createMatchesRoutes(pool: Pool, auth: AuthService, _limited: Rat
 				return true;
 			}
 			const row = await pool.query(
-				`SELECT id, mode, winner, end_reason, started_at, white_id, black_id, time_control FROM matches WHERE id=$1`,
-				[id],
+				`SELECT id, mode, winner, end_reason, started_at, white_id, black_id, time_control, rating_changes -> $2::text AS rating_change FROM matches WHERE id=$1`,
+				[id, playerId],
 			);
 			const m = row.rows[0] as
 				| {
 						id: string;
 						mode: string;
 						time_control: string;
+						rating_change: RatingChange | null;
 						winner: string | null;
 						end_reason: string | null;
 						started_at: Date;
@@ -100,6 +105,7 @@ export function createMatchesRoutes(pool: Pool, auth: AuthService, _limited: Rat
 				timeControl: m.time_control,
 				winner: m.winner,
 				endReason: m.end_reason,
+				ratingChange: m.rating_change,
 				startedAt: m.started_at,
 				color: m.white_id === playerId ? 'white' : 'black',
 				plies: plies.rows.length,
