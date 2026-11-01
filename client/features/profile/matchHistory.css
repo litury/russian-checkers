@@ -92,8 +92,11 @@
 }
 #match-history .profile-stats > div {
 	display: flex;
-	flex-direction: column-reverse;
-	gap: 4px;
+	flex-direction: row-reverse;
+	justify-content: center;
+	align-items: baseline;
+	flex-wrap: wrap;
+	gap: 6px;
 	min-width: 0;
 }
 #match-history .profile-stats dt {
@@ -102,13 +105,17 @@
 }
 #match-history .profile-stats dd {
 	margin: 0;
-	font: var(--type-number-large);
+	font: var(--type-body);
 	font-variant-numeric: tabular-nums;
 	overflow-wrap: anywhere;
 }
 #match-history .profile-links {
 	gap: 10px;
 	margin: 0;
+}
+.profile-stats-caption {
+	margin: 0 0 8px;
+	text-align: center;
 }
 #profile-stats,
 #profile-stats-retry {

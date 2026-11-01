@@ -130,6 +130,46 @@ a {
 .score-feedback {
 	margin-top: 4px;
 }
+.personal-rating {
+	padding: 4px 0 12px;
+	margin-bottom: 12px;
+	border-bottom: 1px solid #8e80653d;
+	text-align: center;
+}
+.personal-rating h2 {
+	font: var(--type-label);
+	color: #dbd3c3;
+}
+#opening-rating-number {
+	margin-top: 4px;
+	font: var(--type-number-large);
+	color: #eed1a0;
+	font-variant-numeric: tabular-nums;
+	overflow-wrap: anywhere;
+}
+#opening-rating-number[data-empty] {
+	font: var(--type-body);
+	min-height: 34px;
+	display: grid;
+	align-items: center;
+}
+#opening-rating-status {
+	margin-top: 2px;
+	min-height: 1.4em;
+	font: var(--type-caption);
+	color: #c5bdab;
+}
+.rating-retry {
+	min-height: 44px;
+	padding: 8px;
+	border: 0;
+	background: none;
+	font: var(--type-note);
+	color: #eed1a0;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+	cursor: pointer;
+}
 .score-feedback:has([hidden]) {
 	display: none;
 }
@@ -266,6 +306,14 @@ body:not([data-menu-atlas="ready"]) .menu-chip {
 .side-score-panel {
 	isolation: isolate;
 }
+@media (max-width: 699px) {
+	.menu-layout {
+		justify-content: flex-start;
+	}
+	.side-score-panel {
+		margin-top: auto;
+	}
+}
 .menu-choice-surface,
 .menu-score-surface {
 	position: relative;
@@ -364,7 +412,7 @@ body:not([data-menu-atlas="ready"]) .menu-chip {
 	text-align: center;
 }
 .global-score h2 {
-	font: var(--type-label);
+	font: var(--type-caption);
 	color: #dbd3c3;
 }
 .global-score > p {
@@ -394,7 +442,7 @@ body:not([data-menu-atlas="ready"]) .menu-chip {
 	color: #c2bcaf;
 }
 .global-score dd {
-	font: var(--type-number);
+	font: var(--type-body);
 	font-variant-numeric: tabular-nums;
 	color: #e7dfce;
 }
@@ -476,4 +524,37 @@ dialog::backdrop {
 
 #match-history .profile-links .metal-button {
 	font: var(--type-action);
+}
+@media (max-height: 740px) {
+	.menu-layout {
+		gap: 8px;
+		padding-block: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-bottom));
+	}
+	.game-title {
+		padding-block: 14px;
+	}
+	.main-actions {
+		gap: 8px;
+	}
+	.side-picker {
+		--piece: 64px;
+	}
+	.side-picker legend {
+		margin-bottom: 8px;
+	}
+	.side-score-panel > .menu-choice-surface {
+		padding-block: 14px 8px;
+	}
+	.side-score-panel > .menu-score-surface {
+		padding-block: 8px 16px;
+	}
+	.personal-rating {
+		padding-bottom: 8px;
+		margin-bottom: 8px;
+	}
+}
+@media (max-height: 600px) and (max-width: 699px) {
+	.side-picker {
+		--piece: 56px;
+	}
 }

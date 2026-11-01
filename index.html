@@ -84,6 +84,22 @@ html[data-menu-presentation="loading"] #menu-loading {
   </nav>
   <div class="side-score-panel">
    <div class="menu-choice-surface">
+    <section id="opening-rating" class="personal-rating" aria-labelledby="opening-rating-title">
+     <h2 id="opening-rating-title">Ваш рейтинг</h2>
+     <div id="opening-rating-value" aria-live="polite" aria-atomic="true" aria-busy="true">
+      <p id="opening-rating-number">—</p>
+      <p id="opening-rating-status">Загрузка…</p>
+     </div>
+     <button id="opening-rating-retry" class="rating-retry" type="button" hidden>Повторить загрузку</button>
+    </section>
+    <section class="global-score" aria-labelledby="opening-score-title">
+     <h2 id="opening-score-title">Общий счёт онлайн</h2>
+     <dl><div><dt>Белые</dt><dd id="opening-color-white" class="opening-win-count is-stat-pending" aria-busy="true"></dd></div><div><dt>Чёрные</dt><dd id="opening-color-black" class="opening-win-count is-stat-pending" aria-busy="true"></dd></div></dl>
+     <div class="score-feedback"><p id="opening-stats-unavailable" class="status" role="status" data-error="Статистика недоступна">Загружаем статистику…</p></div>
+     <button id="opening-stats-retry" type="button" hidden>Повторить загрузку счёта</button>
+    </section>
+   </div>
+   <div class="menu-score-surface">
     <fieldset class="side-picker">
      <legend>Ваша сторона</legend>
      <div class="side-options">
@@ -91,14 +107,6 @@ html[data-menu-presentation="loading"] #menu-loading {
       <button type="button" class="side-option gate-piece-slot gate-piece-black" data-side="black" aria-pressed="false"><span class="gate-piece-visual" aria-hidden="true"><span class="gate-piece"></span><canvas width="852" height="980" hidden></canvas></span><span class="side-name">Чёрные</span><span class="selected-mark" aria-hidden="true">Выбрано</span></button>
      </div>
     </fieldset>
-   </div>
-   <div class="menu-score-surface">
-    <section class="global-score" aria-labelledby="opening-score-title" aria-describedby="opening-score-description">
-     <h2 id="opening-score-title">Победы в онлайне</h2><p id="opening-score-description">Общий счёт всех игроков</p>
-     <dl><div><dt>Белые</dt><dd id="opening-color-white" class="opening-win-count is-stat-pending" aria-busy="true"></dd></div><div><dt>Чёрные</dt><dd id="opening-color-black" class="opening-win-count is-stat-pending" aria-busy="true"></dd></div></dl>
-     <div class="score-feedback"><p id="opening-stats-unavailable" class="status" role="status" data-error="Статистика недоступна">Загружаем статистику…</p></div>
-     <button id="opening-stats-retry" type="button" hidden>Повторить загрузку счёта</button>
-    </section>
    </div>
   </div>
   <p id="opening-loading-status" class="opening-sr-only" role="status" aria-live="polite" aria-atomic="true">Загрузка игры</p>
@@ -181,9 +189,6 @@ html[data-menu-presentation="loading"] #menu-loading {
   </header>
   <div id="match-history-scroll" class="mh-scroll">
    <section id="match-history-profile" class="mh-profile" aria-label="Обзор игрока">
-    <dl class="profile-stats" aria-label="Статистика онлайн-партий" aria-live="polite" aria-atomic="true"><div><dt>Партий</dt><dd id="profile-games">—</dd></div><div><dt>Побед</dt><dd id="profile-wins">—</dd></div></dl>
-    <p id="profile-stats" class="mh-muted" role="status">Загрузка статистики…</p>
-    <button id="profile-stats-retry" class="mh-button metal-button secondary" type="button" hidden>Повторить загрузку</button>
     <nav class="profile-links action-list" aria-label="Разделы профиля">
      <button id="profile-history" class="metal-button secondary" type="button">История партий</button>
      <button id="opening-options" class="metal-button secondary" type="button" aria-controls="profile-settings-pane">Настройки</button>
@@ -193,10 +198,16 @@ html[data-menu-presentation="loading"] #menu-loading {
    </section>
    <section id="profile-account-pane" class="mh-profile" hidden aria-label="Аккаунт">
     <h3>Гостевой профиль</h3>
-    <p class="mh-muted">Доступ к истории связан с этим браузером. После очистки данных доступ может потеряться.</p>
+    <p class="mh-muted">Рейтинг и история связаны с этим браузером. Очистка данных может привести к потере доступа.</p>
     <p class="mh-muted">Вход по почте и перенос профиля на другое устройство пока недоступны.</p>
    </section>
    <div id="profile-history-pane" hidden>
+   <section id="history-stats" aria-label="Статистика онлайн-партий">
+    <p class="profile-stats-caption mh-muted">Все онлайн-партии</p>
+    <dl class="profile-stats" aria-label="Статистика онлайн-партий" aria-live="polite" aria-atomic="true"><div><dt>Партий</dt><dd id="profile-games">—</dd></div><div><dt>Побед</dt><dd id="profile-wins">—</dd></div></dl>
+    <p id="profile-stats" class="mh-muted" role="status"></p>
+    <button id="profile-stats-retry" class="mh-button metal-button secondary" type="button" hidden>Повторить загрузку</button>
+   </section>
    <section id="match-history-archive" aria-label="Список партий">
     <div class="mh-toolbar"><p id="match-history-summary">Последние записанные партии</p>
      <label id="match-history-filter-label" hidden>Соперник <select id="match-history-filter"><option value="all">Все</option><option value="online">Онлайн</option><option value="bot">Компьютер</option></select></label>
@@ -278,6 +289,13 @@ html[data-menu-presentation="loading"] #menu-loading {
   <li>Статистика учитывает только завершённые онлайн-партии с результатом. Игра с компьютером сохраняется только в личной истории.</li>
  </ul>
  <p class="rules-limitations">Это правила платформы, а не официальный турнирный регламент.</p>
+</section>
+<section class="rules-section" aria-labelledby="rules-rating">
+ <h3 id="rules-rating">Рейтинг сайта</h3>
+ <p>Личный рейтинг Glicko-2 учитывает результат и силу соперника в поиске <strong>3+2</strong>. Партии с другом и компьютером не учитываются.</p>
+ <p>Рейтинг появится после первой завершённой партии через поиск соперника. Первые результаты и игры после долгого перерыва могут заметно менять оценку. Число может как вырасти, так и уменьшиться.</p>
+ <p>Техническая отмена партии не меняет рейтинг. Общий счёт белых и чёрных — отдельный итог побед всех игроков в онлайне.</p>
+ <p class="rules-limitations">Это рейтинг сайта, а не спортивный разряд и не часть официальных правил шашек.</p>
 </section>
 </section>
 <section id="profile-settings-pane" hidden aria-label="Настройки">

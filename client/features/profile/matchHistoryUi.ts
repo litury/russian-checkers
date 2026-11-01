@@ -66,6 +66,7 @@ export function bindMatchHistory() {
 		el('match-history-profile').hidden = next !== 'root';
 		el('profile-account-pane').hidden = next !== 'account';
 		el('profile-history-pane').hidden = next !== 'list' && next !== 'record';
+		el('history-stats').hidden = next !== 'list';
 		el('profile-settings-pane').hidden = next !== 'settings';
 		el('profile-rules-pane').hidden = next !== 'rules';
 		heading.textContent = {
@@ -457,6 +458,7 @@ export function bindMatchHistory() {
 					el(trigger).focus({ preventScroll: true });
 				}
 			} else if (page === 'list') {
+				void overview.refresh();
 				if (returning) restoreList();
 				else void fetchList();
 			} else if (page === 'record' && record) void openMatch(record);
