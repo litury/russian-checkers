@@ -3,7 +3,8 @@ import { squareAlg } from '@/shared/protocol/notation';
 import { isMatchRow } from '@/shared/protocol/matchHistory';
 import type { IMove } from '@/shared/rules';
 import { runtimeApiOrigin } from './apiOrigin';
-import { CONNECT_BUDGET_MS } from './networkPolicy';
+import { HTTP_TIMEOUT_MS } from './networkPolicy';
+import { recordNetworkDiagnostic } from './networkDiagnostics';
 import type { TimeControlId } from '@/shared/rules/timeControl';
 import type { ClockBanks } from '@/shared/protocol/clockBanks';
 
@@ -15,20 +16,21 @@ const idKey = 'checkers.playerId';
 export type CloudPly = { side: Side; from: IMove['from']; path: IMove['path']; clocks?: ClockBanks };
 
 async function request(path: string, init: RequestInit = {}): Promise<Response | null> {
+ const started = performance.now();
+ const timeout = AbortSignal.timeout(HTTP_TIMEOUT_MS);
+ const signal = init.signal ? AbortSignal.any([init.signal, timeout]) : timeout;
  try {
-  return await fetch(`${api()}${path}`, {
+  const response = await fetch(`${api()}${path}`, {
    ...init,
-   signal: init.signal ?? AbortSignal.timeout(CONNECT_BUDGET_MS),
+   signal,
    headers: { 'content-type': 'application/json', ...(init.headers ?? {}) },
   });
+  if (!response.ok) recordNetworkDiagnostic({ transport: 'http', phase: 'request', result: 'rejected', status: response.status, elapsedMs: performance.now() - started });
+  return response;
  } catch {
+  recordNetworkDiagnostic({ transport: 'http', phase: 'request', result: timeout.aborted ? 'timeout' : signal.aborted ? 'cancelled' : 'network', elapsedMs: performance.now() - started });
   return null;
  }
-}
-
-export async function probeApi(): Promise<boolean> {
- const res = await request('/health', { method: 'GET' });
- return !!res?.ok;
 }
 
 let guestRequest: Promise<{id: string; token: string} | null> | undefined;

@@ -1,6 +1,5 @@
 import { markPerf } from '@/client/platform/browser/perfMarks';
 import type { MatchResult } from '@/shared/protocol/matchResult';
-import { probeApi } from '@/client/platform/network/cloud';
 import { type NetMove, openLive } from '@/client/platform/network/live';
 import {
 	classifyPly,
@@ -214,12 +213,6 @@ export class OnlineMatchCoordinator {
 					? 'friend-wait'
 					: 'friend-joining',
 		);
-		const healthy = await probeApi();
-		if (this.disposed || generation !== this.generation) return;
-		if (!healthy) {
-			this.markSearchOffline();
-			return;
-		}
 		this.live?.close();
 		this.live = openLive({
 			onConnectionChange: (connected) => this.connectionChanged(connected),

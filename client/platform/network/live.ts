@@ -3,7 +3,8 @@ import { MATCH_PROTOCOL_VERSION, isMatchResult, type MatchResult } from '@/share
 import { squareAlg } from '@/shared/protocol/notation';
 import { ensureGuest } from './cloud';
 import { runtimeApiOrigin, wsUrl as wsFromOrigin } from './apiOrigin';
-import { CONNECT_BUDGET_MS } from './networkPolicy';
+import { INITIAL_CONNECT_ATTEMPTS, INITIAL_CONNECT_MS, RECOVERY_WINDOW_MS, SOCKET_TIMEOUT_MS, reconnectDelay } from './networkPolicy';
+import { recordNetworkDiagnostic } from './networkDiagnostics';
 import { ClockSync } from './clockSync';
 import type { MatchSnapshot } from '@/shared/protocol/matchState';
 import { defaultTimeControl, isTimeControl, type SelectableTimeControl } from '@/shared/rules/timeControl';
@@ -54,16 +55,17 @@ const asSnap = (msg: Record<string, unknown>, fallbackId = ''): MatchSnapshot =>
 };
 };
 
-const RECONNECT_MS = 1000;
-const RECONNECT_BUDGET = 60;
-
 export function openLive(handlers: LiveHandlers) {
  let ws: WebSocket | null = null;
  let generation = 0;
  let cancelPending: (() => void) | undefined;
  let reconnectTimer: ReturnType<typeof setTimeout> | undefined;
  let activeMatch = false;
- let reconnectLeft = 0;
+ let recoveryUntil = 0;
+ let recoveryAttempt = 0;
+ let recoveryStopped = false;
+ let connecting: Promise<boolean> | undefined;
+ let connectController: AbortController | undefined;
  let lastPly = 0;
  let storageKey = '';
  let matchId = '';
@@ -103,7 +105,7 @@ export function openLive(handlers: LiveHandlers) {
   probeTimer = setTimeout(probe, 15_000);
  };
  const resume = () => {
-  if (!activeMatch || document.visibilityState === 'hidden') return;
+  if (!activeMatch || connecting || recoveryStopped || document.visibilityState === 'hidden') return;
   clockSync.reset();
   stopProbes();
   probeReplies = 0;
@@ -140,62 +142,104 @@ export function openLive(handlers: LiveHandlers) {
   listeners?.abort();
   listeners = undefined;
   activeMatch = false;
-  reconnectLeft = 0;
+  recoveryStopped = true;
+  connectController?.abort();
   if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = undefined; }
   dropAttempt();
  };
  const send = (msg: unknown) => { if (ws?.readyState === 1) ws.send(JSON.stringify(msg)); };
- const api = {
-  async connect(): Promise<boolean> {
-   if (!listeners) {
-    listeners = new AbortController();
-    document.addEventListener('visibilitychange', resume, { signal: listeners.signal });
-    window.addEventListener('pageshow', resume, { signal: listeners.signal });
-    window.addEventListener('online', resume, { signal: listeners.signal });
-   }
+ const recovered = () => {
+  recoveryUntil = 0;
+  recoveryAttempt = 0;
+ };
+ const scheduleRecovery = () => {
+  if (!activeMatch || recoveryStopped || reconnectTimer) return;
+  if (!recoveryUntil) recoveryUntil = Date.now() + RECOVERY_WINDOW_MS;
+  const left = recoveryUntil - Date.now();
+  if (left <= 0) return;
+  reconnectTimer = setTimeout(() => {
+   reconnectTimer = undefined;
+   void api.connect();
+  }, Math.min(left, reconnectDelay(recoveryAttempt++)));
+ };
+ const untilCancelled = <Value>(promise: Promise<Value>, signal: AbortSignal): Promise<Value | null> => new Promise(resolve => {
+  if (signal.aborted) { resolve(null); return; }
+  const cancel = () => resolve(null);
+  signal.addEventListener('abort', cancel, { once: true });
+  promise.then(value => { signal.removeEventListener('abort', cancel); resolve(value); }, () => { signal.removeEventListener('abort', cancel); resolve(null); });
+ });
+ const waitToRetry = (delay: number, signal: AbortSignal): Promise<void> => new Promise(resolve => {
+  if (signal.aborted) { resolve(); return; }
+  const finish = () => { clearTimeout(timer); signal.removeEventListener('abort', finish); resolve(); };
+  const timer = setTimeout(finish, delay);
+  signal.addEventListener('abort', finish, { once: true });
+ });
+ const connectAttempt = async (guest: { id: string; token: string }, signal: AbortSignal, timeout: number): Promise<'connected' | 'retry' | 'stop'> => {
    dropAttempt();
    const attempt = generation;
-   const guest = await ensureGuest();
-   if (!guest || attempt !== generation) return false;
    storageKey = `checkers.activeMatch.${guest.id}`;
    try { matchId = sessionStorage.getItem(storageKey) ?? ''; } catch {}
    return await new Promise((resolve) => {
     let socket: WebSocket;
-    try { socket = new WebSocket(wsUrl()); ws = socket; } catch { resolve(false); return; }
+    const started = performance.now();
+    let phase: 'opening' | 'auth' = 'opening';
+    try { socket = new WebSocket(wsUrl()); ws = socket; } catch {
+     recoveryStopped = true;
+     recordNetworkDiagnostic({ transport: 'websocket', phase, result: 'rejected', elapsedMs: performance.now() - started });
+     resolve('stop'); return;
+    }
     const current = () => attempt === generation && ws === socket;
     let settled = false;
-    const finish = (ok: boolean) => {
+    let authenticated = false;
+    const finish = (result: 'connected' | 'retry' | 'stop', diagnostic: 'ok' | 'timeout' | 'cancelled' | 'network' | 'rejected' | 'closed', closeCode?: number) => {
      if (settled) return;
      settled = true;
+     authenticated = result === 'connected';
+     if (result === 'stop' && diagnostic === 'rejected') recoveryStopped = true;
      clearTimeout(timer);
+     signal.removeEventListener('abort', cancel);
+     recordNetworkDiagnostic({ transport: 'websocket', phase, result: diagnostic, elapsedMs: performance.now() - started, ...(closeCode === undefined ? {} : { closeCode }) });
      if (cancelPending === cancel) cancelPending = undefined;
-     if (!ok) {
+     if (!authenticated) {
       if (ws === socket) ws = null;
       try { socket.close(); } catch {}
      }
-     resolve(ok);
+     resolve(result);
     };
-    const cancel = () => finish(false);
+    const cancel = () => finish('stop', signal.reason?.name === 'TimeoutError' ? 'timeout' : 'cancelled');
     cancelPending = cancel;
-    const timer = setTimeout(cancel, CONNECT_BUDGET_MS);
-    socket.onopen = () => { if (current()) socket.send(JSON.stringify({ type: 'auth', protocol: MATCH_PROTOCOL_VERSION, token: guest.token, ...(matchId ? {matchId} : {}) })); };
-    socket.onerror = () => finish(false);
-    socket.onclose = () => {
+    const timer = setTimeout(() => finish('retry', 'timeout'), timeout);
+    signal.addEventListener('abort', cancel, { once: true });
+    socket.onopen = () => { if (current()) { phase = 'auth'; socket.send(JSON.stringify({ type: 'auth', protocol: MATCH_PROTOCOL_VERSION, token: guest.token, ...(matchId ? {matchId} : {}) })); } };
+    socket.onerror = () => { if (!authenticated) finish('retry', 'network'); else if (current()) socket.close(); };
+    socket.onclose = (event) => {
      const wasCurrent = current();
      if (wasCurrent) stopProbes();
-     finish(false);
+     const rejected = [1002, 1003, 1007, 1008, 1009, 1010].includes(event.code);
+     if (!authenticated) { finish(rejected ? 'stop' : 'retry', rejected ? 'rejected' : 'closed', event.code); return; }
      if (ws === socket) ws = null;
-     if (wasCurrent && activeMatch) handlers.onConnectionChange?.(false);
-     if (attempt !== generation || !activeMatch || reconnectLeft <= 0) return;
-     reconnectLeft -= 1;
-     reconnectTimer = setTimeout(() => { reconnectTimer = undefined; void api.connect(); }, RECONNECT_MS);
+     if (!wasCurrent) return;
+     recordNetworkDiagnostic({ transport: 'websocket', phase: 'connected', result: rejected ? 'rejected' : 'closed', closeCode: event.code, elapsedMs: performance.now() - started });
+     if (rejected) recoveryStopped = true;
+     if (activeMatch) handlers.onConnectionChange?.(false);
+     else handlers.onError?.('connection_lost');
+     scheduleRecovery();
     };
     socket.onmessage = (ev) => {
      if (!current()) return;
      let msg: Record<string, unknown> = {};
      try { msg = JSON.parse(String(ev.data)); } catch { return; }
      const type = String(msg.type ?? '');
-     if (type === 'ok') { finish(true); probe(); }
+     if (type === 'ok' && !authenticated) {
+      finish('connected', 'ok');
+      probe();
+      if (activeMatch) resumeTimer = setTimeout(() => { if (activeMatch) socket.close(); }, Math.min(SOCKET_TIMEOUT_MS, Math.max(0, recoveryUntil - Date.now())));
+     }
+     if (type === 'error' && !authenticated) {
+      finish('stop', 'rejected');
+      handlers.onError?.(String(msg.error ?? 'unauthorized'));
+      return;
+     }
      if (type === 'clock_probe' && pendingProbe && msg.probe === pendingProbe.id) {
       supportsProbes = true;
       const accepted = clockSync.record(pendingProbe.sent, performance.now(), Number(msg.serverReceived), Number(msg.serverNow));
@@ -213,15 +257,18 @@ export function openLive(handlers: LiveHandlers) {
      if (type === 'queued') { activeMatch = false; handlers.onQueued?.(); }
      if (type === 'hosted' && msg.matchId) handlers.onHosted?.(String(msg.matchId), msg.code ? String(msg.code) : undefined);
      if (type === 'start' && msg.color) {
+      if (resumeTimer) clearTimeout(resumeTimer);
+      resumeTimer = undefined;
       rememberMatch(String(msg.matchId ?? ''));
       lastPly = Number(msg.ply ?? 0);
       activeMatch = true;
-      reconnectLeft = RECONNECT_BUDGET;
+      recovered();
       handlers.onStart?.(msg.color as Side, String(msg.matchId ?? ''), snap(msg, String(msg.matchId ?? '')));
       handlers.onConnectionChange?.(true);
      }
      if (type === 'begin') { lastPly = Number(msg.ply ?? 0); handlers.onBegin?.(snap(msg)); }
      if (type === 'state') {
+      recovered();
       if (resumeTimer) clearTimeout(resumeTimer);
       resumeTimer = undefined;
       lastPly = Number(msg.ply ?? 0);
@@ -252,20 +299,70 @@ export function openLive(handlers: LiveHandlers) {
       stopProbes();
       rememberMatch('');
       activeMatch = false;
-      reconnectLeft = 0;
+      recovered();
       handlers.onEnd?.(msg.winner, String(msg.reason ?? ''), msg.youWin as boolean | undefined);
      }
      if (type === 'resume_end' && msg.color && isMatchResult(msg.winner)) {
       stopProbes();
-      rememberMatch(''); activeMatch = false; reconnectLeft = 0;
+      rememberMatch(''); activeMatch = false; recovered();
       handlers.onRecovered?.(msg.color as Side, asSnap(msg), msg.winner, String(msg.reason ?? 'unknown'));
      }
      if (type === 'error' && msg.error) {
+      if (msg.error === 'unauthorized' || msg.error === 'update_required' || msg.error === 'rate') {
+       recoveryStopped = true;
+       socket.close();
+      }
       if (msg.error === 'illegal' || msg.error === 'draw_unavailable') api.requestState();
       handlers.onError?.(String(msg.error));
      }
     };
    });
+ };
+ const connectWithinBudget = async (controller: AbortController): Promise<boolean> => {
+  const recovering = activeMatch;
+  if (recovering && recoveryStopped) return false;
+  if (recovering && !recoveryUntil) recoveryUntil = Date.now() + RECOVERY_WINDOW_MS;
+  const deadline = recovering ? recoveryUntil : Date.now() + INITIAL_CONNECT_MS;
+  const started = performance.now();
+  const left = deadline - Date.now();
+  if (left <= 0) return false;
+  const timer = setTimeout(() => controller.abort(new DOMException('Connection deadline', 'TimeoutError')), left);
+  try {
+   const guest = await untilCancelled(ensureGuest(), controller.signal);
+   if (!guest || controller.signal.aborted) {
+    recordNetworkDiagnostic({ transport: 'websocket', phase: 'guest', result: controller.signal.aborted ? controller.signal.reason?.name === 'TimeoutError' ? 'timeout' : 'cancelled' : 'rejected', elapsedMs: performance.now() - started });
+    return false;
+   }
+   let attempt = 0;
+   while (!controller.signal.aborted && Date.now() < deadline && (recovering || attempt < INITIAL_CONNECT_ATTEMPTS)) {
+    const result = await connectAttempt(guest, controller.signal, Math.min(SOCKET_TIMEOUT_MS, deadline - Date.now()));
+    if (result === 'connected') return true;
+    if (result === 'stop') return false;
+    attempt++;
+    if (!recovering && attempt >= INITIAL_CONNECT_ATTEMPTS) break;
+    await waitToRetry(Math.min(deadline - Date.now(), reconnectDelay(recovering ? recoveryAttempt++ : attempt - 1)), controller.signal);
+   }
+   recordNetworkDiagnostic({ transport: 'websocket', phase: recovering ? 'recovery' : 'opening', result: 'timeout', elapsedMs: performance.now() - started });
+   return false;
+  } finally { clearTimeout(timer); }
+ };
+ const api = {
+  connect(): Promise<boolean> {
+   if (connecting) return connecting;
+   if (!listeners) {
+    listeners = new AbortController();
+    recoveryStopped = false;
+    document.addEventListener('visibilitychange', resume, { signal: listeners.signal });
+    window.addEventListener('pageshow', resume, { signal: listeners.signal });
+    window.addEventListener('online', resume, { signal: listeners.signal });
+   }
+   const controller = new AbortController();
+   connectController = controller;
+   connecting = connectWithinBudget(controller).finally(() => {
+    if (connectController === controller) connectController = undefined;
+    connecting = undefined;
+   });
+   return connecting;
   },
   queue() { send({ type: 'queue' }); },
   host(timeControl: SelectableTimeControl = defaultTimeControl) { send({ type: 'host', timeControl }); },
