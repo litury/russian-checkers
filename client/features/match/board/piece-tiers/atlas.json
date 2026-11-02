@@ -1,0 +1,140 @@
+{
+  "frames": {
+    "white-base": {
+      "frame": {
+        "x": 4,
+        "y": 4,
+        "w": 331,
+        "h": 286
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 18,
+        "y": 56,
+        "w": 331,
+        "h": 286
+      },
+      "sourceSize": {
+        "w": 362,
+        "h": 362
+      }
+    },
+    "white-moving": {
+      "frame": {
+        "x": 343,
+        "y": 4,
+        "w": 225,
+        "h": 201
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 225,
+        "h": 201
+      },
+      "sourceSize": {
+        "w": 225,
+        "h": 201
+      }
+    },
+    "white-front": {
+      "frame": {
+        "x": 576,
+        "y": 4,
+        "w": 331,
+        "h": 175
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 18,
+        "y": 167,
+        "w": 331,
+        "h": 175
+      },
+      "sourceSize": {
+        "w": 362,
+        "h": 362
+      }
+    },
+    "black-base": {
+      "frame": {
+        "x": 4,
+        "y": 298,
+        "w": 331,
+        "h": 286
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 18,
+        "y": 56,
+        "w": 331,
+        "h": 286
+      },
+      "sourceSize": {
+        "w": 362,
+        "h": 362
+      }
+    },
+    "black-moving": {
+      "frame": {
+        "x": 343,
+        "y": 298,
+        "w": 225,
+        "h": 201
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 225,
+        "h": 201
+      },
+      "sourceSize": {
+        "w": 225,
+        "h": 201
+      }
+    },
+    "black-front": {
+      "frame": {
+        "x": 576,
+        "y": 298,
+        "w": 331,
+        "h": 175
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 18,
+        "y": 167,
+        "w": 331,
+        "h": 175
+      },
+      "sourceSize": {
+        "w": 362,
+        "h": 362
+      }
+    }
+  },
+  "meta": {
+    "image": "atlas.webp",
+    "size": {
+      "w": 1024,
+      "h": 588
+    },
+    "scale": "0.5"
+  },
+  "sources": {
+    "white-base": "b48cfba76de0f1d3dbf4296bace67ae47c32f46ecca2b635982c040e90fa83ed",
+    "white-moving": "96fb5679aab97728da99e5e6e56a990386922876e036f9821f500672ff04d183",
+    "white-front": "ecf4e2ebfb5290e6f809cbd6d006eaec05a41b4203048a6a2b2b7d98c7b6e17b",
+    "black-base": "5f39b9385da54f8525e6c9f03447bd06df8b91e9982f6f61545b58ce33d988f3",
+    "black-moving": "4e7e353e140dc4e9e7984a2423776a6eafd08df8b289070e4476cfd4f673f917",
+    "black-front": "185f0d4a3a7f49cc752841fae001873d5202cc2605d193ad3377d6a903e52b1e"
+  }
+}

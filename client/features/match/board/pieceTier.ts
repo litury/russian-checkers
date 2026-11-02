@@ -2,10 +2,11 @@
  * The moving 450x402 insert is NOT a second 724x724 checker.
  */
 export const pieceTierParts = ['base', 'moving', 'front'] as const;
+export const pieceTierAtlas = 'piece-tiers';
 export const pieceTierKey = (
 	side: 'white' | 'black',
 	part: (typeof pieceTierParts)[number],
-) => `piece-tier-${side}-${part}`;
+) => `${side}-${part}`;
 export function pieceTierPose(cell: number, progress: number) {
 	const scale = ((35 / 648) * cell) / 44;
 	const restY = (17.6 * cell) / 44;

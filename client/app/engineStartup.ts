@@ -1,7 +1,7 @@
 import { bindAppUpdates, hasAssetFailure } from '../platform/browser/appUpdate';
+import { menuPresentationReady } from '../features/menu/menuAtlas';
 
 bindAppUpdates();
-// Yield a paint opportunity; image and font loading never gate the engine.
 const bootGame = () =>
 	requestAnimationFrame(() =>
 		requestAnimationFrame(() => {
@@ -34,4 +34,6 @@ const bootGame = () =>
 			);
 		}),
 	);
-bootGame();
+void menuPresentationReady.then((ready) => {
+	if (ready) bootGame();
+});

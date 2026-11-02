@@ -7,28 +7,36 @@
 <link rel="icon" href="%BASE_URL%favicon.ico" sizes="16x16 32x32 48x48" />
 <title>Русские шашки</title>
 <style>
-html[data-menu-presentation="loading"] #opening,
-html[data-menu-presentation="loading"] #opening *,
-html[data-menu-presentation="loading"] dialog,
-html[data-menu-presentation="loading"] dialog * { visibility: hidden; }
-html[data-menu-presentation="loading"] dialog::backdrop { background: transparent; }
+html:is([data-menu-presentation="loading"], [data-menu-presentation="error"]) #opening,
+html:is([data-menu-presentation="loading"], [data-menu-presentation="error"]) #opening *,
+html:is([data-menu-presentation="loading"], [data-menu-presentation="error"]) dialog,
+html:is([data-menu-presentation="loading"], [data-menu-presentation="error"]) dialog * { visibility: hidden; }
+html:is([data-menu-presentation="loading"], [data-menu-presentation="error"]) dialog::backdrop { background: transparent; }
 #menu-loading { display: none; }
-html[data-menu-presentation="loading"] #menu-loading {
+html:is([data-menu-presentation="loading"], [data-menu-presentation="error"]) #menu-loading {
  position: fixed; inset: 0; z-index: 1000; display: grid; place-content: center;
  gap: 8px; padding: 24px; background: #101313; color: #e8dfcd; text-align: center;
  font: 600 20px/1.4 system-ui, sans-serif;
 }
 #menu-loading p { margin: 0; }
 #menu-loading p + p { font-size: 14px; font-weight: 400; color: #bdb7a9; }
+#menu-loading { max-width: 100%; }
+#menu-loading textarea { width: min(100%, 32rem); max-height: 8rem; }
 </style>
 <script>
 (() => {
  const page = document.documentElement;
  page.dataset.menuPresentation = 'loading';
  const timer = setTimeout(() => {
-  if (page.dataset.menuPresentation === 'loading') page.dataset.menuPresentation = 'fallback';
+  if (page.dataset.menuPresentation !== 'loading') return;
+  document.getElementById('menu-loading-message').textContent = 'Загружаем оформление. На медленном соединении это дольше обычного.';
+  document.getElementById('menu-loading-retry').hidden = false;
+  document.getElementById('menu-loading-tools').hidden = false;
  }, 8000);
  document.addEventListener('damka:menu-art-settled', () => clearTimeout(timer), { once: true });
+ document.addEventListener('click', (event) => {
+  if (event.target?.id === 'menu-loading-retry') location.reload();
+ });
 })();
 </script>
 <link rel="preload" href="/client/features/menu/assets/menu-controls/atlas.webp" as="image" type="image/webp" fetchpriority="high" />
@@ -40,7 +48,15 @@ html[data-menu-presentation="loading"] #menu-loading {
 <link rel="stylesheet" href="/client/features/settings/compactSettings.css" />
 </head>
 <body>
-<div id="menu-loading" role="status" aria-live="polite"><p>Русские шашки</p><p>Загрузка меню…</p></div>
+<div id="menu-loading" role="status" aria-live="polite">
+ <p>Русские шашки</p><p id="menu-loading-message">Загрузка меню…</p>
+ <button id="menu-loading-retry" type="button" hidden>Повторить загрузку</button>
+ <div id="menu-loading-tools" hidden>
+  <button id="menu-loading-diagnostics" type="button" disabled>Скопировать диагностику</button>
+  <p id="menu-loading-diagnostic-status"></p>
+  <textarea id="menu-loading-diagnostic-output" aria-label="Диагностика загрузки" readonly hidden></textarea>
+ </div>
+</div>
 <div id="game"></div>
 <div id="match-actions" role="group" aria-label="Действия в партии" hidden>
 <button type="button" id="match-undo" class="menu-chip match-action" aria-label="Отмена хода" aria-describedby="match-undo-reason" aria-controls="match-undo-reason" aria-expanded="false" aria-disabled="true"><span class="action-label">Отмена</span></button>

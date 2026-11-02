@@ -101,7 +101,9 @@ window.checkersStartup = {
 		window.checkersStartup.playCommitted = true;
 		setCta(armed, name, true);
 		// Loading copy stays on the pressed button and the sr-only status. No plaque.
-		window.checkersStartup.status('Загружаем доску и шашки…');
+		window.checkersStartup.status(window.checkersStartup.engineLoaded
+			? 'Загружаем доску и шашки…'
+			: 'Загружаем игровой модуль…');
 		byId('opening-status').hidden = true;
 		byId('opening-error').hidden = true;
 	},
@@ -110,7 +112,9 @@ window.checkersStartup = {
 		window.checkersStartup.source = 'online';
 		window.checkersStartup.pendingOnline = true;
 		setCta(online, 'С человеком', true);
-		window.checkersStartup.status('Загружаем доску и шашки…');
+		window.checkersStartup.status(window.checkersStartup.engineLoaded
+			? 'Загружаем доску и шашки…'
+			: 'Загружаем игровой модуль…');
 		byId('opening-status').hidden = true;
 		byId('opening-error').hidden = true;
 	},

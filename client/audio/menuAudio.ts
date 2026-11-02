@@ -97,23 +97,17 @@ export function createMenuAudio(sdk:IYandexSdk) {
   }else stopMatch();
  };
  let prepared=false, playfieldReady=false, disposed=false;
- // No deadline before the board pack. Match bed stays on demand; short cues stay
- // on the first gesture. Never await these bodies to reveal or accept a move.
- const deferredAudio=new Set(['menu_music_source']);
+ let warmingEffects=false;
  const audioName=(path:string)=>path.split('/').pop()!.replace(/\.[^.]+$/,'');
  const requestBuffer=(name:string)=>{
   if(disposed||!ctx||ctx.state==='closed'||loading.has(name))return;
   // Readiness can arrive after first Play reset departing. Its committed intent
   // still owns the screen: don't fetch an inactive menu bed from warmDeferred.
   if(name==='menu_music_source'&&(policy.departing||window.checkersStartup?.pendingPlay||window.checkersStartup?.playCommitted))return;
-  if(!playfieldReady&&deferredAudio.has(name))return;
+  if(!playfieldReady)return;
   const url=Object.entries(urls).find(([path])=>audioName(path)===name)?.[1];
   if(!url)return;
-  // Only these two functional one-shots get high transport priority. They have
-  // no other consumer; loading still deduplicates requests and decoded buffers.
-  const bytes=name==='crush-b'||name==='ignite-a'
-   ? fetch(url,{priority:'high'}).then(response=>{if(!response.ok)throw Error('Audio unavailable');return response.arrayBuffer();})
-   : loadBytes(url);
+  const bytes=loadBytes(url);
   const ready=bytes.then(b=>ctx!.decodeAudioData(b.slice(0))).then(b=>{
    // Accepted-source loops have a baked beat-aligned seam; preserve decoded PCM.
    buffers.set(name,b);sync();
@@ -124,22 +118,23 @@ export function createMenuAudio(sdk:IYandexSdk) {
   if(disposed||!playfieldReady||!prepared||!ctx||ctx.state==='closed')return;
   // Theme belongs to an active menu, not to a departure already in progress.
   if(settings().music&&!policy.departing)requestBuffer('menu_music_source');
+  if(warmingEffects)return;
+  warmingEffects=true;
+  const names=[...new Set(['panel-ready','move-w','move-b','select-b','crush-b','ignite-a',...Object.keys(urls).map(audioName)])]
+   .filter(name=>name!=='menu_music_source'&&name!=='match-b-90s');
+  void (async()=>{
+   for(const name of names){
+    if(disposed||ctx?.state==='closed')return;
+    requestBuffer(name);
+    await loading.get(name);
+   }
+  })();
  };
  const prepare=()=>{
   if(prepared)return;
   if(!ctx)try {ctx=new AudioContext();}catch{return;}
   prepared=true;
-  // Short cues warm only after activation. Music belongs to the active screen;
-  // never download the menu theme while leaving for a game.
-  // Rare, functional one-shots must not sit behind dozens of voice decodes.
-  // Warm them on activation, without waiting in the move or replaying a cold miss.
-  const critical=['crush-b','ignite-a'];
-  for(const name of critical)requestBuffer(name);
-  for(const path of Object.keys(urls)){
-   const name=audioName(path);
-   if(name!=='menu_music_source'&&name!=='match-b-90s'&&!critical.includes(name))requestBuffer(name);
-  }
-  if(settings().music&&!policy.departing)requestBuffer('menu_music_source');
+  warmDeferred();
  };
  const warmAudio=()=>{
   // Remember the gate even if AudioContext is still unavailable.

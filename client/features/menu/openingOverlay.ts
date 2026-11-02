@@ -160,6 +160,7 @@ export function createOpeningOverlay(
 		notePlayIntent(event);
 		window.checkersStartup.source = 'online';
 		window.checkersStartup.pendingOnline = false;
+		window.checkersStartup.idleOnline();
 		handlers.onPlayOnline?.();
 	};
 	window.checkersStartup.onlineIntent = invokeOnline;

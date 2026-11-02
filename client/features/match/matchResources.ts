@@ -3,6 +3,9 @@ import { loadImage } from '@/client/platform/browser/assetLoader';
 import { warmImages } from '@/client/platform/browser/idleWork';
 import { markPerf } from '@/client/platform/browser/perfMarks';
 import { preloadKingFire } from './board/kingFireAssets';
+import pieceTierFrames from './board/piece-tiers/atlas.json';
+import pieceTierUrl from './board/piece-tiers/atlas.webp?url';
+import { pieceTierAtlas } from './board/pieceTier';
 import {
 	type SelectionOverlayFrame,
 	selectionOverlayTexture,
@@ -91,25 +94,10 @@ export class MatchResources {
 				);
 			}),
 		);
+	}
 
-		const tiers = import.meta.glob(
-			'../menu/assets/siege/{white,black}-{base,moving,front}.webp',
-			{ eager: true, query: '?url', import: 'default' },
-		) as Record<string, string>;
-		await Promise.all(
-			Object.entries(tiers).map(async ([path, url]) => {
-				const name = path.split('/').pop()?.replace('.webp', '');
-				if (!name) return;
-				try {
-					const image = await loadImage(url);
-					if (this.failed || this.disposed) return;
-					if (!this.scene.textures.exists(`piece-tier-${name}`))
-						this.scene.textures.addImage(`piece-tier-${name}`, image);
-				} catch {
-					return;
-				}
-			}),
-		);
+	queueBoardControls(): void {
+		this.scene.load.atlas(pieceTierAtlas, pieceTierUrl, pieceTierFrames);
 		this.scene.load.image(
 			'marker_staples',
 			new URL('./board/markers/staples.png', import.meta.url).href,
@@ -174,7 +162,10 @@ export class MatchResources {
 		window.checkersStartup?.status('Загружаем доску и шашки…');
 
 		try {
-			await this.queueTitleCritical();
+			this.queueBoardControls();
+			preloadPlayerPanels(this.scene);
+			this.queueMatchInteractive();
+			await Promise.all([this.queueTitleCritical(), this.flushLoader()]);
 		} catch {
 			this.failed = true;
 			window.checkersStartup?.fail(
@@ -183,10 +174,6 @@ export class MatchResources {
 			return;
 		}
 
-		if (this.failed || this.disposed) return;
-		window.checkersStartup?.status('Загрузка: маркеры и панели…');
-		preloadPlayerPanels(this.scene);
-		await this.flushLoader();
 		if (this.failed || this.disposed) return;
 		this.owner.build();
 		if (!this.owner.isBuilt()) return;
@@ -201,9 +188,6 @@ export class MatchResources {
 		await this.owner.ready();
 		if (this.failed || this.disposed || !this.owner.isBuilt()) return;
 		window.checkersStartup?.status('Загрузка: подготовка взаимодействия…');
-		this.queueMatchInteractive();
-		await this.flushLoader();
-		if (this.failed || this.disposed) return;
 		for (const key of this.scene.textures.getTextureKeys()) {
 			if (!key.startsWith('selection_')) continue;
 			this.scene.textures

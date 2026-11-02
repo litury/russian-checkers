@@ -7,6 +7,11 @@ export function bindBuildDiagnostics() {
 	requiredElement('settings-build').textContent = `Сборка ${BUILD_ID}`;
 	for (const [buttonId, statusId, outputId] of [
 		[
+			'menu-loading-diagnostics',
+			'menu-loading-diagnostic-status',
+			'menu-loading-diagnostic-output',
+		],
+		[
 			'settings-diagnostics',
 			'settings-diagnostic-status',
 			'settings-diagnostic-output',
@@ -23,6 +28,7 @@ export function bindBuildDiagnostics() {
 		],
 	]) {
 		const button = requiredElement<HTMLButtonElement>(buttonId);
+		button.disabled = false;
 		const status = requiredElement(statusId);
 		const output = requiredElement<HTMLTextAreaElement>(outputId);
 		button.addEventListener('click', async () => {

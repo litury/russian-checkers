@@ -172,6 +172,7 @@ export class GameScene extends Phaser.Scene {
 			// decoration warmup alive. The renderer hides an unavailable seal.
 			if (
 				file.key === 'selection_king-seal' ||
+				file.key === 'piece-tiers' ||
 				file.key === 'match-hud' ||
 				file.key?.startsWith('king-fire_')
 			)

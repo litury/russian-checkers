@@ -1,5 +1,6 @@
 import { MATCH_PROTOCOL_VERSION } from '@/shared/protocol/matchResult';
 import { BUILD_ID } from '../browser/buildInfo';
+import { startupDiagnostics } from '../browser/startupDiagnostics';
 
 const reasons = [
 	'unauthorized',
@@ -66,6 +67,7 @@ export function networkReport(): string {
 			generatedAt: new Date().toISOString(),
 			browser,
 			online: navigator.onLine,
+			startup: startupDiagnostics(),
 			features: {
 				webSocket: typeof WebSocket !== 'undefined',
 				abortController: typeof AbortController !== 'undefined',

@@ -1,9 +1,14 @@
+import { readPerf } from '@/client/platform/browser/perfMarks';
+import { menuPresentationReady } from './menuAtlas';
 import { mountSiegeOpening } from './siegeOpening';
 
 const root = document.getElementById('opening');
 if (root) {
 	let dispose: (() => void) | undefined;
+	let presentationReady = false;
+	let playfieldReady = readPerf().marks['playfield-ready'] !== undefined;
 	const sync = () => {
+		if (!presentationReady || !playfieldReady) return;
 		if (root.hidden || root.inert || document.querySelector('dialog[open]')) {
 			dispose?.();
 			dispose = undefined;
@@ -23,9 +28,18 @@ if (root) {
 		attributes: true,
 		attributeFilter: ['open', 'hidden', 'inert'],
 	});
-	sync();
+	void menuPresentationReady.then((ready) => {
+		presentationReady = ready;
+		sync();
+	});
+	const onPlayfieldReady = () => {
+		playfieldReady = true;
+		sync();
+	};
+	document.addEventListener('damka:playfield-ready', onPlayfieldReady);
 	if (import.meta.hot)
 		import.meta.hot.dispose(() => {
+			document.removeEventListener('damka:playfield-ready', onPlayfieldReady);
 			observer.disconnect();
 			dispose?.();
 		});

@@ -20,19 +20,27 @@ const backgroundUrl = new URL(
 	'./assets/menu-controls/background.webp',
 	import.meta.url,
 ).href;
-void Promise.allSettled([
+export const menuPresentationReady = Promise.allSettled([
 	atlasReady,
 	loadImage(backgroundUrl),
 	document.fonts.load('600 24px Literata', 'Русские шашки'),
 	document.fonts.load('600 20px "Golos Text"', 'Играть Профиль'),
 	document.fonts.load('400 12px "Golos Text"', 'Общий счёт'),
 ]).then((results) => {
-	document.documentElement.dataset.menuPresentation = results.every(
+	const ready = results.slice(0, 2).every(
 		(result) => result.status === 'fulfilled',
-	)
-		? 'ready'
-		: 'fallback';
+	);
+	document.documentElement.dataset.menuPresentation = ready ? 'ready' : 'error';
+	if (!ready) {
+		const message = document.getElementById('menu-loading-message');
+		if (message) message.textContent = 'Не удалось загрузить оформление. Проверьте соединение и повторите загрузку.';
+		const retry = document.getElementById('menu-loading-retry');
+		if (retry) retry.hidden = false;
+		const tools = document.getElementById('menu-loading-tools');
+		if (tools) tools.hidden = false;
+	}
 	document.dispatchEvent(new Event('damka:menu-art-settled'));
+	return ready;
 });
 
 function position(rectangle: readonly number[]) {

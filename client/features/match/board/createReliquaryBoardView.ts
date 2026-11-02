@@ -20,7 +20,12 @@ import type { IBoardView } from './IBoardView';
 import { KingFire } from './kingFire';
 import { kingFireAssets } from './kingFireAssets';
 import { type MarkTone, planMoveMarks } from './moveMarks';
-import { pieceTierKey, pieceTierParts, pieceTierPose } from './pieceTier';
+import {
+	pieceTierAtlas,
+	pieceTierKey,
+	pieceTierParts,
+	pieceTierPose,
+} from './pieceTier';
 import { markerMoves } from './reliquaryHints';
 import {
 	ARROW_CELL,
@@ -83,9 +88,7 @@ export function createBoardView(
 		pieceSprites.kingLight,
 		pieceSprites.kingDark,
 		'selection_king-seal',
-		...(['white', 'black'] as const).flatMap((side) =>
-			pieceTierParts.map((part) => pieceTierKey(side, part)),
-		),
+		pieceTierAtlas,
 		...Object.keys(kingFireAssets).map((name) => `king-fire_${name}`),
 		...['white', 'black'].flatMap((side) =>
 			Array.from(
@@ -380,7 +383,10 @@ export function createBoardView(
 		// never invent a lifted disk when the head layers are missing.
 		const layered =
 			!king &&
-			pieceTierParts.every((part) => hasTexture(pieceTierKey(view.side, part)));
+			hasTexture(pieceTierAtlas) &&
+			pieceTierParts.every((part) =>
+				scene.textures.get(pieceTierAtlas).has(pieceTierKey(view.side, part)),
+			);
 		view.sprite.setVisible(!layered);
 		view.outline.setVisible(layered);
 		view.tier.setVisible(layered);
@@ -392,12 +398,12 @@ export function createBoardView(
 				[view.front, 'front'],
 			] as const)
 				image
-					.setTexture(pieceTierKey(view.side, part))
+					.setTexture(pieceTierAtlas, pieceTierKey(view.side, part))
 					.setOrigin(0, 0)
 					.setPosition(pose.x, pose.y)
 					.setDisplaySize(724 * pose.scale, 724 * pose.scale);
 			view.tier
-				.setTexture(pieceTierKey(view.side, 'moving'))
+				.setTexture(pieceTierAtlas, pieceTierKey(view.side, 'moving'))
 				.setOrigin(0, 0)
 				.setPosition(pose.movingX, pose.movingY)
 				.setDisplaySize(450 * pose.scale, 402 * pose.scale);
