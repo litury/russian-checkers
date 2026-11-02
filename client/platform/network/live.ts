@@ -2,10 +2,11 @@ import type { IMove, Side } from '@/shared/rules';
 import { isRatingChange, type RatingChange } from '@/shared/protocol/rating';
 import { MATCH_PROTOCOL_VERSION, isMatchResult, type MatchResult } from '@/shared/protocol/matchResult';
 import { squareAlg } from '@/shared/protocol/notation';
-import { ensureGuest } from './cloud';
+import { ensureGuest, guestFailure } from './cloud';
 import { runtimeApiOrigin, wsUrl as wsFromOrigin } from './apiOrigin';
 import { INITIAL_CONNECT_ATTEMPTS, INITIAL_CONNECT_MS, RECOVERY_WINDOW_MS, SOCKET_TIMEOUT_MS, reconnectDelay } from './networkPolicy';
 import { recordNetworkDiagnostic } from './networkDiagnostics';
+import { BUILD_ID } from '../browser/buildInfo';
 import { ClockSync } from './clockSync';
 import type { MatchSnapshot } from '@/shared/protocol/matchState';
 import { defaultTimeControl, isTimeControl, type SelectableTimeControl } from '@/shared/rules/timeControl';
@@ -187,6 +188,7 @@ export function openLive(handlers: LiveHandlers) {
     try { socket = new WebSocket(wsUrl()); ws = socket; } catch {
      recoveryStopped = true;
      recordNetworkDiagnostic({ transport: 'websocket', phase, result: 'rejected', elapsedMs: performance.now() - started });
+     handlers.onError?.(typeof WebSocket === 'undefined' ? 'browser_unsupported' : 'connection_lost');
      resolve('stop'); return;
     }
     const current = () => attempt === generation && ws === socket;
@@ -211,7 +213,7 @@ export function openLive(handlers: LiveHandlers) {
     cancelPending = cancel;
     const timer = setTimeout(() => finish('retry', 'timeout'), timeout);
     signal.addEventListener('abort', cancel, { once: true });
-    socket.onopen = () => { if (current()) { phase = 'auth'; socket.send(JSON.stringify({ type: 'auth', protocol: MATCH_PROTOCOL_VERSION, token: guest.token, ...(matchId ? {matchId} : {}) })); } };
+    socket.onopen = () => { if (current()) { phase = 'auth'; socket.send(JSON.stringify({ type: 'auth', protocol: MATCH_PROTOCOL_VERSION, build: BUILD_ID, token: guest.token, ...(matchId ? {matchId} : {}) })); } };
     socket.onerror = () => { if (!authenticated) finish('retry', 'network'); else if (current()) socket.close(); };
     socket.onclose = (event) => {
      const wasCurrent = current();
@@ -237,6 +239,7 @@ export function openLive(handlers: LiveHandlers) {
       if (activeMatch) resumeTimer = setTimeout(() => { if (activeMatch) socket.close(); }, Math.min(SOCKET_TIMEOUT_MS, Math.max(0, recoveryUntil - Date.now())));
      }
      if (type === 'error' && !authenticated) {
+      recordNetworkDiagnostic({ transport: 'websocket', phase: 'auth', result: 'rejected', reason: String(msg.error ?? 'unauthorized'), elapsedMs: performance.now() - started });
       finish('stop', 'rejected');
       handlers.onError?.(String(msg.error ?? 'unauthorized'));
       return;
@@ -309,6 +312,7 @@ export function openLive(handlers: LiveHandlers) {
       handlers.onRecovered?.(msg.color as Side, asSnap(msg), msg.winner, String(msg.reason ?? 'unknown'), isRatingChange(msg.ratingChange) ? msg.ratingChange : undefined);
      }
      if (type === 'error' && msg.error) {
+      recordNetworkDiagnostic({ transport: 'websocket', phase: 'connected', result: 'rejected', reason: String(msg.error), elapsedMs: performance.now() - started });
       if (msg.error === 'unauthorized' || msg.error === 'update_required' || msg.error === 'rate') {
        recoveryStopped = true;
        socket.close();
@@ -332,6 +336,7 @@ export function openLive(handlers: LiveHandlers) {
    const guest = await untilCancelled(ensureGuest(), controller.signal);
    if (!guest || controller.signal.aborted) {
     recordNetworkDiagnostic({ transport: 'websocket', phase: 'guest', result: controller.signal.aborted ? controller.signal.reason?.name === 'TimeoutError' ? 'timeout' : 'cancelled' : 'rejected', elapsedMs: performance.now() - started });
+    if (!controller.signal.aborted && !guest) handlers.onError?.(guestFailure());
     return false;
    }
    let attempt = 0;

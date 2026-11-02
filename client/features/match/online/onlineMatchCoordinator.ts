@@ -14,6 +14,8 @@ import type { MatchClock } from '../matchClock';
 import type { MatchSession } from '../matchSession';
 import {
 	FOUND_HOLD_MS,
+	searchFailure,
+	type SearchFailure,
 	SEARCH_TIMEOUT_MS,
 	type SearchPhase,
 } from './matchmakingSearch';
@@ -137,7 +139,7 @@ export class OnlineMatchCoordinator {
 		window.checkersStartup.unlock();
 	}
 
-	markSearchOffline(_phase: 'offline' | 'rate-limited' = 'offline'): void {
+	markSearchOffline(_phase: SearchFailure = 'offline'): void {
 		this.generation++;
 		this.searchPhase = _phase;
 		this.stopSearchTicker();
@@ -298,7 +300,7 @@ export class OnlineMatchCoordinator {
 					this.paintSearch();
 					return;
 				}
-				this.markSearchOffline(error === 'rate' ? 'rate-limited' : 'offline');
+				this.markSearchOffline(searchFailure(error));
 			},
 		});
 		const attempt = this.live;

@@ -1,5 +1,8 @@
 import { createAuthRoutes } from './auth/routes.ts';
 import { createAuthService } from './auth/service.ts';
+import { readEmailConfig } from './auth/emailCrypto.ts';
+import { createEmailService } from './auth/emailService.ts';
+import { createEmailOutbox } from './auth/emailOutbox.ts';
 import { createDatabase } from './database/pool.ts';
 import { bindHost, bindMessage } from './dev/bind.ts';
 import { createMatchRepository } from './matches/repository.ts';
@@ -13,12 +16,15 @@ import { createStatsRoutes } from './stats/routes.ts';
 import { createRateLimiter } from './transport/rateLimit.ts';
 import { createApiServer } from './transport/server.ts';
 
+const emailConfig = readEmailConfig();
 const pool = createDatabase(
 	process.env.DATABASE_URL ??
 		'postgres://checkers:checkers@127.0.0.1:5433/checkers',
 );
 await runMigrations((text, params) => pool.query(text, params));
 const auth = createAuthService(pool);
+const email = createEmailService(pool, emailConfig);
+const emailOutbox = createEmailOutbox(pool, emailConfig);
 const limited = createRateLimiter();
 const presence = createPresenceService();
 const matches = createMatchService(createMatchRepository(pool), auth, limited);
@@ -27,7 +33,7 @@ const server = createApiServer(pool, matches, [
 	createStatsRoutes(pool),
 	createPresenceRoutes(presence, auth),
 	createPlayersRoutes(pool, limited),
-	createAuthRoutes(),
+	createAuthRoutes(auth, email),
 	createMatchesRoutes(pool, auth, limited),
 ]);
 let stopping = false;
@@ -46,6 +52,7 @@ const shutdown = async () => {
 		server.closeWebSockets();
 		server.closeAllConnections();
 		await new Promise<void>(resolve => server.close(() => resolve()));
+		await emailOutbox.stopAsync();
 		await pool.end();
 		clearTimeout(deadline);
 	}
@@ -68,3 +75,4 @@ server.listen(
 	bindHost(process.env.HOST),
 	() => process.stdout.write(bindMessage(server.address()) + '\n'),
 );
+emailOutbox.start();

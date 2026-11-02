@@ -1,5 +1,6 @@
 import { requiredElement as byId } from '@/client/platform/browser/dom';
 import type {} from './startupContract';
+import { reloadFromMenu } from '@/client/platform/browser/appUpdate';
 
 window.checkersFlavor = { setState() {} };
 window.checkersRules = {
@@ -9,7 +10,7 @@ window.checkersRules = {
 		);
 	},
 };
-byId('opening-retry').onclick = () => location.reload();
+byId('opening-retry').onclick = () => { reloadFromMenu(); };
 const play = byId<HTMLButtonElement>('opening-play');
 const online = byId<HTMLButtonElement>('opening-online');
 const setCta = (button: HTMLButtonElement, name: string, busy: boolean) => {

@@ -179,9 +179,18 @@ html[data-menu-presentation="loading"] #menu-loading {
    <p id="opening-search-detail" class="play-note"></p><div class="action-list">
     <button id="opening-search-bot" class="metal-button secondary" type="button" hidden>С компьютером</button>
     <button id="opening-search-retry" class="metal-button primary" type="button" hidden>Повторить попытку</button>
+    <button id="opening-search-update" class="metal-button primary" type="button" hidden>Обновить игру</button>
+    <button id="opening-search-diagnostics" class="metal-button secondary" type="button" hidden>Скопировать диагностику</button>
    </div>
+   <p id="search-diagnostic-status" class="play-note" role="status"></p>
+   <textarea id="search-diagnostic-output" class="diagnostic-output" readonly hidden aria-label="Диагностика подключения"></textarea>
   </section>
   <button id="opening-retry" class="metal-button primary" type="button" hidden>Повторить загрузку</button>
+  <div id="startup-diagnostic-tools" hidden>
+   <button id="startup-diagnostics" class="metal-button secondary" type="button">Скопировать диагностику</button>
+   <p id="startup-diagnostic-status" class="play-note" role="status"></p>
+   <textarea id="startup-diagnostic-output" class="diagnostic-output" readonly hidden aria-label="Диагностика запуска"></textarea>
+  </div>
   <p id="opening-mode-status" class="status" role="status" hidden></p>
  </div>
  <div class="menu-score-surface play-menu-footer"><button id="opening-modes-back" class="play-back" type="button">← Назад</button><button id="opening-search-cancel" class="play-back" type="button" hidden>Отменить поиск</button></div>
@@ -202,9 +211,29 @@ html[data-menu-presentation="loading"] #menu-loading {
     </nav>
    </section>
    <section id="profile-account-pane" class="mh-profile" hidden aria-label="Аккаунт">
-    <h3>Гостевой профиль</h3>
-    <p class="mh-muted">Рейтинг и история связаны с этим браузером. Очистка данных может привести к потере доступа.</p>
-    <p class="mh-muted">Вход по почте и перенос профиля на другое устройство пока недоступны.</p>
+    <p id="account-summary" class="mh-muted">Сохраните доступ к рейтингу и истории на другом устройстве.</p>
+    <div id="account-choices" class="account-actions">
+     <button id="account-link" class="metal-button" type="button" disabled>Привязать почту</button>
+     <button id="account-login" class="metal-button secondary" type="button" disabled>Уже есть профиль</button>
+     <button id="account-refresh" class="mh-button" type="button">Проверить доступность</button>
+    </div>
+    <form id="account-email-form" class="account-form" hidden>
+     <h3 id="account-form-title">Привязать почту</h3>
+     <label for="account-email">Почта</label>
+     <input id="account-email" type="email" autocomplete="email" autocapitalize="none" spellcheck="false" maxlength="254" required>
+     <label id="account-login-warning" class="account-warning" hidden><input id="account-switch-consent" type="checkbox">Перейти в существующий профиль. Текущий рейтинг и история не перенесутся. Чтобы не потерять доступ к этому профилю, сначала привяжите к нему другую почту.</label>
+     <button id="account-send" class="metal-button" type="submit">Получить код</button>
+     <button class="mh-button" type="button" data-account-cancel>Отмена</button>
+    </form>
+    <form id="account-code-form" class="account-form" hidden>
+     <p id="account-destination" class="mh-muted"></p>
+     <label for="account-code">Код из письма</label>
+     <input id="account-code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" minlength="6" maxlength="6" required aria-describedby="account-destination">
+     <button class="metal-button" type="submit">Подтвердить</button>
+     <button id="account-resend" class="mh-button" type="button">Отправить ещё раз</button>
+     <button class="mh-button" type="button" data-account-cancel>Другой адрес</button>
+    </form>
+    <p id="account-status" class="mh-muted" role="status" aria-live="polite"></p>
    </section>
    <div id="profile-history-pane" hidden>
    <section id="history-stats" aria-label="Статистика онлайн-партий">
@@ -316,6 +345,16 @@ html[data-menu-presentation="loading"] #menu-loading {
 <p id="settings-auto-description" class="mh-muted">Автоматически, если доступен только один ход.</p>
 </section>
 <p class="settings-save-note mh-muted" id="settings-save-status" role="status">Сохраняется автоматически</p>
+<section class="settings-section" aria-labelledby="settings-about"><h3 id="settings-about">Об игре</h3>
+ <p id="settings-build" class="mh-muted"></p>
+ <div class="build-actions">
+  <button id="settings-diagnostics" class="metal-button secondary" type="button">Скопировать диагностику</button>
+  <button id="settings-update" class="mh-button" type="button">Обновить игру</button>
+ </div>
+ <p id="settings-update-status" class="mh-muted" role="status"></p>
+ <p id="settings-diagnostic-status" class="mh-muted" role="status"></p>
+ <textarea id="settings-diagnostic-output" class="diagnostic-output" readonly hidden aria-label="Диагностика игры"></textarea>
+</section>
 </section>
   </div>
  </div>

@@ -47,3 +47,24 @@
 	margin-top: 20px;
 	text-align: center;
 }
+.build-actions {
+	display: grid;
+	gap: 12px;
+	margin-top: 12px;
+}
+#settings-build {
+	overflow-wrap: anywhere;
+}
+.diagnostic-output {
+	box-sizing: border-box;
+	width: 100%;
+	min-width: 0;
+	min-height: 140px;
+	margin-top: 12px;
+	padding: 12px;
+	background: #171916;
+	color: #f1ead8;
+	border: 1px solid #8c7954;
+	font: 14px/1.5 monospace;
+	resize: vertical;
+}

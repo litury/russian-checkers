@@ -8,7 +8,9 @@ import {
 import { uiSfx } from '../../audio/uiSfx';
 import {
 	type SearchPhase,
+	isSearchFailure,
 	searchCopy,
+	searchFailureDetail,
 } from '../match/online/matchmakingSearch';
 import { siegeSide } from './siegeSelection';
 
@@ -131,7 +133,7 @@ function render(focus = true) {
 	cancel.textContent =
 		phase === 'friend-joining'
 			? 'Отменить подключение'
-			: (phase === 'offline' || phase === 'rate-limited') && lastAction !== 'queue'
+			: isSearchFailure(phase)
 				? '← Назад'
 				: 'Отменить поиск';
 	back.hidden = page === 'search' && phase !== 'found';
@@ -483,19 +485,19 @@ export const playMenu = {
 				next !== 'searching' && next !== 'waiting' && next !== 'timeout-offer';
 			elapsed.textContent = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
 			const detail = requiredElement('opening-search-detail');
-			detail.textContent =
-				next === 'rate-limited'
-					? 'Подождите минуту и попробуйте снова.'
+			detail.textContent = isSearchFailure(next) ? searchFailureDetail(next)
 					: next === 'timeout-offer'
 						? 'Поиск продолжается'
-						: next === 'offline'
-							? 'Проверьте подключение и попробуйте снова.'
 							: next === 'found'
 								? 'Готовим партию…'
 								: '';
 			detail.hidden = !detail.textContent;
 			requiredElement('opening-search-bot').hidden = !view.showBot;
 			requiredElement('opening-search-retry').hidden = next !== 'offline' && next !== 'rate-limited';
+			requiredElement('opening-search-update').hidden = next !== 'update-required';
+			requiredElement('opening-search-diagnostics').hidden = !isSearchFailure(next);
+			requiredElement('search-diagnostic-status').textContent = '';
+			requiredElement('search-diagnostic-output').hidden = true;
 			navigate(
 				'search',
 				(next === 'searching' || next === 'waiting') && page !== 'search',

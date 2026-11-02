@@ -136,6 +136,51 @@
 #profile-account-pane > p {
 	margin-top: 16px;
 }
+.account-actions,
+.account-form {
+	display: grid;
+	gap: 12px;
+	width: 100%;
+	max-width: 440px;
+	margin: 20px auto 0;
+}
+.account-form[hidden],
+.account-actions[hidden] {
+	display: none;
+}
+.account-form input:not([type="checkbox"]) {
+	box-sizing: border-box;
+	width: 100%;
+	min-width: 0;
+	min-height: 48px;
+	padding: 12px;
+	border: 1px solid #8c7954;
+	border-radius: 4px;
+	background: #171916;
+	color: #f1ead8;
+	font: inherit;
+	font-size: 16px;
+}
+.account-form input:focus-visible {
+	outline: 2px solid #e6c786;
+	outline-offset: 3px;
+}
+.account-warning {
+	font: var(--type-note);
+	line-height: 1.5;
+}
+.account-warning input {
+	width: 20px;
+	height: 20px;
+	vertical-align: middle;
+}
+#account-code {
+	letter-spacing: 0.3em;
+	font-variant-numeric: tabular-nums;
+}
+#account-status:empty {
+	display: none;
+}
 #match-history .mh-toolbar {
 	display: flex;
 	justify-content: space-between;

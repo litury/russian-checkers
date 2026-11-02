@@ -15,6 +15,7 @@ import {
 } from '../../../shared/rules/index.ts';
 import type { AuthService } from '../auth/service.ts';
 import type { RateLimiter } from '../transport/rateLimit.ts';
+import { connectionDiagnostic } from '../transport/connectionDiagnostic.ts';
 import type { TextSock } from '../wsRaw.ts';
 import { flagDue, flagWinner, turnLeft } from './flagClock.ts';
 import { createMatchTime } from './clockSource.ts';
@@ -419,6 +420,7 @@ export function createMatchService(
 			timeControl?: unknown;
 			ply?: number;
 			protocol?: number;
+			build?: unknown;
 			probe?: number;
 		} = {};
 		try {
@@ -429,6 +431,7 @@ export function createMatchService(
 		}
 		if (msg.type === 'auth') {
 			if (msg.protocol !== MATCH_PROTOCOL_VERSION) {
+				if (!limited('diagnostic:update_required', 20)) process.stderr.write(JSON.stringify(connectionDiagnostic('update_required', msg.protocol, msg.build)) + '\n');
 				send(sock, { type: 'error', error: 'update_required' });
 				sock.close();
 				return;
@@ -441,6 +444,7 @@ export function createMatchService(
 				msg.token ? `Bearer ${msg.token}` : undefined,
 			);
 			if (!id) {
+				if (!limited('diagnostic:unauthorized', 20)) process.stderr.write(JSON.stringify(connectionDiagnostic('unauthorized', msg.protocol, msg.build)) + '\n');
 				send(sock, { type: 'error', error: 'unauthorized' });
 				sock.close();
 				return;

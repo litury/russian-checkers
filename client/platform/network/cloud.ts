@@ -5,6 +5,7 @@ import type { IMove } from '@/shared/rules';
 import { runtimeApiOrigin } from './apiOrigin';
 import { HTTP_TIMEOUT_MS } from './networkPolicy';
 import { recordNetworkDiagnostic } from './networkDiagnostics';
+import { requestDeadline } from './requestDeadline';
 import type { TimeControlId } from '@/shared/rules/timeControl';
 import type { ClockBanks } from '@/shared/protocol/clockBanks';
 
@@ -13,12 +14,47 @@ const api = () => runtimeApiOrigin();
 const tokenKey = 'checkers.playerToken';
 const idKey = 'checkers.playerId';
 
+export class EmailRequestError extends Error {}
+
+export async function emailRequestAsync<T>(_path: string, _body?: unknown): Promise<T> {
+ const guest = await ensureGuest();
+ if (!guest) throw new EmailRequestError('network');
+ const response = await request(`/auth/email/${_path}`, {
+  method: _body === undefined ? 'GET' : 'POST',
+  headers: { authorization: `Bearer ${guest.token}` },
+  ...(_body === undefined ? {} : {body: JSON.stringify(_body)}),
+ });
+ if (!response) throw new EmailRequestError('network');
+ let result;
+ try { result = await response.json(); }
+ catch { throw new EmailRequestError('network'); }
+ if (!response.ok) throw new EmailRequestError(typeof result?.error === 'string' ? result.error : 'network');
+ return result as T;
+}
+
+export function saveEmailSession(_id: string, _token: string) {
+ const previousId = localStorage.getItem(idKey);
+ const previousToken = localStorage.getItem(tokenKey);
+ try {
+  localStorage.setItem(tokenKey, _token);
+  localStorage.setItem(idKey, _id);
+ } catch {
+  try {
+   if (previousToken) localStorage.setItem(tokenKey, previousToken);
+   else localStorage.removeItem(tokenKey);
+   if (previousId) localStorage.setItem(idKey, previousId);
+   else localStorage.removeItem(idKey);
+  } catch {}
+  throw new EmailRequestError('storage');
+ }
+}
+
 export type CloudPly = { side: Side; from: IMove['from']; path: IMove['path']; clocks?: ClockBanks };
 
 async function request(path: string, init: RequestInit = {}): Promise<Response | null> {
  const started = performance.now();
- const timeout = AbortSignal.timeout(HTTP_TIMEOUT_MS);
- const signal = init.signal ? AbortSignal.any([init.signal, timeout]) : timeout;
+ const deadline = requestDeadline(HTTP_TIMEOUT_MS, init.signal);
+ const signal = deadline.signal;
  try {
   const response = await fetch(`${api()}${path}`, {
    ...init,
@@ -28,12 +64,15 @@ async function request(path: string, init: RequestInit = {}): Promise<Response |
   if (!response.ok) recordNetworkDiagnostic({ transport: 'http', phase: 'request', result: 'rejected', status: response.status, elapsedMs: performance.now() - started });
   return response;
  } catch {
-  recordNetworkDiagnostic({ transport: 'http', phase: 'request', result: timeout.aborted ? 'timeout' : signal.aborted ? 'cancelled' : 'network', elapsedMs: performance.now() - started });
+  recordNetworkDiagnostic({ transport: 'http', phase: 'request', result: deadline.timedOut() ? 'timeout' : signal.aborted ? 'cancelled' : 'network', elapsedMs: performance.now() - started });
+  deadline.dispose();
   return null;
  }
 }
 
 let guestRequest: Promise<{id: string; token: string} | null> | undefined;
+let guestError = 'connection_lost';
+export const guestFailure = () => guestError;
 export async function ensureGuest(): Promise<{ id: string; token: string } | null> {
  if (guestRequest) return guestRequest;
  guestRequest = createGuest();
@@ -41,13 +80,17 @@ export async function ensureGuest(): Promise<{ id: string; token: string } | nul
  finally { guestRequest = undefined; }
 }
 async function createGuest(): Promise<{ id: string; token: string } | null> {
+ guestError = 'connection_lost';
  try {
   const token = localStorage.getItem(tokenKey);
   const id = localStorage.getItem(idKey);
   if (token && id) return { id, token };
  } catch {}
  const res = await request('/players/guest', { method: 'POST', body: '{}' });
- if (!res?.ok) return null;
+ if (!res?.ok) {
+  if (res?.status === 429) guestError = 'rate';
+  return null;
+ }
  // Fetch resolves at headers; the body can still fail when its signal expires.
  let body: { id: string; token: string };
  try {

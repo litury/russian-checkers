@@ -21,6 +21,7 @@ import whiteKingArt from '../match/board/reliquary/ivory_king.webp';
 import { bindProfileNavigation, type ProfilePage } from './profileNavigation';
 import { bindProfileOverview } from './profileOverview';
 import { ratingChangeLabel } from './ratingLabel';
+import { bindAccountUi } from './accountUi';
 
 const dateLabel = (value: string) => {
 	const date = new Date(value);
@@ -60,11 +61,13 @@ export function bindMatchHistory() {
 		document.getElementById(id) as T;
 	const heading = el('match-history-title');
 	const overview = bindProfileOverview();
+	const account = bindAccountUi();
 	let pane: ProfilePage = 'root';
 	const showPane = (next: typeof pane) => {
 		pane = next;
 		el('match-history-profile').hidden = next !== 'root';
 		el('profile-account-pane').hidden = next !== 'account';
+		if (next === 'account') account.open();
 		el('profile-history-pane').hidden = next !== 'list' && next !== 'record';
 		el('history-stats').hidden = next !== 'list';
 		el('profile-settings-pane').hidden = next !== 'settings';

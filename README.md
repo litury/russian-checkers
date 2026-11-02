@@ -62,6 +62,7 @@ npm run check
 
 - [Архитектура](docs/architecture.md) и [соглашения](docs/conventions.md).
 - [Рабочие команды и dev-сценарии](docs/development/workflow.md).
+- [Привязка почты и восстановление](docs/development/email.md).
 - [Правила и игровой интерфейс](docs/game-design.md).
 - [Художественное направление для всех артов](docs/art-direction.md).
 - [Исходники и происхождение ресурсов](docs/assets/README.md).

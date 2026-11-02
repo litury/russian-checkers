@@ -2,6 +2,11 @@ import { defineConfig, loadEnv } from 'vite';
 import { devProxyConfig } from './tools/devProxyConfig.ts';
 
 export default defineConfig(({ mode }) => ({
+	define: {
+		__DAMKA_BUILD__: JSON.stringify(
+			`${mode === 'development' ? 'dev' : 'build'}-${new Date().toISOString().replace(/[-:.TZ]/g, '')}-${crypto.randomUUID().slice(0, 6)}`,
+		),
+	},
 	server: {
 		...devProxyConfig(loadEnv(mode, '.', 'DAMKA_DEV_')),
 	},

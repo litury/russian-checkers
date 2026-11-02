@@ -8,5 +8,7 @@ import '../features/menu/menuPressFeedback';
 import '../platform/browser/pointerFocusRing';
 import { bindMatchHistory } from '../features/profile/matchHistoryUi';
 import './engineStartup';
+import { bindBuildDiagnostics } from '../features/settings/buildDiagnostics';
 
 bindMatchHistory();
+bindBuildDiagnostics();

@@ -14,6 +14,7 @@ import { loadPresence, beatPresence } from '@/client/platform/network/cloud';
 import { HEARTBEAT_MS } from '@/client/platform/network/presencePolicy';
 import { notePlayIntent, playIntentEvent } from './playIntent';
 import { type SearchPhase } from '../match/online/matchmakingSearch';
+import { requestDeadline } from '@/client/platform/network/requestDeadline';
 
 import type {} from './startupContract';
 
@@ -267,16 +268,16 @@ export function createOpeningOverlay(
 			if (pendingLeave) await pendingLeave;
 			if (epoch !== presenceEpoch || lifecycleSignal.aborted || document.hidden)
 				return;
-			const signal = AbortSignal.any([
-				lifecycleSignal,
-				AbortSignal.timeout(12_000),
-			]);
+			const deadline = requestDeadline(12_000, lifecycleSignal);
+			const signal = deadline.signal;
 			let live: number | null = null;
 			try {
 				live = await beatPresence(true, signal);
 				if (live === null && !signal.aborted) live = await loadPresence(signal);
 			} catch {
 				/* unavailable, not zero */
+			} finally {
+				deadline.dispose();
 			}
 			if (epoch !== presenceEpoch || document.hidden) return;
 			showLive(live);
