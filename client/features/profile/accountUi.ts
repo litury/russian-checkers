@@ -2,6 +2,7 @@ import { requiredElement } from '@/client/platform/browser/dom';
 import {
 	emailRequestAsync,
 	saveEmailSession,
+	startNewGuestAsync,
 } from '@/client/platform/network/cloud';
 
 interface EmailStatus {
@@ -9,6 +10,7 @@ interface EmailStatus {
 	email: string | null;
 }
 interface EmailChallenge {
+	recoveryToken?: string;
 	challengeId: string;
 	expiresIn: number;
 	retryAfter: number;
@@ -27,6 +29,13 @@ export function bindAccountUi() {
 	const link = requiredElement<HTMLButtonElement>('account-link');
 	const login = requiredElement<HTMLButtonElement>('account-login');
 	const refresh = requiredElement<HTMLButtonElement>('account-refresh');
+	const newGuest = requiredElement<HTMLButtonElement>('account-new-guest');
+	const newGuestForm = requiredElement<HTMLFormElement>(
+		'account-new-guest-form',
+	);
+	const newGuestConsent = requiredElement<HTMLInputElement>(
+		'account-new-guest-consent',
+	);
 	const form = requiredElement<HTMLFormElement>('account-email-form');
 	const title = requiredElement('account-form-title');
 	const address = requiredElement<HTMLInputElement>('account-email');
@@ -44,6 +53,7 @@ export function bindAccountUi() {
 	let busy = false;
 	let configured = false;
 	let linked = false;
+	let invalidSession = false;
 	let generation = 0;
 
 	function update() {
@@ -51,7 +61,7 @@ export function bindAccountUi() {
 			HTMLButtonElement | HTMLInputElement
 		>('button,input'))
 			control.disabled = busy;
-		link.disabled = busy || !configured || linked;
+		link.disabled = busy || !configured || linked || invalidSession;
 		login.disabled = busy || !configured;
 		resend.disabled = busy || Date.now() < retryAt;
 		resend.textContent =
@@ -69,6 +79,8 @@ export function bindAccountUi() {
 				'Не удалось подтвердить этот профиль. Не очищайте данные браузера.',
 			storage:
 				'Браузер не разрешил сохранить вход. Разрешите хранение данных сайта и повторите вход.',
+			session_changed:
+				'Профиль изменён в другой вкладке. Обновите страницу перед продолжением.',
 		};
 		status.textContent =
 			messages[_error instanceof Error ? _error.message : ''] ??
@@ -83,6 +95,8 @@ export function bindAccountUi() {
 			const result = await emailRequestAsync<EmailStatus>('status');
 			if (current !== generation) return;
 			configured = result.available;
+			invalidSession = false;
+			newGuest.hidden = true;
 			linked = Boolean(result.email);
 			summary.textContent = result.email
 				? `Почта привязана: ${result.email}`
@@ -95,7 +109,28 @@ export function bindAccountUi() {
 				? ''
 				: 'Привязка почты пока недоступна. Ваш текущий профиль продолжает работать.';
 		} catch (error) {
-			if (current === generation) showError(error);
+			if (current === generation) {
+				showError(error);
+				if (error instanceof Error && error.message === 'unauthorized') {
+					invalidSession = true;
+					linked = false;
+					link.hidden = true;
+					newGuest.hidden = false;
+					login.textContent = 'Войти по почте';
+					summary.textContent =
+						'Доступ к профилю не подтверждён. Если почта была привязана, восстановите вход.';
+					try {
+						const availability = await emailRequestAsync<EmailStatus>(
+							'status',
+							undefined,
+							true,
+						);
+						configured = availability.available;
+					} catch {
+						configured = false;
+					}
+				}
+			}
 		} finally {
 			if (current === generation) {
 				busy = false;
@@ -105,6 +140,7 @@ export function bindAccountUi() {
 	}
 	function select(_purpose: typeof purpose) {
 		purpose = _purpose;
+		newGuestForm.hidden = true;
 		choices.hidden = true;
 		form.hidden = false;
 		codeForm.hidden = true;
@@ -112,6 +148,9 @@ export function bindAccountUi() {
 		title.textContent =
 			purpose === 'link' ? 'Привязать почту' : 'Войти по почте';
 		warning.hidden = purpose !== 'login';
+		requiredElement('account-switch-copy').textContent = invalidSession
+			? 'Войти в профиль с этой почтой. Его рейтинг и история сохранятся.'
+			: 'Перейти в существующий профиль. Текущий рейтинг и история не перенесутся. Чтобы сохранить доступ к этому профилю, сначала привяжите к нему другую почту.';
 		consent.required = purpose === 'login';
 		consent.checked = false;
 		submit.textContent = 'Получить код';
@@ -123,10 +162,14 @@ export function bindAccountUi() {
 		update();
 		status.textContent = 'Запрашиваем код…';
 		try {
-			challenge = await emailRequestAsync<EmailChallenge>('start', {
-				email,
-				purpose,
-			});
+			challenge = await emailRequestAsync<EmailChallenge>(
+				'start',
+				{
+					email,
+					purpose,
+				},
+				purpose === 'login',
+			);
 			retryAt = Date.now() + challenge.retryAfter * 1000;
 			form.hidden = true;
 			codeForm.hidden = false;
@@ -149,6 +192,28 @@ export function bindAccountUi() {
 	refresh.addEventListener('click', () => {
 		void refreshAsync();
 	});
+	newGuest.addEventListener('click', () => {
+		choices.hidden = true;
+		newGuestForm.hidden = false;
+		newGuestConsent.checked = false;
+		status.textContent = '';
+		newGuestConsent.focus();
+	});
+	newGuestForm.addEventListener('submit', async (event) => {
+		event.preventDefault();
+		if (busy || !invalidSession || !newGuestForm.reportValidity()) return;
+		busy = true;
+		update();
+		try {
+			await startNewGuestAsync();
+			location.reload();
+		} catch (error) {
+			showError(error);
+		} finally {
+			busy = false;
+			update();
+		}
+	});
 	form.addEventListener('submit', (event) => {
 		event.preventDefault();
 		if (!form.reportValidity()) return;
@@ -165,13 +230,18 @@ export function bindAccountUi() {
 		update();
 		status.textContent = 'Проверяем код…';
 		try {
-			const result = await emailRequestAsync<EmailConfirmation>('confirm', {
-				challengeId: challenge.challengeId,
-				code: code.value.trim(),
-			});
+			const result = await emailRequestAsync<EmailConfirmation>(
+				'confirm',
+				{
+					challengeId: challenge.challengeId,
+					code: code.value.trim(),
+					recoveryToken: challenge.recoveryToken,
+				},
+				purpose === 'login',
+			);
 			if (!result.linked) {
 				if (!result.token || !result.id) throw new Error('network');
-				saveEmailSession(result.id, result.token);
+				await saveEmailSession(result.id, result.token);
 				location.reload();
 				return;
 			}
@@ -193,17 +263,19 @@ export function bindAccountUi() {
 		button.addEventListener('click', () => {
 			form.hidden = true;
 			codeForm.hidden = true;
+			newGuestForm.hidden = true;
 			choices.hidden = false;
 			challenge = undefined;
 			status.textContent = '';
-			(linked ? login : link).focus();
+			(linked || invalidSession ? login : link).focus();
 		});
 	setInterval(() => {
 		if (!root.hidden && !codeForm.hidden) update();
 	}, 1000);
 	return {
 		open: () => {
-			if (!busy && form.hidden && codeForm.hidden) void refreshAsync();
+			if (!busy && form.hidden && codeForm.hidden && newGuestForm.hidden)
+				void refreshAsync();
 		},
 	};
 }

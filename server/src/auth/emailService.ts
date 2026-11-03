@@ -69,7 +69,7 @@ RETURNING hits`,
 		return result.rows[0].hits <= _max;
 	}
 	return {
-		async statusAsync(_player: string) {
+		async statusAsync(_player: string | null) {
 			const result = await _pool.query(
 				"SELECT email FROM auth_identities WHERE player_id=$1 AND kind='email'",
 				[_player],
@@ -80,12 +80,14 @@ RETURNING hits`,
 			};
 		},
 		async startAsync(
-			_requester: string,
+			_requester: string | null,
 			_email: string,
 			_purpose: EmailPurpose,
 			_ip: string,
 		) {
 			if (!_config) throw new EmailError(503, 'email_unavailable');
+			if (!_requester && _purpose !== 'login')
+				throw new EmailError(401, 'unauthorized');
 			const config = _config;
 			const allowed = await transactionAsync(_pool, async (client) => {
 				for (const [key, max, seconds] of [
@@ -94,6 +96,7 @@ RETURNING hits`,
 					[`email-hour:${_email}`, 5, 3600],
 					[`email-minute:${_email}`, 1, 60],
 				] as const) {
+					if (!_requester && key === 'player:null') continue;
 					if (
 						!(await limitAsync(
 							client,
@@ -108,6 +111,9 @@ RETURNING hits`,
 			});
 			if (!allowed) throw new EmailError(429, 'rate');
 			const id = randomUUID();
+			const recoveryToken = _requester
+				? undefined
+				: randomBytes(24).toString('base64url');
 			const code = randomInt(0, 1_000_000).toString().padStart(6, '0');
 			await transactionAsync(_pool, async (client) => {
 				await client.query('SELECT id FROM players WHERE id=$1 FOR UPDATE', [
@@ -133,8 +139,8 @@ RETURNING hits`,
 					[_requester],
 				);
 				await client.query(
-					`INSERT INTO email_challenges (id,requester_id,target_id,purpose,email,code_hash,expires_at)
-VALUES ($1,$2,$3,$4,$5,$6,now()+interval '10 minutes')`,
+					`INSERT INTO email_challenges (id,requester_id,target_id,purpose,email,code_hash,recovery_hash,expires_at)
+VALUES ($1,$2,$3,$4,$5,$6,$7,now()+interval '10 minutes')`,
 					[
 						id,
 						_requester,
@@ -142,6 +148,7 @@ VALUES ($1,$2,$3,$4,$5,$6,now()+interval '10 minutes')`,
 						_purpose,
 						_email,
 						emailDigest(config, `code:${id}:${code}`),
+						recoveryToken ? hashToken(recoveryToken) : null,
 					],
 				);
 				if (target)
@@ -154,13 +161,19 @@ SELECT id,$2,expires_at FROM email_challenges WHERE id=$1`,
 						],
 					);
 			});
-			return { challengeId: id, expiresIn: 600, retryAfter: 60 };
+			return {
+				challengeId: id,
+				expiresIn: 600,
+				retryAfter: 60,
+				...(recoveryToken ? { recoveryToken } : {}),
+			};
 		},
 		async confirmAsync(
-			_requester: string,
+			_requester: string | null,
 			_id: string,
 			_code: string,
 			_ip: string,
+			_recoveryToken?: string,
 		) {
 			if (!_config) throw new EmailError(503, 'email_unavailable');
 			const config = _config;
@@ -174,8 +187,9 @@ SELECT id,$2,expires_at FROM email_challenges WHERE id=$1`,
 				]);
 				const found = await client.query(
 					`SELECT *,expires_at>now() AS valid FROM email_challenges
-WHERE id=$1 AND requester_id=$2 FOR UPDATE`,
-					[_id, _requester],
+WHERE id=$1 AND requester_id IS NOT DISTINCT FROM $2::uuid
+AND recovery_hash IS NOT DISTINCT FROM $3::text FOR UPDATE`,
+					[_id, _requester, _recoveryToken ? hashToken(_recoveryToken) : null],
 				);
 				const challenge = found.rows[0];
 				if (

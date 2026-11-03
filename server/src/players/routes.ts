@@ -12,22 +12,33 @@ export function createPlayersRoutes(pool: Pool, limited: RateLimiter) {
 		path: string,
 	): Promise<boolean> => {
 		if (req.method === 'POST' && path === '/players/guest') {
+			res.setHeader('cache-control', 'no-store');
 			if (limited(`g:${ipOf(req)}`, 32)) {
 				json(res, 429, { error: 'rate' });
 				return true;
 			}
 			const token = randomBytes(24).toString('base64url');
-			const h = hashToken(token);
-			const created = await pool.query(
-				'INSERT INTO players (token_hash) VALUES ($1) RETURNING id, created_at',
-				[h],
-			);
-			const id = created.rows[0].id as string;
-			await pool.query(
-				`INSERT INTO auth_identities (player_id, kind, token_hash) VALUES ($1,'device',$2)`,
-				[id, h],
-			);
-			json(res, 201, { id, token, createdAt: created.rows[0].created_at });
+			const tokenHash = hashToken(token);
+			const client = await pool.connect();
+			try {
+				await client.query('BEGIN');
+				const created = await client.query(
+					'INSERT INTO players (token_hash) VALUES ($1) RETURNING id, created_at',
+					[tokenHash],
+				);
+				const id = created.rows[0].id as string;
+				await client.query(
+					`INSERT INTO auth_identities (player_id, kind, token_hash) VALUES ($1,'device',$2)`,
+					[id, tokenHash],
+				);
+				await client.query('COMMIT');
+				json(res, 201, { id, token, createdAt: created.rows[0].created_at });
+			} catch (error) {
+				await client.query('ROLLBACK');
+				throw error;
+			} finally {
+				client.release();
+			}
 			return true;
 		}
 		if (
@@ -46,8 +57,15 @@ export function createPlayersRoutes(pool: Pool, limited: RateLimiter) {
      FROM matches WHERE (white_id = $1 OR black_id = $1) AND ended_at IS NOT NULL`,
 				[id],
 			);
-			const rating = await pool.query<StoredRating>('SELECT * FROM player_ratings WHERE player_id=$1', [id]);
-			json(res, 200, { playerId: id, ...stats.rows[0], rating: ratingSummary(rating.rows[0]) });
+			const rating = await pool.query<StoredRating>(
+				'SELECT * FROM player_ratings WHERE player_id=$1',
+				[id],
+			);
+			json(res, 200, {
+				playerId: id,
+				...stats.rows[0],
+				rating: ratingSummary(rating.rows[0]),
+			});
 			return true;
 		}
 		return false;

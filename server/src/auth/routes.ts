@@ -16,17 +16,24 @@ export function createAuthRoutes(
 		res: ServerResponse,
 		path: string,
 	): Promise<boolean> => {
+		const recovery = path.startsWith('/auth/recovery/');
+		const routePath = recovery
+			? path.replace('/auth/recovery/', '/auth/email/')
+			: path;
 		if (
 			!(
-				(req.method === 'GET' && path === '/auth/email/status') ||
+				(req.method === 'GET' && routePath === '/auth/email/status') ||
 				(req.method === 'POST' &&
-					(path === '/auth/email/start' || path === '/auth/email/confirm'))
+					(routePath === '/auth/email/start' ||
+						routePath === '/auth/email/confirm'))
 			)
 		)
 			return false;
 		res.setHeader('cache-control', 'no-store');
-		const player = await _auth.playerFromAuth(req.headers.authorization);
-		if (!player) {
+		const player = recovery
+			? null
+			: await _auth.playerFromAuth(req.headers.authorization);
+		if (!player && !recovery) {
 			json(res, 401, { error: 'unauthorized' });
 			return true;
 		}
@@ -47,12 +54,20 @@ export function createAuthRoutes(
 					const email = normalizeEmail(body.email);
 					if (!email || (body.purpose !== 'link' && body.purpose !== 'login'))
 						throw new EmailError(400, 'invalid_email');
+					if (recovery && body.purpose !== 'login')
+						throw new EmailError(401, 'unauthorized');
 					json(
 						res,
 						202,
 						await _email.startAsync(player, email, body.purpose, ipOf(req)),
 					);
 				} else {
+					if (
+						recovery &&
+						(typeof body.recoveryToken !== 'string' ||
+							!/^[\w-]{32}$/.test(body.recoveryToken))
+					)
+						throw new EmailError(400, 'invalid_code');
 					if (
 						typeof body.challengeId !== 'string' ||
 						!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
@@ -70,6 +85,7 @@ export function createAuthRoutes(
 							body.challengeId,
 							body.code,
 							ipOf(req),
+							recovery ? (body.recoveryToken as string) : undefined,
 						),
 					);
 				}

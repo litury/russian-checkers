@@ -382,6 +382,12 @@ requiredElement('opening-search-bot').addEventListener(
 	options,
 );
 
+requiredElement('opening-search-account').addEventListener('click', () => {
+	if (!canBack()) return;
+	cancelOnline();
+	window.dispatchEvent(new CustomEvent('checkers-profile-open', { detail: 'account' }));
+}, options);
+
 requiredElement('opening-copy-code').addEventListener(
 	'click',
 	async () => {
@@ -495,6 +501,7 @@ export const playMenu = {
 			requiredElement('opening-search-bot').hidden = !view.showBot;
 			requiredElement('opening-search-retry').hidden = next !== 'offline' && next !== 'rate-limited';
 			requiredElement('opening-search-update').hidden = next !== 'update-required';
+			requiredElement('opening-search-account').hidden = next !== 'auth-failed';
 			requiredElement('opening-search-diagnostics').hidden = !isSearchFailure(next);
 			requiredElement('search-diagnostic-status').textContent = '';
 			requiredElement('search-diagnostic-output').hidden = true;

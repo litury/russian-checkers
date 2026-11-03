@@ -8,20 +8,18 @@ import { recordNetworkDiagnostic } from './networkDiagnostics';
 import { requestDeadline } from './requestDeadline';
 import type { TimeControlId } from '@/shared/rules/timeControl';
 import type { ClockBanks } from '@/shared/protocol/clockBanks';
+import { isPlayerSession, readPlayerSession, storePlayerSession, withSessionLock } from './playerSession';
 
 const api = () => runtimeApiOrigin();
 
-const tokenKey = 'checkers.playerToken';
-const idKey = 'checkers.playerId';
-
 export class EmailRequestError extends Error {}
 
-export async function emailRequestAsync<T>(_path: string, _body?: unknown): Promise<T> {
- const guest = await ensureGuest();
- if (!guest) throw new EmailRequestError('network');
- const response = await request(`/auth/email/${_path}`, {
+export async function emailRequestAsync<T>(_path: string, _body?: unknown, recovery = false): Promise<T> {
+ const guest = recovery ? null : await ensureGuest();
+ if (!guest && !recovery) throw new EmailRequestError(guestFailure());
+ const response = await request(`/auth/${recovery ? 'recovery' : 'email'}/${_path}`, {
   method: _body === undefined ? 'GET' : 'POST',
-  headers: { authorization: `Bearer ${guest.token}` },
+  headers: guest ? { authorization: `Bearer ${guest.token}` } : {},
   ...(_body === undefined ? {} : {body: JSON.stringify(_body)}),
  });
  if (!response) throw new EmailRequestError('network');
@@ -32,21 +30,15 @@ export async function emailRequestAsync<T>(_path: string, _body?: unknown): Prom
  return result as T;
 }
 
-export function saveEmailSession(_id: string, _token: string) {
- const previousId = localStorage.getItem(idKey);
- const previousToken = localStorage.getItem(tokenKey);
- try {
-  localStorage.setItem(tokenKey, _token);
-  localStorage.setItem(idKey, _id);
- } catch {
-  try {
-   if (previousToken) localStorage.setItem(tokenKey, previousToken);
-   else localStorage.removeItem(tokenKey);
-   if (previousId) localStorage.setItem(idKey, previousId);
-   else localStorage.removeItem(idKey);
-  } catch {}
-  throw new EmailRequestError('storage');
- }
+export async function saveEmailSession(_id: string, _token: string) {
+ await withSessionLock(async () => storePlayerSession({id: _id, token: _token}));
+}
+
+export async function startNewGuestAsync() {
+ await withSessionLock(async () => {
+  const session = await requestGuestAsync();
+  storePlayerSession(session);
+ });
 }
 
 export type CloudPly = { side: Side; from: IMove['from']; path: IMove['path']; clocks?: ClockBanks };
@@ -75,33 +67,37 @@ let guestError = 'connection_lost';
 export const guestFailure = () => guestError;
 export async function ensureGuest(): Promise<{ id: string; token: string } | null> {
  if (guestRequest) return guestRequest;
- guestRequest = createGuest();
+ guestRequest = withSessionLock(createGuest);
  try { return await guestRequest; }
  finally { guestRequest = undefined; }
 }
 async function createGuest(): Promise<{ id: string; token: string } | null> {
  guestError = 'connection_lost';
  try {
-  const token = localStorage.getItem(tokenKey);
-  const id = localStorage.getItem(idKey);
-  if (token && id) return { id, token };
- } catch {}
+  const existing = readPlayerSession();
+  if (existing) return existing;
+  const session = await requestGuestAsync();
+  storePlayerSession(session);
+  return session;
+ } catch (error) {
+  guestError = error instanceof Error ? error.message : 'connection_lost';
+  return null;
+ }
+}
+
+async function requestGuestAsync() {
  const res = await request('/players/guest', { method: 'POST', body: '{}' });
  if (!res?.ok) {
-  if (res?.status === 429) guestError = 'rate';
-  return null;
+  throw new EmailRequestError(res?.status === 429 ? 'rate' : 'connection_lost');
  }
  // Fetch resolves at headers; the body can still fail when its signal expires.
  let body: { id: string; token: string };
  try {
   body = await res.json();
  } catch {
-  return null;
+  throw new EmailRequestError('connection_lost');
  }
- try {
-  localStorage.setItem(tokenKey, body.token);
-  localStorage.setItem(idKey, body.id);
- } catch {}
+ if (!isPlayerSession(body)) throw new EmailRequestError('connection_lost');
  return body;
 }
 

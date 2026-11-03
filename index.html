@@ -196,6 +196,7 @@ html:is([data-menu-presentation="loading"], [data-menu-presentation="error"]) #m
     <button id="opening-search-bot" class="metal-button secondary" type="button" hidden>С компьютером</button>
     <button id="opening-search-retry" class="metal-button primary" type="button" hidden>Повторить попытку</button>
     <button id="opening-search-update" class="metal-button primary" type="button" hidden>Обновить игру</button>
+    <button id="opening-search-account" class="metal-button primary" type="button" hidden>Восстановить доступ</button>
     <button id="opening-search-diagnostics" class="metal-button secondary" type="button" hidden>Скопировать диагностику</button>
    </div>
    <p id="search-diagnostic-status" class="play-note" role="status"></p>
@@ -232,12 +233,20 @@ html:is([data-menu-presentation="loading"], [data-menu-presentation="error"]) #m
      <button id="account-link" class="metal-button" type="button" disabled>Привязать почту</button>
      <button id="account-login" class="metal-button secondary" type="button" disabled>Уже есть профиль</button>
      <button id="account-refresh" class="mh-button" type="button">Проверить доступность</button>
+     <button id="account-new-guest" class="mh-button" type="button" hidden>Начать заново</button>
     </div>
+    <form id="account-new-guest-form" class="account-form" hidden>
+     <h3>Новый профиль</h3>
+     <p class="mh-muted">Рейтинг и история начнутся с нуля. Старые партии не перенесутся. Вернуться в прежний профиль можно по ранее привязанной почте.</p>
+     <label class="account-warning"><input id="account-new-guest-consent" type="checkbox" required>Начать с новым профилем</label>
+     <button class="metal-button" type="submit">Создать профиль</button>
+     <button class="mh-button" type="button" data-account-cancel>Отмена</button>
+    </form>
     <form id="account-email-form" class="account-form" hidden>
      <h3 id="account-form-title">Привязать почту</h3>
      <label for="account-email">Почта</label>
      <input id="account-email" type="email" autocomplete="email" autocapitalize="none" spellcheck="false" maxlength="254" required>
-     <label id="account-login-warning" class="account-warning" hidden><input id="account-switch-consent" type="checkbox">Перейти в существующий профиль. Текущий рейтинг и история не перенесутся. Чтобы не потерять доступ к этому профилю, сначала привяжите к нему другую почту.</label>
+     <label id="account-login-warning" class="account-warning" hidden><input id="account-switch-consent" type="checkbox"><span id="account-switch-copy"></span></label>
      <button id="account-send" class="metal-button" type="submit">Получить код</button>
      <button class="mh-button" type="button" data-account-cancel>Отмена</button>
     </form>

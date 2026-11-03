@@ -486,7 +486,7 @@ export function bindMatchHistory() {
 	});
 	window.addEventListener('checkers-profile-open', (event) => {
 		const page = (event as CustomEvent<unknown>).detail;
-		if (page === 'settings' || page === 'rules') navigation.open(page);
+		if (page === 'settings' || page === 'rules' || page === 'account') navigation.open(page);
 	});
 	retry.addEventListener('click', () => {
 		uiSfx('ui-tap');

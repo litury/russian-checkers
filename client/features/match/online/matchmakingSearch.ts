@@ -27,7 +27,7 @@ export type SearchFailure =
 	| 'browser-unsupported';
 
 export function searchFailure(_error: string): SearchFailure {
-	if (_error === 'update_required') return 'update-required';
+	if (_error === 'update_required' || _error === 'session_changed') return 'update-required';
 	if (_error === 'unauthorized') return 'auth-failed';
 	if (_error === 'rate') return 'rate-limited';
 	if (_error === 'browser_unsupported') return 'browser-unsupported';
@@ -46,9 +46,9 @@ export function isSearchFailure(_phase: SearchPhase): boolean {
 
 export function searchFailureDetail(_phase: SearchPhase): string {
 	if (_phase === 'update-required')
-		return 'Версия игры устарела. Обновите страницу — данные профиля сохранятся.';
+		return 'Обновите страницу, чтобы продолжить. Данные профиля сохранятся.';
 	if (_phase === 'auth-failed')
-		return 'Сервер не подтвердил профиль. Не очищайте данные сайта. Скопируйте диагностику для проверки.';
+		return 'Сервер не подтвердил профиль. Восстановите вход по привязанной почте или начните заново.';
 	if (_phase === 'browser-unsupported')
 		return 'Обновите браузер или откройте игру в актуальном Chrome или Firefox.';
 	if (_phase === 'rate-limited') return 'Подождите минуту и попробуйте снова.';
