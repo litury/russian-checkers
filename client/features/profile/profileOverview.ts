@@ -5,25 +5,40 @@ export function bindProfileOverview() {
 	const games = requiredElement('profile-games');
 	const wins = requiredElement('profile-wins');
 	const status = requiredElement('profile-stats');
-	const retry = requiredElement<HTMLButtonElement>('profile-stats-retry');
+	const profileRating = requiredElement('profile-rating');
+	const profileValues = requiredElement('profile-stats-values');
+	const profileWarning = requiredElement('profile-stats-warning');
+	const setProfileStatus = (message: string) => {
+		status.textContent = message;
+		profileWarning.hidden = !message;
+		profileWarning.title = message;
+		profileWarning.setAttribute('aria-label', message);
+	};
 	const rating = requiredElement('opening-rating-number');
 	const ratingStatus = requiredElement('opening-rating-status');
 	const ratingValue = requiredElement('opening-rating-value');
-	const ratingRetry = requiredElement<HTMLButtonElement>('opening-rating-retry');
+	const ratingWarning = requiredElement('opening-rating-warning');
+	const setRatingStatus = (message: string, error = false) => {
+		ratingStatus.textContent = message;
+		ratingWarning.hidden = !error;
+		ratingWarning.title = message;
+		ratingWarning.setAttribute('aria-label', message);
+	};
 	let loading = false;
 	let hasData = false;
+	let lastStarted = 0;
 	async function refresh() {
 		if (loading) return;
 		loading = true;
-		retry.hidden = true;
-		ratingRetry.hidden = true;
-		status.textContent = '';
+		lastStarted = Date.now();
+		profileValues.setAttribute('aria-busy', 'true');
 		ratingValue.setAttribute('aria-busy', 'true');
 		if (!hasData) {
 			games.textContent = wins.textContent = '—';
+			profileRating.textContent = '—';
 			rating.textContent = '—';
 			rating.removeAttribute('data-empty');
-			ratingStatus.textContent = 'Загрузка…';
+			setRatingStatus('Загрузка…');
 		}
 		try {
 			const guest = await ensureGuest();
@@ -45,25 +60,31 @@ export function bindProfileOverview() {
 			rating.toggleAttribute('data-empty', Boolean(valid && !summary.games));
 			if (valid) {
 				rating.textContent = summary.games ? String(summary.rating) : 'Сыграйте онлайн';
-				ratingStatus.textContent = '';
+				profileRating.textContent = summary.games ? String(summary.rating) : '—';
+				profileRating.setAttribute('aria-label', summary.games ? String(summary.rating) : 'Нет рейтинговых партий');
+				setProfileStatus('');
+				setRatingStatus('');
 			} else {
 				rating.textContent = '—';
-				ratingStatus.textContent = 'Рейтинг недоступен';
-				retry.hidden = false;
-				ratingRetry.hidden = false;
+				profileRating.textContent = '—';
+				profileRating.removeAttribute('aria-label');
+				setRatingStatus('Рейтинг недоступен', true);
+				setProfileStatus('Рейтинг недоступен');
 			}
 		} catch {
-			status.textContent = hasData ? 'Не удалось обновить данные' : 'Данные недоступны';
-			ratingStatus.textContent = hasData ? 'Не удалось обновить' : 'Рейтинг недоступен';
-			ratingRetry.hidden = false;
-			retry.hidden = false;
+			setProfileStatus(hasData ? 'Не удалось обновить данные' : 'Данные недоступны');
+			setRatingStatus(hasData ? 'Не удалось обновить рейтинг' : 'Рейтинг недоступен', true);
 		} finally {
 			ratingValue.setAttribute('aria-busy', 'false');
+			profileValues.setAttribute('aria-busy', 'false');
 			loading = false;
 		}
 	}
-	retry.addEventListener('click', () => void refresh());
-	ratingRetry.addEventListener('click', () => void refresh());
+	const resume = () => {
+		if (!document.hidden && Date.now() - lastStarted >= 15_000) void refresh();
+	};
+	window.addEventListener('online', resume);
+	document.addEventListener('visibilitychange', resume);
 	document.addEventListener('damka:rating-updated', () => void refresh());
 	void refresh();
 	return { refresh };

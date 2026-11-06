@@ -1,6 +1,6 @@
 /* The canvas renderer depresses only the rigid moving disk. Rim/fire/hitbox stay fixed. */
 #opening .gate-piece-slot { touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
 
-#opening .gate-piece-slot[data-art="static"] .gate-piece { transition:transform 180ms ease-out; }
-#opening .gate-piece-slot[data-art="static"] .is-menu-pressed .gate-piece { transform:translateY(6px); transition:none; }
-@media(prefers-reduced-motion:reduce) { #opening .gate-piece-slot[data-art="static"] .gate-piece { transition:none; } }
+#opening .gate-piece-slot:is([data-art="static"], [data-art="fire"]) .gate-piece { transition:transform 180ms ease-out; }
+#opening .gate-piece-slot:is([data-art="static"], [data-art="fire"]) .is-menu-pressed .gate-piece { transform:translateY(6px); transition:none; }
+@media(prefers-reduced-motion:reduce) { #opening .gate-piece-slot:is([data-art="static"], [data-art="fire"]) .gate-piece { transition:none; } }

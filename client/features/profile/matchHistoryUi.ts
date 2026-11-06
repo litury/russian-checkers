@@ -63,13 +63,14 @@ export function bindMatchHistory() {
 	const overview = bindProfileOverview();
 	const account = bindAccountUi();
 	let pane: ProfilePage = 'root';
+	let menuTrigger: HTMLElement = open;
 	const showPane = (next: typeof pane) => {
 		pane = next;
 		el('match-history-profile').hidden = next !== 'root';
 		el('profile-account-pane').hidden = next !== 'account';
 		if (next === 'account') account.open();
 		el('profile-history-pane').hidden = next !== 'list' && next !== 'record';
-		el('history-stats').hidden = next !== 'list';
+		el('history-stats').hidden = next !== 'root';
 		el('profile-settings-pane').hidden = next !== 'settings';
 		el('profile-rules-pane').hidden = next !== 'rules';
 		heading.textContent = {
@@ -231,7 +232,7 @@ export function bindMatchHistory() {
 	const close = () => {
 		generation++;
 		uiSfx('ui-close');
-		open.focus({ preventScroll: true });
+		menuTrigger.focus({ preventScroll: true });
 	};
 	async function fetchList() {
 		const ticket = ++generation;
@@ -470,6 +471,7 @@ export function bindMatchHistory() {
 	});
 	open.addEventListener('click', () => {
 		if (root.open) return;
+		menuTrigger = open;
 		returnFocus = null;
 		savedScroll = 0;
 		filter.value = 'all';
@@ -486,6 +488,7 @@ export function bindMatchHistory() {
 	});
 	window.addEventListener('checkers-profile-open', (event) => {
 		const page = (event as CustomEvent<unknown>).detail;
+		if (!root.open) menuTrigger = page === 'settings' ? el('opening-options') : open;
 		if (page === 'settings' || page === 'rules' || page === 'account') navigation.open(page);
 	});
 	retry.addEventListener('click', () => {

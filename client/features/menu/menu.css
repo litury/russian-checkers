@@ -127,8 +127,43 @@ a {
 	display: grid;
 	gap: 10px;
 }
-.score-feedback {
-	margin-top: 4px;
+.menu-stat-heading {
+	position: relative;
+	width: fit-content;
+	margin-inline: auto;
+}
+.menu-stat-warning {
+	position: absolute;
+	left: calc(100% + 6px);
+	top: 50%;
+	transform: translateY(-50%);
+	display: grid;
+	place-items: center;
+	width: 16px;
+	height: 16px;
+	border: 1px solid currentColor;
+	border-radius: 50%;
+	color: #e5bd76;
+	font: 600 12px/1 "Golos Text", sans-serif;
+}
+.main-actions {
+	grid-template-columns: minmax(0, 1fr) 56px;
+}
+#opening-start {
+	grid-column: 1 / -1;
+	min-height: 68px;
+}
+#opening-history,
+#opening-options {
+	min-height: 56px;
+}
+#opening-options {
+	padding: 12px;
+}
+.menu-settings img {
+	display: block;
+	width: 26px;
+	height: 26px;
 }
 .personal-rating {
 	padding: 4px 0 12px;
@@ -152,26 +187,6 @@ a {
 	min-height: 34px;
 	display: grid;
 	align-items: center;
-}
-#opening-rating-status {
-	margin-top: 2px;
-	min-height: 1.4em;
-	font: var(--type-caption);
-	color: #c5bdab;
-}
-.rating-retry {
-	min-height: 44px;
-	padding: 8px;
-	border: 0;
-	background: none;
-	font: var(--type-note);
-	color: #eed1a0;
-	text-decoration: underline;
-	text-underline-offset: 3px;
-	cursor: pointer;
-}
-.score-feedback:has([hidden]) {
-	display: none;
 }
 .opening-win-count {
 	min-height: 1.2em;
@@ -355,6 +370,7 @@ body:not([data-menu-atlas="ready"]) .menu-chip {
 }
 .side-option .gate-piece {
 	position: absolute;
+	z-index: 1;
 	inset: 0;
 	background: center / contain no-repeat;
 }
@@ -371,7 +387,7 @@ body:not([data-menu-atlas="ready"]) .menu-chip {
 	background-image: url("../match/board/selection-v2/frames/black/black-55.webp");
 }
 .side-option canvas,
-.side-option[aria-pressed="true"]:not([data-art="animated"])
+.side-option[aria-pressed="true"]:not([data-art="animated"], [data-art="fire"])
 	.gate-piece-visual::before {
 	position: absolute;
 	left: 50%;
@@ -380,7 +396,7 @@ body:not([data-menu-atlas="ready"]) .menu-chip {
 	height: calc(var(--piece) * 980 / 724);
 	top: calc(var(--piece) * -256 / 724);
 }
-.side-option[aria-pressed="true"]:not([data-art="animated"])
+.side-option[aria-pressed="true"]:not([data-art="animated"], [data-art="fire"])
 	.gate-piece-visual::before {
 	content: "";
 	background:

@@ -10,7 +10,7 @@ const fireUrls = [
 ];
 
 
-export function mountSiegeOpening(root: HTMLElement, isPlayRequested: () => boolean = () => false) {
+export function mountSiegeOpening(root: HTMLElement, isPlayRequested: () => boolean = () => false, canLoadLayers: () => boolean = () => true) {
  const media = matchMedia('(prefers-reduced-motion: reduce)');
  const state = new SiegeSelection(siegeSide(root));
  const touch = { white: new MenuTouchMotion(), black: new MenuTouchMotion() };
@@ -28,7 +28,21 @@ export function mountSiegeOpening(root: HTMLElement, isPlayRequested: () => bool
   drawMenuFire(context, fire[0], elapsed, burst, media.matches);
  };
  const paint = () => {
-  for (const side of ['white', 'black'] as const) painters[side]?.(state.displacement(side));
+  for (const side of ['white', 'black'] as const) {
+   if (painters[side]) { painters[side]!(state.displacement(side)); continue; }
+   if (!fire.length) continue;
+   const button = buttons.find(button => button.dataset.side === side);
+   const canvas = button?.querySelector('canvas');
+   const context = canvas?.getContext('2d');
+   if (!canvas || !context || !button) continue;
+   context.clearRect(0, 0, MENU_FIRE.canvasWidth, MENU_FIRE.canvasHeight);
+   context.save();
+   context.translate(MENU_FIRE.sidePadding, MENU_FIRE.topPadding);
+   drawFire(context, side);
+   context.restore();
+   canvas.hidden = false;
+   button.dataset.art = 'fire';
+  }
  };
  const tick = (now: number) => {
   frame = 0;
@@ -40,7 +54,7 @@ export function mountSiegeOpening(root: HTMLElement, isPlayRequested: () => bool
   elapsed += delta; burst = Math.max(0, burst - delta);
   previous = now;
   if (wasMoving || !state.settled || touchMoving() || now - lastPaint >= 1000 / 30) { paint(); lastPaint = now; }
-  if (!state.settled || touchMoving() || (!media.matches && fire.length && painters[state.side])) frame = requestAnimationFrame(tick);
+  if (!state.settled || touchMoving() || (!media.matches && fire.length)) frame = requestAnimationFrame(tick);
   else previous = 0;
  };
  const wake = () => {
@@ -77,11 +91,12 @@ export function mountSiegeOpening(root: HTMLElement, isPlayRequested: () => bool
   target.focus();
  };
  for (const button of buttons) {
+  button.dataset.art = 'static';
   button.addEventListener('click', choose);
   button.addEventListener('keydown', keyboard);
  }
  const loadSide = (side: SiegeSide) => {
-  if (disposed || root.hidden || root.inert || isPlayRequested() || painters[side] || loading.has(side)) return;
+  if (disposed || root.hidden || root.inert || isPlayRequested() || !canLoadLayers() || painters[side] || loading.has(side)) return;
   const button = buttons.find(button => button.dataset.side === side);
   if (!button) return;
   loading.add(side);
@@ -129,6 +144,11 @@ export function mountSiegeOpening(root: HTMLElement, isPlayRequested: () => bool
   loadSide(state.side);
  };
  tryDecorations();
+ void decode(fireUrls[0]).then(image => {
+  if (disposed) return;
+  fire = [image];
+  paint(); wake();
+ }).catch(() => {});
  root.addEventListener('siege-side', update);
  const contact = (event: Event) => {
   const { side, held } = (event as CustomEvent<{side: SiegeSide; held: boolean}>).detail;
@@ -140,6 +160,7 @@ export function mountSiegeOpening(root: HTMLElement, isPlayRequested: () => bool
  media.addEventListener('change', update);
  const resume = () => { if (!document.hidden) tryDecorations(); wake(); };
  document.addEventListener('visibilitychange', resume);
+ document.addEventListener('damka:playfield-ready', resume);
  const observer = new MutationObserver(() => { tryDecorations(); wake(); });
  observer.observe(root, { attributes: true, attributeFilter: ['hidden', 'inert'] });
  return () => {
@@ -154,7 +175,11 @@ export function mountSiegeOpening(root: HTMLElement, isPlayRequested: () => bool
   root.removeEventListener('menu-touch', contact);
   media.removeEventListener('change', update);
   document.removeEventListener('visibilitychange', resume);
+  document.removeEventListener('damka:playfield-ready', resume);
   for (const button of buttons) {
+   button.querySelector('canvas')!.hidden = true;
+   button.querySelector<HTMLElement>('.gate-piece')!.hidden = false;
+   button.dataset.art = 'static';
    button.removeEventListener('click', choose);
    button.removeEventListener('keydown', keyboard);
   }

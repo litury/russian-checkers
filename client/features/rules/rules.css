@@ -1,10 +1,9 @@
 #match-history[data-profile-page="rules"] {
-	width: min(760px, calc(100% - 16px));
-	max-height: calc(100dvh - 16px);
+	width: min(640px, calc(100% - 24px));
+	max-height: calc(100dvh - 24px);
 }
 #match-history[data-profile-page="rules"] .mh-panel {
-	height: calc(100dvh - 16px);
-	max-height: none;
+	max-height: calc(100dvh - 24px);
 }
 #match-history[data-profile-page="rules"] .mh-surface {
 	flex: 1;
@@ -25,36 +24,52 @@
 }
 #profile-rules-pane {
 	width: 100%;
-	max-width: 65ch;
+	max-width: 58ch;
 	margin-inline: auto;
 	font: var(--type-body);
+	line-height: 1.65;
+	color: #f4eddf;
 	overflow-wrap: anywhere;
 }
-#profile-rules-pane .rules-intro {
-	margin-top: 8px;
-}
 .rules-section {
-	padding-block: 18px;
+	padding-block: 20px;
 	border-bottom: 1px solid #8e80652b;
 }
-#profile-rules-pane .rules-section h3 {
-	margin-bottom: 10px;
+#profile-rules-pane h3 {
+	margin-bottom: 12px;
+	font: var(--type-action);
+	color: #f4eddf;
 }
-#profile-rules-pane .rules-section p + p {
-	margin-top: 12px;
-}
-.rules-section ul {
+#profile-rules-pane ul {
 	display: grid;
-	gap: 10px;
-	margin: 12px 0;
+	gap: 12px;
+	margin: 0;
 	padding-left: 1.25em;
 }
-#profile-rules-pane .rules-limitations {
-	padding-left: 12px;
-	border-left: 2px solid #b49a6d;
+#profile-rules-pane li {
+	padding-left: 4px;
 }
-.rules-section:last-child {
-	border-bottom: 0;
+.rules-platform {
+	margin-top: 24px;
+}
+#profile-rules-pane .rules-platform > p {
+	margin-bottom: 16px;
+}
+.rules-detail {
+	border-top: 1px solid #8e80654d;
+}
+.rules-detail summary {
+	min-height: 48px;
+	padding: 12px 4px;
+	font: var(--type-label-large);
+	cursor: pointer;
+}
+.rules-detail summary:focus-visible {
+	outline: 2px solid #f5d391;
+	outline-offset: -2px;
+}
+#profile-rules-pane .rules-detail ul {
+	padding-bottom: 20px;
 }
 .rules-original a {
 	display: inline-flex;

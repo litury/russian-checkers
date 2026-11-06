@@ -28,6 +28,8 @@ export function bindProfileNavigation(handlers: {
 	const dialog = requiredElement<HTMLDialogElement>('match-history');
 	const opening = requiredElement('opening');
 	const back = requiredElement<HTMLButtonElement>('match-history-back');
+	const closeIcon = requiredElement('profile-close-icon');
+	const backLabel = requiredElement('profile-back-label');
 	let changing = false;
 	let returning = false;
 	const owned = () => history.state?.profileMenu === true;
@@ -40,11 +42,15 @@ export function bindProfileNavigation(handlers: {
 		opening.inert = true;
 		if (!dialog.open) dialog.showModal();
 		dialog.dataset.profilePage = page;
-		back.textContent = page === 'root' ? '← В меню' : '← Назад';
+		const menuEntry = page === 'root' || (page === 'settings' && history.state?.profileDirect === true);
+		closeIcon.hidden = !menuEntry;
+		backLabel.hidden = menuEntry;
+		back.classList.toggle('profile-dismiss', menuEntry);
+		back.classList.toggle('profile-return', !menuEntry);
 		back.setAttribute(
 			'aria-label',
-			page === 'root'
-				? 'В главное меню'
+			menuEntry
+				? 'Закрыть и вернуться в главное меню'
 				: page === 'record'
 					? 'К списку партий'
 					: 'В профиль',
@@ -75,7 +81,8 @@ export function bindProfileNavigation(handlers: {
 		if (opening.hidden || returning || (!dialog.open && opening.inert)) return;
 		if (dialog.open && dialog.dataset.profilePage === page && page !== 'record')
 			return;
-		if (!dialog.open && page !== 'root') {
+		const direct = !dialog.open && page === 'settings';
+		if (!dialog.open && page !== 'root' && !direct) {
 			history.pushState(
 				{ ...history.state, profileMenu: true, profilePage: 'root' },
 				'',
@@ -86,6 +93,7 @@ export function bindProfileNavigation(handlers: {
 				...history.state,
 				profileMenu: true,
 				profilePage: page,
+				profileDirect: direct,
 				profileRecord: record,
 			},
 			'',

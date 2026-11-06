@@ -97,27 +97,26 @@ html:is([data-menu-presentation="loading"], [data-menu-presentation="error"]) #m
   <nav class="main-actions" aria-label="Главное меню">
    <button id="opening-start" type="button" class="metal-button primary" aria-haspopup="dialog" aria-controls="opening-modes-dialog">Играть</button>
    <button id="opening-history" type="button" class="metal-button secondary" aria-haspopup="dialog" aria-controls="match-history">Профиль</button>
+   <button id="opening-options" type="button" class="metal-button secondary menu-settings" aria-label="Настройки" title="Настройки" aria-haspopup="dialog" aria-controls="match-history"><img src="/client/features/menu/assets/settings.svg" width="26" height="26" alt="" /></button>
   </nav>
   <div class="side-score-panel">
    <div class="menu-choice-surface">
     <section id="opening-rating" class="personal-rating" aria-labelledby="opening-rating-title">
-     <h2 id="opening-rating-title">Ваш рейтинг</h2>
+     <h2 id="opening-rating-title" class="menu-stat-heading">Рейтинг<span id="opening-rating-warning" class="menu-stat-warning" role="img" aria-label="Рейтинг недоступен" title="Рейтинг недоступен" hidden>!</span></h2>
      <div id="opening-rating-value" aria-live="polite" aria-atomic="true" aria-busy="true">
       <p id="opening-rating-number">—</p>
-      <p id="opening-rating-status">Загрузка…</p>
+      <p id="opening-rating-status" class="opening-sr-only">Загрузка…</p>
      </div>
-     <button id="opening-rating-retry" class="rating-retry" type="button" hidden>Повторить загрузку</button>
     </section>
     <section class="global-score" aria-labelledby="opening-score-title">
-     <h2 id="opening-score-title">Общий счёт онлайн</h2>
+     <h2 id="opening-score-title" class="menu-stat-heading">Счёт онлайн<span id="opening-score-warning" class="menu-stat-warning" role="img" aria-label="Счёт недоступен" title="Счёт недоступен" hidden>!</span></h2>
      <dl><div><dt>Белые</dt><dd id="opening-color-white" class="opening-win-count is-stat-pending" aria-busy="true"></dd></div><div><dt>Чёрные</dt><dd id="opening-color-black" class="opening-win-count is-stat-pending" aria-busy="true"></dd></div></dl>
-     <div class="score-feedback"><p id="opening-stats-unavailable" class="status" role="status" data-error="Статистика недоступна">Загружаем статистику…</p></div>
-     <button id="opening-stats-retry" type="button" hidden>Повторить загрузку счёта</button>
+     <p id="opening-stats-unavailable" class="opening-sr-only" role="status" data-error="Счёт недоступен">Загрузка…</p>
     </section>
    </div>
    <div class="menu-score-surface">
     <fieldset class="side-picker">
-     <legend>Ваша сторона</legend>
+     <legend>Цвет шашек</legend>
      <div class="side-options">
       <button type="button" class="side-option gate-piece-slot gate-piece-ivory is-chosen" data-side="white" aria-pressed="true"><span class="gate-piece-visual" aria-hidden="true"><span class="gate-piece"></span><canvas width="852" height="980" hidden></canvas></span><span class="side-name">Белые</span><span class="selected-mark" aria-hidden="true">Выбрано</span></button>
       <button type="button" class="side-option gate-piece-slot gate-piece-black" data-side="black" aria-pressed="false"><span class="gate-piece-visual" aria-hidden="true"><span class="gate-piece"></span><canvas width="852" height="980" hidden></canvas></span><span class="side-name">Чёрные</span><span class="selected-mark" aria-hidden="true">Выбрано</span></button>
@@ -217,14 +216,19 @@ html:is([data-menu-presentation="loading"], [data-menu-presentation="error"]) #m
  <div class="menu-choice-surface mh-surface">
   <header class="mh-header">
    <h2 id="match-history-title" tabindex="-1">Профиль</h2>
+   <button type="button" id="match-history-back" class="metal-button secondary profile-dismiss" aria-label="Закрыть профиль"><img id="profile-close-icon" src="/client/features/menu/assets/close.svg" width="20" height="20" alt="" /><span id="profile-back-label" hidden>Назад</span></button>
   </header>
   <div id="match-history-scroll" class="mh-scroll">
    <section id="match-history-profile" class="mh-profile" aria-label="Обзор игрока">
+   <section id="history-stats" aria-label="Статистика онлайн-партий">
+    <span id="profile-stats-warning" class="menu-stat-warning" role="img" aria-label="Данные недоступны" title="Данные недоступны" hidden>!</span>
+    <dl id="profile-stats-values" class="profile-stats" aria-label="Статистика онлайн-партий" aria-live="polite" aria-atomic="true"><div><dt>Рейтинг</dt><dd id="profile-rating">—</dd></div><div><dt>Партии</dt><dd id="profile-games">—</dd></div><div><dt>Победы</dt><dd id="profile-wins">—</dd></div></dl>
+    <p id="profile-stats" class="opening-sr-only" role="status"></p>
+   </section>
     <nav class="profile-links action-list" aria-label="Разделы профиля">
-     <button id="profile-history" class="metal-button secondary" type="button">История партий</button>
-     <button id="opening-options" class="metal-button secondary" type="button" aria-controls="profile-settings-pane">Настройки</button>
-     <button id="profile-rules" class="metal-button secondary" type="button" aria-controls="profile-rules-pane">Правила игры</button>
-     <button id="profile-account" class="metal-button secondary" type="button">Аккаунт</button>
+     <button id="profile-history" class="metal-button primary profile-link profile-link-primary" type="button" aria-controls="profile-history-pane">История партий</button>
+     <button id="profile-account" class="metal-button secondary profile-link" type="button" aria-controls="profile-account-pane">Аккаунт</button>
+     <button id="profile-rules" class="metal-button secondary profile-link" type="button" aria-controls="profile-rules-pane">Правила</button>
     </nav>
    </section>
    <section id="profile-account-pane" class="mh-profile" hidden aria-label="Аккаунт">
@@ -261,12 +265,6 @@ html:is([data-menu-presentation="loading"], [data-menu-presentation="error"]) #m
     <p id="account-status" class="mh-muted" role="status" aria-live="polite"></p>
    </section>
    <div id="profile-history-pane" hidden>
-   <section id="history-stats" aria-label="Статистика онлайн-партий">
-    <p class="profile-stats-caption mh-muted">Все онлайн-партии</p>
-    <dl class="profile-stats" aria-label="Статистика онлайн-партий" aria-live="polite" aria-atomic="true"><div><dt>Партий</dt><dd id="profile-games">—</dd></div><div><dt>Побед</dt><dd id="profile-wins">—</dd></div></dl>
-    <p id="profile-stats" class="mh-muted" role="status"></p>
-    <button id="profile-stats-retry" class="mh-button metal-button secondary" type="button" hidden>Повторить загрузку</button>
-   </section>
    <section id="match-history-archive" aria-label="Список партий">
     <div class="mh-toolbar"><p id="match-history-summary">Последние записанные партии</p>
      <label id="match-history-filter-label" hidden>Соперник <select id="match-history-filter"><option value="all">Все</option><option value="online">Онлайн</option><option value="bot">Компьютер</option></select></label>
@@ -305,56 +303,100 @@ html:is([data-menu-presentation="loading"], [data-menu-presentation="error"]) #m
    </section>
    </div>
    <section id="profile-rules-pane" hidden aria-label="Правила игры">
-<p class="rules-original"><a href="https://shashki.ru/download/2022/doc/FSHR_shashki_pravila_2022.doc" target="_blank" rel="noopener noreferrer" aria-label="Официальные правила — документ Word, новая вкладка" title="Документ Word на сайте Федерации шашек России">Официальные правила ↗</a></p>
-<p class="rules-intro">Доска 8×8, по 12 шашек. Играют по тёмным полям. Первыми ходят белые.</p>
+<section class="rules-section" aria-labelledby="rules-start">
+ <h3 id="rules-start">Начальная позиция</h3>
+ <ul>
+  <li>Доска — 8×8 клеток.</li>
+  <li>У каждого игрока — 12 шашек.</li>
+  <li>Шашки занимают тёмные поля первых трёх рядов со стороны игрока.</li>
+ </ul>
+</section>
 <section class="rules-section" aria-labelledby="rules-man">
  <h3 id="rules-man">Ход</h3>
- <p>Простая шашка ходит на одну свободную клетку вперёд по диагонали.</p>
+ <ul>
+  <li>Белые ходят первыми.</li>
+  <li>Игроки ходят по очереди.</li>
+  <li>Простая шашка ходит на одну свободную клетку вперёд по диагонали.</li>
+ </ul>
 </section>
 <section class="rules-section" aria-labelledby="rules-capture">
  <h3 id="rules-capture">Взятие</h3>
  <ul>
-  <li>Есть взятие — нужно бить. Простая шашка бьёт вперёд и назад, вставая на свободную клетку сразу за шашкой соперника.</li>
-  <li>Продолжайте той же шашкой, пока есть взятия. На развилке выбирайте любой допустимый путь — не обязательно самый длинный.</li>
-  <li>Побитые шашки снимаются в конце серии и до этого преграждают путь. Одну шашку нельзя перепрыгнуть дважды.</li>
+  <li>Взятие обязательно.</li>
+  <li>Простая шашка бьёт вперёд и назад: перепрыгивает соседнюю шашку соперника на свободную клетку сразу за ней.</li>
+  <li>Если доступно следующее взятие, продолжайте той же шашкой.</li>
+  <li>Если доступны разные пути взятия, выберите любой. Брать наибольшее число шашек не обязательно.</li>
+  <li>Побитые шашки снимаются после завершения всей серии взятий. До этого они преграждают путь.</li>
+  <li>Одну шашку нельзя перепрыгнуть дважды за ход.</li>
  </ul>
 </section>
 <section class="rules-section" aria-labelledby="rules-king">
  <h3 id="rules-king">Дамка</h3>
- <p>На последнем ряду шашка становится дамкой. Она ходит вперёд и назад по свободной диагонали на любое расстояние. Через свои шашки прыгать нельзя.</p>
- <p>При взятии дамка встаёт на любое свободное поле за шашкой соперника. Если превращение произошло во время взятия, продолжайте ту же серию уже как дамка.</p>
+ <ul>
+  <li>На последнем ряду со стороны соперника простая шашка становится дамкой.</li>
+  <li>Дамка ходит вперёд и назад по свободной диагонали на любое расстояние.</li>
+  <li>При взятии дамка перепрыгивает одну шашку соперника по диагонали и выбирает свободное поле за ней.</li>
+  <li>Если взятие можно продолжить, выберите поле с продолжением и продолжайте той же дамкой.</li>
+  <li>Если шашка стала дамкой во время взятия, продолжайте серию по правилам дамки.</li>
+  <li>Перепрыгивать свои шашки нельзя.</li>
+ </ul>
 </section>
 <section class="rules-section" aria-labelledby="rules-win">
  <h3 id="rules-win">Завершение партии</h3>
- <p>Победа — у соперника нет шашек, нет ходов или он сдался. Просрочка времени обычно означает поражение.</p>
- <p>Ничья — троекратное повторение позиции с той же очередью хода, соглашение игроков или достижение установленного правилами счётчика ходов в окончании.</p>
- <p>В онлайне ничью предлагают после своего хода. Ответный ход означает отказ.</p>
- <p class="rules-limitations">Разбор окончаний, требующих решения судьи, пока недоступен.</p>
-</section>
-<section class="rules-section" aria-labelledby="rules-time">
- <h3 id="rules-time">Время</h3>
- <p><strong>3+2</strong> — 3 минуты каждому и 2 секунды за завершённый ход. Серия взятий — один ход.</p>
- <p>Поиск соперника — <strong>3+2</strong>. С компьютером и другом: <strong>1+1, 3+2 или 5+3</strong>.</p>
- <p>Отменять ход можно только против компьютера.</p>
-</section>
-<section class="rules-section" aria-labelledby="rules-platform">
- <h3 id="rules-platform">Условия сайта</h3>
  <ul>
-  <li>Повторение позиции и поддерживаемые счётные ничьи фиксируются автоматически. Судейского разбора пока нет.</li>
-  <li>Обрыв связи не останавливает часы. На возвращение — до 60 секунд; время может закончиться раньше. Невозвращение обычно означает поражение.</li>
-  <li>При одинаковом истёкшем сроке возвращения обоих игроков, если игровые часы ещё не истекли, фиксируется ничья.</li>
-  <li>При штатном перезапуске сервера часы сохраняются. Оба игрока должны вернуться за 60 секунд, иначе — без результата.</li>
-  <li>Если после сбоя сервера нельзя достоверно восстановить партию и время — без результата. Отмена до старта также не засчитывается.</li>
-  <li>Статистика учитывает только завершённые онлайн-партии с результатом. Игра с компьютером сохраняется только в личной истории.</li>
+  <li>Победа: у соперника нет шашек, нет допустимых ходов или он сдался.</li>
+  <li>Просрочка времени обычно означает поражение.</li>
+  <li>Ничья возможна по соглашению игроков.</li>
+  <li>Троекратное повторение позиции с той же очередью хода приводит к ничьей.</li>
+  <li>В некоторых окончаниях ничья определяется установленным правилами числом ходов.</li>
  </ul>
- <p class="rules-limitations">Это правила платформы, а не официальный турнирный регламент.</p>
 </section>
-<section class="rules-section" aria-labelledby="rules-rating">
- <h3 id="rules-rating">Рейтинг сайта</h3>
- <p>Личный рейтинг Glicko-2 учитывает результат и силу соперника в поиске <strong>3+2</strong>. Партии с другом и компьютером не учитываются.</p>
- <p>Рейтинг появится после первой завершённой партии через поиск соперника. Первые результаты и игры после долгого перерыва могут заметно менять оценку. Число может как вырасти, так и уменьшиться.</p>
- <p>Техническая отмена партии не меняет рейтинг. Общий счёт белых и чёрных — отдельный итог побед всех игроков в онлайне.</p>
- <p class="rules-limitations">Это рейтинг сайта, а не спортивный разряд и не часть официальных правил шашек.</p>
+<p class="rules-original"><a href="https://shashki.ru/download/2022/doc/FSHR_shashki_pravila_2022.doc" target="_blank" rel="noopener noreferrer" aria-label="Источник: Федерация шашек России. Документ Word, новая вкладка" title="Официальные правила, документ Word">Источник: ФШР</a></p>
+<section class="rules-platform" aria-labelledby="rules-platform">
+ <h3 id="rules-platform">Условия сайта</h3>
+ <p>Условия ниже относятся к сайту, а не к официальному турнирному регламенту.</p>
+ <details class="rules-detail">
+  <summary>Время и ходы</summary>
+  <ul>
+   <li><strong>3+2</strong> — 3 минуты каждому и 2 секунды за завершённый ход.</li>
+   <li>Серия взятий считается одним ходом.</li>
+   <li>Поиск соперника: <strong>3+2</strong>.</li>
+   <li>С компьютером и другом: <strong>1+1, 3+2 или 5+3</strong>.</li>
+   <li>Отмена хода доступна только против компьютера.</li>
+   <li>В онлайне ничью предлагают после своего хода. Ответный ход означает отказ.</li>
+   <li>Повторение позиции и поддерживаемые ничьи по числу ходов фиксируются автоматически.</li>
+   <li>Окончания, требующие решения судьи, не разбираются.</li>
+  </ul>
+ </details>
+ <details class="rules-detail">
+  <summary>Обрыв связи и сбои</summary>
+  <ul>
+   <li>Обрыв связи не останавливает часы.</li>
+   <li>На возвращение отводится до 60 секунд. Игровое время может закончиться раньше.</li>
+   <li>Если игрок не вернулся вовремя, обычно фиксируется поражение.</li>
+   <li>Если сроки возвращения обоих игроков истекли одновременно, а игровые часы ещё не истекли, фиксируется ничья.</li>
+   <li>При штатном перезапуске сервера часы сохраняются.</li>
+   <li>После перезапуска оба игрока должны вернуться за 60 секунд. Иначе партия завершается без результата.</li>
+   <li>Если после сбоя нельзя достоверно восстановить партию и время, результат не засчитывается.</li>
+   <li>Отмена партии до старта не засчитывается.</li>
+  </ul>
+ </details>
+ <details class="rules-detail">
+  <summary>Рейтинг и статистика</summary>
+  <ul>
+   <li>Рейтинг учитывает результат партии и силу соперника. Метод расчёта — Glicko-2.</li>
+   <li>Учитываются только партии через поиск соперника <strong>3+2</strong>.</li>
+   <li>Партии с другом и компьютером не меняют рейтинг.</li>
+   <li>Рейтинг появляется после первой завершённой рейтинговой партии.</li>
+   <li>Первые партии и партии после долгого перерыва могут сильнее менять рейтинг.</li>
+   <li>Рейтинг может повышаться и понижаться.</li>
+   <li>Техническая отмена партии не меняет рейтинг.</li>
+   <li>Рейтинг сайта не является спортивным разрядом.</li>
+   <li>Статистика учитывает завершённые онлайн-партии с результатом.</li>
+   <li>Счёт белых и чёрных — сумма побед всех игроков в онлайне.</li>
+   <li>Партии с компьютером сохраняются только в личной истории.</li>
+  </ul>
+ </details>
 </section>
 </section>
 <section id="profile-settings-pane" hidden aria-label="Настройки">
@@ -383,7 +425,7 @@ html:is([data-menu-presentation="loading"], [data-menu-presentation="error"]) #m
 </section>
   </div>
  </div>
- <footer class="menu-score-surface mh-footer"><button type="button" id="match-history-back" class="play-back">← В меню</button></footer>
+ <div class="menu-score-surface mh-footer" aria-hidden="true"></div>
  </div>
 </dialog>
 

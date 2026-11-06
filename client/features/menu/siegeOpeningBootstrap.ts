@@ -8,7 +8,7 @@ if (root) {
 	let presentationReady = false;
 	let playfieldReady = readPerf().marks['playfield-ready'] !== undefined;
 	const sync = () => {
-		if (!presentationReady || !playfieldReady) return;
+		if (!presentationReady) return;
 		if (root.hidden || root.inert || document.querySelector('dialog[open]')) {
 			dispose?.();
 			dispose = undefined;
@@ -19,6 +19,7 @@ if (root) {
 						window.checkersStartup?.playCommitted ||
 						window.checkersStartup?.pendingOnline,
 				),
+				() => playfieldReady,
 			);
 		}
 	};
