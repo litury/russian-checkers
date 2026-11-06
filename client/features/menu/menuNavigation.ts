@@ -16,7 +16,7 @@ import { siegeSide } from './siegeSelection';
 
 type Page = 'choose' | 'bot' | 'human' | 'friend' | 'enter' | 'room' | 'search';
 const titles: Record<Page, string> = {
-	choose: 'С кем играть?',
+	choose: 'Играть',
 	bot: 'С компьютером',
 	human: 'С человеком',
 	friend: 'С другом',
@@ -28,7 +28,11 @@ const root = requiredElement('opening');
 const dialog = requiredElement<HTMLDialogElement>('opening-modes-dialog');
 const start = requiredElement<HTMLButtonElement>('opening-start');
 const back = requiredElement<HTMLButtonElement>('opening-modes-back');
+const backLabel = requiredElement('opening-modes-back-label');
+const closeIcon = requiredElement('opening-modes-close-icon');
+const scroll = dialog.querySelector<HTMLElement>('.play-menu-scroll')!;
 const cancel = requiredElement<HTMLButtonElement>('opening-search-cancel');
+const cancelLabel = requiredElement('opening-search-cancel-label');
 const title = requiredElement('opening-modes-title');
 const input = requiredElement<HTMLInputElement>('opening-friend-code');
 const join = requiredElement<HTMLButtonElement>('opening-search-go');
@@ -130,29 +134,28 @@ function render(focus = true) {
 	requiredElement('opening-presence').hidden = page !== 'human';
 	const heading = page === 'search' ? searchCopy(phase).title : titles[page];
 	if (title.textContent !== heading) title.textContent = heading;
-	cancel.textContent =
-		phase === 'friend-joining'
+	cancelLabel.textContent =
+		page === 'room'
+			? 'Отменить приглашение'
+			: phase === 'friend-joining'
 			? 'Отменить подключение'
 			: isSearchFailure(phase)
-				? '← Назад'
+				? 'Назад'
 				: 'Отменить поиск';
-	back.hidden = page === 'search' && phase !== 'found';
-	cancel.hidden = page !== 'search' || phase === 'found';
-	back.textContent =
-		phase === 'found'
-			? 'Начинаем партию…'
-			: page === 'room'
-				? 'Отменить приглашение'
-				: page === 'choose'
-					? '← В меню'
-					: '← Назад';
+	back.hidden = page === 'search' || page === 'room' || phase === 'found';
+	cancel.hidden = (page !== 'search' && page !== 'room') || phase === 'found';
+	const menuEntry = page === 'choose';
+	closeIcon.hidden = !menuEntry;
+	backLabel.hidden = menuEntry;
+	back.classList.toggle('play-menu-dismiss', menuEntry);
+	back.setAttribute('aria-label', menuEntry ? 'Закрыть и вернуться в главное меню' : 'Назад');
 	syncSkill();
 	validateCode();
 	refreshBack();
 	root.dataset.menuPage = 'modes';
 	if (!dialog.open) dialog.showModal();
 	if (focus) {
-		dialog.scrollTop = 0;
+		scroll.scrollTop = 0;
 		title.focus({ preventScroll: true });
 	}
 }

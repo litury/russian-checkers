@@ -130,12 +130,14 @@ html:is([data-menu-presentation="loading"], [data-menu-presentation="error"]) #m
  </div>
 </main>
 <dialog id="opening-modes-dialog" aria-labelledby="opening-modes-title">
+ <div class="play-menu-panel">
  <div class="menu-choice-surface play-menu-body">
-  <header class="play-menu-header"><h2 id="opening-modes-title" tabindex="-1">С кем играть?</h2></header>
+  <header class="play-menu-header"><h2 id="opening-modes-title" tabindex="-1">Играть</h2><button id="opening-modes-back" class="metal-button secondary play-menu-dismiss" type="button" aria-label="Закрыть и вернуться в главное меню"><img id="opening-modes-close-icon" src="/client/features/menu/assets/close.svg" width="20" height="20" alt="" /><span id="opening-modes-back-label" hidden>Назад</span></button></header>
+  <div class="play-menu-scroll">
   <div id="opening-presence" hidden><p>Игроков на сайте: <output id="opening-site-count" aria-live="polite">Нет данных</output></p></div>
   <p id="opening-online-loading" class="play-note" role="status" hidden>Загружаем сетевой режим…</p>
   <section class="play-page action-list" data-play-page="choose">
-   <button id="opening-computer" class="metal-button primary" type="button">С компьютером</button>
+   <button id="opening-computer" class="metal-button secondary" type="button">С компьютером</button>
    <button id="opening-online" class="metal-button secondary" type="button"><span class="opening-cta-label">С человеком</span></button>
   </section>
   <section class="play-page" data-play-page="bot" hidden>
@@ -208,8 +210,10 @@ html:is([data-menu-presentation="loading"], [data-menu-presentation="error"]) #m
    <textarea id="startup-diagnostic-output" class="diagnostic-output" readonly hidden aria-label="Диагностика запуска"></textarea>
   </div>
   <p id="opening-mode-status" class="status" role="status" hidden></p>
+  </div>
  </div>
- <div class="menu-score-surface play-menu-footer"><button id="opening-modes-back" class="play-back" type="button">← Назад</button><button id="opening-search-cancel" class="play-back" type="button" hidden>Отменить поиск</button></div>
+ <div class="menu-score-surface play-menu-footer"><button id="opening-search-cancel" class="metal-button secondary" type="button" hidden><span id="opening-search-cancel-label">Отменить поиск</span></button></div>
+ </div>
 </dialog>
 <dialog id="match-history" aria-labelledby="match-history-title">
  <div class="mh-panel">
